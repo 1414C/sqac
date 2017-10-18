@@ -1,10 +1,7 @@
-package main_test
+package sqac_test
 
 import (
 	"bytes"
-	"crypto/rand"
-	"crypto/tls"
-	"crypto/x509"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -13,297 +10,79 @@ import (
 	"net/http"
 	"os"
 	"testing"
-	"time"
 
-	"github.com/gen_test2/appobj"
+	"github.com/1414C/sqac"
+
+	"github.com/jmoiron/sqlx"
+
 	"github.com/gen_test2/models"
 )
 
 // SessionData contains session management vars
 type SessionData struct {
-	jwtToken     string
-	client       *http.Client
-	log          bool
-	ID           uint
-	baseURL      string
-	testURL      string
-	testEndPoint string
-	userName     string
-	userID       uint
+	db  *sqlx.DB
+	log bool
 }
 
 var (
-	sessionData SessionData
-	certFile    = flag.String("cert", "mycert1.cer", "A PEM encoded certificate file.")
-	keyFile     = flag.String("key", "mycert1.key", "A PEM encoded private key file.")
-	caFile      = flag.String("CA", "myCA.cer", "A PEM encoded CA's certificate file.")
+	h *sqac.BaseFlavor
 )
 
-var a appobj.AppObj
+// var a appobj.AppObj
 
 func TestMain(m *testing.M) {
 
 	// parse flags
-	logFlag := flag.Bool("log", false, "extended log")
-	useHttpsFlag := flag.Bool("https", false, "true == use https")
-	portFlag := flag.String("port", "3000", "port to connect to")
+	dbFlag := flag.String("db", "pg", "db to connect to")
+	logFlag := flag.Bool("l", false, "activate sqac logging")
 	flag.Parse()
+
+	var err error
+	switch *dbFlag {
+	case "pg":
+		h = new(sqac.PostgresFlavor)
+
+	case "mysql":
+
+	case "sqlite":
+
+	case "db2":
+
+	default:
+
+	}
+	sessionData.db, err = sqlx.Connect("postgres", "host=127.0.0.1 user=godev dbname=sqlx sslmode=disable password=gogogo123")
+	// db, err := sqlx.Connect("sqlite3", "testdb.sqlite")
+	if err != nil {
+		log.Fatalf("%s\n", err.Error())
+	}
 
 	sessionData.log = *logFlag
 
-	// initialize client / transport
-	err := sessionData.initializeClient(*useHttpsFlag)
-	if err != nil {
-		log.Fatalf("%s\n", err.Error())
-	}
-
-	// build base url
-	err = sessionData.buildURL(*useHttpsFlag, *portFlag)
-	if err != nil {
-		log.Fatalf("%s\n", err.Error())
-	}
-
-	// create test user
-	err = sessionData.createUser()
-	if err != nil {
-		log.Fatalf("%s\n", err.Error())
-	}
-
-	// login / get jwt
-	err = sessionData.getJWT()
-	if err != nil {
-		log.Fatalf("%s\n", err.Error())
-	}
-
+	// run the tests
 	code := m.Run()
 
-	// delete test user
-	err = sessionData.deleteUser()
-	if err != nil {
-		log.Fatalf("%s\n", err.Error())
-	}
+	// cleanup
 
 	os.Exit(code)
-
-}
-
-// initialize client / transport
-func (sd *SessionData) initializeClient(useHttps bool) error {
-
-	// https
-	if useHttps {
-		// Load client cert
-		cert, err := tls.LoadX509KeyPair(*certFile, *keyFile)
-		if err != nil {
-			return err
-		}
-
-		// Load CA cert
-		caCert, err := ioutil.ReadFile(*caFile)
-		if err != nil {
-			return err
-		}
-		caCertPool := x509.NewCertPool()
-		caCertPool.AppendCertsFromPEM(caCert)
-
-		// Setup HTTPS client
-		tlsConfig := &tls.Config{
-			Certificates: []tls.Certificate{cert},
-			RootCAs:      caCertPool,
-		}
-		tlsConfig.BuildNameToCertificate()
-		transport := &http.Transport{TLSClientConfig: tlsConfig}
-		sd.client = &http.Client{Transport: transport,
-			Timeout: time.Second * 10,
-		}
-	}
-	// http
-	sd.client = &http.Client{
-		Timeout: time.Second * 10,
-	}
-	return nil
-}
-
-// buildURL builds a url based on flag parameters
-//
-// internal
-func (sd *SessionData) buildURL(useHttps bool, port string) error {
-
-	sd.baseURL = "http"
-	if useHttps {
-		sd.baseURL = sd.baseURL + "s"
-	}
-	sd.baseURL = sd.baseURL + "://localhost:" + port
-	return nil
-}
-
-// createUser creates a test user for the application
-//
-// POST - /user
-func (sd *SessionData) createUser() error {
-
-	url := sd.baseURL + "/user"
-
-	// create unique user name
-	b := make([]byte, 16)
-	_, err := rand.Read(b)
-	if err != nil {
-		return err
-	}
-	sessionData.userName = fmt.Sprintf("%X%X%X%X%X", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
-	jsonStr := fmt.Sprintf("{\"email\":\"%s@1414c.io\",\"password\":\"woofwoof\"}", sessionData.userName)
-
-	// var jsonBody = []byte(`{"email":"testuser123@1414c.io", "password":"woofwoof"}`)
-	var jsonBody = []byte(jsonStr)
-	fmt.Println("creating user:", string(jsonBody))
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
-	req.Close = true
-	req.Header.Set("Content-Type", "application/json")
-	if sd.log {
-		fmt.Println("POST request Headers:", req.Header)
-	}
-
-	resp, err := sd.client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	var user models.User
-	decoder := json.NewDecoder(resp.Body)
-	if err := decoder.Decode(&user); err != nil {
-		return err
-	}
-
-	sessionData.userID = user.ID
-
-	if sd.log {
-		fmt.Println("response Status:", resp.Status)
-		fmt.Println("response Headers:", resp.Header)
-		body, _ := ioutil.ReadAll(resp.Body)
-		fmt.Println("response Body:", string(body))
-	}
-	return nil
-}
-
-// deleteUser deletes the test user
-//
-// DELETE - /user/:id
-func (sd *SessionData) deleteUser() error {
-
-	idStr := fmt.Sprint(sessionData.userID)
-	// url := "https://localhost:8080/user/" + idStr
-	fmt.Println("deleting user:", sessionData.userName, sessionData.userID)
-	url := sessionData.baseURL + "/user/" + idStr
-	var jsonBody = []byte(`{}`)
-	req, err := http.NewRequest("DELETE", url, bytes.NewBuffer(jsonBody))
-	req.Close = true
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+sessionData.jwtToken)
-
-	if sessionData.log {
-		fmt.Println("sessionData.ID:", string(sessionData.ID))
-		fmt.Println("DELETE URL:", url)
-		fmt.Println("DELETE request Headers:", req.Header)
-	}
-
-	resp, err := sessionData.client.Do(req)
-	if err != nil {
-		fmt.Printf("Test was unable to DELETE /user/%d. Got %s.\n", sessionData.userID, err.Error())
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusAccepted {
-		fmt.Printf("DELETE /user{:id} expected http status code of 201 - got %d", resp.StatusCode)
-		return err
-	}
-	return nil
-}
-
-// getJWT authenticates and get JWT
-//
-// POST - /user/login
-func (sd *SessionData) getJWT() error {
-
-	type jwtResponse struct {
-		Token string `json:"token"`
-	}
-
-	// url := "https://localhost:8080/user/login"
-	url := sessionData.baseURL + "/user/login"
-	// var jsonStr = []byte(`{"email":"bunnybear10@1414c.io", "password":"woofwoof"}`)
-	jsonStr := fmt.Sprintf("{\"email\":\"%s@1414c.io\",\"password\":\"woofwoof\"}", sessionData.userName)
-	fmt.Println("using user:", jsonStr)
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(jsonStr)))
-	req.Close = true
-	req.Header.Set("Content-Type", "application/json")
-	if sd.log {
-		fmt.Println("POST request Headers:", req.Header)
-	}
-
-	resp, err := sd.client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	var j jwtResponse
-	decoder := json.NewDecoder(resp.Body)
-	if err := decoder.Decode(&j); err != nil {
-		return err
-	}
-
-	sd.jwtToken = j.Token
-
-	if sd.log {
-		fmt.Println("response Status:", resp.Status)
-		fmt.Println("response Headers:", resp.Header)
-		body, _ := ioutil.ReadAll(resp.Body)
-		fmt.Println("response Body:", string(body))
-	}
-	return nil
-}
-
-// testSelectableField is used to test the endpoint access to an entity field
-// that has been marked as Selectable in the model file.  access will be tested
-// for each of the supported operations via multiple calls to this method.
-// The selection data provided in the end-point string is representitive of
-// the field data-type only, and it is not expected that the string or
-// number types will return a data payload in the response body.  Consequently,
-// only the http status code in the response is examined.
-//
-// GET - sd.testURL
-func (sd *SessionData) testSelectableField(t *testing.T) {
-
-	var jsonStr = []byte(`{}`)
-	req, _ := http.NewRequest("GET", sd.testURL, bytes.NewBuffer(jsonStr))
-	req.Close = true
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+sessionData.jwtToken)
-
-	if sessionData.log {
-		fmt.Println("GET URL:", sd.testURL)
-		fmt.Println("GET request Headers:", req.Header)
-	}
-
-	resp, err := sessionData.client.Do(req)
-	if err != nil {
-		t.Errorf("Test was unable to GET %s. Got %s.\n", sd.testEndPoint, err.Error())
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		t.Errorf("GET %s expected http status code of 200 - got %d", sd.testEndPoint, resp.StatusCode)
-	}
 }
 
 // TestGetAccountHolders attempts to read all accountholders from the db
 //
 // GET /accountholders
-func TestGetAccountHolders(t *testing.T) {
+func TestCreateTables(t *testing.T) {
 
 	// url := "https://localhost:8080/accountholders"
+	switch sessionData.db.DriverName() {
+	case "postgres":
+
+	case "mysql":
+
+	case "sqlite":
+
+	default:
+
+	}
 	url := sessionData.baseURL + "/accountholders"
 	jsonStr := []byte(`{}`)
 	req, err := http.NewRequest("GET", url, bytes.NewBuffer(jsonStr))

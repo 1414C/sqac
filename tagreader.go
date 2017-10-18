@@ -1,10 +1,11 @@
-package dbgen
+package sqac
 
 import (
 	"fmt"
-	"github.com/1414C/sqlxtest/dbgen/common"
 	"reflect"
 	"strings"
+
+	"github.com/1414C/sqlxtest/dbgen/common"
 )
 
 // RgenPair holds name-value-pairs for db field attributes
