@@ -37,6 +37,14 @@ type PostgresFlavor struct {
 	// ExistsSequence(sn string) bool
 }
 
+// func (bf *BaseFlavor) InBase() {
+// 	fmt.Println("InBase() called")
+// }
+
+func (pf *PostgresFlavor) InDB() {
+	fmt.Println("InDB called in PGF")
+}
+
 // CreateTables creates tables on the postgres database referenced
 // by pf.DB.
 func (pf *PostgresFlavor) CreateTables(i ...interface{}) error {
@@ -526,14 +534,6 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 		}
 	}
 	return nil
-}
-
-// DestructiveResetTables drops and recreates the specified
-// tables on the connected db.
-func (pf *PostgresFlavor) DestructiveResetTables(i ...interface{}) {
-
-	pf.DropTables(i...)
-	pf.CreateTables(i...)
 }
 
 // ExistsTable checks the public schema of the connected Postgres

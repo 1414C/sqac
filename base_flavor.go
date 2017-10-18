@@ -39,6 +39,8 @@ type TblComponents struct {
 
 // PublicDB exposes functions for db schema operations
 type PublicDB interface {
+	InBase()
+	InDB()
 
 	// postgres, sqlite, mariadb, db2, hana etc.
 	GetDBDriverName() string
@@ -56,12 +58,12 @@ type PublicDB interface {
 	ExistsColumn(tn string, cn string) bool
 
 	// tn=tableName, in=indexName
-	CreateIndex(index IndexInfo) error
+	CreateIndex(in string, index IndexInfo) error
 	DropIndex(in string) error
 	ExistsIndex(tn string, in string) bool
 
 	// sn=sequenceName, start=start-value
-	CreateSequence(sn string, start int) error
+	CreateSequence(sn string, start int)
 	AlterSequenceStart(sn string, start int) error
 	// select pg_get_serial_sequence('public.some_table', 'some_column');
 	DropSequence(sn string) error
@@ -81,11 +83,22 @@ type PublicDB interface {
 	ExecuteQueryx(queryString string, qParams ...interface{}) (*sqlx.Rows, error)
 }
 
+// ensure consistency of interface implementation
+var _ PublicDB = &BaseFlavor{}
+
 // BaseFlavor is a supporting struct for interface PublicDB
 type BaseFlavor struct {
 	DB  *sqlx.DB
 	Log bool
 	PublicDB
+}
+
+func (bf *BaseFlavor) InBase() {
+	fmt.Println("InBase() called in BF")
+}
+
+func (bf *BaseFlavor) InDB() {
+	fmt.Println("InDB called in BF")
 }
 
 // GetDBDriverName returns the name of the driver associcated
@@ -132,6 +145,14 @@ func (bf *BaseFlavor) AlterTables(i ...interface{}) error {
 // number-range used by an auto-incementing primary key.
 func (bf *BaseFlavor) DestructiveResetTables(i ...interface{}) error {
 
+	err := bf.DropTables(i...)
+	if err != nil {
+		return err
+	}
+	err = bf.CreateTables(i...)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -156,7 +177,7 @@ func (bf *BaseFlavor) ExistsColumn(tn string, cn string) bool {
 // by default, and in multi-field situations, the fields will
 // added to the index in the order they are contained in the
 // IndexInfo.[]IndexFields slice.
-func (bf *BaseFlavor) CreateIndex(indexName string, index IndexInfo) error {
+func (bf *BaseFlavor) CreateIndex(in string, index IndexInfo) error {
 
 	// CREATE INDEX idx_material_num_int_example ON `equipment`(material_num, int_example)
 	fList := ""
@@ -164,7 +185,7 @@ func (bf *BaseFlavor) CreateIndex(indexName string, index IndexInfo) error {
 
 	if len(index.IndexFields) == 1 {
 		fList = index.IndexFields[0]
-		indexName = "idx_" + fList
+		in = "idx_" + fList
 	} else {
 		for _, f := range index.IndexFields {
 			fList = fmt.Sprintf("%s %s,", fList, f)
@@ -173,9 +194,9 @@ func (bf *BaseFlavor) CreateIndex(indexName string, index IndexInfo) error {
 	}
 
 	if !index.Unique {
-		indexSchema = fmt.Sprintf("CREATE INDEX %s ON %s (%s)", indexName, index.TableName, fList)
+		indexSchema = fmt.Sprintf("CREATE INDEX %s ON %s (%s)", in, index.TableName, fList)
 	} else {
-		indexSchema = fmt.Sprintf("CREATE UNIQUE INDEX %s ON %s (%s)", indexName, index.TableName, fList)
+		indexSchema = fmt.Sprintf("CREATE UNIQUE INDEX %s ON %s (%s)", in, index.TableName, fList)
 	}
 	bf.ProcessSchema(indexSchema)
 	return nil
@@ -198,9 +219,9 @@ func (bf *BaseFlavor) ExistsIndex(tn string, in string) bool {
 
 // CreateSequence may be used to create a new sequence on the
 // currently connected database.
-func (bf *BaseFlavor) CreateSequence(sn string, start int) error {
+func (bf *BaseFlavor) CreateSequence(sn string, start int) {
 
-	return nil
+	return
 }
 
 // AlterSequenceStart may be used to make changes to the start
@@ -255,10 +276,10 @@ func (bf *BaseFlavor) ProcessSchema(schema string) {
 // ProcessSchemaList processes the schemas contained in sList
 // in the order in which they were provided.  Schemas are
 // executed against the connected DB.
-func (bf *BaseFlavor) ProcessSchemaList(sList []string) error {
+func (bf *BaseFlavor) ProcessSchemaList(sList []string) {
 
 	// bf.DB.MustExec(query string, args ...interface{})
-	return nil
+	return
 }
 
 //===============================================================================
