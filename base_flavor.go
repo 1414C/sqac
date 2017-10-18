@@ -81,6 +81,12 @@ type PublicDB interface {
 	ExecuteQuery(queryString string, qParams ...interface{}) (*sql.Rows, error)
 	ExecuteQueryRowx(queryString string, qParams ...interface{}) *sqlx.Row
 	ExecuteQueryx(queryString string, qParams ...interface{}) (*sqlx.Rows, error)
+
+	Log(b bool)
+	IsLog() bool
+
+	SetDB(db *sqlx.DB)
+	GetDB() *sqlx.DB
 }
 
 // ensure consistency of interface implementation
@@ -88,9 +94,36 @@ var _ PublicDB = &BaseFlavor{}
 
 // BaseFlavor is a supporting struct for interface PublicDB
 type BaseFlavor struct {
-	DB  *sqlx.DB
-	Log bool
+	db  *sqlx.DB
+	log bool
 	PublicDB
+}
+
+// Log sets the logging status
+func (bf *BaseFlavor) Log(b bool) {
+	bf.log = b
+}
+
+// IsLog reports whether logging is active
+func (bf *BaseFlavor) IsLog() bool {
+	return bf.log
+}
+
+// SetDB sets the sqlx.DB connection in the
+// db-flavor environment.
+func (bf *BaseFlavor) SetDB(db *sqlx.DB) {
+	bf.db = db
+}
+
+// GetDB returns a *sqlx.DB pointer if one has
+// been set in the db-flavor environment.
+func (bf *BaseFlavor) GetDB() *sqlx.DB {
+	return bf.db
+}
+
+// GetDBDriverName returns the name of the current db-driver
+func (bf *BaseFlavor) GetDBDriverName() string {
+	return bf.db.DriverName()
 }
 
 func (bf *BaseFlavor) InBase() {
@@ -99,13 +132,6 @@ func (bf *BaseFlavor) InBase() {
 
 func (bf *BaseFlavor) InDB() {
 	fmt.Println("InDB called in BF")
-}
-
-// GetDBDriverName returns the name of the driver associcated
-// with the currently connected database.
-func (bf *BaseFlavor) GetDBDriverName() string {
-
-	return "footle"
 }
 
 // GetRelations is designed to take a tablename and use it
@@ -256,10 +282,10 @@ func (bf *BaseFlavor) ProcessSchema(schema string) {
 
 	// MustExec panics on error, so just call it
 	// bf.DB.MustExec(schema)
-	if bf.Log {
+	if bf.log {
 		fmt.Println(schema)
 	}
-	result, err := bf.DB.Exec(schema)
+	result, err := bf.db.Exec(schema)
 	if err != nil {
 		fmt.Println("err:", err)
 	}
@@ -267,7 +293,7 @@ func (bf *BaseFlavor) ProcessSchema(schema string) {
 	if err != nil {
 		fmt.Println("err:", err)
 	} else {
-		if bf.Log {
+		if bf.log {
 			fmt.Printf("%d rows affected.\n", ra)
 		}
 	}
@@ -290,8 +316,8 @@ func (bf *BaseFlavor) ProcessSchemaList(sList []string) {
 // against the connected DB using sql/database.
 func (bf *BaseFlavor) ExecuteQueryRow(queryString string, qParams ...interface{}) *sql.Row {
 
-	queryString = bf.DB.Rebind(queryString)
-	row := bf.DB.QueryRow(queryString, qParams)
+	queryString = bf.db.Rebind(queryString)
+	row := bf.db.QueryRow(queryString, qParams)
 	return row
 }
 
@@ -299,8 +325,8 @@ func (bf *BaseFlavor) ExecuteQueryRow(queryString string, qParams ...interface{}
 // against the connected DB using sql/database.
 func (bf *BaseFlavor) ExecuteQuery(queryString string, qParams ...interface{}) (*sql.Rows, error) {
 
-	queryString = bf.DB.Rebind(queryString)
-	rows, err := bf.DB.Query(queryString, qParams)
+	queryString = bf.db.Rebind(queryString)
+	rows, err := bf.db.Query(queryString, qParams)
 	if err != nil {
 		return nil, err
 	}
@@ -311,8 +337,8 @@ func (bf *BaseFlavor) ExecuteQuery(queryString string, qParams ...interface{}) (
 // against the connected DB using sqlx.
 func (bf *BaseFlavor) ExecuteQueryRowx(queryString string, qParams ...interface{}) *sqlx.Row {
 
-	queryString = bf.DB.Rebind(queryString)
-	row := bf.DB.QueryRowx(queryString, qParams)
+	queryString = bf.db.Rebind(queryString)
+	row := bf.db.QueryRowx(queryString, qParams)
 	return row
 }
 
@@ -320,8 +346,8 @@ func (bf *BaseFlavor) ExecuteQueryRowx(queryString string, qParams ...interface{
 // against the connected DB using sqlx.
 func (bf *BaseFlavor) ExecuteQueryx(queryString string, qParams ...interface{}) (*sqlx.Rows, error) {
 
-	queryString = bf.DB.Rebind(queryString)
-	rows, err := bf.DB.Queryx(queryString, qParams)
+	queryString = bf.db.Rebind(queryString)
+	rows, err := bf.db.Queryx(queryString, qParams)
 	if err != nil {
 		return nil, err
 	}

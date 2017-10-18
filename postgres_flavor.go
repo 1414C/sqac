@@ -52,7 +52,7 @@ func (pf *PostgresFlavor) CreateTables(i ...interface{}) error {
 	for t, ent := range i {
 
 		ftr := reflect.TypeOf(ent)
-		if pf.Log {
+		if pf.log {
 			fmt.Println("CreateTable() entity type:", ftr)
 		}
 
@@ -71,14 +71,14 @@ func (pf *PostgresFlavor) CreateTables(i ...interface{}) error {
 		// if the table is found to exist, skip the creation
 		// and move on to the next table in the list.
 		if pf.ExistsTable(tn) {
-			if pf.Log {
+			if pf.log {
 				fmt.Printf("CreateTable - table %s exists - skipping...\n", tn)
 			}
 			continue
 		}
 
 		tc := pf.buildTablSchema(tn, i[t])
-		if pf.Log {
+		if pf.log {
 			fmt.Println("====================================================================")
 			fmt.Println("TABLE SCHEMA:", tc.tblSchema)
 			fmt.Println()
@@ -104,7 +104,7 @@ func (pf *PostgresFlavor) CreateTables(i ...interface{}) error {
 			fmt.Println("====================================================================")
 		}
 
-		pf.DB.MustExec(tc.tblSchema)
+		pf.db.MustExec(tc.tblSchema)
 		for _, sq := range tc.seq {
 			start, _ := strconv.Atoi(sq.Value)
 			pf.AlterSequenceStart(sq.Name, start)
@@ -414,7 +414,7 @@ func (pf *PostgresFlavor) DropTables(i ...interface{}) error {
 		// if the table is found to exist, skip the creation
 		// and move on to the next table in the list.
 		if pf.ExistsTable(tn) {
-			if pf.Log {
+			if pf.log {
 				fmt.Printf("table %s exists - adding to drop schema...\n", tn)
 			}
 			dropSchema = dropSchema + fmt.Sprintf("DROP TABLE IF EXISTS %s;", tn)
@@ -432,8 +432,7 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 
 	for t, ent := range i {
 
-		ftr := reflect.TypeOf(ent)
-		fmt.Println("entity type:", ftr)
+		// ftr := reflect.TypeOf(ent)
 
 		// determine the table name
 		tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
@@ -451,14 +450,13 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 		// if the table does exist, examine it and perform
 		// alterations if neccessary
 		if !pf.ExistsTable(tn) {
-			fmt.Printf("table %s not found - creating...\n", tn)
 			pf.CreateTables(ent)
 			continue
 		}
 
 		// build the altered table schema and get its components
 		tc := pf.buildTablSchema(tn, i[t])
-		if pf.Log {
+		if pf.log {
 			fmt.Println("====================================================================")
 			fmt.Println("TABLE SCHEMA:", tc.tblSchema)
 			fmt.Println()
@@ -484,7 +482,6 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 			fmt.Println("====================================================================")
 		}
 
-		fmt.Println()
 		// go through the latest version of the model and check each
 		// field against its definition in the database.
 		alterSchema := fmt.Sprintf("ALTER TABLE IF EXISTS %s", tn)
@@ -544,7 +541,7 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 func (pf *PostgresFlavor) ExistsTable(tn string) bool {
 
 	reqQuery := fmt.Sprintf("SELECT to_regclass('public.%s');", tn)
-	fetch, err := pf.DB.Query(reqQuery)
+	fetch, err := pf.db.Query(reqQuery)
 	if err != nil {
 		panic(err)
 	}
@@ -571,7 +568,7 @@ func (pf *PostgresFlavor) ExistsTable(tn string) bool {
 func (pf *PostgresFlavor) ExistsColumn(tn string, cn string) bool {
 
 	n := 0
-	row := pf.DB.QueryRow("SELECT count(*) FROM INFORMATION_SCHEMA.columns WHERE table_name = $1 AND column_name = $2 AND table_schema = CURRENT_SCHEMA()", tn, cn)
+	row := pf.db.QueryRow("SELECT count(*) FROM INFORMATION_SCHEMA.columns WHERE table_name = $1 AND column_name = $2 AND table_schema = CURRENT_SCHEMA()", tn, cn)
 	if row != nil {
 		row.Scan(&n)
 		if n > 0 {
@@ -587,7 +584,7 @@ func (pf *PostgresFlavor) ExistsColumn(tn string, cn string) bool {
 func (pf *PostgresFlavor) ExistsIndex(tn string, in string) bool {
 
 	n := 0
-	row := pf.DB.QueryRow("SELECT count(*) FROM pg_indexes WHERE tablename = $1 AND indexname = $2 AND schemaname = CURRENT_SCHEMA()", tn, in)
+	row := pf.db.QueryRow("SELECT count(*) FROM pg_indexes WHERE tablename = $1 AND indexname = $2 AND schemaname = CURRENT_SCHEMA()", tn, in)
 	if row != nil {
 		row.Scan(&n)
 		if n > 0 {
@@ -604,7 +601,7 @@ func (pf *PostgresFlavor) ExistsSequence(sn string) bool {
 	var params []interface{}
 	reqQuery := fmt.Sprintf("SELECT relname FROM pg_class WHERE relkind = 'S' AND relname::name = $1")
 	params = append(params, sn)
-	fetch, err := pf.DB.Query(reqQuery, params...)
+	fetch, err := pf.db.Query(reqQuery, params...)
 	if err != nil {
 		panic(err)
 	}
