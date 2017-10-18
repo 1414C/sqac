@@ -1,4 +1,4 @@
-package dbgen
+package sqac
 
 import (
 	"database/sql"
