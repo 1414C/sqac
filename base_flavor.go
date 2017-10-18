@@ -3,10 +3,9 @@ package sqac
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
-	// "reflect"
-	"strings"
 )
 
 // IndexInfo contains index definitions as read from the rgen:"index" tags
