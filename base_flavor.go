@@ -43,7 +43,7 @@ type PublicDB interface {
 	// postgres, sqlite, mariadb, db2, hana etc.
 	GetDBDriverName() string
 
-	GetRelations(i interface{}) []string
+	GetRelations(tn string) []string
 
 	// i=db/rgen tagged go struct-type
 	CreateTables(i ...interface{}) error
@@ -63,7 +63,6 @@ type PublicDB interface {
 	// sn=sequenceName, start=start-value
 	CreateSequence(sn string, start int) error
 	AlterSequenceStart(sn string, start int) error
-	// BuildSequenceName(...) error
 	// select pg_get_serial_sequence('public.some_table', 'some_column');
 	DropSequence(sn string) error
 	ExistsSequence(sn string) bool
@@ -78,7 +77,7 @@ type PublicDB interface {
 
 	ExecuteQueryRow(queryString string, qParams ...interface{}) *sql.Row
 	ExecuteQuery(queryString string, qParams ...interface{}) (*sql.Rows, error)
-	ExecuteRowQueryx(queryString string, qParams ...interface{}) *sqlx.Row
+	ExecuteQueryRowx(queryString string, qParams ...interface{}) *sqlx.Row
 	ExecuteQueryx(queryString string, qParams ...interface{}) (*sqlx.Rows, error)
 }
 
@@ -87,6 +86,22 @@ type BaseFlavor struct {
 	DB  *sqlx.DB
 	Log bool
 	PublicDB
+}
+
+// GetDBDriverName returns the name of the driver associcated
+// with the currently connected database.
+func (bf *BaseFlavor) GetDBDriverName() string {
+
+	return "footle"
+}
+
+// GetRelations is designed to take a tablename and use it
+// to determine a list of related objects.  this is just an
+// idea, and the functionality will reqiure more than the
+// return of a []string.
+func (bf *BaseFlavor) GetRelations(tn string) []string {
+
+	return nil
 }
 
 // CreateTables creates tables on the db based on
@@ -104,21 +119,116 @@ func (bf *BaseFlavor) DropTables(i ...interface{}) error {
 	return nil
 }
 
-// DropTablesAndRelations drops tables on the db if they exist,
-// as well as any related objects such as sequences.  this is
-// useful if you wish to regenerated your table and the
-// number-range used by an auto-incementing primary key.
-func (bf *BaseFlavor) DropTablesAndRelations(i ...interface{}) error {
-
-	return nil
-}
-
 // AlterTables alters tables on the db based on
 // the provided list of go struct definitions.
 func (bf *BaseFlavor) AlterTables(i ...interface{}) error {
 
 	return nil
 }
+
+// DestructiveResetTables drops tables on the db if they exist,
+// as well as any related objects such as sequences.  this is
+// useful if you wish to regenerated your table and the
+// number-range used by an auto-incementing primary key.
+func (bf *BaseFlavor) DestructiveResetTables(i ...interface{}) error {
+
+	return nil
+}
+
+// ExistsTable checks the currently connected database and
+// returns true if the named table is found to exist.
+func (bf *BaseFlavor) ExistsTable(tn string) bool {
+
+	return false
+}
+
+// ExistsColumn checks the currently connected database and
+// returns true if the named table-column is found to exist.
+// this checks the column name only, not the column data-type
+// or properties.
+func (bf *BaseFlavor) ExistsColumn(tn string, cn string) bool {
+
+	return true
+}
+
+// CreateIndex creates the index contained in the incoming
+// IndexInfo structure.  indexes will be created as non-unique
+// by default, and in multi-field situations, the fields will
+// added to the index in the order they are contained in the
+// IndexInfo.[]IndexFields slice.
+func (bf *BaseFlavor) CreateIndex(indexName string, index IndexInfo) error {
+
+	// CREATE INDEX idx_material_num_int_example ON `equipment`(material_num, int_example)
+	fList := ""
+	indexSchema := ""
+
+	if len(index.IndexFields) == 1 {
+		fList = index.IndexFields[0]
+		indexName = "idx_" + fList
+	} else {
+		for _, f := range index.IndexFields {
+			fList = fmt.Sprintf("%s %s,", fList, f)
+		}
+		fList = strings.TrimSuffix(fList, ",")
+	}
+
+	if !index.Unique {
+		indexSchema = fmt.Sprintf("CREATE INDEX %s ON %s (%s)", indexName, index.TableName, fList)
+	} else {
+		indexSchema = fmt.Sprintf("CREATE UNIQUE INDEX %s ON %s (%s)", indexName, index.TableName, fList)
+	}
+	bf.ProcessSchema(indexSchema)
+	return nil
+}
+
+// DropIndex drops the specfied index on the connected database.
+func (bf *BaseFlavor) DropIndex(in string) error {
+
+	indexSchema := fmt.Sprintf("DROP INDEX IF EXISTS %s;", in)
+	bf.ProcessSchema(indexSchema)
+	return nil
+}
+
+// ExistsIndex checks the connected database for the presence
+// of the specified index.
+func (bf *BaseFlavor) ExistsIndex(tn string, in string) bool {
+
+	return false
+}
+
+// CreateSequence may be used to create a new sequence on the
+// currently connected database.
+func (bf *BaseFlavor) CreateSequence(sn string, start int) error {
+
+	return nil
+}
+
+// AlterSequenceStart may be used to make changes to the start
+// value of the named sequence on the currently connected database.
+func (bf *BaseFlavor) AlterSequenceStart(sn string, start int) error {
+
+	return nil
+}
+
+// DropSequence may be used to drop the named sequence on the currently
+// connected database.  This is probably not needed, as we are now
+// creating sequences on postgres in a more correct manner.
+// select pg_get_serial_sequence('public.some_table', 'some_column');
+func (bf *BaseFlavor) DropSequence(sn string) error {
+
+	return nil
+}
+
+// ExistsSequence checks for the presence of the named sequence on
+// the currently connected database.
+func (bf *BaseFlavor) ExistsSequence(sn string) bool {
+
+	return false
+}
+
+//===============================================================================
+// SQL Schema Processing
+//===============================================================================
 
 // ProcessSchema processes the schema against the connected DB.
 func (bf *BaseFlavor) ProcessSchema(schema string) {
@@ -150,6 +260,10 @@ func (bf *BaseFlavor) ProcessSchemaList(sList []string) error {
 	// bf.DB.MustExec(query string, args ...interface{})
 	return nil
 }
+
+//===============================================================================
+// SQL Query Processing
+//===============================================================================
 
 // ExecuteQueryRow processes the single-row query contained in queryString
 // against the connected DB using sql/database.
@@ -191,58 +305,6 @@ func (bf *BaseFlavor) ExecuteQueryx(queryString string, qParams ...interface{}) 
 		return nil, err
 	}
 	return rows, nil
-}
-
-// ExistsSequence checks the backend-db for the presence of
-// the named sequence.
-func (bf *BaseFlavor) ExistsSequence(sn string) bool {
-
-	return false
-}
-
-// CreateIndex creates the index contained in the incoming
-// IndexInfo structure.  indexes will be created as non-unique
-// by default, and in multi-field situations, the fields will
-// added to the index in the order they are contained in the
-// IndexInfo.[]IndexFields slice.
-func (bf *BaseFlavor) CreateIndex(indexName string, index IndexInfo) error {
-
-	// CREATE INDEX idx_material_num_int_example ON `equipment`(material_num, int_example)
-	fList := ""
-	indexSchema := ""
-
-	if len(index.IndexFields) == 1 {
-		fList = index.IndexFields[0]
-		indexName = "idx_" + fList
-	} else {
-		for _, f := range index.IndexFields {
-			fList = fmt.Sprintf("%s %s,", fList, f)
-		}
-		fList = strings.TrimSuffix(fList, ",")
-	}
-
-	if !index.Unique {
-		indexSchema = fmt.Sprintf("CREATE INDEX %s ON %s (%s)", indexName, index.TableName, fList)
-	} else {
-		indexSchema = fmt.Sprintf("CREATE UNIQUE INDEX %s ON %s (%s)", indexName, index.TableName, fList)
-	}
-	bf.ProcessSchema(indexSchema)
-	return nil
-}
-
-// DropIndex drops the specfied index on the connected database
-func (bf *BaseFlavor) DropIndex(in string) error {
-
-	indexSchema := fmt.Sprintf("DROP INDEX IF EXISTS %s;", in)
-	bf.ProcessSchema(indexSchema)
-	return nil
-}
-
-// ExistsIndex checks the connected database for the presence
-// of the specified index.
-func (bf *BaseFlavor) ExistsIndex(tn string, in string) bool {
-
-	return false
 }
 
 // processIndexTag is used to create or add to an entry in the working indexes map that is
