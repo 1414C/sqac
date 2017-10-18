@@ -4,13 +4,13 @@ import (
 	"flag"
 	"fmt"
 	"github.com/1414C/sqac"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
+	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"os"
 	"testing"
-	// "github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 // // SessionData contains session management vars
@@ -35,14 +35,11 @@ func TestMain(m *testing.M) {
 	// logFlag := flag.Bool("l", false, "activate sqac logging")
 	flag.Parse()
 
+	var err error
+
 	// var err error
 	switch *dbFlag {
 	case "pg":
-		// hndl := &sqac.PostgresFlavor{
-		// 	DB: nil,
-		// 	// Log: true,
-		// }
-		var err error
 		dbAccess.Hndl = new(sqac.PostgresFlavor)
 		dbAccess.Log = true
 		dbAccess.DB, err = sqlx.Connect("postgres", "host=127.0.0.1 user=godev dbname=sqlx sslmode=disable password=gogogo123")
@@ -53,11 +50,20 @@ func TestMain(m *testing.M) {
 		// dbAccess.Hndl.InDB()
 
 	case "mysql":
-		// hndl := new(sqac.MySQLFlavor)
-		// hndl.InBase()
-		// hndl.InDB()
+		dbAccess.Hndl = new(sqac.MySQLFlavor)
+		dbAccess.Log = true
+		dbAccess.DB, err = sqlx.Connect("mysql", "stevem:gogogo123@tcp(192.168.1.50:3306)/jsonddl?charset=utf8&parseTime=True&loc=Local")
+		if err != nil {
+			log.Fatalf("%s\n", err.Error())
+		}
 
 	case "sqlite":
+		dbAccess.Hndl = new(sqac.MySQLFlavor)
+		dbAccess.Log = true
+		dbAccess.DB, err = sqlx.Connect("sqlite3", "testdb.sqlite")
+		if err != nil {
+			log.Fatalf("%s\n", err.Error())
+		}
 
 	case "db2":
 
