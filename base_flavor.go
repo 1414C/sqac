@@ -3,6 +3,7 @@ package sqac
 import (
 	"database/sql"
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
@@ -81,6 +82,8 @@ type PublicDB interface {
 	ExecuteQueryRowx(queryString string, qParams ...interface{}) *sqlx.Row
 	ExecuteQueryx(queryString string, qParams ...interface{}) (*sqlx.Rows, error)
 
+	Select(dst interface{}, queryString string, args ...interface{}) error
+
 	Log(b bool)
 	IsLog() bool
 
@@ -154,6 +157,35 @@ func (bf *BaseFlavor) CreateTables(i ...interface{}) error {
 // the provided list of go struct definitions.
 func (bf *BaseFlavor) DropTables(i ...interface{}) error {
 
+	dropSchema := ""
+	fmt.Println("in bf.DropTables")
+	for t := range i {
+
+		// determine the table name
+		tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
+		if strings.Contains(tn, ".") {
+			el := strings.Split(tn, ".")
+			tn = strings.ToLower(el[len(el)-1])
+		} else {
+			tn = strings.ToLower(tn)
+		}
+		if tn == "" {
+			return fmt.Errorf("unable to determine table name in pf.DropTables")
+		}
+
+		// if the table is found to exist, add a DROP statement
+		// to the dropSchema string and move on to the next
+		// table in the list.
+		if bf.ExistsTable(tn) {
+			if bf.log {
+				fmt.Printf("table %s exists - adding to drop schema...\n", tn)
+			}
+			dropSchema = dropSchema + fmt.Sprintf("DROP TABLE IF EXISTS %s;", tn)
+		}
+	}
+	if dropSchema != "" {
+		bf.ProcessSchema(dropSchema)
+	}
 	return nil
 }
 
@@ -351,6 +383,16 @@ func (bf *BaseFlavor) ExecuteQueryx(queryString string, qParams ...interface{}) 
 		return nil, err
 	}
 	return rows, nil
+}
+
+// Select reads some rows into the dst interface
+func (bf *BaseFlavor) Select(dst interface{}, queryString string, args ...interface{}) error {
+
+	err := bf.db.Select(dst, queryString, args...)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // processIndexTag is used to create or add to an entry in the working indexes map that is

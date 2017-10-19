@@ -2,17 +2,18 @@ package sqac_test
 
 import (
 	"flag"
-	"github.com/1414C/sqac"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
-	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"os"
 	"reflect"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/1414C/sqac"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 // // SessionData contains session management vars
@@ -35,7 +36,7 @@ func TestMain(m *testing.M) {
 
 	// parse flags
 	dbFlag := flag.String("db", "pg", "db to connect to")
-	// logFlag := flag.Bool("l", false, "activate sqac logging")
+	logFlag := flag.Bool("l", false, "activate sqac logging")
 	flag.Parse()
 
 	// select the db implementation
@@ -48,7 +49,11 @@ func TestMain(m *testing.M) {
 			log.Fatalf("%s\n", err.Error())
 		}
 		Handle.SetDB(db)
-		Handle.Log(false)
+		if *logFlag {
+			Handle.Log(true)
+		} else {
+			Handle.Log(false)
+		}
 
 	case "mysql":
 		myh := new(sqac.MySQLFlavor)
@@ -136,6 +141,68 @@ func TestCreateTables(t *testing.T) {
 	// negative verification of ExistsTable(tn string)
 	if Handle.ExistsTable("abcdefg") {
 		t.Errorf("table %s should not exist - check ExistsTable implementation for db %s", "abcdefg", Handle.GetDBDriverName())
+	}
+}
+
+// TestCreateTablesWithInclude
+//
+// Create table equipment via CreateTables(i ...interface{})
+// and verify that flat structs can be included in the
+// table creation.
+//
+func TestCreateTablesWithInclude(t *testing.T) {
+
+	// type Triplet struct {
+	// 	TripOne   string `db:"trip_one" rgen:"nullable:false"`
+	// 	TripTwo   int64  `db:"trip_two" rgen:"nullable:false;default:0"`
+	// 	Tripthree string `db:"trip_three" rgen:"nullable:false"`
+	// }
+
+	// type Equipment struct {
+	// 	EquipmentNum   int64     `db:"equipment_num" rgen:"primary_key:inc;start:55550000"`
+	// 	ValidFrom      time.Time `db:"valid_from" rgen:"primary_key;nullable:false;default:now()"`
+	// 	ValidTo        time.Time `db:"valid_to" rgen:"primary_key;nullable:false;default:make_timestamptz(9999, 12, 31, 23, 59, 59.9)"`
+	// 	CreatedAt      time.Time `db:"created_at" rgen:"nullable:false;default:now()"`
+	// 	InspectionAt   time.Time `db:"inspeaction_at" rgen:"nullable:true"`
+	// 	MaterialNum    int       `db:"material_num" rgen:"index:idx_material_num_serial_num"`
+	// 	Description    string    `db:"description" rgen:"rgen:nullable:false"`
+	// 	SerialNum      string    `db:"serial_num" rgen:"index:idx_material_num_serial_num"`
+	// 	IntExample     int       `db:"int_example" rgen:"nullable:false;default:0"`
+	// 	Int64Example   int64     `db:"int64_example" rgen:"nullable:false;default:0"`
+	// 	Int32Example   int32     `db:"int32_example" rgen:"nullable:false;default:0"`
+	// 	Int16Example   int16     `db:"int16_example" rgen:"nullable:false;default:0"`
+	// 	Int8Example    int8      `db:"int8_example" rgen:"nullable:false;default:0"`
+	// 	UIntExample    uint      `db:"uint_example" rgen:"nullable:false;default:0"`
+	// 	UInt64Example  uint64    `db:"uint64_example" rgen:"nullable:false;default:0"`
+	// 	UInt32Example  uint32    `db:"uint32_example" rgen:"nullable:false;default:0"`
+	// 	UInt16Example  uint16    `db:"uint16_example" rgen:"nullable:false;default:0"`
+	// 	UInt8Example   uint8     `db:"uint8_example" rgen:"nullable:false;default:0"`
+	// 	Float32Example float32   `db:"float32_example" rgen:"nullable:false;default:0.0"`
+	// 	Float64Example float64   `db:"float64_example" rgen:"nullable:false;default:0.0"`
+	// 	BoolExample    bool      `db:"bool_example" rgen:"nullable:false;default:false"`
+	// 	RuneExample    rune      `db:"rune_example" rgen:"nullable:true"`
+	// 	ByteExample    byte      `db:"byte_example" rgen:"nullable:true"`
+	// 	Triplet
+	// }
+
+	err := Handle.CreateTables(Equipment{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// determine the table name as per the
+	// table creation logic
+	tn := reflect.TypeOf(Equipment{}).String()
+	if strings.Contains(tn, ".") {
+		el := strings.Split(tn, ".")
+		tn = strings.ToLower(el[len(el)-1])
+	} else {
+		tn = strings.ToLower(tn)
+	}
+
+	// expect that table depot exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s was not created", tn)
 	}
 }
 
@@ -390,4 +457,105 @@ func TestExistsColumn(t *testing.T) {
 	if Handle.ExistsColumn(tn, "footle") {
 		t.Errorf("column %s should not have been found in table %s", "footle", tn)
 	}
+}
+
+func TestDestructiveReset(t *testing.T) {
+
+	type Depot struct {
+		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
+		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
+		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
+		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
+		Country    string    `db:"country" rgen:"nullable:true;"`
+		NewColumn1 string    `db:"new_column1" rgen:"nullable:false"`
+		NewColumn2 int64     `db:"new_column2" rgen:"nullable:false;default:0"`
+		NewColumn3 float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
+	}
+
+	// type Equipment struct {
+	// 	EquipmentNum   int64     `db:"equipment_num" rgen:"primary_key:inc;start:55550000"`
+	// 	ValidFrom      time.Time `db:"valid_from" rgen:"primary_key;nullable:false;default:now()"`
+	// 	ValidTo        time.Time `db:"valid_to" rgen:"primary_key;nullable:false;default:make_timestamptz(9999, 12, 31, 23, 59, 59.9)"`
+	// 	CreatedAt      time.Time `db:"created_at" rgen:"nullable:false;default:now()"`
+	// 	InspectionAt   time.Time `db:"inspeaction_at" rgen:"nullable:true"`
+	// 	MaterialNum    int       `db:"material_num" rgen:"index:idx_material_num_serial_num"`
+	// 	Description    string    `db:"description" rgen:"rgen:nullable:false"`
+	// 	SerialNum      string    `db:"serial_num" rgen:"index:idx_material_num_serial_num"`
+	// 	IntExample     int       `db:"int_example" rgen:"nullable:false;default:0"`
+	// 	Int64Example   int64     `db:"int64_example" rgen:"nullable:false;default:0"`
+	// 	Int32Example   int32     `db:"int32_example" rgen:"nullable:false;default:0"`
+	// 	Int16Example   int16     `db:"int16_example" rgen:"nullable:false;default:0"`
+	// 	Int8Example    int8      `db:"int8_example" rgen:"nullable:false;default:0"`
+	// 	UIntExample    uint      `db:"uint_example" rgen:"nullable:false;default:0"`
+	// 	UInt64Example  uint64    `db:"u_int64_example" rgen:"nullable:false;default:0"`
+	// 	UInt32Example  uint32    `db:"u_int32_example" rgen:"nullable:false;default:0"`
+	// 	UInt16Example  uint16    `db:"u_int16_example" rgen:"nullable:false;default:0"`
+	// 	UInt8Example   uint8     `db:"u_int8_example" rgen:"nullable:false;default:0"`
+	// 	Float32Example float32   `db:"float32_example" rgen:"nullable:false;default:0.0"`
+	// 	Float64Example float64   `db:"float64_example" rgen:"nullable:false;default:0.0"`
+	// 	BoolExample    bool      `db:"bool_example" rgen:"nullable:false;default:false"`
+	// 	RuneExample    rune      `db:"rune_example" rgen:"nullable:true"`
+	// 	ByteExample    byte      `db:"byte_example" rgen:"nullable:true"`
+	// 	Triplet
+	// }
+
+	// type Triplet struct {
+	// 	TripOne   string `db:"trip_one" rgen:"nullable:false"`
+	// 	TripTwo   int64  `db:"trip_two" rgen:"nullable:false;default:0"`
+	// 	Tripthree string `db:"trip_three" rgen:"nullable:false"`
+	// }
+
+	// determine the table names as per the
+	// table creation logic
+	tns := make([]string, 0)
+	tn := reflect.TypeOf(Depot{}).String()
+	if strings.Contains(tn, ".") {
+		el := strings.Split(tn, ".")
+		tn = strings.ToLower(el[len(el)-1])
+	} else {
+		tn = strings.ToLower(tn)
+	}
+	tns = append(tns, tn)
+
+	tn = reflect.TypeOf(Equipment{}).String()
+	if strings.Contains(tn, ".") {
+		el := strings.Split(tn, ".")
+		tn = strings.ToLower(el[len(el)-1])
+	} else {
+		tn = strings.ToLower(tn)
+	}
+	tns = append(tns, tn)
+
+	// ensure tables exist in db
+	err := Handle.AlterTables(Depot{}, Equipment{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that tables depot and equipment exist
+	for _, n := range tns {
+		if !Handle.ExistsTable(n) {
+			t.Errorf("table %s does not exist", n)
+		}
+	}
+
+	// drop both tables via DestructiveReset
+	err = Handle.DestructiveResetTables(Depot{}, Equipment{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that tables depot and equipment have been recreated
+	for _, n := range tns {
+		if !Handle.ExistsTable(n) {
+			t.Errorf("table %s does not exist", n)
+		}
+	}
+
+	e := []Equipment{}
+	err = Handle.Select(&e, "SELECT * FROM equipment;")
+	if err != nil {
+		t.Errorf("error reading from table equipment - got %s", err.Error())
+	}
+
 }

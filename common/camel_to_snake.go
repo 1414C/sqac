@@ -20,7 +20,7 @@ func CamelToSnake(s string) string {
 	var matchCapLc = regexp.MustCompile("(.)([A-Z][a-z]+)")
 
 	// ([a-z0-9]) capture group for all characters in the prescribed ranges
-	// ([A-Z]) capture group for all characters in the presceibed range
+	// ([A-Z]) capture group for all characters in the prescribed range
 	// testCamelCaseIBMPowerEdge - match: {'tC', 'lC', 'eI', 'Re'}
 	var matchLcCap = regexp.MustCompile("([a-z0-9])([A-Z])")
 

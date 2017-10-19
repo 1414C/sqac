@@ -408,11 +408,12 @@ func (pf *PostgresFlavor) DropTables(i ...interface{}) error {
 			tn = strings.ToLower(tn)
 		}
 		if tn == "" {
-			return fmt.Errorf("unable to determine table name in pf.CreateTables")
+			return fmt.Errorf("unable to determine table name in pf.DropTables")
 		}
 
-		// if the table is found to exist, skip the creation
-		// and move on to the next table in the list.
+		// if the table is found to exist, add a DROP statement
+		// to the dropSchema string and move on to the next
+		// table in the list.
 		if pf.ExistsTable(tn) {
 			if pf.log {
 				fmt.Printf("table %s exists - adding to drop schema...\n", tn)
@@ -529,6 +530,23 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 				pf.CreateIndex(k, v)
 			}
 		}
+	}
+	return nil
+}
+
+// DestructiveResetTables drops tables on the db if they exist,
+// as well as any related objects such as sequences.  this is
+// useful if you wish to regenerated your table and the
+// number-range used by an auto-incementing primary key.
+func (pf *PostgresFlavor) DestructiveResetTables(i ...interface{}) error {
+
+	err := pf.DropTables(i...)
+	if err != nil {
+		return err
+	}
+	err = pf.CreateTables(i...)
+	if err != nil {
+		return err
 	}
 	return nil
 }
