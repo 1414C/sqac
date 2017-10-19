@@ -53,6 +53,9 @@ type PublicDB interface {
 	SetDB(db *sqlx.DB)
 	GetDB() *sqlx.DB
 
+	// get the currently connected db-name for infomation_schema lookups
+	GetDBName() string
+
 	// set / get the max idle sqlx db-connections and max open sqlx db-connections
 	SetMaxIdleConns(n int)
 	SetMaxOpenConns(n int)
@@ -131,6 +134,19 @@ func (bf *BaseFlavor) SetDB(db *sqlx.DB) {
 // been set in the db-flavor environment.
 func (bf *BaseFlavor) GetDB() *sqlx.DB {
 	return bf.db
+}
+
+// GetDBName returns the name of the currently connected db
+func (bf *BaseFlavor) GetDBName() (dbName string) {
+
+	row := bf.db.QueryRow("SELECT DATABASE()")
+	if row != nil {
+		err := row.Scan(&dbName)
+		if err != nil {
+			panic(err)
+		}
+	}
+	return dbName
 }
 
 // SetMaxIdleConns calls sqlx.SetMaxIdleConns
@@ -220,23 +236,29 @@ func (bf *BaseFlavor) AlterTables(i ...interface{}) error {
 // as well as any related objects such as sequences.  this is
 // useful if you wish to regenerated your table and the
 // number-range used by an auto-incementing primary key.
-func (bf *BaseFlavor) DestructiveResetTables(i ...interface{}) error {
+// func (bf *BaseFlavor) DestructiveResetTables(i ...interface{}) error {
 
-	err := bf.DropTables(i...)
-	if err != nil {
-		return err
-	}
-	err = bf.CreateTables(i...)
-	if err != nil {
-		return err
-	}
-	return nil
-}
+// 	err := bf.DropTables(i...)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	err = bf.CreateTables(i...)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }
 
 // ExistsTable checks the currently connected database and
 // returns true if the named table is found to exist.
 func (bf *BaseFlavor) ExistsTable(tn string) bool {
 
+	//	SELECT * FROM information_schema.TABLES	WHERE table_schema = 'jsonddl' AND table_name = 'equipment';
+	n := 0
+	bf.db.QueryRow("SELECT count(*) FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = ? AND table_name = ?;", bf.GetDBName(), tn).Scan(&n)
+	if n > 0 {
+		return true
+	}
 	return false
 }
 
@@ -246,7 +268,13 @@ func (bf *BaseFlavor) ExistsTable(tn string) bool {
 // or properties.
 func (bf *BaseFlavor) ExistsColumn(tn string, cn string) bool {
 
-	return true
+	// SELECT COUNT(*) FROM information_schema.COLUMNS WHERE table_schema = 'jsonddl' AND table_name = 'equipment' AND column_name = 'description';
+	n := 0
+	bf.db.QueryRow("SELECT count(*) FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = ? AND table_name = ?;", bf.GetDBName(), tn, cn).Scan(&n)
+	if n > 0 {
+		return true
+	}
+	return false
 }
 
 // CreateIndex creates the index contained in the incoming
@@ -291,6 +319,11 @@ func (bf *BaseFlavor) DropIndex(in string) error {
 // of the specified index.
 func (bf *BaseFlavor) ExistsIndex(tn string, in string) bool {
 
+	n := 0
+	bf.db.QueryRow("SELECT count(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema = ? AND table_name = ? AND index_name = ?", bf.GetDBName(), tn, in).Scan(&n)
+	if n > 0 {
+		return true
+	}
 	return false
 }
 
