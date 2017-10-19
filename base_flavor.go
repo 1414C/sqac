@@ -83,6 +83,7 @@ type PublicDB interface {
 	ExecuteQueryx(queryString string, qParams ...interface{}) (*sqlx.Rows, error)
 
 	Select(dst interface{}, queryString string, args ...interface{}) error
+	Exec(queryString string, args ...interface{}) (sql.Result, error)
 
 	Log(b bool)
 	IsLog() bool
@@ -393,6 +394,16 @@ func (bf *BaseFlavor) Select(dst interface{}, queryString string, args ...interf
 		return err
 	}
 	return nil
+}
+
+// Exec runs the queryString against the connected db
+func (bf *BaseFlavor) Exec(queryString string, args ...interface{}) (sql.Result, error) {
+
+	result, err := bf.db.Exec(queryString, args...)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }
 
 // processIndexTag is used to create or add to an entry in the working indexes map that is

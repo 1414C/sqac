@@ -2,6 +2,7 @@ package sqac_test
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"reflect"
@@ -552,10 +553,30 @@ func TestDestructiveReset(t *testing.T) {
 		}
 	}
 
-	e := []Equipment{}
-	err = Handle.Select(&e, "SELECT * FROM equipment;")
+	d := []Depot{}
+	err = Handle.Select(&d, "SELECT * FROM depot;")
 	if err != nil {
-		t.Errorf("error reading from table equipment - got %s", err.Error())
+		t.Errorf("error reading from table depot - got %s", err.Error())
 	}
+	fmt.Println("got:", d)
 
+	// here is an example of dealing with an empty null string
+	// insert the record without a value in the nullable
+	// country field.  the read will fail, due to the string
+	// type of the country-field in the target structure.
+	// either *string for nullable, or create a local struct
+	// that uses nullTypes for nullable fields:
+	//   sql.NullBool, sql.NullFloat64, sql.NullInt64, sql.NullString
+	// _, err = Handle.Exec("INSERT INTO depot (depot_num, region, province, new_column1) VALUES (DEFAULT, 'YVR','AB', 100) RETURNING depot_num;")
+	_, err = Handle.Exec("INSERT INTO depot (depot_num, region, province, country, new_column1) VALUES (DEFAULT, 'YVR','AB','CA', 100) RETURNING depot_num;")
+	if err != nil {
+		t.Errorf("error inserting into table depot - got %s", err.Error())
+	}
+	//fmt.Printf("%d rows affected.\n", result.RowsAffected())
+
+	err = Handle.Select(&d, "SELECT * FROM depot;")
+	if err != nil {
+		t.Errorf("error reading from table depot - got %s", err.Error())
+	}
+	fmt.Println("got:", d)
 }
