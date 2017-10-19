@@ -149,15 +149,13 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 	// MySQL has more data-types than postgres - db ints are
 	// signed / unsigned, and they account for integer sizes
 	// down to 8 bits:
-	// https://dev.mysql.com/doc/refman/5.7/en/numeric-types.html
 	// TINYINT = 1 byte
 	// SMALLINT = 2 bytes
 	// MEDIUMINT = 3 bytes
 	// INT = 4 bytes
 	// BIGINT = 8 bytes
 	// DOUBLE = 8 bytes (floating-point, so we go for widest DB type here)
-	// https://dev.mysql.com/doc/refman/5.7/en/date-and-time-types.html
-	// https://dev.mysql.com/doc/refman/5.7/en/string-types.html
+	// https://mariadb.com/kb/en/library/data-types/
 	// future: https://dev.mysql.com/doc/refman/5.7/en/spatial-extensions.html
 	for idx, fd := range fldef {
 
@@ -168,6 +166,31 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 		col.fPrimaryKey = ""
 		col.fDefault = ""
 		col.fNullable = ""
+
+		// uint8  - TINYINT - range must be smaller than int8?
+		// uint16 - SMALLINT
+		// uint32 - INT
+		// uint64 - BIGINT
+
+		// int8  - TINYINT
+		// int16 - SMALLINT
+		// int32 - INT
+		// int64 - BIGINT
+
+		// float32 - DOUBLE
+		// float64 - DOUBLE
+
+		// bool - BOOLEAN - (alias for TINYINT(1))
+
+		// rune - INT (32-bits - unicode and stuff)
+		// byte - TINTINT - (8-bits and stuff)
+
+		// string - VARCHAR(255) - (uses 1-byte for length-prefix in record prefix)
+		// string - VARCHAR(256) - (uses 2-bytes for length-prefix; use for strings
+		//                      	that may exceed 255 bytes->out to max 65,535 bytes)
+
+		// autoincrement - https://mariadb.com/kb/en/library/auto_increment/
+		// spatial - POINT, MULTIPOINT, POLYGON (future)  https://mariadb.com/kb/en/library/geometry-types/
 
 		switch fd.GoType {
 		case "uint", "uint8", "uint16", "uint32", "uint64",
