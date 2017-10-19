@@ -45,6 +45,18 @@ type PublicDB interface {
 	// postgres, sqlite, mariadb, db2, hana etc.
 	GetDBDriverName() string
 
+	// activate / check logging
+	Log(b bool)
+	IsLog() bool
+
+	// set the *sqlx.DB handle in the PublicDB interface
+	SetDB(db *sqlx.DB)
+	GetDB() *sqlx.DB
+
+	// set / get the max idle sqlx db-connections and max open sqlx db-connections
+	SetMaxIdleConns(n int)
+	SetMaxOpenConns(n int)
+
 	GetRelations(tn string) []string
 
 	// i=db/rgen tagged go struct-type
@@ -77,19 +89,16 @@ type PublicDB interface {
 	ProcessSchema(schema string)
 	ProcessSchemaList(sList []string)
 
+	// sql package access
 	ExecuteQueryRow(queryString string, qParams ...interface{}) *sql.Row
 	ExecuteQuery(queryString string, qParams ...interface{}) (*sql.Rows, error)
-	ExecuteQueryRowx(queryString string, qParams ...interface{}) *sqlx.Row
-	ExecuteQueryx(queryString string, qParams ...interface{}) (*sqlx.Rows, error)
-
-	Select(dst interface{}, queryString string, args ...interface{}) error
 	Exec(queryString string, args ...interface{}) (sql.Result, error)
 
-	Log(b bool)
-	IsLog() bool
-
-	SetDB(db *sqlx.DB)
-	GetDB() *sqlx.DB
+	// sqlx package access
+	ExecuteQueryRowx(queryString string, qParams ...interface{}) *sqlx.Row
+	ExecuteQueryx(queryString string, qParams ...interface{}) (*sqlx.Rows, error)
+	Get(dst interface{}, queryString string, args ...interface{}) error
+	Select(dst interface{}, queryString string, args ...interface{}) error
 }
 
 // ensure consistency of interface implementation
@@ -122,6 +131,16 @@ func (bf *BaseFlavor) SetDB(db *sqlx.DB) {
 // been set in the db-flavor environment.
 func (bf *BaseFlavor) GetDB() *sqlx.DB {
 	return bf.db
+}
+
+// SetMaxIdleConns calls sqlx.SetMaxIdleConns
+func (bf *BaseFlavor) SetMaxIdleConns(n int) {
+	bf.db.SetMaxIdleConns(n)
+}
+
+// SetMaxOpenConns calls sqlx.SetMaxOpenConns
+func (bf *BaseFlavor) SetMaxOpenConns(n int) {
+	bf.db.SetMaxOpenConns(n)
 }
 
 // GetDBDriverName returns the name of the current db-driver
@@ -386,9 +405,23 @@ func (bf *BaseFlavor) ExecuteQueryx(queryString string, qParams ...interface{}) 
 	return rows, nil
 }
 
-// Select reads some rows into the dst interface
+// Get reads a single row into the dst interface.
+// This calls sqlx.Get(...)
+func (bf *BaseFlavor) Get(dst interface{}, queryString string, args ...interface{}) error {
+
+	queryString = bf.db.Rebind(queryString)
+	err := bf.db.Get(dst, queryString, args...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Select reads some rows into the dst interface.
+// This calls sqlx.Select(...)
 func (bf *BaseFlavor) Select(dst interface{}, queryString string, args ...interface{}) error {
 
+	queryString = bf.db.Rebind(queryString)
 	err := bf.db.Select(dst, queryString, args...)
 	if err != nil {
 		return err
@@ -399,6 +432,7 @@ func (bf *BaseFlavor) Select(dst interface{}, queryString string, args ...interf
 // Exec runs the queryString against the connected db
 func (bf *BaseFlavor) Exec(queryString string, args ...interface{}) (sql.Result, error) {
 
+	queryString = bf.db.Rebind(queryString)
 	result, err := bf.db.Exec(queryString, args...)
 	if err != nil {
 		return nil, err
