@@ -39,7 +39,7 @@ type MySQLFlavor struct {
 }
 
 //================================================================
-// Interface methods implemented in BaseFlavor:
+// PublicDB Interface methods implemented in BaseFlavor:
 //
 // ExistsTable(tn string) bool
 // ExistsColumn(tn string, cn string) bool
@@ -70,7 +70,7 @@ func (myf *MySQLFlavor) CreateTables(i ...interface{}) error {
 			tn = strings.ToLower(tn)
 		}
 		if tn == "" {
-			return fmt.Errorf("unable to determine table name in pf.CreateTables")
+			return fmt.Errorf("unable to determine table name in myf.CreateTables")
 		}
 
 		// if the table is found to exist, skip the creation
@@ -167,6 +167,16 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 		col.fDefault = ""
 		col.fNullable = ""
 
+		// things to deal with:
+		// rgen:"primary_key:inc;start:55550000"
+		// rgen:"nullable:false"
+		// rgen:"default:0"
+		// rgen:"index:idx_material_num_serial_num
+		// rgen:"index:unique/non-unique"
+		// timestamp syntax and functions
+		// - pg now() equivalent
+		// - pg make_timestamptz(9999, 12, 31, 23, 59, 59.9) equivalent
+
 		// uint8  - TINYINT - range must be smaller than int8?
 		// uint16 - SMALLINT
 		// uint32 - INT
@@ -189,18 +199,49 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 		// string - VARCHAR(256) - (uses 2-bytes for length-prefix; use for strings
 		//                      	that may exceed 255 bytes->out to max 65,535 bytes)
 
+		// TIMESTAMP - also look at YYYYMMDD format, which seems to be native
+
 		// autoincrement - https://mariadb.com/kb/en/library/auto_increment/
 		// spatial - POINT, MULTIPOINT, POLYGON (future)  https://mariadb.com/kb/en/library/geometry-types/
 
 		switch fd.GoType {
-		case "uint", "uint8", "uint16", "uint32", "uint64",
-			"int", "int8", "int16", "int32", "int64", "rune", "byte":
+		case "int", "int16", "int32", "rune":
+			col.fType = "int"
 
-			if strings.Contains(fd.GoType, "64") {
-				col.fType = "bigint"
-			} else {
-				col.fType = "integer"
-			}
+		case "int64":
+			col.fType = "bigint"
+
+		case "int8":
+			col.fType = "tinyint"
+
+		case "uint", "uint16", "uint32":
+			col.fType = "int unsigned"
+
+		case "uint64":
+			col.fType = "bigint unsigned"
+
+		case "uint8", "byte":
+			col.fType = "tinyint"
+
+		case "float32", "float64":
+			col.fType = "double"
+
+		case "bool":
+			col.fType = "boolean" // or tinyint(1)?
+
+		case "string":
+			col.fType = "varchar(255)" //
+
+		case "time.Time":
+			col.fType = "timestamp"
+
+		case "*time.Time":
+			col.fType = "timestamp"
+
+		default:
+
+		}
+
 
 			// read rgen tag pairs and apply
 			seqName := ""
