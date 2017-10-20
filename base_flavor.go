@@ -22,6 +22,7 @@ type ColComponents struct {
 	fName       string
 	fType       string
 	fPrimaryKey string
+	fAutoInc    bool
 	fDefault    string
 	fNullable   string
 }
