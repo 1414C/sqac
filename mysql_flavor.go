@@ -108,7 +108,7 @@ func (myf *MySQLFlavor) CreateTables(i ...interface{}) error {
 			fmt.Println("ERROR:", tc.err)
 			fmt.Println("====================================================================")
 		}
-
+		fmt.Println(tc.tblSchema)
 		myf.db.MustExec(tc.tblSchema)
 		for _, sq := range tc.seq {
 			start, _ := strconv.Atoi(sq.Value)
@@ -127,10 +127,11 @@ func (myf *MySQLFlavor) CreateTables(i ...interface{}) error {
 // and AlterTables methods.
 func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 
+	qt := myf.GetDBQuote()
 	pKeys := ""
 	var sequences []RgenPair
 	indexes := make(map[string]IndexInfo)
-	tableSchema := fmt.Sprintf("CREATE TABLE %s (", tn)
+	tableSchema := fmt.Sprintf("CREATE TABLE %s%s%s (", qt, tn, qt)
 
 	// get a list of the field names, go-types and db attributes.
 	// TagReader is a common function across db-flavors. For
@@ -239,26 +240,26 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 			col.fType = "timestamp"
 
 		default:
-
+			err := fmt.Errorf("go type %s is not presently supported", fldef[idx].FType)
+			panic(err)
 		}
+		fldef[idx].FType = col.fType
 
+		// read rgen tag pairs and apply
+		seqName := ""
+		if !strings.Contains(fd.GoType, "*time.Time") {
 
-			// read rgen tag pairs and apply
-			seqName := ""
 			for _, p := range fd.RgenPairs {
 
 				switch p.Name {
 				case "primary_key":
 
 					col.fPrimaryKey = "PRIMARY KEY"
-					pKeys = pKeys + fd.FName + ","
+					pKeys = fmt.Sprintf("%s %s%s%s,", pKeys, qt, fd.FName, qt)
+					// pKeys = pKeys + fd.FName + ","
 
 					if p.Value == "inc" {
-						if strings.Contains(fd.GoType, "64") {
-							col.fType = "bigserial"
-						} else {
-							col.fType = "serial"
-						}
+						col.fAutoInc = true
 					}
 
 				case "start":
@@ -267,183 +268,46 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 						panic(err)
 					}
 					if seqName == "" && start > 0 {
-						seqName = tn + "_" + fd.FName + "_seq"
+						seqName = tn
 						sequences = append(sequences, RgenPair{Name: seqName, Value: p.Value})
 					}
 
 				case "default":
+					col.fDefault = fmt.Sprintf("DEFAULT (%s)", p.Value)
+
+				case "nullable":
+					if p.Value == "false" {
+						col.fNullable = "NOT NULL"
+					}
+
+				case "index":
+					switch p.Value {
+					case "non-unique":
+						indexes = myf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, false, true)
+
+					case "unique":
+						indexes = myf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, true, true)
+
+					default:
+						indexes = myf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)
+					}
+
+				default:
+
+				}
+			}
+		} else { // *time.Time only supports default directive
+			for _, p := range fd.RgenPairs {
+				if p.Name == "default" {
 					col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
-
-				case "nullable":
-					if p.Value == "false" {
-						col.fNullable = "NOT NULL"
-					}
-
-				case "index":
-					switch p.Value {
-					case "non-unique":
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, false, true)
-
-					case "unique":
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, true, true)
-
-					default:
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)
-					}
-
-				default:
-
 				}
+
 			}
-			fldef[idx].FType = col.fType
-
-		case "string":
-			col.fType = "text"
-
-			for _, p := range fd.RgenPairs {
-				switch p.Name {
-				case "primary_key":
-					col.fPrimaryKey = "PRIMARY KEY"
-					pKeys = pKeys + fd.FName + ","
-
-				case "nullable":
-					if p.Value == "false" {
-						col.fNullable = "NOT NULL"
-					}
-
-				case "default":
-					col.fDefault = fmt.Sprintf("DEFAULT '%s'", p.Value)
-
-				case "index":
-
-					switch p.Value {
-					case "non-unique":
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, false, true)
-
-					case "unique":
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, true, true)
-
-					default:
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)
-					}
-
-				default:
-
-				}
-			}
-			fldef[idx].FType = col.fType
-
-		case "float32", "float64":
-			col.fType = "numeric"
-
-			for _, p := range fd.RgenPairs {
-				switch p.Name {
-				case "primary_key":
-					col.fPrimaryKey = "PRIMARY KEY"
-					pKeys = pKeys + fd.FName + ","
-
-				case "nullable":
-					if p.Value == "false" {
-						col.fNullable = "NOT NULL"
-					}
-
-				case "default":
-					col.fDefault = fmt.Sprintf("DEFAULT '%s'", p.Value)
-
-				case "index":
-					switch p.Value {
-					case "non-unique":
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, false, true)
-
-					case "unique":
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, true, true)
-
-					default:
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)
-					}
-
-				default:
-
-				}
-			}
-			fldef[idx].FType = col.fType
-
-		case "bool":
-			col.fType = "boolean"
-
-			for _, p := range fd.RgenPairs {
-				switch p.Name {
-				case "primary_key":
-					pKeys = pKeys + fd.FName + ","
-
-				case "default":
-					col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
-
-				case "nullable":
-					if p.Value == "false" {
-						col.fNullable = "NOT NULL"
-					}
-
-				case "index":
-					switch p.Value {
-					case "non-unique":
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, false, true)
-
-					case "unique":
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, true, true)
-
-					default:
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)
-					}
-
-				default:
-
-				}
-			}
-			fldef[idx].FType = col.fType
-
-		case "time.Time":
-			col.fType = "timestamp with time zone"
-
-			for _, p := range fd.RgenPairs {
-				switch p.Name {
-				case "primary_key":
-					col.fPrimaryKey = "PRIMARY KEY"
-					pKeys = pKeys + fd.FName + ","
-
-				case "default":
-					col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
-
-				case "index":
-					switch p.Value {
-					case "non-unique":
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, false, true)
-
-					case "unique":
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, true, true)
-
-					default:
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)
-					}
-
-				default:
-
-				}
-			}
-			fldef[idx].FType = col.fType
-
-		// this is always nullable, and consequently the following are
-		// not supporte: default value, use as a primary key, use as an index.
-		case "*time.Time":
-			col.fType = "timestamp with time zone"
-
-		default:
-			err := fmt.Errorf("go type %s is not presently supported", fldef[idx].FType)
-			panic(err)
 		}
+		fldef[idx].FType = col.fType
 
 		// add the current column to the schema
-		tableSchema = tableSchema + fmt.Sprintf("%s %s", col.fName, col.fType)
+		tableSchema = tableSchema + fmt.Sprintf("%s%s%s %s", qt, col.fName, qt, col.fType)
 		if col.fNullable != "" {
 			tableSchema = tableSchema + " " + col.fNullable
 		}
@@ -459,7 +323,7 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 	}
 	if tableSchema != "" && pKeys != "" {
 		pKeys = strings.TrimSuffix(pKeys, ",")
-		tableSchema = tableSchema + fmt.Sprintf("CONSTRAINT %s_pkey PRIMARY KEY (%s) );", strings.ToLower(tn), pKeys)
+		tableSchema = tableSchema + fmt.Sprintf("PRIMARY KEY (%s) );", pKeys)
 	}
 
 	// pass out the CREATE TABLE schema, and component info

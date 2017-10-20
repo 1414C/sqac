@@ -38,6 +38,10 @@ type TblComponents struct {
 	err       error
 }
 
+const CTick = "'"
+const CBackTick = "`"
+const CDblQuote = "\""
+
 // PublicDB exposes functions for db schema operations
 type PublicDB interface {
 	InBase()
@@ -54,8 +58,13 @@ type PublicDB interface {
 	SetDB(db *sqlx.DB)
 	GetDB() *sqlx.DB
 
-	// get the currently connected db-name for infomation_schema lookups
+	// GetDBName reports the name of  the currently connected db for
+	// information_schema access
 	GetDBName() string
+
+	// GetDBQuote reports the quoting preference for db-query construction.
+	// ' vs ` vs " for example
+	GetDBQuote() string
 
 	// set / get the max idle sqlx db-connections and max open sqlx db-connections
 	SetMaxIdleConns(n int)
@@ -148,6 +157,25 @@ func (bf *BaseFlavor) GetDBName() (dbName string) {
 		}
 	}
 	return dbName
+}
+
+// GetDBQuote reports the quoting preference for db-query construction.
+// ' vs ` vs " for example
+func (bf *BaseFlavor) GetDBQuote() string {
+
+	switch bf.GetDBDriverName() {
+	case "postgres":
+		return CTick
+
+	case "mysql":
+		return CBackTick
+
+	case "sqlite":
+		return CDblQuote
+
+	default:
+		return CDblQuote
+	}
 }
 
 // SetMaxIdleConns calls sqlx.SetMaxIdleConns
