@@ -22,7 +22,7 @@ type ColComponents struct {
 	fName       string
 	fType       string
 	fPrimaryKey string
-	fAutoInc    bool
+	fAutoInc    bool // not used for Postgres
 	fDefault    string
 	fNullable   string
 }
