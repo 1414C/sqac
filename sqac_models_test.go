@@ -27,7 +27,7 @@ type Triplet struct {
 type Equipment struct {
 	EquipmentNum   int64     `db:"equipment_num" rgen:"primary_key:inc;start:55550000"`
 	ValidFrom      time.Time `db:"valid_from" rgen:"primary_key;nullable:false;default:now()"`
-	ValidTo        time.Time `db:"valid_to" rgen:"primary_key;nullable:false;default:make_timestamptz(9999, 12, 31, 23, 59, 59.9)"`
+	ValidTo        time.Time `db:"valid_to" rgen:"primary_key;nullable:false;default:eot"`
 	CreatedAt      time.Time `db:"created_at" rgen:"nullable:false;default:now()"`
 	InspectionAt   time.Time `db:"inspection_at" rgen:"nullable:true"`
 	MaterialNum    int       `db:"material_num" rgen:"index:idx_material_num_serial_num"`

@@ -38,6 +38,9 @@ type TblComponents struct {
 	err       error
 }
 
+// CTick CBackTick and CDblQuote specify the quote
+// style for for db field encapsulation in CREATE
+// and ALTER table schemas
 const CTick = "'"
 const CBackTick = "`"
 const CDblQuote = "\""

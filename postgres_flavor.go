@@ -330,7 +330,11 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 					pKeys = pKeys + fd.FName + ","
 
 				case "default":
-					col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
+					if p.Value != "eot" {
+						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
+					} else {
+						col.fDefault = fmt.Sprintf("DEFAULT %s", "make_timestamptz(9999, 12, 31, 23, 59, 59.9)")
+					}
 
 				case "index":
 					switch p.Value {
@@ -351,10 +355,21 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 			fldef[idx].FType = col.fType
 
 		// this is always nullable, and consequently the following are
-		// not supporte: default value, use as a primary key, use as an index.
+		// not supported default value, use as a primary key, use as an index.
 		case "*time.Time":
 			col.fType = "timestamp with time zone"
-
+			for _, p := range fd.RgenPairs {
+				switch p.Name {
+				case "default":
+					if p.Value != "eot" {
+						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
+					} else {
+						col.fDefault = fmt.Sprintf("DEFAULT %s", "make_timestamptz(9999, 12, 31, 23, 59, 59.9)")
+					}
+				default:
+					// do nothing with other tag directives
+				}
+			}
 		default:
 			err := fmt.Errorf("go type %s is not presently supported", fldef[idx].FType)
 			panic(err)

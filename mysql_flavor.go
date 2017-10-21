@@ -242,10 +242,7 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 		case "string":
 			col.fType = "varchar(255)" //
 
-		case "time.Time":
-			col.fType = "timestamp"
-
-		case "*time.Time":
+		case "time.Time", "*time.Time":
 			col.fType = "timestamp"
 
 		default:
@@ -287,6 +284,10 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 					} else {
 						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
 					}
+					if fd.GoType == "time.Time" && p.Value == "eot" {
+						p.Value = "TIMESTAMP('2003-12-31 12:00:00')"
+						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
+					}
 
 				case "nullable":
 					if p.Value == "false" {
@@ -312,6 +313,9 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 		} else { // *time.Time only supports default directive
 			for _, p := range fd.RgenPairs {
 				if p.Name == "default" {
+					if p.Value == "eot" {
+						p.Value = "TIMESTAMP('2003-12-31 12:00:00')"
+					}
 					col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
 				}
 
