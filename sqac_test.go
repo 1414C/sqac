@@ -60,7 +60,7 @@ func TestMain(m *testing.M) {
 	case "mysql":
 		myh := new(sqac.MySQLFlavor)
 		Handle = myh
-		db, err := sqac.Open("mysql", "stevem:gogogo123@tcp(192.168.1.50:3306)/jsonddl?charset=utf8&parseTime=True&loc=Local")
+		db, err := sqac.Open("mysql", "stevem:gogogo123@tcp(192.168.1.50:3306)/sqlx?charset=utf8&parseTime=True&loc=Local")
 		if err != nil {
 			log.Fatalf("%s\n", err.Error())
 		}
@@ -291,7 +291,7 @@ func TestCreateIndex(t *testing.T) {
 		NewColumn3 float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
 	}
 
-	err := Handle.AlterTables(Depot{})
+	err := Handle.CreateTables(Depot{})
 	if err != nil {
 		t.Errorf("%s", err.Error())
 	}

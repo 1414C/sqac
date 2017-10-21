@@ -336,12 +336,13 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 
 	if tableSchema != "" && pKeys == "" {
 		tableSchema = strings.TrimSuffix(tableSchema, ",")
-		tableSchema = tableSchema + ");"
+		tableSchema = tableSchema + ")"
 	}
 	if tableSchema != "" && pKeys != "" {
 		pKeys = strings.TrimSuffix(pKeys, ",")
-		tableSchema = tableSchema + fmt.Sprintf("PRIMARY KEY (%s) );", pKeys)
+		tableSchema = tableSchema + fmt.Sprintf("PRIMARY KEY (%s) )", pKeys)
 	}
+	tableSchema = tableSchema + " ENGINE=InnoDB DEFAULT CHARSET=latin1;"
 
 	// pass out the CREATE TABLE schema, and component info
 	return TblComponents{
