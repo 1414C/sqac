@@ -51,11 +51,6 @@ func TestMain(m *testing.M) {
 			log.Fatalf("%s\n", err.Error())
 		}
 		Handle.SetDB(db)
-		if *logFlag {
-			Handle.Log(true)
-		} else {
-			Handle.Log(false)
-		}
 
 	case "mysql":
 		myh := new(sqac.MySQLFlavor)
@@ -65,7 +60,6 @@ func TestMain(m *testing.M) {
 			log.Fatalf("%s\n", err.Error())
 		}
 		Handle.SetDB(db)
-		Handle.Log(false)
 
 	case "sqlite":
 		sqh := new(sqac.SQLiteFlavor)
@@ -75,7 +69,6 @@ func TestMain(m *testing.M) {
 			log.Fatalf("%s\n", err.Error())
 		}
 		Handle.SetDB(db)
-		Handle.Log(false)
 
 	case "db2":
 
@@ -83,6 +76,13 @@ func TestMain(m *testing.M) {
 
 	default:
 
+	}
+
+	// detailed logging?
+	if *logFlag {
+		Handle.Log(true)
+	} else {
+		Handle.Log(false)
 	}
 
 	// run the tests
@@ -398,7 +398,7 @@ func TestDropIndex(t *testing.T) {
 		t.Errorf("index %s was not found on table %s", "idx_province_country", tn)
 	}
 
-	err = Handle.DropIndex("idx_province_country")
+	err = Handle.DropIndex(tn, "idx_province_country")
 	if err != nil {
 		t.Errorf("%s", err.Error())
 	}

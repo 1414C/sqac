@@ -442,7 +442,7 @@ func (pf *PostgresFlavor) DropTables(i ...interface{}) error {
 	return nil
 }
 
-// AlterTables alters tables on the postgres database referenced
+// AlterTables alters tables on the Postgres database referenced
 // by pf.DB.
 func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 
@@ -625,6 +625,15 @@ func (pf *PostgresFlavor) ExistsIndex(tn string, in string) bool {
 		}
 	}
 	return false
+}
+
+// DropIndex drops the specfied index on the connected Postgres database.
+// tn is ignored for Postgres.
+func (pf *PostgresFlavor) DropIndex(tn string, in string) error {
+
+	indexSchema := fmt.Sprintf("DROP INDEX IF EXISTS %s;", in)
+	pf.ProcessSchema(indexSchema)
+	return nil
 }
 
 // ExistsSequence checks the public schema of the connected Postgres

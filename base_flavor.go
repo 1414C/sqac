@@ -87,7 +87,7 @@ type PublicDB interface {
 
 	// tn=tableName, in=indexName
 	CreateIndex(in string, index IndexInfo) error
-	DropIndex(in string) error
+	DropIndex(tn string, in string) error
 	ExistsIndex(tn string, in string) bool
 
 	// sn=sequenceName, start=start-value
@@ -226,7 +226,6 @@ func (bf *BaseFlavor) CreateTables(i ...interface{}) error {
 func (bf *BaseFlavor) DropTables(i ...interface{}) error {
 
 	dropSchema := ""
-	fmt.Println("in bf.DropTables")
 	for t := range i {
 
 		// determine the table name
@@ -238,7 +237,7 @@ func (bf *BaseFlavor) DropTables(i ...interface{}) error {
 			tn = strings.ToLower(tn)
 		}
 		if tn == "" {
-			return fmt.Errorf("unable to determine table name in pf.DropTables")
+			return fmt.Errorf("unable to determine table name in bf.DropTables")
 		}
 
 		// if the table is found to exist, add a DROP statement
@@ -248,11 +247,11 @@ func (bf *BaseFlavor) DropTables(i ...interface{}) error {
 			if bf.log {
 				fmt.Printf("table %s exists - adding to drop schema...\n", tn)
 			}
-			dropSchema = dropSchema + fmt.Sprintf("DROP TABLE IF EXISTS %s;", tn)
+			// submit 1 at a time for mysql
+			dropSchema = dropSchema + fmt.Sprintf("DROP TABLE IF EXISTS %s; ", tn)
+			bf.ProcessSchema(dropSchema)
+			dropSchema = ""
 		}
-	}
-	if dropSchema != "" {
-		bf.ProcessSchema(dropSchema)
 	}
 	return nil
 }
@@ -302,9 +301,11 @@ func (bf *BaseFlavor) ExistsColumn(tn string, cn string) bool {
 
 	// SELECT COUNT(*) FROM information_schema.COLUMNS WHERE table_schema = 'jsonddl' AND table_name = 'equipment' AND column_name = 'description';
 	n := 0
-	bf.db.QueryRow("SELECT count(*) FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = ? AND table_name = ?;", bf.GetDBName(), tn, cn).Scan(&n)
-	if n > 0 {
-		return true
+	if bf.ExistsTable(tn) {
+		bf.db.QueryRow("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE table_schema = ? AND table_name = ? AND column_name = ?;", bf.GetDBName(), tn, cn).Scan(&n)
+		if n > 0 {
+			return true
+		}
 	}
 	return false
 }
@@ -340,10 +341,8 @@ func (bf *BaseFlavor) CreateIndex(in string, index IndexInfo) error {
 }
 
 // DropIndex drops the specfied index on the connected database.
-func (bf *BaseFlavor) DropIndex(in string) error {
+func (bf *BaseFlavor) DropIndex(tn string, in string) error {
 
-	indexSchema := fmt.Sprintf("DROP INDEX IF EXISTS %s;", in)
-	bf.ProcessSchema(indexSchema)
 	return nil
 }
 

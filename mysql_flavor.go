@@ -108,7 +108,6 @@ func (myf *MySQLFlavor) CreateTables(i ...interface{}) error {
 			fmt.Println("ERROR:", tc.err)
 			fmt.Println("====================================================================")
 		}
-		fmt.Println(tc.tblSchema)
 		myf.db.MustExec(tc.tblSchema)
 		for _, sq := range tc.seq {
 			start, _ := strconv.Atoi(sq.Value)
@@ -325,6 +324,9 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 
 		// add the current column to the schema
 		tableSchema = tableSchema + fmt.Sprintf("%s%s%s %s", qt, col.fName, qt, col.fType)
+		if col.fAutoInc == true {
+			tableSchema = tableSchema + " AUTO_INCREMENT"
+		}
 		if col.fNullable != "" {
 			tableSchema = tableSchema + " " + col.fNullable
 		}
@@ -353,4 +355,144 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 		pk:        pKeys,
 		err:       err,
 	}
+}
+
+// AlterTables alters tables on the MySQL database referenced
+// by myf.DB.
+func (myf *MySQLFlavor) AlterTables(i ...interface{}) error {
+
+	for t, ent := range i {
+
+		// ftr := reflect.TypeOf(ent)
+
+		// determine the table name
+		tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
+		if strings.Contains(tn, ".") {
+			el := strings.Split(tn, ".")
+			tn = strings.ToLower(el[len(el)-1])
+		} else {
+			tn = strings.ToLower(tn)
+		}
+		if tn == "" {
+			return fmt.Errorf("unable to determine table name in myf.AlterTables")
+		}
+
+		// if the table does not exist, call CreateTables
+		// if the table does exist, examine it and perform
+		// alterations if neccessary
+		if !myf.ExistsTable(tn) {
+			myf.CreateTables(ent)
+			continue
+		}
+
+		// build the altered table schema and get its components
+		tc := myf.buildTablSchema(tn, i[t])
+		if myf.log {
+			fmt.Println("====================================================================")
+			fmt.Println("TABLE SCHEMA:", tc.tblSchema)
+			fmt.Println()
+			for _, v := range tc.seq {
+				fmt.Println("SEQUENCE:", v)
+			}
+			fmt.Println()
+			for k, v := range tc.ind {
+				fmt.Printf("INDEX: k:%s	fields:%v  unique:%v tableName:%s\n", k, v.IndexFields, v.Unique, v.TableName)
+			}
+			fmt.Println()
+			fmt.Println("PRIMARY KEYS:", tc.pk)
+			fmt.Println()
+			for _, v := range tc.flDef {
+				fmt.Printf("FIELD DEF: fname:%s, ftype:%s, gotype:%s \n", v.FName, v.FType, v.GoType)
+				for _, p := range v.RgenPairs {
+					fmt.Printf("FIELD PROPERTY: %s, %v\n", p.Name, p.Value)
+				}
+				fmt.Println("------")
+			}
+			fmt.Println()
+			fmt.Println("ERROR:", tc.err)
+			fmt.Println("====================================================================")
+		}
+
+		// go through the latest version of the model and check each
+		// field against its definition in the database.
+		qt := myf.GetDBQuote()
+		alterSchema := fmt.Sprintf("ALTER TABLE %s%s%s", qt, tn, qt)
+		var cols []string
+
+		for _, fd := range tc.flDef {
+			// new columns first
+			if !myf.ExistsColumn(tn, fd.FName) {
+
+				colSchema := fmt.Sprintf("ADD COLUMN %s%s%s %s", qt, fd.FName, qt, fd.FType)
+				for _, p := range fd.RgenPairs {
+					switch p.Name {
+					case "primary_key":
+						// abort - adding primary key
+						panic(fmt.Errorf("aborting - cannot add a primary-key (table-field %s-%s) through migration", tn, fd.FName))
+
+					case "default":
+						if fd.GoType == "string" {
+							colSchema = fmt.Sprintf("%s DEFAULT '%s'", colSchema, p.Value)
+						} else {
+							colSchema = fmt.Sprintf("%s DEFAULT %s", colSchema, p.Value)
+						}
+
+					case "nullable":
+						if p.Value == "false" {
+							colSchema = fmt.Sprintf("%s NOT NULL", colSchema)
+						}
+
+					default:
+
+					}
+				}
+				cols = append(cols, colSchema+",")
+			}
+		}
+
+		// ALTER TABLE ADD COLUMNS...
+		if len(cols) > 0 {
+			for _, c := range cols {
+				alterSchema = fmt.Sprintf("%s %s", alterSchema, c)
+			}
+			alterSchema = strings.TrimSuffix(alterSchema, ",")
+			myf.ProcessSchema(alterSchema)
+		}
+
+		// add indexes if required
+		for k, v := range tc.ind {
+			if !myf.ExistsIndex(v.TableName, k) {
+				myf.CreateIndex(k, v)
+			}
+		}
+	}
+	return nil
+}
+
+// DropIndex drops the specfied index on the connected database.
+func (myf *MySQLFlavor) DropIndex(tn string, in string) error {
+
+	if myf.ExistsIndex(tn, in) {
+		indexSchema := fmt.Sprintf("DROP INDEX %s ON %s;", in, tn)
+		myf.ProcessSchema(indexSchema)
+		return nil
+	}
+	return nil
+}
+
+// DestructiveResetTables drops tables on the MySQL db if they exist,
+// as well as any related objects such as sequences.  this is
+// useful if you wish to regenerated your table and the
+// number-range used by an auto-incementing primary key.
+func (myf *MySQLFlavor) DestructiveResetTables(i ...interface{}) error {
+
+	err := myf.DropTables(i...)
+	if err != nil {
+		return err
+	}
+	err = myf.CreateTables(i...)
+	if err != nil {
+		return err
+	}
+	return nil
 }
