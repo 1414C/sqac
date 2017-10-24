@@ -271,7 +271,13 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 					// addtionally, relying on the default keygen opens the door
 					// to the reuse of deleted keys - which is largely problematic
 					// (for me at least).  for this reason, AUTOINCREMENT is used.
-					if p.Value == "inc" {
+					// if AUTOINCREMENT is requested on an int64/uint64, downcast
+					// the db-field-type to integer.
+					if p.Value == "inc" && strings.Contains(fd.GoType, "int") {
+						if strings.Contains(fd.GoType, "64") {
+							fldef[idx].FType = "integer"
+							col.fType = "integer"
+						}
 						col.fAutoInc = true
 					}
 
@@ -292,7 +298,7 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
 					}
 
-					if fd.GoType == "time.Time" && p.Value == "eot" {
+					if fd.GoType == "time.Time" {
 						switch p.Value {
 						case "now()":
 							p.Value = "(datetime('now'))"
@@ -344,8 +350,11 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 
 		// add the current column to the schema
 		tableSchema = tableSchema + fmt.Sprintf("%s%s%s %s", qt, col.fName, qt, col.fType)
+		if col.fPrimaryKey != "" {
+			tableSchema = tableSchema + fmt.Sprintf(" %s", col.fPrimaryKey)
+		}
 		if col.fAutoInc == true {
-			tableSchema = tableSchema + " AUTO_INCREMENT"
+			tableSchema = tableSchema + " AUTOINCREMENT"
 		}
 		if col.fNullable != "" {
 			tableSchema = tableSchema + " " + col.fNullable
@@ -362,9 +371,8 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 	}
 	if tableSchema != "" && pKeys != "" {
 		pKeys = strings.TrimSuffix(pKeys, ",")
-		tableSchema = tableSchema + fmt.Sprintf("PRIMARY KEY (%s) )", pKeys)
+		tableSchema = tableSchema + fmt.Sprintf("UNIQUE(%s) );", pKeys)
 	}
-	tableSchema = tableSchema + " ENGINE=InnoDB DEFAULT CHARSET=latin1;"
 
 	// pass out the CREATE TABLE schema, and component info
 	return TblComponents{
@@ -375,4 +383,77 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 		pk:        pKeys,
 		err:       err,
 	}
+}
+
+// ExistsTable checks that the specified table exists in the SQLite database file.
+func (slf *SQLiteFlavor) ExistsTable(tn string) bool {
+
+	n := 0
+	reqQuery := fmt.Sprintf("SELECT COUNT(*) FROM sqlite_master WHERE type=\"table\" AND name=\"%s\";", tn)
+	err := slf.db.QueryRow(reqQuery).Scan(&n)
+	if err != nil {
+		return false
+	}
+	if n == 0 {
+		return false
+	}
+	return true
+}
+
+// DropTables drops tables on the SQLite db if they exist, based on
+// the provided list of go struct definitions.
+func (slf *SQLiteFlavor) DropTables(i ...interface{}) error {
+
+	dropSchema := ""
+	for t := range i {
+
+		// determine the table name
+		tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
+		if strings.Contains(tn, ".") {
+			el := strings.Split(tn, ".")
+			tn = strings.ToLower(el[len(el)-1])
+		} else {
+			tn = strings.ToLower(tn)
+		}
+		if tn == "" {
+			return fmt.Errorf("unable to determine table name in slf.DropTables")
+		}
+
+		// if the table is found to exist, add a DROP statement
+		// to the dropSchema string and move on to the next
+		// table in the list.
+		if slf.ExistsTable(tn) {
+			if slf.log {
+				fmt.Printf("table %s exists - adding to drop schema...\n", tn)
+			}
+			// submit 1 at a time for mysql
+			dropSchema = dropSchema + fmt.Sprintf("DROP TABLE IF EXISTS %s; ", tn)
+			slf.ProcessSchema(dropSchema)
+			dropSchema = ""
+		}
+	}
+	return nil
+}
+
+// DropIndex drops the specfied index on the connected SQLite database.  SQLite does
+// not require the table name to drop an index, but it is provided in order to
+// comply with the PublicDB interface definition.
+func (slf *SQLiteFlavor) DropIndex(tn string, in string) error {
+
+	indexSchema := fmt.Sprintf("DROP INDEX IF EXISTS %s;", in)
+	slf.ProcessSchema(indexSchema)
+	return nil
+}
+
+// ExistsIndex checks the connected SQLite database for the presence
+// of the specified index.  This method is typically not required
+// for SQLite, as the 'IF EXISTS' syntax is widely supported.
+func (slf *SQLiteFlavor) ExistsIndex(tn string, in string) bool {
+
+	n := 0
+	slf.db.QueryRow("SELECT COUNT(*) FROM sqlite_master WHERE \"type\" = \"index\" AND \"name\" = \"%s\";", in).Scan(&n)
+	if n > 0 {
+		return true
+	}
+	return false
 }
