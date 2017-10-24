@@ -163,19 +163,20 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 	// 	"Description" VARCHAR(255),
 	// 	UNIQUE("KeyOne", "KeyTwo") );
 
-	// 	INSERT OR FAIL INTO "DoubleKey4" (KeyTwo, Description) VALUES ( 40,"Second Record");
-
-	// DATETIME format: 2016-01-01 10:20:05.123
-
-	// example SQL Queries for supported DB Ops
+	//========================================================================================================
 	// DROP INDEX IF EXISTS idx_double_key4_new_column3;
 
 	// DROP TABLE IF EXISTS "DoubleKey4";
 
 	// CREATE TABLE IF NOT EXISTS "DoubleKey4" (
-	// "KeyOne" integer PRIMARY KEY,
+	// "KeyOne" integer PRIMARY KEY AUTOINCREMENT,
 	// "KeyTwo" integer NOT NULL,
+	// "CreateDTUTC" datetime DEFAULT (datetime('now')),
+	// "ExpiryDT" datetime DEFAULT(datetime('now','+2 years')),
+	// "EOTDT" datetime DEFAULT('9999-12-31 23:59:59'),
 	// "Description" VARCHAR(255),
+	// "DefaultedText" VARCHAR(255) DEFAULT 'fiddlesticks',
+	// "DefaultedFloat" real NOT NULL DEFAULT 4.335,
 	// UNIQUE("KeyOne", "KeyTwo") );
 
 	// INSERT OR FAIL INTO "DoubleKey4" (KeyTwo, Description) VALUES ( 40,"Second Record");
@@ -189,6 +190,15 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 
 	// CREATE INDEX idx_double_key4_new_column4_new_column5 ON "DoubleKey4"("NewColumn4, NewColumn5");
 
+	// SELECT * FROM sqlite_sequence WHERE "name" = "DoubleKey4";
+
+	// UPDATE "sqlite_sequence" SET "seq" = 50000000 WHERE "name" = "DoubleKey4";
+
+	// SELECT * FROM sqlite_sequence WHERE "name" = "DoubleKey4";
+
+	// SELECT * FROM "DoubleKey4";
+	//========================================================================================================
+
 	for idx, fd := range fldef {
 
 		var col ColComponents
@@ -199,36 +209,42 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 		col.fDefault = ""
 		col.fNullable = ""
 
-		switch fd.GoType {
-		case "int", "int16", "int32", "rune":
-			col.fType = "int"
+		// int64   bigint
+		// uint64  bigint
+		// int32   integer
+		// int16   integer
+		// int8    integer
+		// int     integer
+		// uint32  integer
+		// uint16  integer
+		// uint8   integer
+		// uint	   integer
+		// byte    integer
+		// rune    integer
+		// float32  real
+		// float64  real
+		// string  varchar(255) (or 256?)
+		// date/time  datetime - need now() function equivalent - also function to create a date-time from a string
 
-		case "int64":
+		switch fd.GoType {
+		case "int64", "uint64":
 			col.fType = "bigint"
 
-		case "int8":
-			col.fType = "tinyint"
-
-		case "uint", "uint16", "uint32":
-			col.fType = "int unsigned"
-
-		case "uint64":
-			col.fType = "bigint unsigned"
-
-		case "uint8", "byte":
-			col.fType = "tinyint"
+		case "uint", "uint8", "uint16", "uint32", "int",
+			"int8", "int16", "int32", "rune", "byte":
+			col.fType = "integer"
 
 		case "float32", "float64":
-			col.fType = "double"
+			col.fType = "real"
 
 		case "bool":
-			col.fType = "boolean" // or tinyint(1)?
+			col.fType = "bool"
 
 		case "string":
-			col.fType = "varchar(255)" //
+			col.fType = "varchar(255)"
 
 		case "time.Time", "*time.Time":
-			col.fType = "timestamp"
+			col.fType = "datetime"
 
 		default:
 			err := fmt.Errorf("go type %s is not presently supported", fldef[idx].FType)
@@ -249,6 +265,12 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 					pKeys = fmt.Sprintf("%s %s%s%s,", pKeys, qt, fd.FName, qt)
 					// pKeys = pKeys + fd.FName + ","
 
+					// int-type primary keys will autoincrement based on ROWID,
+					// but the speed increase comes with the cost of losing control
+					// of the starting point of the range at time of table creation.
+					// addtionally, relying on the default keygen opens the door
+					// to the reuse of deleted keys - which is largely problematic
+					// (for me at least).  for this reason, AUTOINCREMENT is used.
 					if p.Value == "inc" {
 						col.fAutoInc = true
 					}
@@ -269,8 +291,16 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 					} else {
 						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
 					}
+
 					if fd.GoType == "time.Time" && p.Value == "eot" {
-						p.Value = "TIMESTAMP('2003-12-31 12:00:00')"
+						switch p.Value {
+						case "now()":
+							p.Value = "(datetime('now'))"
+						case "eot":
+							p.Value = "('9999-12-31 23:59:59')"
+						default:
+
+						}
 						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
 					}
 
@@ -298,12 +328,16 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 		} else { // *time.Time only supports default directive
 			for _, p := range fd.RgenPairs {
 				if p.Name == "default" {
-					if p.Value == "eot" {
-						p.Value = "TIMESTAMP('2003-12-31 12:00:00')"
+					switch p.Value {
+					case "now()":
+						p.Value = "(datetime('now'))"
+					case "eot":
+						p.Value = "('9999-12-31 23:59:59')"
+					default:
+
 					}
 					col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
 				}
-
 			}
 		}
 		fldef[idx].FType = col.fType
