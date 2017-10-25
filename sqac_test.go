@@ -612,7 +612,16 @@ func TestNullableValues(t *testing.T) {
 
 	// insert a new record containing null-values into db-table depot
 	// sql.NullBool, sql.NullFloat64, sql.NullInt64, sql.NullString
-	_, err = Handle.Exec("INSERT INTO depot (depot_num, region, province) VALUES (DEFAULT, 'YVR','AB');")
+	insQuery := ""
+	switch Handle.GetDBDriverName() {
+	case "postgres", "mysql":
+		insQuery = "INSERT INTO depot (depot_num, region, province) VALUES (DEFAULT, 'YVR','AB');"
+	case "sqlite3":
+		insQuery = "INSERT INTO depot (region, province) VALUES ('YVR','AB');"
+	default:
+		insQuery = "INSERT INTO depot (depot_num, region, province) VALUES (DEFAULT, 'YVR','AB');"
+	}
+	_, err = Handle.Exec(insQuery)
 	if err != nil {
 		t.Errorf("error inserting into table depot - got %s", err.Error())
 	}

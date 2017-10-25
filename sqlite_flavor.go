@@ -451,9 +451,52 @@ func (slf *SQLiteFlavor) DropIndex(tn string, in string) error {
 func (slf *SQLiteFlavor) ExistsIndex(tn string, in string) bool {
 
 	n := 0
-	slf.db.QueryRow("SELECT COUNT(*) FROM sqlite_master WHERE \"type\" = \"index\" AND \"name\" = \"%s\";", in).Scan(&n)
+	indQuery := fmt.Sprintf("SELECT COUNT(*) FROM sqlite_master WHERE \"type\" = \"index\" AND \"name\" = \"%s\";", in)
+	slf.db.QueryRow(indQuery).Scan(&n)
 	if n > 0 {
 		return true
 	}
 	return false
+}
+
+// ExistsColumn checks the current SQLite database file and
+// returns true if the named table-column is found to exist.
+// this checks the column name only, not the column data-type
+// or properties.
+func (slf *SQLiteFlavor) ExistsColumn(tn string, cn string) bool {
+
+	if slf.ExistsTable(tn) {
+
+		// colQuery := fmt.Sprintf("PRAGMA table_info(\"%s\")", tn)  // does not work - annoying
+		// without using the built-in PRAGMA, we have to rely on the table creation SQL
+		// that is stored in the sqlite_master table - not very exact.
+		sqlString := ""
+		colQuery := fmt.Sprintf("SELECT \"sql\" FROM \"sqlite_master\" WHERE \"type\" = \"table\" AND \"name\" = \"%s\"", tn)
+		slf.db.QueryRow(colQuery).Scan(&sqlString)
+		if sqlString == "" {
+			return false
+		}
+
+		if strings.Contains(sqlString, cn) {
+			return true
+		}
+	}
+	return false
+}
+
+// DestructiveResetTables drops tables on the SQLite db file if they exist,
+// as well as any related objects such as sequences.  this is
+// useful if you wish to regenerated your table and the
+// number-range used by an auto-incementing primary key.
+func (slf *SQLiteFlavor) DestructiveResetTables(i ...interface{}) error {
+
+	err := slf.DropTables(i...)
+	if err != nil {
+		return err
+	}
+	err = slf.CreateTables(i...)
+	if err != nil {
+		return err
+	}
+	return nil
 }
