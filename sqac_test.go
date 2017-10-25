@@ -18,11 +18,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// // SessionData contains session management vars
-// type SessionData struct {
-// 	db  *sqlx.DB
-// 	log bool
-// }
 type dbac struct {
 	DB   *sqlx.DB
 	Log  bool
