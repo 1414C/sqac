@@ -134,22 +134,6 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 	// index requirements must be deferred until all other
 	// artifacts have been created successfully.
 	// SQLite has basic types more along the lines of Postgres.
-	// int64   bigint
-	// uint64  bigint
-	// int32   integer
-	// int16   integer
-	// int8    integer
-	// int     integer
-	// uint32  integer
-	// uint16  integer
-	// uint8   integer
-	// uint	   integer
-	// byte    integer
-	// rune    integer
-	// float32  real
-	// float64  real
-	// string  varchar(255) (or 256?)
-	// date/time  datetime - need now() function equivalent - also function to create a date-time from a string
 
 	// support composite primary-keys (sort-of) by relying on the ROWID
 	// property of SQLite to autoincrement the one-and-only PRIMARY KEY field
@@ -209,21 +193,6 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 		col.fDefault = ""
 		col.fNullable = ""
 
-		// int64   bigint
-		// uint64  bigint
-		// int32   integer
-		// int16   integer
-		// int8    integer
-		// int     integer
-		// uint32  integer
-		// uint16  integer
-		// uint8   integer
-		// uint	   integer
-		// byte    integer
-		// rune    integer
-		// float32  real
-		// float64  real
-		// string  varchar(255) (or 256?)
 		// date/time  datetime - need now() function equivalent - also function to create a date-time from a string
 
 		switch fd.GoType {
@@ -385,21 +354,6 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 	}
 }
 
-// ExistsTable checks that the specified table exists in the SQLite database file.
-func (slf *SQLiteFlavor) ExistsTable(tn string) bool {
-
-	n := 0
-	reqQuery := fmt.Sprintf("SELECT COUNT(*) FROM sqlite_master WHERE type=\"table\" AND name=\"%s\";", tn)
-	err := slf.db.QueryRow(reqQuery).Scan(&n)
-	if err != nil {
-		return false
-	}
-	if n == 0 {
-		return false
-	}
-	return true
-}
-
 // DropTables drops tables on the SQLite db if they exist, based on
 // the provided list of go struct definitions.
 func (slf *SQLiteFlavor) DropTables(i ...interface{}) error {
@@ -433,6 +387,38 @@ func (slf *SQLiteFlavor) DropTables(i ...interface{}) error {
 		}
 	}
 	return nil
+}
+
+// DestructiveResetTables drops tables on the SQLite db file if they exist,
+// as well as any related objects such as sequences.  this is
+// useful if you wish to regenerated your table and the
+// number-range used by an auto-incementing primary key.
+func (slf *SQLiteFlavor) DestructiveResetTables(i ...interface{}) error {
+
+	err := slf.DropTables(i...)
+	if err != nil {
+		return err
+	}
+	err = slf.CreateTables(i...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// ExistsTable checks that the specified table exists in the SQLite database file.
+func (slf *SQLiteFlavor) ExistsTable(tn string) bool {
+
+	n := 0
+	reqQuery := fmt.Sprintf("SELECT COUNT(*) FROM sqlite_master WHERE type=\"table\" AND name=\"%s\";", tn)
+	err := slf.db.QueryRow(reqQuery).Scan(&n)
+	if err != nil {
+		return false
+	}
+	if n == 0 {
+		return false
+	}
+	return true
 }
 
 // DropIndex drops the specfied index on the connected SQLite database.  SQLite does
@@ -482,21 +468,4 @@ func (slf *SQLiteFlavor) ExistsColumn(tn string, cn string) bool {
 		}
 	}
 	return false
-}
-
-// DestructiveResetTables drops tables on the SQLite db file if they exist,
-// as well as any related objects such as sequences.  this is
-// useful if you wish to regenerated your table and the
-// number-range used by an auto-incementing primary key.
-func (slf *SQLiteFlavor) DestructiveResetTables(i ...interface{}) error {
-
-	err := slf.DropTables(i...)
-	if err != nil {
-		return err
-	}
-	err = slf.CreateTables(i...)
-	if err != nil {
-		return err
-	}
-	return nil
 }

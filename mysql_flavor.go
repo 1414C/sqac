@@ -5,7 +5,6 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-	// "fmt"
 )
 
 // MySQLFlavor is a MySQL-specific implementation.
@@ -38,20 +37,8 @@ type MySQLFlavor struct {
 	// ExistsSequence(sn string) bool
 }
 
-//================================================================
-// PublicDB Interface methods implemented in BaseFlavor:
-//
-// ExistsTable(tn string) bool
-// ExistsColumn(tn string, cn string) bool
-// ExistsIndex(tn string, in string) bool
-// CreateIndex(in string, index IndexInfo) error - experiemental
-// DropIndex(in string) error - experimental
-//
-//
-//================================================================
-
 // CreateTables creates tables on the postgres database referenced
-// by pf.DB.
+// by myf.DB.
 func (myf *MySQLFlavor) CreateTables(i ...interface{}) error {
 
 	for t, ent := range i {
@@ -146,15 +133,6 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 	// the table definition. In all cases any foreign-key or
 	// index requirements must be deferred until all other
 	// artifacts have been created successfully.
-	// MySQL has more data-types than postgres - db ints are
-	// signed / unsigned, and they account for integer sizes
-	// down to 8 bits:
-	// TINYINT = 1 byte
-	// SMALLINT = 2 bytes
-	// MEDIUMINT = 3 bytes
-	// INT = 4 bytes
-	// BIGINT = 8 bytes
-	// DOUBLE = 8 bytes (floating-point, so we go for widest DB type here)
 	// https://mariadb.com/kb/en/library/data-types/
 	// future: https://dev.mysql.com/doc/refman/5.7/en/spatial-extensions.html
 	for idx, fd := range fldef {
@@ -166,50 +144,6 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 		col.fPrimaryKey = ""
 		col.fDefault = ""
 		col.fNullable = ""
-
-		// things to deal with:
-		// rgen:"primary_key:inc;start:55550000"
-		// rgen:"nullable:false"
-		// rgen:"default:0"
-		// rgen:"index:idx_material_num_serial_num
-		// rgen:"index:unique/non-unique"
-		// timestamp syntax and functions
-		// - pg now() equivalent
-		// - pg make_timestamptz(9999, 12, 31, 23, 59, 59.9) equivalent
-
-		// uint8  - TINYINT - range must be smaller than int8?
-		// uint16 - SMALLINT
-		// uint32 - INT
-		// uint64 - BIGINT
-
-		// int8  - TINYINT
-		// int16 - SMALLINT
-		// int32 - INT
-		// int64 - BIGINT
-
-		// float32 - DOUBLE
-		// float64 - DOUBLE
-
-		// bool - BOOLEAN - (alias for TINYINT(1))
-
-		// rune - INT (32-bits - unicode and stuff)
-		// byte - TINTINT - (8-bits and stuff)
-
-		// string - VARCHAR(255) - (uses 1-byte for length-prefix in record prefix)
-		// string - VARCHAR(256) - (uses 2-bytes for length-prefix; use for strings
-		//                      	that may exceed 255 bytes->out to max 65,535 bytes)
-
-		// TIMESTAMP - also look at YYYYMMDD format, which seems to be native
-
-		// autoincrement - https://mariadb.com/kb/en/library/auto_increment/
-		// spatial - POINT, MULTIPOINT, POLYGON (future)  https://mariadb.com/kb/en/library/geometry-types/
-
-		// CREATE TABLE `test_default_four` (
-		// 	`int16_key` bigint NOT NULL AUTO_INCREMENT,
-		// 	 `int32_field` int NOT NULL DEFAULT 0,
-		// 	`description` varchar(255) DEFAULT 'test',
-		// 	PRIMARY KEY (`int16_key`)
-		//   ) ENGINE=InnoDB DEFAULT CHARSET=latin1
 
 		// https://stackoverflow.com/questions/168736/how-do-you-set-a-default-value-for-a-mysql-datetime-column
 

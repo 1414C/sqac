@@ -37,14 +37,6 @@ type PostgresFlavor struct {
 	// ExistsSequence(sn string) bool
 }
 
-// func (bf *BaseFlavor) InBase() {
-// 	fmt.Println("InBase() called")
-// }
-
-func (pf *PostgresFlavor) InDB() {
-	fmt.Println("InDB called in PGF")
-}
-
 // CreateTables creates tables on the postgres database referenced
 // by pf.DB.
 func (pf *PostgresFlavor) CreateTables(i ...interface{}) error {
