@@ -576,6 +576,7 @@ func TestNullableValues(t *testing.T) {
 		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
 		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
 		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
+		MemOnly    string    `db:"mem_only" rgen:"-"`
 		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
 		Country    string    `db:"country" rgen:"nullable:true;"`    // nullable
 		NewColumn1 string    `db:"new_column1" rgen:"nullable:true"` // nullable
@@ -632,6 +633,7 @@ func TestNullableValues(t *testing.T) {
 		DepotNum   int             `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
 		CreateDate time.Time       `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
 		Region     string          `db:"region" rgen:"nullable:false;default:YYC"`
+		MemOnly    string          `db:"mem_only" rgen:"-"`
 		Province   string          `db:"province" rgen:"nullable:false;default:AB"`
 		Country    sql.NullString  `db:"country" rgen:"nullable:true;"`
 		NewColumn1 *string         `db:"new_column1" rgen:"nullable:true"`
@@ -646,9 +648,17 @@ func TestNullableValues(t *testing.T) {
 	if err != nil {
 		t.Errorf("error reading from table depot - got %s", err.Error())
 	}
+
 	if Handle.IsLog() {
 		fmt.Println("got:", dn)
 		for i, v := range dn {
+
+			fmt.Println("got depot_num:", v.DepotNum)
+			fmt.Println("got create_date:", v.CreateDate)
+			fmt.Println("got region:", v.Region)
+			fmt.Println("got province:", v.Province)
+			fmt.Println("got country:", v.Country)
+			fmt.Println("got mem only:", v.MemOnly)
 
 			fmt.Printf("record %d contains %s in the sql.NullString.String\n", i, v.Country.String)
 			if v.Country.String == "" {
