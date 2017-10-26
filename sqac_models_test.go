@@ -48,5 +48,6 @@ type Equipment struct {
 	BoolExample    bool      `db:"bool_example" rgen:"nullable:false;default:false"`
 	RuneExample    rune      `db:"rune_example" rgen:"nullable:true"`
 	ByteExample    byte      `db:"byte_example" rgen:"nullable:true"`
+	DoNotCreate    string    `db:"do_not_create" rgen:"-"`
 	Triplet
 }
