@@ -19,6 +19,7 @@ type FieldDef struct {
 	FName     string
 	FType     string
 	GoType    string
+	NoDB      bool
 	RgenPairs []RgenPair
 }
 
@@ -84,18 +85,30 @@ func TagReader(i interface{}, t reflect.Type) (fd []FieldDef, err error) {
 			rgenTags := strings.Split(rgenTag, ";")
 			for k := range rgenTags {
 				rgenVars := strings.Split(rgenTags[k], ":")
-				if len(rgenVars) == 2 {
+				switch len(rgenVars) {
+				case 2:
 					p := RgenPair{
 						Name:  rgenVars[0],
 						Value: rgenVars[1],
 					}
 					fldDef.RgenPairs = append(fldDef.RgenPairs, p)
+					fldDef.NoDB = false
 					rgenVars = nil
-				} else {
-					// panic("misssing value")
-					// this is expected in some cases, so
-					// just let it go for now.
+				case 1:
+					if rgenVars[0] == "-" {
+						fldDef.NoDB = true
+					}
 				}
+				// if len(rgenVars) == 2 {
+				// 	p := RgenPair{
+				// 		Name:  rgenVars[0],
+				// 		Value: rgenVars[1],
+				// 	}
+				// 	fldDef.RgenPairs = append(fldDef.RgenPairs, p)
+				// 	rgenVars = nil
+				// } else {
+
+				// }
 			}
 		}
 		fd = append(fd, fldDef)
