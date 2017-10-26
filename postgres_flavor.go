@@ -69,33 +69,10 @@ func (pf *PostgresFlavor) CreateTables(i ...interface{}) error {
 			continue
 		}
 
+		// build the create table schema and return all of the table info
 		tc := pf.buildTablSchema(tn, i[t])
-		if pf.log {
-			fmt.Println("====================================================================")
-			fmt.Println("TABLE SCHEMA:", tc.tblSchema)
-			fmt.Println()
-			for _, v := range tc.seq {
-				fmt.Println("SEQUENCE:", v)
-			}
-			fmt.Println()
-			for k, v := range tc.ind {
-				fmt.Printf("INDEX: k:%s	fields:%v  unique:%v tableName:%s\n", k, v.IndexFields, v.Unique, v.TableName)
-			}
-			fmt.Println()
-			fmt.Println("PRIMARY KEYS:", tc.pk)
-			fmt.Println()
-			for _, v := range tc.flDef {
-				fmt.Printf("FIELD DEF: fname:%s, ftype:%s, gotype:%s \n", v.FName, v.FType, v.GoType)
-				for _, p := range v.RgenPairs {
-					fmt.Printf("FIELD PROPERTY: %s, %v\n", p.Name, p.Value)
-				}
-				fmt.Println("------")
-			}
-			fmt.Println()
-			fmt.Println("ERROR:", tc.err)
-			fmt.Println("====================================================================")
-		}
 
+		// create the table on the db
 		pf.db.MustExec(tc.tblSchema)
 		for _, sq := range tc.seq {
 			start, _ := strconv.Atoi(sq.Value)
@@ -387,8 +364,8 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 		tableSchema = tableSchema + fmt.Sprintf("CONSTRAINT %s_pkey PRIMARY KEY (%s) );", strings.ToLower(tn), pKeys)
 	}
 
-	// pass out the CREATE TABLE schema, and component info
-	return TblComponents{
+	// fill the return structure passing out the CREATE TABLE schema, and component info
+	rc := TblComponents{
 		tblSchema: tableSchema,
 		flDef:     fldef,
 		seq:       sequences,
@@ -396,6 +373,11 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 		pk:        pKeys,
 		err:       err,
 	}
+
+	if pf.log {
+		rc.Log()
+	}
+	return rc
 }
 
 // DropTables drops tables on the postgres database referenced
@@ -464,31 +446,6 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 
 		// build the altered table schema and get its components
 		tc := pf.buildTablSchema(tn, i[t])
-		if pf.log {
-			fmt.Println("====================================================================")
-			fmt.Println("TABLE SCHEMA:", tc.tblSchema)
-			fmt.Println()
-			for _, v := range tc.seq {
-				fmt.Println("SEQUENCE:", v)
-			}
-			fmt.Println()
-			for k, v := range tc.ind {
-				fmt.Printf("INDEX: k:%s	fields:%v  unique:%v tableName:%s\n", k, v.IndexFields, v.Unique, v.TableName)
-			}
-			fmt.Println()
-			fmt.Println("PRIMARY KEYS:", tc.pk)
-			fmt.Println()
-			for _, v := range tc.flDef {
-				fmt.Printf("FIELD DEF: fname:%s, ftype:%s, gotype:%s \n", v.FName, v.FType, v.GoType)
-				for _, p := range v.RgenPairs {
-					fmt.Printf("FIELD PROPERTY: %s, %v\n", p.Name, p.Value)
-				}
-				fmt.Println("------")
-			}
-			fmt.Println()
-			fmt.Println("ERROR:", tc.err)
-			fmt.Println("====================================================================")
-		}
 
 		// go through the latest version of the model and check each
 		// field against its definition in the database.

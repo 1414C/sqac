@@ -69,32 +69,10 @@ func (slf *SQLiteFlavor) CreateTables(i ...interface{}) error {
 			continue
 		}
 
+		// get all the table parts and build the create schema
 		tc := slf.buildTablSchema(tn, i[t])
-		if slf.log {
-			fmt.Println("====================================================================")
-			fmt.Println("TABLE SCHEMA:", tc.tblSchema)
-			fmt.Println()
-			for _, v := range tc.seq {
-				fmt.Println("SEQUENCE:", v)
-			}
-			fmt.Println()
-			for k, v := range tc.ind {
-				fmt.Printf("INDEX: k:%s	fields:%v  unique:%v tableName:%s\n", k, v.IndexFields, v.Unique, v.TableName)
-			}
-			fmt.Println()
-			fmt.Println("PRIMARY KEYS:", tc.pk)
-			fmt.Println()
-			for _, v := range tc.flDef {
-				fmt.Printf("FIELD DEF: fname:%s, ftype:%s, gotype:%s \n", v.FName, v.FType, v.GoType)
-				for _, p := range v.RgenPairs {
-					fmt.Printf("FIELD PROPERTY: %s, %v\n", p.Name, p.Value)
-				}
-				fmt.Println("------")
-			}
-			fmt.Println()
-			fmt.Println("ERROR:", tc.err)
-			fmt.Println("====================================================================")
-		}
+
+		// execute the create schema against the db
 		slf.db.MustExec(tc.tblSchema)
 		for _, sq := range tc.seq {
 			start, _ := strconv.Atoi(sq.Value)
@@ -102,6 +80,95 @@ func (slf *SQLiteFlavor) CreateTables(i ...interface{}) error {
 		}
 		for k, in := range tc.ind {
 			slf.CreateIndex(k, in)
+		}
+	}
+	return nil
+}
+
+// AlterTables alters tables on the SQLite database referenced
+// by slf.DB.
+func (slf *SQLiteFlavor) AlterTables(i ...interface{}) error {
+
+	for t, ent := range i {
+
+		// ftr := reflect.TypeOf(ent)
+		// fmt.Println("ALTERING:", ftr)
+
+		// determine the table name
+		tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
+		if strings.Contains(tn, ".") {
+			el := strings.Split(tn, ".")
+			tn = strings.ToLower(el[len(el)-1])
+		} else {
+			tn = strings.ToLower(tn)
+		}
+		if tn == "" {
+			return fmt.Errorf("unable to determine table name in slf.AlterTables")
+		}
+
+		// if the table does not exist, call CreateTables
+		// if the table does exist, examine it and perform
+		// alterations if neccessary
+		if !slf.ExistsTable(tn) {
+			slf.CreateTables(ent)
+			continue
+		}
+
+		// build the altered table schema and get its components
+		tc := slf.buildTablSchema(tn, i[t])
+
+		// go through the latest version of the model and check each
+		// field against its definition in the database.
+		qt := slf.GetDBQuote()
+		alterSchema := fmt.Sprintf("ALTER TABLE %s%s%s", qt, tn, qt)
+		var cols []string
+
+		for _, fd := range tc.flDef {
+			// new columns first
+			if !slf.ExistsColumn(tn, fd.FName) {
+
+				colSchema := fmt.Sprintf("ADD COLUMN %s%s%s %s", qt, fd.FName, qt, fd.FType)
+				for _, p := range fd.RgenPairs {
+					switch p.Name {
+					case "primary_key":
+						// abort - adding primary key
+						panic(fmt.Errorf("aborting - cannot add a primary-key (table-field %s-%s) through migration", tn, fd.FName))
+
+					case "default":
+						if fd.GoType == "string" {
+							colSchema = fmt.Sprintf("%s DEFAULT '%s'", colSchema, p.Value)
+						} else {
+							colSchema = fmt.Sprintf("%s DEFAULT %s", colSchema, p.Value)
+						}
+
+					case "nullable":
+						if p.Value == "false" {
+							colSchema = fmt.Sprintf("%s NOT NULL", colSchema)
+						}
+
+					default:
+
+					}
+				}
+				cols = append(cols, colSchema+",")
+			}
+		}
+
+		// ALTER TABLE ADD COLUMNS...
+		if len(cols) > 0 {
+			for _, c := range cols {
+				alterSchema = fmt.Sprintf("%s %s", alterSchema, c)
+			}
+			alterSchema = strings.TrimSuffix(alterSchema, ",")
+			fmt.Println("ALTER SCHEMA:", alterSchema)
+			slf.ProcessSchema(alterSchema)
+		}
+
+		// add indexes if required
+		for k, v := range tc.ind {
+			if !slf.ExistsIndex(v.TableName, k) {
+				slf.CreateIndex(k, v)
+			}
 		}
 	}
 	return nil
@@ -343,8 +410,8 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 		tableSchema = tableSchema + fmt.Sprintf("UNIQUE(%s) );", pKeys)
 	}
 
-	// pass out the CREATE TABLE schema, and component info
-	return TblComponents{
+	// fill the return structure passing out the CREATE TABLE schema, and component info
+	rc := TblComponents{
 		tblSchema: tableSchema,
 		flDef:     fldef,
 		seq:       sequences,
@@ -352,6 +419,11 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 		pk:        pKeys,
 		err:       err,
 	}
+
+	if slf.log {
+		rc.Log()
+	}
+	return rc
 }
 
 // DropTables drops tables on the SQLite db if they exist, based on

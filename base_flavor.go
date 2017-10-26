@@ -38,6 +38,35 @@ type TblComponents struct {
 	err       error
 }
 
+// Log dumps all of the raw table components to stdout is called for CreateTable
+// and AlterTable operations if the main sqac logging has been activated via
+// BaseFlavor.Log(true).
+func (tc *TblComponents) Log() {
+	fmt.Println("====================================================================")
+	fmt.Println("TABLE SCHEMA:", tc.tblSchema)
+	fmt.Println()
+	for _, v := range tc.seq {
+		fmt.Println("SEQUENCE:", v)
+	}
+	fmt.Println()
+	for k, v := range tc.ind {
+		fmt.Printf("INDEX: k:%s	fields:%v  unique:%v tableName:%s\n", k, v.IndexFields, v.Unique, v.TableName)
+	}
+	fmt.Println()
+	fmt.Println("PRIMARY KEYS:", tc.pk)
+	fmt.Println()
+	for _, v := range tc.flDef {
+		fmt.Printf("FIELD DEF: fname:%s, ftype:%s, gotype:%s ,nodb:%v\n", v.FName, v.FType, v.GoType, v.NoDB)
+		for _, p := range v.RgenPairs {
+			fmt.Printf("FIELD PROPERTY: %s, %v\n", p.Name, p.Value)
+		}
+		fmt.Println("------")
+	}
+	fmt.Println()
+	fmt.Println("ERROR:", tc.err)
+	fmt.Println("====================================================================")
+}
+
 // CTick CBackTick and CDblQuote specify the quote
 // style for for db field encapsulation in CREATE
 // and ALTER table schemas
@@ -260,7 +289,7 @@ func (bf *BaseFlavor) DropTables(i ...interface{}) error {
 // the provided list of go struct definitions.
 func (bf *BaseFlavor) AlterTables(i ...interface{}) error {
 
-	return nil
+	return fmt.Errorf("method AlterTables has not been implemented for db type %s", bf.GetDBDriverName())
 }
 
 // DestructiveResetTables drops tables on the db if they exist,

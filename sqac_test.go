@@ -203,33 +203,6 @@ func TestCreateTablesWithInclude(t *testing.T) {
 	}
 }
 
-// TestAlterTables
-//
-// Alter table depot via AlterTables(i ...interface{})
-// Add three columns:
-//  - NewColumn1 string    `db:"new_column1" rgen:"nullable:false"`
-//	- NewColumn2 int64     `db:"new_column2" rgen:"nullable:false;default:0"`
-//  - NewColumn3 float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
-//
-func TestAlterTables(t *testing.T) {
-
-	type Depot struct {
-		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
-		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
-		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
-		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
-		NewColumn1 string    `db:"new_column1" rgen:"nullable:false"`
-		NewColumn2 int64     `db:"new_column2" rgen:"nullable:false;default:0"`
-		NewColumn3 float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
-	}
-
-	err := Handle.AlterTables(Depot{})
-	if err != nil {
-		t.Errorf("%s", err.Error())
-	}
-}
-
 // TestDropTables
 //
 // Drop table depot via DropTables(i ...interface{})
@@ -456,6 +429,33 @@ func TestExistsColumn(t *testing.T) {
 	}
 }
 
+// TestAlterTables
+//
+// Alter table depot via AlterTables(i ...interface{})
+// Add three columns:
+//  - NewColumn1 string    `db:"new_column1" rgen:"nullable:false"`
+//	- NewColumn2 int64     `db:"new_column2" rgen:"nullable:false;default:0"`
+//  - NewColumn3 float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
+//
+func TestAlterTables(t *testing.T) {
+
+	type Depot struct {
+		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
+		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
+		Region     string    `db:"region" rgen:"nullable:false;default:YYC;index:non-unique"`
+		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
+		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
+		NewColumn1 string    `db:"new_column1" rgen:"nullable:false;index:unique"`
+		NewColumn2 int64     `db:"new_column2" rgen:"nullable:false;default:0;index:idx_new_column2_new_column3"`
+		NewColumn3 float64   `db:"new_column3" rgen:"nullable:false;default:0.0;index:idx_new_column2_new_column3"`
+	}
+
+	err := Handle.AlterTables(Depot{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+}
+
 // TestDestructiveResetTables
 //
 // Verify that tables depot and equipment exist on the db
@@ -676,5 +676,63 @@ func TestNullableValues(t *testing.T) {
 				fmt.Println("v.Active.Bool contained false")
 			}
 		}
+	}
+}
+
+// TestNonPersistentColumn
+//
+// Test the non-persistent column support, indicated
+// in the RgenTags by Name == "-" and Value = "".
+func TestNonPersistentColumn(t *testing.T) {
+
+	type Depot struct {
+		DepotNum            int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
+		CreateDate          time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
+		Region              string    `db:"region" rgen:"nullable:false;default:YYC"`
+		Province            string    `db:"province" rgen:"nullable:false;default:AB"`
+		Country             string    `db:"country" rgen:"nullable:true;default:CA"`
+		NewColumn1          string    `db:"new_column1" rgen:"nullable:false"`
+		NewColumn2          int64     `db:"new_column2" rgen:"nullable:false"`
+		NewColumn3          float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
+		NonPersistentColumn string    `db:"non_persistent_column" rgen:"-"`
+	}
+
+	// drop table depot
+	err := Handle.DropTables(Depot{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// determine the table names as per the
+	// table creation logic
+	tn := reflect.TypeOf(Depot{}).String()
+	if strings.Contains(tn, ".") {
+		el := strings.Split(tn, ".")
+		tn = strings.ToLower(el[len(el)-1])
+	} else {
+		tn = strings.ToLower(tn)
+	}
+
+	// create table depot in the db
+	Handle.Log(true)
+	err = Handle.CreateTables(Depot{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+	Handle.Log(false)
+
+	// expect that table depot exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s does not exist", tn)
+	}
+
+	// check for column 'region'
+	if !Handle.ExistsColumn(tn, "region") {
+		t.Errorf("column %s should have been found in table %s", "region", tn)
+	}
+
+	// check for column 'non_persistent_column'
+	if Handle.ExistsColumn(tn, "non_persistent_column") {
+		t.Errorf("column %s should not have been found in table %s", "non_persistent_column", tn)
 	}
 }

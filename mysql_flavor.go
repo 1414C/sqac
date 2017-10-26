@@ -70,31 +70,31 @@ func (myf *MySQLFlavor) CreateTables(i ...interface{}) error {
 		}
 
 		tc := myf.buildTablSchema(tn, i[t])
-		if myf.log {
-			fmt.Println("====================================================================")
-			fmt.Println("TABLE SCHEMA:", tc.tblSchema)
-			fmt.Println()
-			for _, v := range tc.seq {
-				fmt.Println("SEQUENCE:", v)
-			}
-			fmt.Println()
-			for k, v := range tc.ind {
-				fmt.Printf("INDEX: k:%s	fields:%v  unique:%v tableName:%s\n", k, v.IndexFields, v.Unique, v.TableName)
-			}
-			fmt.Println()
-			fmt.Println("PRIMARY KEYS:", tc.pk)
-			fmt.Println()
-			for _, v := range tc.flDef {
-				fmt.Printf("FIELD DEF: fname:%s, ftype:%s, gotype:%s \n", v.FName, v.FType, v.GoType)
-				for _, p := range v.RgenPairs {
-					fmt.Printf("FIELD PROPERTY: %s, %v\n", p.Name, p.Value)
-				}
-				fmt.Println("------")
-			}
-			fmt.Println()
-			fmt.Println("ERROR:", tc.err)
-			fmt.Println("====================================================================")
-		}
+		// if myf.log {
+		// 	fmt.Println("====================================================================")
+		// 	fmt.Println("TABLE SCHEMA:", tc.tblSchema)
+		// 	fmt.Println()
+		// 	for _, v := range tc.seq {
+		// 		fmt.Println("SEQUENCE:", v)
+		// 	}
+		// 	fmt.Println()
+		// 	for k, v := range tc.ind {
+		// 		fmt.Printf("INDEX: k:%s	fields:%v  unique:%v tableName:%s\n", k, v.IndexFields, v.Unique, v.TableName)
+		// 	}
+		// 	fmt.Println()
+		// 	fmt.Println("PRIMARY KEYS:", tc.pk)
+		// 	fmt.Println()
+		// 	for _, v := range tc.flDef {
+		// 		fmt.Printf("FIELD DEF: fname:%s, ftype:%s, gotype:%s \n", v.FName, v.FType, v.GoType)
+		// 		for _, p := range v.RgenPairs {
+		// 			fmt.Printf("FIELD PROPERTY: %s, %v\n", p.Name, p.Value)
+		// 		}
+		// 		fmt.Println("------")
+		// 	}
+		// 	fmt.Println()
+		// 	fmt.Println("ERROR:", tc.err)
+		// 	fmt.Println("====================================================================")
+		// }
 		myf.db.MustExec(tc.tblSchema)
 		for _, sq := range tc.seq {
 			start, _ := strconv.Atoi(sq.Value)
@@ -280,8 +280,8 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 	}
 	tableSchema = tableSchema + " ENGINE=InnoDB DEFAULT CHARSET=latin1;"
 
-	// pass out the CREATE TABLE schema, and component info
-	return TblComponents{
+	// fill the return structure passing out the CREATE TABLE schema, and component info
+	rc := TblComponents{
 		tblSchema: tableSchema,
 		flDef:     fldef,
 		seq:       sequences,
@@ -289,6 +289,11 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 		pk:        pKeys,
 		err:       err,
 	}
+
+	if myf.log {
+		rc.Log()
+	}
+	return rc
 }
 
 // AlterTables alters tables on the MySQL database referenced
@@ -321,31 +326,6 @@ func (myf *MySQLFlavor) AlterTables(i ...interface{}) error {
 
 		// build the altered table schema and get its components
 		tc := myf.buildTablSchema(tn, i[t])
-		if myf.log {
-			fmt.Println("====================================================================")
-			fmt.Println("TABLE SCHEMA:", tc.tblSchema)
-			fmt.Println()
-			for _, v := range tc.seq {
-				fmt.Println("SEQUENCE:", v)
-			}
-			fmt.Println()
-			for k, v := range tc.ind {
-				fmt.Printf("INDEX: k:%s	fields:%v  unique:%v tableName:%s\n", k, v.IndexFields, v.Unique, v.TableName)
-			}
-			fmt.Println()
-			fmt.Println("PRIMARY KEYS:", tc.pk)
-			fmt.Println()
-			for _, v := range tc.flDef {
-				fmt.Printf("FIELD DEF: fname:%s, ftype:%s, gotype:%s \n", v.FName, v.FType, v.GoType)
-				for _, p := range v.RgenPairs {
-					fmt.Printf("FIELD PROPERTY: %s, %v\n", p.Name, p.Value)
-				}
-				fmt.Println("------")
-			}
-			fmt.Println()
-			fmt.Println("ERROR:", tc.err)
-			fmt.Println("====================================================================")
-		}
 
 		// go through the latest version of the model and check each
 		// field against its definition in the database.
