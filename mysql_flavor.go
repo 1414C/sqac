@@ -147,6 +147,11 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 
 		// https://stackoverflow.com/questions/168736/how-do-you-set-a-default-value-for-a-mysql-datetime-column
 
+		// if the field has been marked as NoDB, continue with the next field
+		if fd.NoDB == true {
+			continue
+		}
+
 		switch fd.GoType {
 		case "int", "int16", "int32", "rune":
 			col.fType = "int"
@@ -335,7 +340,7 @@ func (myf *MySQLFlavor) AlterTables(i ...interface{}) error {
 
 		for _, fd := range tc.flDef {
 			// new columns first
-			if !myf.ExistsColumn(tn, fd.FName) {
+			if !myf.ExistsColumn(tn, fd.FName) && fd.NoDB == false {
 
 				colSchema := fmt.Sprintf("ADD COLUMN %s%s%s %s", qt, fd.FName, qt, fd.FType)
 				for _, p := range fd.RgenPairs {
@@ -369,6 +374,7 @@ func (myf *MySQLFlavor) AlterTables(i ...interface{}) error {
 			for _, c := range cols {
 				alterSchema = fmt.Sprintf("%s %s", alterSchema, c)
 			}
+
 			alterSchema = strings.TrimSuffix(alterSchema, ",")
 			myf.ProcessSchema(alterSchema)
 		}

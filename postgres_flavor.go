@@ -120,6 +120,11 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 		col.fDefault = ""
 		col.fNullable = ""
 
+		// if the field has been marked as NoDB, continue with the next field
+		if fd.NoDB == true {
+			continue
+		}
+
 		switch fd.GoType {
 		case "uint", "uint8", "uint16", "uint32", "uint64",
 			"int", "int8", "int16", "int32", "int64", "rune", "byte":
@@ -454,7 +459,7 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 
 		for _, fd := range tc.flDef {
 			// new columns first
-			if !pf.ExistsColumn(tn, fd.FName) {
+			if !pf.ExistsColumn(tn, fd.FName) && fd.NoDB == false {
 
 				colSchema := fmt.Sprintf("ADD COLUMN %s %s", fd.FName, fd.FType)
 				for _, p := range fd.RgenPairs {

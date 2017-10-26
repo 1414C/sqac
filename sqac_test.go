@@ -714,12 +714,10 @@ func TestNonPersistentColumn(t *testing.T) {
 	}
 
 	// create table depot in the db
-	Handle.Log(true)
 	err = Handle.CreateTables(Depot{})
 	if err != nil {
 		t.Errorf("%s", err.Error())
 	}
-	Handle.Log(false)
 
 	// expect that table depot exists
 	if !Handle.ExistsTable(tn) {

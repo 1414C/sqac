@@ -125,7 +125,7 @@ func (slf *SQLiteFlavor) AlterTables(i ...interface{}) error {
 
 		for _, fd := range tc.flDef {
 			// new columns first
-			if !slf.ExistsColumn(tn, fd.FName) {
+			if !slf.ExistsColumn(tn, fd.FName) && fd.NoDB == false {
 
 				colSchema := fmt.Sprintf("ADD COLUMN %s%s%s %s", qt, fd.FName, qt, fd.FType)
 				for _, p := range fd.RgenPairs {
@@ -160,7 +160,6 @@ func (slf *SQLiteFlavor) AlterTables(i ...interface{}) error {
 				alterSchema = fmt.Sprintf("%s %s", alterSchema, c)
 			}
 			alterSchema = strings.TrimSuffix(alterSchema, ",")
-			fmt.Println("ALTER SCHEMA:", alterSchema)
 			slf.ProcessSchema(alterSchema)
 		}
 
@@ -261,6 +260,11 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 		col.fNullable = ""
 
 		// date/time  datetime - need now() function equivalent - also function to create a date-time from a string
+
+		// if the field has been marked as NoDB, continue with the next field
+		if fd.NoDB == true {
+			continue
+		}
 
 		switch fd.GoType {
 		case "int64", "uint64":
