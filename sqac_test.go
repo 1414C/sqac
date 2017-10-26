@@ -610,7 +610,7 @@ func TestNullableValues(t *testing.T) {
 	insQuery := ""
 	switch Handle.GetDBDriverName() {
 	case "postgres", "mysql":
-		insQuery = "INSERT INTO depot (depot_num, region, province) VALUES (DEFAULT, 'YVR','AB');"
+		insQuery = "INSERT INTO depot (depot_num, region, province) VALUES (DEFAULT,'YVR','AB');"
 	case "sqlite3":
 		insQuery = "INSERT INTO depot (region, province) VALUES ('YVR','AB');"
 	default:
