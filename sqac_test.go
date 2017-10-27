@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/1414C/sqac"
+	_ "github.com/denisenkom/go-mssqldb"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -46,6 +47,7 @@ func TestMain(m *testing.M) {
 			log.Fatalf("%s\n", err.Error())
 		}
 		Handle.SetDB(db)
+		defer db.Close()
 
 	case "mysql":
 		myh := new(sqac.MySQLFlavor)
@@ -55,6 +57,7 @@ func TestMain(m *testing.M) {
 			log.Fatalf("%s\n", err.Error())
 		}
 		Handle.SetDB(db)
+		defer db.Close()
 
 	case "sqlite":
 		sqh := new(sqac.SQLiteFlavor)
@@ -64,6 +67,21 @@ func TestMain(m *testing.M) {
 			log.Fatalf("%s\n", err.Error())
 		}
 		Handle.SetDB(db)
+		defer db.Close()
+
+	case "mssql":
+		msh := new(sqac.MSSQLFlavor)
+		Handle = msh
+		db, err := sqac.Open("mssql", "sqlserver://SA:W@lter02!!@localhost:1401?database=sqlx")
+		if err != nil {
+			log.Fatalf("%s\n", err.Error())
+		}
+		Handle.SetDB(db)
+		err = db.Ping()
+		if err != nil {
+			fmt.Println(err)
+		}
+		defer db.Close()
 
 	case "db2":
 
@@ -95,6 +113,9 @@ func TestGetDBDriverName(t *testing.T) {
 	driverName := Handle.GetDBDriverName()
 	if driverName == "" {
 		t.Errorf("unable to determine db driver name")
+	}
+	if Handle.IsLog() {
+		fmt.Println("db driver name:", driverName)
 	}
 }
 

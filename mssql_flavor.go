@@ -1,5 +1,35 @@
 package sqac
 
+// MySQLFlavor is a MySQL-specific implementation.
+// Methods defined in the PublicDB interface of struct-type
+// BaseFlavor are called by default for MySQLFlavor. If
+// the method as it exists in the BaseFlavor implementation
+// is not compatible with the schema-syntax required by
+// MySQL, the method in question may be overridden.
+// Overriding (redefining) a BaseFlavor method may be
+// accomplished through the addition of a matching method
+// signature and implementation on the MySQLFlavor
+// struct-type.
+type MSSQLFlavor struct {
+	BaseFlavor
+
+	//================================================================
+	// possible local MSSQL-specific overrides
+	//================================================================
+	// GetDBDriverName() string
+	// CreateTables(i ...interface{}) error
+	// DropTables(i ...interface{}) error
+	// AlterTables(i ...interface{}) error
+	// ExistsTable(i interface{}) bool
+	// ExistsColumn(tn string, cn string, ct string) bool
+	// CreateIndex(tn string, in string) error
+	// DropIndex(tn string, in string) error
+	// ExistsIndex(tn string, in string) bool
+	// CreateSequence(sn string, start string) error
+	// DropSequence(sn string) error
+	// ExistsSequence(sn string) bool
+}
+
 // things to deal with:
 // rgen:"primary_key:inc;start:55550000"
 // rgen:"nullable:false"
