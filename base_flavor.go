@@ -192,6 +192,12 @@ func (bf *BaseFlavor) GetDBName() (dbName string) {
 }
 
 // GetDBQuote reports the quoting preference for db-query construction.
+// this does not refer to quoted strings, but rather to the older(?)
+// style of quoting table field-names in query-strings such as:
+// SELECT "f1" FROM "t1" WHERE "v1" = <some_criteria>.
+// in practice, it seems you can get away without quoting, but
+// it is a nod to backward compatibility and it standardizes on
+// an approach.
 // ' vs ` vs " for example
 func (bf *BaseFlavor) GetDBQuote() string {
 
@@ -204,6 +210,9 @@ func (bf *BaseFlavor) GetDBQuote() string {
 
 	case "sqlite":
 		return CDblQuote
+
+	case "mssql":
+		return ""
 
 	default:
 		return CDblQuote
