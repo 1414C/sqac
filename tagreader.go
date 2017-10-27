@@ -75,7 +75,7 @@ func TagReader(i interface{}, t reflect.Type) (fd []FieldDef, err error) {
 		// fldDef.FName should be the same as: t.Field(i).Tag.Get("db")
 		// based on the common use of the CamelToSnake function in the
 		// go struct generation (tag `db:"field_name"`).  The function
-		// is used to here to make that point.
+		// is used here to make that point.
 		fldDef.FName = common.CamelToSnake(t.Field(i).Name)
 		fldDef.GoType = fts // go-type here
 
