@@ -185,3 +185,9 @@ INNER JOIN information_schema.columns col
 
 WHERE tbl.table_type = 'base table' and tbl.table_name like '%equipment%'
 GO
+
+-- Create a new table called 'depot' in schema 'dbo'
+-- Drop the table if it already exists
+IF OBJECT_ID('dbo.depot', 'U') IS NOT NULL
+DROP TABLE dbo.depot
+GO

@@ -286,7 +286,7 @@ func (bf *BaseFlavor) DropTables(i ...interface{}) error {
 				fmt.Printf("table %s exists - adding to drop schema...\n", tn)
 			}
 			// submit 1 at a time for mysql
-			dropSchema = dropSchema + fmt.Sprintf("DROP TABLE IF EXISTS %s; ", tn)
+			dropSchema = dropSchema + fmt.Sprintf("DROP TABLE %s; ", tn)
 			bf.ProcessSchema(dropSchema)
 			dropSchema = ""
 		}

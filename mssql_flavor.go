@@ -7,15 +7,15 @@ import (
 	"strings"
 )
 
-// MySQLFlavor is a MySQL-specific implementation.
+// MSSQLFlavor is a MWSQL-specific implementation.
 // Methods defined in the PublicDB interface of struct-type
-// BaseFlavor are called by default for MySQLFlavor. If
+// BaseFlavor are called by default for MSSQLFlavor. If
 // the method as it exists in the BaseFlavor implementation
 // is not compatible with the schema-syntax required by
-// MySQL, the method in question may be overridden.
+// MSSQL, the method in question may be overridden.
 // Overriding (redefining) a BaseFlavor method may be
 // accomplished through the addition of a matching method
-// signature and implementation on the MySQLFlavor
+// signature and implementation on the MSSQLFlavor
 // struct-type.
 type MSSQLFlavor struct {
 	BaseFlavor
@@ -201,10 +201,31 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 					} else {
 						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
 					}
-					if fd.GoType == "time.Time" && p.Value == "eot" {
-						p.Value = "'9999-12-31 23:59:59.999'"
+
+					if fd.GoType == "time.Time" {
+						switch p.Value {
+						case "now()":
+							p.Value = "GETDATE()"
+						case "eot":
+							p.Value = "'9999-12-31 23:59:59.999'"
+						default:
+
+						}
 						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
 					}
+
+					// if fd.GoType == "bool" {
+					// 	switch p.Value {
+					// 	case "TRUE", "true":
+					// 		p.Value = "1"
+
+					// 	case "FALSE", "false":
+					// 		p.Value = "0"
+
+					// 	default:
+
+					// 	}
+					// }
 
 				case "nullable":
 					if p.Value == "false" {
@@ -230,12 +251,16 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 		} else { // *time.Time only supports default directive
 			for _, p := range fd.RgenPairs {
 				if p.Name == "default" {
-					if p.Value == "eot" {
+					switch p.Value {
+					case "now()":
+						p.Value = "GETDATE()"
+					case "eot":
 						p.Value = "'9999-12-31 23:59:59.999'"
+					default:
+
 					}
 					col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
 				}
-
 			}
 		}
 		fldef[idx].FType = col.fType
@@ -278,4 +303,30 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 		rc.Log()
 	}
 	return rc
+}
+
+// ExistsTable checks the currently connected database and
+// returns true if the named table is found to exist.
+func (msf *MSSQLFlavor) ExistsTable(tn string) bool {
+
+	n := 0
+	etQuery := fmt.Sprintf("SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = '%s';", tn)
+	msf.db.QueryRow(etQuery).Scan(&n)
+	if n > 0 {
+		return true
+	}
+	return false
+}
+
+// GetDBName returns the name of the currently connected db
+func (msf *MSSQLFlavor) GetDBName() (dbName string) {
+
+	row := msf.db.QueryRow("SELECT DB_NAME()")
+	if row != nil {
+		err := row.Scan(&dbName)
+		if err != nil {
+			panic(err)
+		}
+	}
+	return dbName
 }
