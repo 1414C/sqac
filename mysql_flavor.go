@@ -37,7 +37,7 @@ type MySQLFlavor struct {
 	// ExistsSequence(sn string) bool
 }
 
-// CreateTables creates tables on the postgres database referenced
+// CreateTables creates tables on the mysql database referenced
 // by myf.DB.
 func (myf *MySQLFlavor) CreateTables(i ...interface{}) error {
 

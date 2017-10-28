@@ -1,5 +1,12 @@
 package sqac
 
+import (
+	"fmt"
+	"reflect"
+	"strconv"
+	"strings"
+)
+
 // MySQLFlavor is a MySQL-specific implementation.
 // Methods defined in the PublicDB interface of struct-type
 // BaseFlavor are called by default for MySQLFlavor. If
@@ -39,36 +46,236 @@ type MSSQLFlavor struct {
 // timestamp syntax and functions
 // - pg now() equivalent
 // - pg make_timestamptz(9999, 12, 31, 23, 59, 59.9) equivalent
-// uint8  - TINYINT - range must be smaller than int8?
-// uint16 - SMALLINT
-// uint32 - INT
-// uint64 - BIGINT
 
-// int8  - TINYINT
-// int16 - SMALLINT
-// int32 - INT
-// int64 - BIGINT
+// CreateTables creates tables on the mysql database referenced
+// by msf.DB.
+func (msf *MSSQLFlavor) CreateTables(i ...interface{}) error {
 
-// float32 - DOUBLE
-// float64 - DOUBLE
+	for t, ent := range i {
 
-// bool - BOOLEAN - (alias for TINYINT(1))
+		ftr := reflect.TypeOf(ent)
+		if msf.log {
+			fmt.Println("CreateTable() entity type:", ftr)
+		}
 
-// rune - INT (32-bits - unicode and stuff)
-// byte - TINTINT - (8-bits and stuff)
+		// determine the table name
+		tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
+		if strings.Contains(tn, ".") {
+			el := strings.Split(tn, ".")
+			tn = strings.ToLower(el[len(el)-1])
+		} else {
+			tn = strings.ToLower(tn)
+		}
+		if tn == "" {
+			return fmt.Errorf("unable to determine table name in myf.CreateTables")
+		}
 
-// string - VARCHAR(255) - (uses 1-byte for length-prefix in record prefix)
-// string - VARCHAR(256) - (uses 2-bytes for length-prefix; use for strings
-//                      	that may exceed 255 bytes->out to max 65,535 bytes)
+		// if the table is found to exist, skip the creation
+		// and move on to the next table in the list.
+		if msf.ExistsTable(tn) {
+			if msf.log {
+				fmt.Printf("CreateTable - table %s exists - skipping...\n", tn)
+			}
+			continue
+		}
 
-// TIMESTAMP - also look at YYYYMMDD format, which seems to be native
+		// build the create table schema and return all of the table info
+		tc := msf.buildTablSchema(tn, i[t])
 
-// autoincrement - https://mariadb.com/kb/en/library/auto_increment/
-// spatial - POINT, MULTIPOINT, POLYGON (future)  https://mariadb.com/kb/en/library/geometry-types/
+		// create the table on the db
+		msf.db.MustExec(tc.tblSchema)
+		for _, sq := range tc.seq {
+			start, _ := strconv.Atoi(sq.Value)
+			msf.AlterSequenceStart(sq.Name, start)
+		}
+		for k, in := range tc.ind {
+			msf.CreateIndex(k, in)
+		}
+	}
+	return nil
+}
 
-// CREATE TABLE `test_default_four` (
-// 	`int16_key` bigint NOT NULL AUTO_INCREMENT,
-// 	 `int32_field` int NOT NULL DEFAULT 0,
-// 	`description` varchar(255) DEFAULT 'test',
-// 	PRIMARY KEY (`int16_key`)
-//   ) ENGINE=InnoDB DEFAULT CHARSET=latin1
+// buildTableSchema builds a CREATE TABLE schema for the MSSQL DB
+// and returns it to the caller, along with the components determined from
+// the db and rgen struct-tags.  this method is used in CreateTables
+// and AlterTables methods.
+func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
+
+	qt := msf.GetDBQuote()
+	pKeys := ""
+	var sequences []RgenPair
+	indexes := make(map[string]IndexInfo)
+	tableSchema := fmt.Sprintf("CREATE TABLE %s%s%s (", qt, tn, qt)
+
+	// get a list of the field names, go-types and db attributes.
+	// TagReader is a common function across db-flavors. For
+	// this reason, the db-specific-data-type for each field
+	// is determined locally.
+	fldef, err := TagReader(ent, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	// set the MSSQL field-types and build the table schema,
+	// as well as any other schemas that are needed to support
+	// the table definition. In all cases any foreign-key or
+	// index requirements must be deferred until all other
+	// artifacts have been created successfully.
+	for idx, fd := range fldef {
+
+		var col ColComponents
+
+		col.fName = fd.FName
+		col.fType = ""
+		col.fPrimaryKey = ""
+		col.fDefault = ""
+		col.fNullable = ""
+
+		// https://stackoverflow.com/questions/168736/how-do-you-set-a-default-value-for-a-mysql-datetime-column
+
+		// if the field has been marked as NoDB, continue with the next field
+		if fd.NoDB == true {
+			continue
+		}
+
+		switch fd.GoType {
+		case "int64", "uint64":
+			col.fType = "bigint"
+
+		case "int32", "uint32", "int", "uint":
+			col.fType = "int"
+
+		case "int16", "uint16":
+			col.fType = "smallint"
+
+		case "int8", "uint8", "byte", "rune":
+			col.fType = "tinyint"
+
+		case "float32", "float64":
+			col.fType = "numeric" // default precision is 18
+
+		case "bool":
+			col.fType = "bit"
+
+		case "string":
+			col.fType = "varchar(255)" //
+
+		case "time.Time", "*time.Time":
+			col.fType = "datetime2"
+
+		default:
+			err := fmt.Errorf("go type %s is not presently supported", fldef[idx].FType)
+			panic(err)
+		}
+		fldef[idx].FType = col.fType
+
+		// read rgen tag pairs and apply
+		seqName := ""
+		if !strings.Contains(fd.GoType, "*time.Time") {
+
+			for _, p := range fd.RgenPairs {
+
+				switch p.Name {
+				case "primary_key":
+
+					col.fPrimaryKey = "PRIMARY KEY"
+					pKeys = fmt.Sprintf("%s %s%s%s,", pKeys, qt, fd.FName, qt)
+
+					if p.Value == "inc" {
+						col.fAutoInc = true
+					}
+
+				case "start":
+					start, err := strconv.Atoi(p.Value)
+					if err != nil {
+						panic(err)
+					}
+					if seqName == "" && start > 0 {
+						seqName = tn
+						sequences = append(sequences, RgenPair{Name: seqName, Value: p.Value})
+					}
+
+				case "default":
+					if fd.GoType == "string" {
+						col.fDefault = fmt.Sprintf("DEFAULT '%s'", p.Value)
+					} else {
+						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
+					}
+					if fd.GoType == "time.Time" && p.Value == "eot" {
+						p.Value = "'9999-12-31 23:59:59.999'"
+						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
+					}
+
+				case "nullable":
+					if p.Value == "false" {
+						col.fNullable = "NOT NULL"
+					}
+
+				case "index":
+					switch p.Value {
+					case "non-unique":
+						indexes = msf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, false, true)
+
+					case "unique":
+						indexes = msf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, true, true)
+
+					default:
+						indexes = msf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)
+					}
+
+				default:
+
+				}
+			}
+		} else { // *time.Time only supports default directive
+			for _, p := range fd.RgenPairs {
+				if p.Name == "default" {
+					if p.Value == "eot" {
+						p.Value = "'9999-12-31 23:59:59.999'"
+					}
+					col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
+				}
+
+			}
+		}
+		fldef[idx].FType = col.fType
+
+		// add the current column to the schema
+		tableSchema = tableSchema + fmt.Sprintf("%s%s%s %s", qt, col.fName, qt, col.fType)
+		if col.fAutoInc == true {
+			tableSchema = tableSchema + " IDENTITY(1,1)"
+		}
+		if col.fNullable != "" {
+			tableSchema = tableSchema + " " + col.fNullable
+		}
+		if col.fDefault != "" {
+			tableSchema = tableSchema + " " + col.fDefault
+		}
+		tableSchema = tableSchema + ", "
+	}
+
+	if tableSchema != "" && pKeys == "" {
+		tableSchema = strings.TrimSuffix(tableSchema, ",")
+		tableSchema = tableSchema + ")"
+	}
+	if tableSchema != "" && pKeys != "" {
+		pKeys = strings.TrimSuffix(pKeys, ",")
+		tableSchema = tableSchema + fmt.Sprintf("PRIMARY KEY (%s) )", pKeys)
+	}
+	tableSchema = tableSchema + ";"
+
+	// fill the return structure passing out the CREATE TABLE schema, and component info
+	rc := TblComponents{
+		tblSchema: tableSchema,
+		flDef:     fldef,
+		seq:       sequences,
+		ind:       indexes,
+		pk:        pKeys,
+		err:       err,
+	}
+
+	if msf.log {
+		rc.Log()
+	}
+	return rc
+}
