@@ -214,18 +214,19 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
 					}
 
-					// if fd.GoType == "bool" {
-					// 	switch p.Value {
-					// 	case "TRUE", "true":
-					// 		p.Value = "1"
+					if fd.GoType == "bool" {
+						switch p.Value {
+						case "TRUE", "true":
+							p.Value = "1"
 
-					// 	case "FALSE", "false":
-					// 		p.Value = "0"
+						case "FALSE", "false":
+							p.Value = "0"
 
-					// 	default:
+						default:
 
-					// 	}
-					// }
+						}
+						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
+					}
 
 				case "nullable":
 					if p.Value == "false" {
