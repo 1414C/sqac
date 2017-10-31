@@ -72,7 +72,7 @@ func TestMain(m *testing.M) {
 	case "mssql":
 		msh := new(sqac.MSSQLFlavor)
 		Handle = msh
-		db, err := sqac.Open("mssql", "sqlserver://SA:W@lter02!!@localhost:1401?database=sqlx")
+		db, err := sqac.Open("mssql", "sqlserver://SA:Bunny123!!@localhost:1401?database=sqlx")
 		if err != nil {
 			log.Fatalf("%s\n", err.Error())
 		}

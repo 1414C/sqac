@@ -364,7 +364,7 @@ func (bf *BaseFlavor) CreateIndex(in string, index IndexInfo) error {
 		in = "idx_" + fList
 	} else {
 		for _, f := range index.IndexFields {
-			fList = fmt.Sprintf("%s %s,", fList, f)
+			fList = fmt.Sprintf("%s%s,", fList, f)
 		}
 		fList = strings.TrimSuffix(fList, ",")
 	}

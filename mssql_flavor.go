@@ -95,6 +95,94 @@ func (msf *MSSQLFlavor) CreateTables(i ...interface{}) error {
 	return nil
 }
 
+// AlterTables alters tables on the MSSQL database referenced
+// by msf.DB.
+func (msf *MSSQLFlavor) AlterTables(i ...interface{}) error {
+
+	for t, ent := range i {
+
+		// ftr := reflect.TypeOf(ent)
+
+		// determine the table name
+		tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
+		if strings.Contains(tn, ".") {
+			el := strings.Split(tn, ".")
+			tn = strings.ToLower(el[len(el)-1])
+		} else {
+			tn = strings.ToLower(tn)
+		}
+		if tn == "" {
+			return fmt.Errorf("unable to determine table name in msf.AlterTables")
+		}
+
+		// if the table does not exist, call CreateTables
+		// if the table does exist, examine it and perform
+		// alterations if neccessary
+		if !msf.ExistsTable(tn) {
+			msf.CreateTables(ent)
+			continue
+		}
+
+		// build the altered table schema and get its components
+		tc := msf.buildTablSchema(tn, i[t])
+
+		// go through the latest version of the model and check each
+		// field against its definition in the database.
+		qt := msf.GetDBQuote()
+		alterSchema := fmt.Sprintf("ALTER TABLE %s%s%s", qt, tn, qt)
+		var cols []string
+
+		for _, fd := range tc.flDef {
+			// new columns first
+			if !msf.ExistsColumn(tn, fd.FName) && fd.NoDB == false {
+
+				colSchema := fmt.Sprintf("ADD COLUMN %s%s%s %s", qt, fd.FName, qt, fd.FType)
+				for _, p := range fd.RgenPairs {
+					switch p.Name {
+					case "primary_key":
+						// abort - adding primary key
+						panic(fmt.Errorf("aborting - cannot add a primary-key (table-field %s-%s) through migration", tn, fd.FName))
+
+					case "default":
+						if fd.GoType == "string" {
+							colSchema = fmt.Sprintf("%s DEFAULT '%s'", colSchema, p.Value)
+						} else {
+							colSchema = fmt.Sprintf("%s DEFAULT %s", colSchema, p.Value)
+						}
+
+					case "nullable":
+						if p.Value == "false" {
+							colSchema = fmt.Sprintf("%s NOT NULL", colSchema)
+						}
+
+					default:
+
+					}
+				}
+				cols = append(cols, colSchema+",")
+			}
+		}
+
+		// ALTER TABLE ADD COLUMNS...
+		if len(cols) > 0 {
+			for _, c := range cols {
+				alterSchema = fmt.Sprintf("%s %s", alterSchema, c)
+			}
+
+			alterSchema = strings.TrimSuffix(alterSchema, ",")
+			msf.ProcessSchema(alterSchema)
+		}
+
+		// add indexes if required
+		for k, v := range tc.ind {
+			if !msf.ExistsIndex(v.TableName, k) {
+				msf.CreateIndex(k, v)
+			}
+		}
+	}
+	return nil
+}
+
 // buildTableSchema builds a CREATE TABLE schema for the MSSQL DB
 // and returns it to the caller, along with the components determined from
 // the db and rgen struct-tags.  this method is used in CreateTables
@@ -306,6 +394,41 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 	return rc
 }
 
+// DropTables drops tables on the db if they exist, based on
+// the provided list of go struct definitions.
+func (msf *MSSQLFlavor) DropTables(i ...interface{}) error {
+
+	dropSchema := ""
+	for t := range i {
+
+		// determine the table name
+		tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
+		if strings.Contains(tn, ".") {
+			el := strings.Split(tn, ".")
+			tn = strings.ToLower(el[len(el)-1])
+		} else {
+			tn = strings.ToLower(tn)
+		}
+		if tn == "" {
+			return fmt.Errorf("unable to determine table name in msf.DropTables")
+		}
+
+		// if the table is found to exist, add a DROP statement
+		// to the dropSchema string and move on to the next
+		// table in the list.
+		if msf.ExistsTable(tn) {
+			if msf.log {
+				fmt.Printf("table %s exists - adding to drop schema...\n", tn)
+			}
+			// submit 1 at a time for mysql
+			dropSchema = dropSchema + fmt.Sprintf("DROP TABLE %s; ", tn)
+			msf.ProcessSchema(dropSchema)
+			dropSchema = ""
+		}
+	}
+	return nil
+}
+
 // ExistsTable checks the currently connected database and
 // returns true if the named table is found to exist.
 func (msf *MSSQLFlavor) ExistsTable(tn string) bool {
@@ -330,4 +453,44 @@ func (msf *MSSQLFlavor) GetDBName() (dbName string) {
 		}
 	}
 	return dbName
+}
+
+// ExistsIndex checks the connected database for the presence
+// of the specified index.
+func (msf *MSSQLFlavor) ExistsIndex(tn string, in string) bool {
+
+	n := 0
+	// msf.db.QueryRow("SELECT count(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema = ? AND table_name = ? AND index_name = ?", bf.GetDBName(), tn, in).Scan(&n)
+	msf.db.QueryRow("SELECT COUNT(*) FROM sys.indexes WHERE name=? AND object_id = OBJECT_ID(?);", in, tn).Scan(&n)
+	if n > 0 {
+		return true
+	}
+	return false
+}
+
+// DropIndex drops the specfied index on the connected database.
+func (msf *MSSQLFlavor) DropIndex(tn string, in string) error {
+
+	if msf.ExistsIndex(tn, in) {
+		indexSchema := fmt.Sprintf("DROP INDEX %s ON %s;", in, tn)
+		msf.ProcessSchema(indexSchema)
+		return nil
+	}
+	return nil
+}
+
+// ExistsColumn checks the currently connected database and
+// returns true if the named table-column is found to exist.
+// this checks the column name only, not the column data-type
+// or properties.
+func (msf *MSSQLFlavor) ExistsColumn(tn string, cn string) bool {
+
+	n := 0
+	if msf.ExistsTable(tn) {
+		msf.db.QueryRow("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ? AND column_name = ?;", tn, cn).Scan(&n)
+		if n > 0 {
+			return true
+		}
+	}
+	return false
 }

@@ -83,7 +83,6 @@ GO
 
 -- DROP INDEX idx_region ON dbo.depot;
 -- GO
-
 CREATE INDEX idx_province_country on dbo.depot (province, country);
 GO
 
