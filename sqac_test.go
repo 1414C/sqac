@@ -635,6 +635,9 @@ func TestNullableValues(t *testing.T) {
 		insQuery = "INSERT INTO depot (depot_num, region, province) VALUES (DEFAULT,'YVR','AB');"
 	case "sqlite3":
 		insQuery = "INSERT INTO depot (region, province) VALUES ('YVR','AB');"
+	case "mssql":
+		// INSERT INTO Persons(name, age) values('Bob', 20)
+		insQuery = "INSERT INTO depot (region, province) VALUES ('YVR','AB');"
 	default:
 		insQuery = "INSERT INTO depot (depot_num, region, province) VALUES (DEFAULT, 'YVR','AB');"
 	}
