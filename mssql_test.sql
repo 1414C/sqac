@@ -185,6 +185,8 @@ INNER JOIN information_schema.columns col
 WHERE tbl.table_type = 'base table' and tbl.table_name like '%equipment%'
 GO
 
+ALTER TABLE depot ADD active bit NOT NULL DEFAULT 1
+
 -- Create a new table called 'depot' in schema 'dbo'
 -- Drop the table if it already exists
 IF OBJECT_ID('dbo.depot', 'U') IS NOT NULL

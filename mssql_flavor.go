@@ -129,14 +129,14 @@ func (msf *MSSQLFlavor) AlterTables(i ...interface{}) error {
 		// go through the latest version of the model and check each
 		// field against its definition in the database.
 		qt := msf.GetDBQuote()
-		alterSchema := fmt.Sprintf("ALTER TABLE %s%s%s", qt, tn, qt)
+		alterSchema := fmt.Sprintf("ALTER TABLE %s%s%s ADD ", qt, tn, qt)
 		var cols []string
 
 		for _, fd := range tc.flDef {
 			// new columns first
 			if !msf.ExistsColumn(tn, fd.FName) && fd.NoDB == false {
 
-				colSchema := fmt.Sprintf("ADD COLUMN %s%s%s %s", qt, fd.FName, qt, fd.FType)
+				colSchema := fmt.Sprintf("%s%s%s %s", qt, fd.FName, qt, fd.FType)
 				for _, p := range fd.RgenPairs {
 					switch p.Name {
 					case "primary_key":
@@ -144,9 +144,23 @@ func (msf *MSSQLFlavor) AlterTables(i ...interface{}) error {
 						panic(fmt.Errorf("aborting - cannot add a primary-key (table-field %s-%s) through migration", tn, fd.FName))
 
 					case "default":
-						if fd.GoType == "string" {
+						switch fd.GoType {
+						case "string":
 							colSchema = fmt.Sprintf("%s DEFAULT '%s'", colSchema, p.Value)
-						} else {
+
+						case "bool":
+							switch p.Value {
+							case "TRUE", "true":
+								p.Value = "1"
+
+							case "FALSE", "false":
+								p.Value = "0"
+
+							default:
+
+							}
+
+						default:
 							colSchema = fmt.Sprintf("%s DEFAULT %s", colSchema, p.Value)
 						}
 
@@ -493,4 +507,21 @@ func (msf *MSSQLFlavor) ExistsColumn(tn string, cn string) bool {
 		}
 	}
 	return false
+}
+
+// DestructiveResetTables drops tables on the MSSQL db if they exist,
+// as well as any related objects such as sequences.  this is
+// useful if you wish to regenerated your table and the
+// number-range used by an auto-incementing primary key.
+func (msf *MSSQLFlavor) DestructiveResetTables(i ...interface{}) error {
+
+	err := msf.DropTables(i...)
+	if err != nil {
+		return err
+	}
+	err = msf.CreateTables(i...)
+	if err != nil {
+		return err
+	}
+	return nil
 }

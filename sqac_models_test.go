@@ -21,7 +21,7 @@ type Material struct {
 type Triplet struct {
 	TripOne   string `db:"trip_one" rgen:"nullable:false"`
 	TripTwo   int64  `db:"trip_two" rgen:"nullable:false;default:0"`
-	TripThree string `db:"trip_three" rgen:"nullable:false"`
+	TripThree string `db:"trip_three" rgen:"nullable:false;default:test_string"`
 }
 
 type Equipment struct {
