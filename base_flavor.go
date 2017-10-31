@@ -119,9 +119,12 @@ type PublicDB interface {
 	DropIndex(tn string, in string) error
 	ExistsIndex(tn string, in string) bool
 
-	// sn=sequenceName, start=start-value
+	// sn=sequenceName, start=start-value, name is used to hold
+	// the name of the sequence, autoincrement or identity
+	// field name.  the use of name depends on which db system
+	// has been connected.
 	CreateSequence(sn string, start int)
-	AlterSequenceStart(sn string, start int) error
+	AlterSequenceStart(name string, start int) error
 	// select pg_get_serial_sequence('public.some_table', 'some_column');
 	DropSequence(sn string) error
 	ExistsSequence(sn string) bool
@@ -133,6 +136,7 @@ type PublicDB interface {
 
 	ProcessSchema(schema string)
 	ProcessSchemaList(sList []string)
+	ProcessTransaction(tList []string)
 
 	// sql package access
 	ExecuteQueryRow(queryString string, qParams ...interface{}) *sql.Row
@@ -403,11 +407,13 @@ func (bf *BaseFlavor) CreateSequence(sn string, start int) {
 	return
 }
 
-// AlterSequenceStart may be used to make changes to the start
-// value of the named sequence on the currently connected database.
-func (bf *BaseFlavor) AlterSequenceStart(sn string, start int) error {
+// AlterSequenceStart may be used to make changes to the start value
+// of the named sequence, autoincrement or identity field depending
+// on the manner in which the currently connected database flavour
+// handles key generation.
+func (bf *BaseFlavor) AlterSequenceStart(name string, start int) error {
 
-	return nil
+	return fmt.Errorf("AlterSequenceStart has not been implemented for %s", bf.GetDBName())
 }
 
 // DropSequence may be used to drop the named sequence on the currently
@@ -416,7 +422,7 @@ func (bf *BaseFlavor) AlterSequenceStart(sn string, start int) error {
 // select pg_get_serial_sequence('public.some_table', 'some_column');
 func (bf *BaseFlavor) DropSequence(sn string) error {
 
-	return nil
+	return fmt.Errorf("DropSequence has not been implemented for %s", bf.GetDBName())
 }
 
 // ExistsSequence checks for the presence of the named sequence on
@@ -540,6 +546,32 @@ func (bf *BaseFlavor) Exec(queryString string, args ...interface{}) (sql.Result,
 		return nil, err
 	}
 	return result, nil
+}
+
+// ProcessTransaction processes the list of commands as a transaction.
+// If any of the commands encounter an error, the transaction will be
+// cancelled via a Rollback and the error message will be returned to
+// the caller.
+func (bf *BaseFlavor) ProcessTransaction(tList []string) error {
+
+	tx, err := bf.db.Begin()
+	if err != nil {
+		return err
+	}
+	for _, s := range tList {
+		_, err = tx.Exec(s, nil)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	return nil
 }
 
 // processIndexTag is used to create or add to an entry in the working indexes map that is

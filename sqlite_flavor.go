@@ -545,3 +545,35 @@ func (slf *SQLiteFlavor) ExistsColumn(tn string, cn string) bool {
 	}
 	return false
 }
+
+// AlterSequenceStart may be used to make changes to the start value of the
+// auto-increment field on the currently connected SQLite database file.
+func (slf *SQLiteFlavor) AlterSequenceStart(name string, start int) error {
+
+	// // UPDATE SQLITE_SEQUENCE SET seq = <n> WHERE name = '<table>'
+	// BEGIN TRANSACTION;
+
+	// UPDATE sqlite_sequence SET seq = <n> WHERE name = '<table>';
+
+	// INSERT INTO sqlite_sequence (name,seq) SELECT '<table>', <n> WHERE NOT EXISTS
+	// 		   (SELECT changes() AS change FROM sqlite_sequence WHERE change <> 0);
+	result, err := slf.Exec("INSERT INTO sqlite_sequence (name,seq) SELECT %s, %d WHERE NOT EXISTS (SELECT changes() AS change FROM sqlite_sequence WHERE change <> 0);", name, start)
+	if err != nil {
+		return err
+	}
+	ra, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if ra > 0 {
+		return nil
+	}
+	tList = append(tList, fmt.Sprintf("UPDATE SQLITE_SEQUENCE SET seq = %d WHERE name = %s;", start, name))
+	tList = append(tList, fmt.Sprintf("INSERT INTO sqlite_sequence (name,seq) SELECT %s, %d WHERE NOT EXISTS (SELECT changes() AS change FROM sqlite_sequence WHERE change <> 0);", name, start))
+	err := slf.ProcessTransaction(tList)
+	if err != nil {
+		return err
+	}
+	return nil
+}

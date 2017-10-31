@@ -394,3 +394,20 @@ func (myf *MySQLFlavor) DestructiveResetTables(i ...interface{}) error {
 	}
 	return nil
 }
+
+// AlterSequenceStart may be used to make changes to the start value
+// of the named auto_increment field in the MySQL database.  Note
+// that this is intended to deal with auto-incrementing primary
+// keys only.  It is possible in MySQL to setup a non-primary-key
+// field as auto_increment as follows:
+//
+//   ALTER TABLE users ADD id INT UNSIGNED NOT NULL AUTO_INCREMENT, ADD INDEX (id);
+//
+//  This is not presently supported.
+func (myf *MySQLFlavor) AlterSequenceStart(name string, start int) error {
+
+	// ALTER TABLE users AUTO_INCREMENT=1001;
+	alterSequenceSchema := fmt.Sprintf(" ALTER TABLE %s AUTO_INCREMENT=%d;", name, start)
+	myf.ProcessSchema(alterSequenceSchema)
+	return nil
+}

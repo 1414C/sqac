@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// MSSQLFlavor is a MWSQL-specific implementation.
+// MSSQLFlavor is a MSSQL-specific implementation.
 // Methods defined in the PublicDB interface of struct-type
 // BaseFlavor are called by default for MSSQLFlavor. If
 // the method as it exists in the BaseFlavor implementation
@@ -523,5 +523,16 @@ func (msf *MSSQLFlavor) DestructiveResetTables(i ...interface{}) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+// AlterSequenceStart may be used to make changes to the start value of the
+// named identity-field on the currently connected MSSQL database.
+func (msf *MSSQLFlavor) AlterSequenceStart(name string, start int) error {
+
+	// reseed the primary key
+	// DBCC CHECKIDENT ('dbo.depot', RESEED, 50000000);
+	alterSequenceSchema := fmt.Sprintf("DBCC CHECKIDENT (%s, RESEED, %d)", name, start)
+	msf.ProcessSchema(alterSequenceSchema)
 	return nil
 }
