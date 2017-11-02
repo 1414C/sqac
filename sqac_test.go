@@ -101,8 +101,6 @@ func TestMain(m *testing.M) {
 	// run the tests
 	code := m.Run()
 
-	// cleanup
-
 	os.Exit(code)
 }
 
@@ -119,18 +117,119 @@ func TestGetDBDriverName(t *testing.T) {
 	}
 }
 
-// TestCreateTables
+// TestExistsTableNegative
+//
+// Test for non-existent table 'Footle'
+//
+func TestExistsTableNegative(t *testing.T) {
+
+	type Footle struct {
+		KeyNum      int       `db:"key_num" rgen:"primary_key:inc"`
+		CreateDate  time.Time `db:"create_date" rgen:"nullable:false;default:now();"`
+		Description string    `db:"description" rgen:"nullable:false;default:"`
+	}
+
+	// determine the table name as per the
+	// table creation logic
+	tn := reflect.TypeOf(Footle{}).String()
+	if strings.Contains(tn, ".") {
+		el := strings.Split(tn, ".")
+		tn = strings.ToLower(el[len(el)-1])
+	} else {
+		tn = strings.ToLower(tn)
+	}
+
+	// expect that table depot does not exist
+	if Handle.ExistsTable(tn) {
+		t.Errorf("table %s was found when it was not expected", tn)
+	}
+}
+
+// TestCreateTableBasic
 //
 // Create table depot via CreateTables(i ...interface{})
 // Verify table creation via ExistsTable(tn string)
 // Perform negative validation be checking for non-existant
 // 	table "abcdefg" via ExistsTable(tn string)
 //
-func TestCreateTables(t *testing.T) {
+func TestCreateTableBasic(t *testing.T) {
+
+	type Depot struct {
+		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc"`
+		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();"`
+		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
+		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
+		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
+	}
+
+	err := Handle.CreateTables(Depot{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// determine the table name as per the
+	// table creation logic
+	tn := reflect.TypeOf(Depot{}).String()
+	if strings.Contains(tn, ".") {
+		el := strings.Split(tn, ".")
+		tn = strings.ToLower(el[len(el)-1])
+	} else {
+		tn = strings.ToLower(tn)
+	}
+
+	// expect that table depot exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s was not created", tn)
+	}
+}
+
+// TestDropTablesBasic
+//
+// Drop table depot via DropTables(i ...interface{})
+//
+func TestDropTablesBasic(t *testing.T) {
+
+	type Depot struct {
+		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc"`
+		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();"`
+		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
+		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
+		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
+	}
+
+	err := Handle.DropTables(Depot{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// determine the table name as per the
+	// table creation logic
+	tn := reflect.TypeOf(Depot{}).String()
+	if strings.Contains(tn, ".") {
+		el := strings.Split(tn, ".")
+		tn = strings.ToLower(el[len(el)-1])
+	} else {
+		tn = strings.ToLower(tn)
+	}
+
+	// expect that table depot has been dropped
+	if Handle.ExistsTable(tn) {
+		t.Errorf("table %s was not dropped", tn)
+	}
+}
+
+// TestCreateTableWithAlterSequence
+//
+// Create table depot via CreateTables(i ...interface{})
+// Verify table creation via ExistsTable(tn string)
+// Perform negative validation be checking for non-existant
+// 	table "abcdefg" via ExistsTable(tn string)
+//
+func TestCreateTableWithAlterSequence(t *testing.T) {
 
 	type Depot struct {
 		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
+		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now()"`
 		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
 		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
 		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
@@ -156,9 +255,17 @@ func TestCreateTables(t *testing.T) {
 		t.Errorf("table %s was not created", tn)
 	}
 
-	// negative verification of ExistsTable(tn string)
-	if Handle.ExistsTable("abcdefg") {
-		t.Errorf("table %s should not exist - check ExistsTable implementation for db %s", "abcdefg", Handle.GetDBDriverName())
+	// check the value of the auto-increment, sequence or identity field
+	// depending on db-system.
+	seq := Handle.GetCurrentSequenceValue(tn)
+	if seq != 90000000 {
+		t.Errorf("expected value of 90000000, got %d", seq)
+	}
+
+	// Drop the depot table
+	err = Handle.DropTables(Depot{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
 	}
 }
 
@@ -222,13 +329,20 @@ func TestCreateTablesWithInclude(t *testing.T) {
 	if !Handle.ExistsTable(tn) {
 		t.Errorf("table %s was not created", tn)
 	}
+
+	// drop the equipment table
+	err = Handle.DropTables(Equipment{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
 }
 
-// TestDropTables
+// TestExistsIndexNegative
 //
-// Drop table depot via DropTables(i ...interface{})
-//
-func TestDropTables(t *testing.T) {
+// Check to see if index:
+// idx_province_country exists on
+// table depot.
+func TestExistsIndexNegative(t *testing.T) {
 
 	type Depot struct {
 		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
@@ -241,7 +355,8 @@ func TestDropTables(t *testing.T) {
 		NewColumn3 float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
 	}
 
-	err := Handle.DropTables(Depot{})
+	// ensure that table depot exists
+	err := Handle.AlterTables(Depot{})
 	if err != nil {
 		t.Errorf("%s", err.Error())
 	}
@@ -256,9 +371,19 @@ func TestDropTables(t *testing.T) {
 		tn = strings.ToLower(tn)
 	}
 
-	// expect that table depot has been dropped
-	if Handle.ExistsTable(tn) {
-		t.Errorf("table %s was not dropped", tn)
+	// expect that table depot exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s does not exist", tn)
+	}
+
+	if Handle.ExistsIndex(tn, "idx_province_country") {
+		t.Errorf("index %s was found on table %s, but was not expected", "idx_province_country", tn)
+	}
+
+	// drop the depot table
+	err = Handle.DropTables(Depot{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
 	}
 }
 
@@ -310,12 +435,12 @@ func TestCreateIndex(t *testing.T) {
 	}
 }
 
-// TestExistsIndex
+// TestExistsIndexPositive
 //
 // Check to see if index:
 // idx_province_country exists on
 // table depot.
-func TestExistsIndex(t *testing.T) {
+func TestExistsIndexPositive(t *testing.T) {
 
 	type Depot struct {
 		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
@@ -428,7 +553,7 @@ func TestExistsColumn(t *testing.T) {
 		tn = strings.ToLower(tn)
 	}
 
-	// ensute table exists in db
+	// ensure table exists in db - create via alter
 	err := Handle.AlterTables(Depot{})
 	if err != nil {
 		t.Errorf("%s", err.Error())
@@ -475,6 +600,25 @@ func TestAlterTables(t *testing.T) {
 	if err != nil {
 		t.Errorf("%s", err.Error())
 	}
+
+	// determine the table name as per the table creation logic
+	tn := reflect.TypeOf(Depot{}).String()
+	if strings.Contains(tn, ".") {
+		el := strings.Split(tn, ".")
+		tn = strings.ToLower(el[len(el)-1])
+	} else {
+		tn = strings.ToLower(tn)
+	}
+	r := Handle.ExistsIndex(tn, "idx_new_column2_new_column3")
+	if r == false {
+		t.Errorf("index idx_new_column2_new_column3 was not not found following alter table call on table %s", tn)
+	}
+
+	r = Handle.ExistsIndex(tn, "idx_region")
+	if r == false {
+		t.Errorf("index idx_region was not not found following alter table call on table %s", tn)
+	}
+
 }
 
 // TestDestructiveResetTables

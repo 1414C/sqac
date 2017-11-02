@@ -90,7 +90,7 @@ type PublicDB interface {
 	SetDB(db *sqlx.DB)
 	GetDB() *sqlx.DB
 
-	// GetDBName reports the name of  the currently connected db for
+	// GetDBName reports the name of the currently connected db for
 	// information_schema access
 	GetDBName() string
 
@@ -125,6 +125,7 @@ type PublicDB interface {
 	// has been connected.
 	CreateSequence(sn string, start int)
 	AlterSequenceStart(name string, start int) error
+	GetCurrentSequenceValue(name string) int
 	// select pg_get_serial_sequence('public.some_table', 'some_column');
 	DropSequence(sn string) error
 	ExistsSequence(sn string) bool
@@ -136,7 +137,7 @@ type PublicDB interface {
 
 	ProcessSchema(schema string)
 	ProcessSchemaList(sList []string)
-	ProcessTransaction(tList []string)
+	ProcessTransaction(tList []string) error
 
 	// sql package access
 	ExecuteQueryRow(queryString string, qParams ...interface{}) *sql.Row

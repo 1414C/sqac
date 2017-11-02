@@ -411,3 +411,18 @@ func (myf *MySQLFlavor) AlterSequenceStart(name string, start int) error {
 	myf.ProcessSchema(alterSequenceSchema)
 	return nil
 }
+
+// GetCurrentSequenceValue is used primarily for testing.  It returns
+// the current value of the MySQL auto-increment field for the named
+// table.
+func (myf *MySQLFlavor) GetCurrentSequenceValue(name string) int {
+
+	if myf.ExistsTable(name) {
+
+		seq := 0
+		seqQuery := fmt.Sprintf("SELECT `AUTO_INCREMENT` FROM  INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s';", myf.GetDBName(), name)
+		myf.db.QueryRow(seqQuery).Scan(&seq)
+		return seq
+	}
+	return 0
+}
