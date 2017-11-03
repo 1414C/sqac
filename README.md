@@ -24,7 +24,7 @@ go test -v -l -db <dbtype> sqac_test.go
 Postgres:
 ```bash
 
-$ go test -v -db pg sqac_test.go
+$ go test -v -db postgres sqac_test.go
 
 ```
 
