@@ -2,6 +2,7 @@ package sqac
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -25,4 +26,72 @@ func Open(flavor string, args ...interface{}) (db *sqlx.DB, err error) {
 		return nil, err
 	}
 	return db, nil
+}
+
+func Create(flavor string, logFlag bool) (handle PublicDB) {
+
+	switch flavor {
+	case "pg":
+		pgh := new(PostgresFlavor)
+		handle = pgh
+		db, err := Open("postgres", "host=127.0.0.1 user=godev dbname=sqlx sslmode=disable password=gogogo123")
+		if err != nil {
+			log.Fatalf("%s\n", err.Error())
+		}
+		handle.SetDB(db)
+		// defer db.Close()
+
+	case "mysql":
+		myh := new(MySQLFlavor)
+		handle = myh
+		db, err := Open("mysql", "stevem:gogogo123@tcp(192.168.1.50:3306)/sqlx?charset=utf8&parseTime=True&loc=Local")
+		if err != nil {
+			log.Fatalf("%s\n", err.Error())
+			panic(err)
+		}
+		handle.SetDB(db)
+		// defer db.Close()
+
+	case "sqlite":
+		sqh := new(SQLiteFlavor)
+		handle = sqh
+		db, err := Open("sqlite3", "testdb.sqlite")
+		if err != nil {
+			log.Fatalf("%s\n", err.Error())
+			panic(err)
+		}
+		handle.SetDB(db)
+		// defer db.Close()
+
+	case "mssql":
+		msh := new(MSSQLFlavor)
+		handle = msh
+		db, err := Open("mssql", "sqlserver://SA:Bunny123!!@localhost:1401?database=sqlx")
+		if err != nil {
+			log.Fatalf("%s\n", err.Error())
+			panic(err)
+		}
+		handle.SetDB(db)
+		err = db.Ping()
+		if err != nil {
+			log.Fatalf("%s\n", err.Error())
+			panic(err)
+		}
+		// defer db.Close()
+
+	case "db2":
+
+	case "go-hdb":
+
+	default:
+
+	}
+
+	// detailed logging?
+	if logFlag {
+		handle.Log(true)
+	} else {
+		handle.Log(false)
+	}
+	return handle
 }

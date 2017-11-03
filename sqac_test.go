@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"reflect"
 	"strings"
@@ -36,66 +35,68 @@ func TestMain(m *testing.M) {
 	logFlag := flag.Bool("l", false, "activate sqac logging")
 	flag.Parse()
 
-	// select the db implementation
-	switch *dbFlag {
-	case "pg":
-		pgh := new(sqac.PostgresFlavor)
-		Handle = pgh
-		db, err := sqac.Open("postgres", "host=127.0.0.1 user=godev dbname=sqlx sslmode=disable password=gogogo123")
-		if err != nil {
-			log.Fatalf("%s\n", err.Error())
-		}
-		Handle.SetDB(db)
-		defer db.Close()
+	// // select the db implementation
+	// switch *dbFlag {
+	// case "pg":
+	// 	pgh := new(sqac.PostgresFlavor)
+	// 	Handle = pgh
+	// 	db, err := sqac.Open("postgres", "host=127.0.0.1 user=godev dbname=sqlx sslmode=disable password=gogogo123")
+	// 	if err != nil {
+	// 		log.Fatalf("%s\n", err.Error())
+	// 	}
+	// 	Handle.SetDB(db)
+	// 	defer db.Close()
 
-	case "mysql":
-		myh := new(sqac.MySQLFlavor)
-		Handle = myh
-		db, err := sqac.Open("mysql", "stevem:gogogo123@tcp(192.168.1.50:3306)/sqlx?charset=utf8&parseTime=True&loc=Local")
-		if err != nil {
-			log.Fatalf("%s\n", err.Error())
-		}
-		Handle.SetDB(db)
-		defer db.Close()
+	// case "mysql":
+	// 	myh := new(sqac.MySQLFlavor)
+	// 	Handle = myh
+	// 	db, err := sqac.Open("mysql", "stevem:gogogo123@tcp(192.168.1.50:3306)/sqlx?charset=utf8&parseTime=True&loc=Local")
+	// 	if err != nil {
+	// 		log.Fatalf("%s\n", err.Error())
+	// 	}
+	// 	Handle.SetDB(db)
+	// 	defer db.Close()
 
-	case "sqlite":
-		sqh := new(sqac.SQLiteFlavor)
-		Handle = sqh
-		db, err := sqac.Open("sqlite3", "testdb.sqlite")
-		if err != nil {
-			log.Fatalf("%s\n", err.Error())
-		}
-		Handle.SetDB(db)
-		defer db.Close()
+	// case "sqlite":
+	// 	sqh := new(sqac.SQLiteFlavor)
+	// 	Handle = sqh
+	// 	db, err := sqac.Open("sqlite3", "testdb.sqlite")
+	// 	if err != nil {
+	// 		log.Fatalf("%s\n", err.Error())
+	// 	}
+	// 	Handle.SetDB(db)
+	// 	defer db.Close()
 
-	case "mssql":
-		msh := new(sqac.MSSQLFlavor)
-		Handle = msh
-		db, err := sqac.Open("mssql", "sqlserver://SA:Bunny123!!@localhost:1401?database=sqlx")
-		if err != nil {
-			log.Fatalf("%s\n", err.Error())
-		}
-		Handle.SetDB(db)
-		err = db.Ping()
-		if err != nil {
-			fmt.Println(err)
-		}
-		defer db.Close()
+	// case "mssql":
+	// 	msh := new(sqac.MSSQLFlavor)
+	// 	Handle = msh
+	// 	db, err := sqac.Open("mssql", "sqlserver://SA:Bunny123!!@localhost:1401?database=sqlx")
+	// 	if err != nil {
+	// 		log.Fatalf("%s\n", err.Error())
+	// 	}
+	// 	Handle.SetDB(db)
+	// 	err = db.Ping()
+	// 	if err != nil {
+	// 		fmt.Println(err)
+	// 	}
+	// 	defer db.Close()
 
-	case "db2":
+	// case "db2":
 
-	case "go-hdb":
+	// case "go-hdb":
 
-	default:
+	// default:
 
-	}
+	// }
 
-	// detailed logging?
-	if *logFlag {
-		Handle.Log(true)
-	} else {
-		Handle.Log(false)
-	}
+	// // detailed logging?
+	// if *logFlag {
+	// 	Handle.Log(true)
+	// } else {
+	// 	Handle.Log(false)
+	// }
+
+	Handle = sqac.Create(*dbFlag, *logFlag)
 
 	// run the tests
 	code := m.Run()
