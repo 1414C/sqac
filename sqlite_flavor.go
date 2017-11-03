@@ -577,20 +577,23 @@ func (slf *SQLiteFlavor) AlterSequenceStart(name string, start int) error {
 	return nil
 }
 
-// GetCurrentSequenceValue is used primarily for testing.  It returns
+// GetNextSequenceValue is used primarily for testing.  It returns
 // the current value of the SQLite auto-increment field for the named
 // table.
-func (slf *SQLiteFlavor) GetCurrentSequenceValue(name string) int {
+func (slf *SQLiteFlavor) GetNextSequenceValue(name string) (int, error) {
 
+	seq := 0
 	if slf.ExistsTable(name) {
 
 		// colQuery := fmt.Sprintf("PRAGMA table_info(\"%s\")", tn)  // does not work - annoying
 		// without using the built-in PRAGMA, we have to rely on the table creation SQL
 		// that is stored in the sqlite_master table - not very exact.
-		seq := 0
 		seqQuery := fmt.Sprintf("SELECT \"seq\" FROM sqlite_sequence WHERE \"name\" = '%s'", name)
-		slf.db.QueryRow(seqQuery).Scan(&seq)
-		return seq
+		err := slf.db.QueryRow(seqQuery).Scan(&seq)
+		if err != nil {
+			return 0, err
+		}
+		return seq, nil
 	}
-	return 0
+	return seq, nil
 }

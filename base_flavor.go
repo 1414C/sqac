@@ -125,7 +125,7 @@ type PublicDB interface {
 	// has been connected.
 	CreateSequence(sn string, start int)
 	AlterSequenceStart(name string, start int) error
-	GetCurrentSequenceValue(name string) int
+	GetNextSequenceValue(name string) (int, error)
 	// select pg_get_serial_sequence('public.some_table', 'some_column');
 	DropSequence(sn string) error
 	ExistsSequence(sn string) bool
@@ -310,18 +310,10 @@ func (bf *BaseFlavor) AlterTables(i ...interface{}) error {
 // as well as any related objects such as sequences.  this is
 // useful if you wish to regenerated your table and the
 // number-range used by an auto-incementing primary key.
-// func (bf *BaseFlavor) DestructiveResetTables(i ...interface{}) error {
+func (bf *BaseFlavor) DestructiveResetTables(i ...interface{}) error {
 
-// 	err := bf.DropTables(i...)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	err = bf.CreateTables(i...)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
+	return fmt.Errorf("method DestructiveResetTable has not been implemented for db type %s", bf.GetDBDriverName())
+}
 
 // ExistsTable checks the currently connected database and
 // returns true if the named table is found to exist.
@@ -423,7 +415,7 @@ func (bf *BaseFlavor) AlterSequenceStart(name string, start int) error {
 // select pg_get_serial_sequence('public.some_table', 'some_column');
 func (bf *BaseFlavor) DropSequence(sn string) error {
 
-	return fmt.Errorf("DropSequence has not been implemented for %s", bf.GetDBName())
+	return fmt.Errorf("DropSequence has not been implemented for %s", bf.GetDBDriverName())
 }
 
 // ExistsSequence checks for the presence of the named sequence on
@@ -431,6 +423,14 @@ func (bf *BaseFlavor) DropSequence(sn string) error {
 func (bf *BaseFlavor) ExistsSequence(sn string) bool {
 
 	return false
+}
+
+// GetNextSequenceValue returns the next value of the named or derived
+// sequence, auto-increment or identity field depending on which
+// db-system is presently being used.
+func (bf *BaseFlavor) GetNextSequenceValue(name string) (int, error) {
+
+	return 0, fmt.Errorf("ExistsSequence has not been implemented for %s", bf.GetDBDriverName())
 }
 
 //===============================================================================

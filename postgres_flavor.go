@@ -630,3 +630,34 @@ func (pf *PostgresFlavor) AlterSequenceStart(sn string, start int) error {
 	pf.ProcessSchema(seqSchema)
 	return nil
 }
+
+// GetNextSequenceValue is used primarily for testing.  It returns
+// the current value of the sequence assigned to the primary-key of the
+// of the named Postgres table.  Although it is possible to assign
+// Postgres sequences to non-primary-key fields (composite key gen),
+// sqac handle auto-increment as a primary-key constraint only.
+func (pf *PostgresFlavor) GetNextSequenceValue(name string) (int, error) {
+
+	// determine the column name of the primary key
+	pKeyQuery := fmt.Sprintf("SELECT c.column_name, c.ordinal_position FROM information_schema.key_column_usage AS c LEFT JOIN information_schema.table_constraints AS t ON t.constraint_name = c.constraint_name WHERE t.table_name = '%s' AND t.constraint_type = 'PRIMARY KEY';", name)
+	var keyColumn string
+	var keyColumnPos int
+	pf.db.QueryRow(pKeyQuery).Scan(&keyColumn, &keyColumnPos)
+	if keyColumn == "" {
+		return 0, fmt.Errorf("could not identify primary-key column for table %s", name)
+	}
+
+	// Postgres sequences have format '<tablename>_<keyColumn>_seq'
+	seqName := fmt.Sprintf("%s_%s_seq", name, keyColumn)
+
+	if pf.ExistsSequence(seqName) {
+		seq := 0
+		seqQuery := fmt.Sprintf("SELECT nextval('%s');", seqName)
+		err := pf.db.QueryRow(seqQuery).Scan(&seq)
+		if err != nil {
+			return 0, err
+		}
+		return seq, nil
+	}
+	return 0, nil
+}

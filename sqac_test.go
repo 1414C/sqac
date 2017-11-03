@@ -255,9 +255,13 @@ func TestCreateTableWithAlterSequence(t *testing.T) {
 		t.Errorf("table %s was not created", tn)
 	}
 
-	// check the value of the auto-increment, sequence or identity field
-	// depending on db-system.
-	seq := Handle.GetCurrentSequenceValue(tn)
+	// check the next value of the auto-increment, sequence or
+	// identity field depending on db-system.
+	seq, err := Handle.GetNextSequenceValue(tn)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
 	if seq != 90000000 {
 		t.Errorf("expected value of 90000000, got %d", seq)
 	}

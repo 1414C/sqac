@@ -536,3 +536,21 @@ func (msf *MSSQLFlavor) AlterSequenceStart(name string, start int) error {
 	msf.ProcessSchema(alterSequenceSchema)
 	return nil
 }
+
+// GetNextSequenceValue is used primarily for testing.  It returns
+// the current value of the MSSQL identity (auto-increment) field for
+// the named table.
+func (msf *MSSQLFlavor) GetNextSequenceValue(name string) (int, error) {
+
+	seq := 0
+	if msf.ExistsTable(name) {
+
+		seqQuery := fmt.Sprintf("SELECT IDENT_CURRENT( '%s' );", name)
+		err := msf.db.QueryRow(seqQuery).Scan(&seq)
+		if err != nil {
+			return 0, err
+		}
+		return seq, nil
+	}
+	return seq, nil
+}
