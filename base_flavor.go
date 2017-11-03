@@ -3,6 +3,7 @@ package sqac
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"reflect"
 	"strings"
 
@@ -98,6 +99,9 @@ type PublicDB interface {
 	// ' vs ` vs " for example
 	GetDBQuote() string
 
+	// Close the db-connection
+	Close()
+
 	// set / get the max idle sqlx db-connections and max open sqlx db-connections
 	SetMaxIdleConns(n int)
 	SetMaxOpenConns(n int)
@@ -181,6 +185,14 @@ func (bf *BaseFlavor) SetDB(db *sqlx.DB) {
 // been set in the db-flavor environment.
 func (bf *BaseFlavor) GetDB() *sqlx.DB {
 	return bf.db
+}
+
+// Close closes the db-connection
+func (bf *BaseFlavor) Close() {
+	err := bf.db.Close()
+	if err != nil {
+		log.Println("failed to close db connection")
+	}
 }
 
 // GetDBName returns the name of the currently connected db
