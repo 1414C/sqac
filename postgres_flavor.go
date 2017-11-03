@@ -661,3 +661,52 @@ func (pf *PostgresFlavor) GetNextSequenceValue(name string) (int, error) {
 	}
 	return 0, nil
 }
+
+//================================================================
+// CRUD ops :(
+//================================================================
+
+// Create - Create the entity (single-row) on the database
+func (pf *PostgresFlavor) Create(ent interface{}) error {
+
+	t := reflect.TypeOf(ent)
+	fmt.Println("entity-type in Create CRUD call:", t)
+
+	// check that the interface type passed in was a struct
+	if t.Kind() != reflect.Struct {
+		return fmt.Errorf("only struct{} types can be passed in for table creation.  got %s", t.Kind())
+	}
+
+	flDef, err := TagReader(ent, t)
+	if err != nil {
+		return err
+	}
+
+	for _, v := range flDef {
+		fmt.Println(v)
+	}
+	return nil
+}
+
+// Update - Update an existing entity (single-row) on the database
+func (pf *PostgresFlavor) Update(ent interface{}) error {
+	return nil
+}
+
+// Delete - Delete an existing entity (single-row) on the database
+func (pf *PostgresFlavor) Delete(key interface{}) error { // (id uint) error
+	return nil
+}
+
+// GetEntity - get an existing entity from the db using the primary
+// key definition.
+func (pf *PostgresFlavor) GetEntity(key interface{}) interface{} {
+	return nil
+}
+
+// GetEntities retrieves all entities of the requested type
+// from the database.  the returned list is unfiltered and
+// not pageable for now.
+func (pf *PostgresFlavor) GetEntities() []interface{} {
+	return nil
+}

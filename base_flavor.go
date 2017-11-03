@@ -153,6 +153,13 @@ type PublicDB interface {
 	ExecuteQueryx(queryString string, qParams ...interface{}) (*sqlx.Rows, error)
 	Get(dst interface{}, queryString string, args ...interface{}) error
 	Select(dst interface{}, queryString string, args ...interface{}) error
+
+	// CRUD ops :(
+	Create(ent interface{}) error
+	Update(ent interface{}) error
+	Delete(key interface{}) error // (id uint) error
+	GetEntity(key interface{}) interface{}
+	GetEntities() []interface{}
 }
 
 // ensure consistency of interface implementation
