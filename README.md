@@ -11,7 +11,7 @@ sqac is a simple overlay to provide a common interface to attached mssql, mysql,
 - alter tables
 - add columns
 - set sequence, auto-increment or identity nextval
-- Standard go sql, j moirons sqlx db access
+- Standard go sql, jmoirons sqlx db access
 
 * Testing
 
