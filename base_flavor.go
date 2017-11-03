@@ -194,6 +194,7 @@ func (bf *BaseFlavor) Close() error {
 		log.Println("failed to close db connection")
 		return err
 	}
+	return nil
 }
 
 // GetDBName returns the name of the currently connected db
