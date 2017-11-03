@@ -31,7 +31,7 @@ func Open(flavor string, args ...interface{}) (db *sqlx.DB, err error) {
 func Create(flavor string, logFlag bool, connectionString string) (handle PublicDB) {
 
 	switch flavor {
-	case "pg":
+	case "postgres":
 		pgh := new(PostgresFlavor)
 		handle = pgh
 		db, err := Open("postgres", "host=127.0.0.1 user=godev dbname=sqlx sslmode=disable password=gogogo123")
@@ -86,7 +86,7 @@ func Create(flavor string, logFlag bool, connectionString string) (handle Public
 	default:
 
 	}
-
+	fmt.Printf("HANDLE: %v", handle)
 	// detailed logging?
 	if logFlag {
 		handle.Log(true)
