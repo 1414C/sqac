@@ -96,7 +96,24 @@ func TestMain(m *testing.M) {
 	// 	Handle.Log(false)
 	// }
 
-	Handle = sqac.Create(*dbFlag, *logFlag)
+	var cs string
+	switch *dbFlag {
+	case "pg":
+		cs = "host=127.0.0.1 user=godev dbname=sqlx sslmode=disable password=gogogo123"
+	case "mysql":
+		cs = "stevem:gogogo123@tcp(192.168.1.50:3306)/sqlx?charset=utf8&parseTime=True&loc=Local"
+	case "sqlite":
+		cs = "testdb.sqlite"
+	case "mssql":
+		cs = "sqlserver://SA:Bunny123!!@localhost:1401?database=sqlx"
+	case "db2":
+		cs = ""
+	case "hdb":
+		cs = ""
+	default:
+		cs = ""
+	}
+	Handle = sqac.Create(*dbFlag, *logFlag, cs)
 
 	// run the tests
 	code := m.Run()

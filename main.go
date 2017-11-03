@@ -28,7 +28,7 @@ func Open(flavor string, args ...interface{}) (db *sqlx.DB, err error) {
 	return db, nil
 }
 
-func Create(flavor string, logFlag bool) (handle PublicDB) {
+func Create(flavor string, logFlag bool, connectionString string) (handle PublicDB) {
 
 	switch flavor {
 	case "pg":
