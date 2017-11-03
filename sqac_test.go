@@ -14,20 +14,19 @@ import (
 	"github.com/1414C/sqac"
 	_ "github.com/denisenkom/go-mssqldb"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type dbac struct {
-	DB   *sqlx.DB
-	Log  bool
-	Hndl sqac.PublicDB
-}
+// type dbac struct {
+// 	DB   *sqlx.DB
+// 	Log  bool
+// 	Hndl sqac.PublicDB
+// }
 
 var (
-	dbAccess dbac
-	Handle   sqac.PublicDB
+	// dbAccess dbac
+	Handle sqac.PublicDB
 )
 
 func TestMain(m *testing.M) {

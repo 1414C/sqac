@@ -2,14 +2,15 @@ package sqac
 
 import (
 	"fmt"
+
 	"github.com/jmoiron/sqlx"
 )
 
 // Sqac is the main access structure for the
 // sqac library.
 type Sqac struct {
-	DB   *sqlx.DB
-	Log  bool
+	// DB   *sqlx.DB
+	// Log  bool
 	Hndl PublicDB
 }
 
