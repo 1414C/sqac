@@ -708,17 +708,17 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	vList := "("
 
 	v := reflect.ValueOf(ent)
-	values := make([]interface{}, v.NumField())
-	for i := 0; i < v.NumField(); i++ {
-		values[i] = v.Field(i).Interface()
-		// fmt.Printf("%v, %v\n", v.Field(i).Interface(), v.Field(i))
-		// fmt.Println(values[i])
-		fmt.Println("type:", reflect.TypeOf(values[i]))
+	// values := make([]interface{}, v.NumField())
+	// for i := 0; i < v.NumField(); i++ {
+	// 	values[i] = v.Field(i).Interface()
+	// 	// fmt.Printf("%v, %v\n", v.Field(i).Interface(), v.Field(i))
+	// 	// fmt.Println(values[i])
+	// 	fmt.Println("type:", reflect.TypeOf(values[i]))
 
-		st := reflect.TypeOf(ent).Field(i).Tag
-		fmt.Println("TAG:", st)
-	}
-	fmt.Println(values)
+	// 	st := reflect.TypeOf(ent).Field(i).Tag
+	// 	fmt.Println("TAG:", st)
+	// }
+	// fmt.Println(values)
 
 	// primary key:inc - do not fill
 	// primary key:""  - do nothing
@@ -868,19 +868,73 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	fList = fmt.Sprintf("%s%s", fList, ")")
 	fmt.Println("fList:", fList)
 	vList = strings.TrimSuffix(vList, ", ")
-	vList = fmt.Sprintf("%s%s", vList, ") RETURNING depot_num;")
+	vList = fmt.Sprintf("%s%s", vList, ") RETURNING *;") // depot_num
 	fmt.Println("vList:", vList)
 	insQuery = fmt.Sprintf("%s %s VALUES %s", insQuery, fList, vList)
 	fmt.Println(insQuery)
 
 	// attempt the insert
-	depot_num := 0
-	err = pf.db.QueryRowx(insQuery).Scan(&depot_num)
+	fmt.Println("==============================")
+	resultMap := make(map[string]interface{})
+	err = pf.db.QueryRowx(insQuery).MapScan(resultMap) // SliceScan
 	if err != nil {
 		fmt.Println(err)
 	}
+	for k, r := range resultMap {
+		fmt.Println(k, r)
+	}
 
-	fmt.Println("depot_num:", depot_num)
+	rType := reflect.TypeOf(ent)
+	fmt.Println(rType)
+	e2 := reflect.Zero(rType)
+	fmt.Println("e2 Type:", reflect.TypeOf(&e2))
+
+	fmt.Println("TYPEOF ent:", reflect.TypeOf(ent)) // sqac_test.Depot
+
+	// v := reflect.ValueOf(ent)
+	values := make([]interface{}, v.NumField())
+	for i := 0; i < v.NumField(); i++ {
+		values[i] = v.Field(i).Interface()
+		// fmt.Printf("%v, %v\n", v.Field(i).Interface(), v.Field(i))
+		// fmt.Println(values[i])
+		// fmt.Println("type:", reflect.TypeOf(values[i]))
+
+		fmt.Println("TYPE-OF e2:", reflect.TypeOf(e2))
+		st := reflect.TypeOf(ent).Field(i).Tag
+		fmt.Println("TAG:", st)
+		fn := reflect.TypeOf(ent).Field(i).Name
+		fmt.Println("NAME:", fn)
+		tp := reflect.TypeOf(ent).Field(i).Type.String()
+		fmt.Println("FIELD-TYPE:", tp) //.Kind())
+
+		fv := reflect.ValueOf(ent).FieldByName(fn)
+		if !fv.IsValid() {
+			panic(fmt.Errorf("invalid field %s in struct %s", fn, st))
+		}
+		if fv.CanSet() {
+			switch tp {
+			case "int", "uint", "int8", "uint8", "int16", "uint16", "int32", "uint32", "int64", "uint64", "rune", "byte":
+				fmt.Println("INT_TYPE")
+
+			case "float32", "float64":
+				fmt.Println("FLOAT_TYPE")
+
+			case "string":
+				fmt.Println("STRING_TYPE")
+
+			case "time.Time", "*time.Time":
+				fmt.Println("TIME_TYPE")
+
+			default:
+				fmt.Printf("UNSUPPORTED TYPE:%s\n", tp)
+
+			}
+		} else {
+			fmt.Printf("CANNOT SET %s:\n", fn)
+		}
+
+	}
+	fmt.Println(values)
 
 	fmt.Println("ENT:", ent)
 	return nil
