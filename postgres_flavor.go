@@ -683,6 +683,17 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	}
 
 	// https: //stackoverflow.com/questions/18926303/iterate-through-the-fields-of-a-struct-in-go
+	// entity-type in Create CRUD call: sqac_test.Depot
+	// {depot_num  int false [{primary_key inc} {start 90000000}]}
+	// {depot_bay  int false [{primary_key }]}
+	// {create_date  time.Time false [{nullable false} {default now()} {index unique}]}
+	// {region  string false [{nullable false} {default YYC}]}
+	// {province  string false [{nullable false} {default AB}]}
+	// {country  string false [{nullable true} {default CA}]}
+	// {new_column1  string false [{nullable false}]}
+	// {new_column2  int64 false [{nullable false}]}
+	// {new_column3  float64 false [{nullable false} {default 0.0}]}
+	// {non_persistent_column  string true []}
 	for _, v := range flDef {
 		fmt.Println(v)
 
