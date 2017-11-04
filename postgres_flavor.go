@@ -868,23 +868,20 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	fList = fmt.Sprintf("%s%s", fList, ")")
 	fmt.Println("fList:", fList)
 	vList = strings.TrimSuffix(vList, ", ")
-	vList = fmt.Sprintf("%s%s", vList, ");")
+	vList = fmt.Sprintf("%s%s", vList, ") RETURNING depot_num;")
 	fmt.Println("vList:", vList)
 	insQuery = fmt.Sprintf("%s %s VALUES %s", insQuery, fList, vList)
 	fmt.Println(insQuery)
 
 	// attempt the insert
-	rows, err := pf.db.Queryx(insQuery)
+	depot_num := 0
+	err = pf.db.QueryRowx(insQuery).Scan(&depot_num)
 	if err != nil {
 		fmt.Println(err)
 	}
-	for rows.Next() {
-		// var p Place
-		err = rows.StructScan(&ent)
-		if err != nil {
-			return err
-		}
-	}
+
+	fmt.Println("depot_num:", depot_num)
+
 	fmt.Println("ENT:", ent)
 	return nil
 }
