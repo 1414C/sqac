@@ -682,8 +682,10 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 		return err
 	}
 
+	// https: //stackoverflow.com/questions/18926303/iterate-through-the-fields-of-a-struct-in-go
 	for _, v := range flDef {
 		fmt.Println(v)
+
 	}
 	return nil
 }
