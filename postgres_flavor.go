@@ -681,6 +681,50 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	if err != nil {
 		return err
 	}
+	//==============
+	// 	x := struct{Foo string; Bar int }{"foo", 2}
+
+	// 	v := reflect.ValueOf(x)
+
+	// 	values := make([]interface{}, v.NumField())
+
+	// 	for i := 0; i < v.NumField(); i++ {
+	// 		values[i] = v.Field(i).Interface()
+	// 	}
+
+	// 	fmt.Println(values)
+	//==============
+	// determine the table name as per the table creation logic
+	tn := reflect.TypeOf(ent).String()
+	if strings.Contains(tn, ".") {
+		el := strings.Split(tn, ".")
+		tn = strings.ToLower(el[len(el)-1])
+	} else {
+		tn = strings.ToLower(tn)
+	}
+
+	insQuery := fmt.Sprintf("INSERT INTO %s", tn)
+	fList := "("
+	vList := "("
+
+	v := reflect.ValueOf(ent)
+	values := make([]interface{}, v.NumField())
+	for i := 0; i < v.NumField(); i++ {
+		values[i] = v.Field(i).Interface()
+		// fmt.Printf("%v, %v\n", v.Field(i).Interface(), v.Field(i))
+		// fmt.Println(values[i])
+		fmt.Println("type:", reflect.TypeOf(values[i]))
+
+		st := reflect.TypeOf(ent).Field(i).Tag
+		fmt.Println("TAG:", st)
+	}
+	fmt.Println(values)
+
+	// primary key:inc - do not fill
+	// primary key:""  - do nothing
+	// default - DEFAULT keyword for field
+	// nullable - if no and nil value, fill with default value for nullable type
+	// insQuery = "INSERT INTO depot (depot_num, region, province) VALUES (DEFAULT,'YVR','AB');"
 
 	// https: //stackoverflow.com/questions/18926303/iterate-through-the-fields-of-a-struct-in-go
 	// entity-type in Create CRUD call: sqac_test.Depot
@@ -694,10 +738,154 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	// {new_column2  int64 false [{nullable false}]}
 	// {new_column3  float64 false [{nullable false} {default 0.0}]}
 	// {non_persistent_column  string true []}
-	for _, v := range flDef {
-		fmt.Println(v)
 
+	// iterate over the entity-struct metadata
+	for i, fd := range flDef {
+		fmt.Println(fd)
+		if fd.NoDB == true {
+			continue
+		}
+		bDefault := false
+		bPkeyInc := false
+		bNullable := false
+
+		// set the field attribute indicators
+		for _, t := range fd.RgenPairs {
+			switch t.Name {
+			case "primary_key":
+				if t.Value == "inc" {
+					bPkeyInc = true
+				}
+			case "default":
+				bDefault = true
+			case "nullable":
+				if t.Value == "true" || t.Value == "TRUE" {
+					bNullable = true
+				}
+			default:
+
+			}
+		}
+
+		// get the value of the current entity field
+		fv := v.Field(i).Interface()
+		fvr := v.Field(i)
+		switch fd.GoType {
+		case "int", "uint", "int8", "uint8", "int16", "uint16", "int32", "uint32", "int64", "uint64", "rune", "byte":
+			if bDefault == true {
+				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
+				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
+				continue
+			}
+			if bPkeyInc == true {
+				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
+				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
+				continue
+			}
+			if bNullable == false && fv == nil {
+				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
+				vList = fmt.Sprintf("%s%d, ", vList, 0)
+				continue
+			}
+			// in all other cases, just use the given value making the
+			// assumption that the int-type field contains an int-type
+			// iv, _ := strconv.Atoi(fv.(string))
+			fmt.Println("FVR:", fvr)
+			fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
+			vList = fmt.Sprintf("%s%d, ", vList, fvr)
+
+		case "float32", "float64":
+			if bDefault == true {
+				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
+				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
+				continue
+			}
+			if bPkeyInc == true {
+				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
+				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
+				continue
+			}
+			if bNullable == false && fv == nil {
+				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
+				vList = fmt.Sprintf("%s%f, ", vList, 0.0)
+				continue
+			}
+			// in all other cases, just use the given value making the
+			// assumption that the float-type field contains a float-type
+			fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
+			iv, _ := strconv.ParseFloat(fv.(string), 64)
+			vList = fmt.Sprintf("%s%f, ", vList, iv)
+			continue
+
+		case "string":
+			if bDefault == true {
+				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
+				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
+				continue
+			}
+			if bPkeyInc == true {
+				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
+				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
+				continue
+			}
+			if bNullable == false && fv == nil {
+				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
+				vList = fmt.Sprintf("%s%s, ", vList, "''")
+				continue
+			}
+			// in all other cases, just use the given value making the
+			// assumption that the string-type field contains a string-type
+			fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
+			vList = fmt.Sprintf("%s'%s', ", vList, fv)
+			continue
+
+		case "time.Time", "*time.Time":
+			if bDefault == true {
+				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
+				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
+				continue
+			}
+			if bPkeyInc == true {
+				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
+				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
+				continue
+			}
+			if bNullable == false && fv == nil {
+				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
+				vList = fmt.Sprintf("%s%s, ", vList, "make_timestamptz(0000, 00, 00, 00, 00, 00.0")
+				continue
+			}
+			fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
+			vList = fmt.Sprintf("%s%v, ", vList, fv)
+			continue
+
+		default:
+
+		}
 	}
+	fmt.Println("insQuery:", insQuery)
+	fList = strings.TrimSuffix(fList, ", ")
+	fList = fmt.Sprintf("%s%s", fList, ")")
+	fmt.Println("fList:", fList)
+	vList = strings.TrimSuffix(vList, ", ")
+	vList = fmt.Sprintf("%s%s", vList, ");")
+	fmt.Println("vList:", vList)
+	insQuery = fmt.Sprintf("%s %s VALUES %s", insQuery, fList, vList)
+	fmt.Println(insQuery)
+
+	// attempt the insert
+	rows, err := pf.db.Queryx(insQuery)
+	if err != nil {
+		fmt.Println(err)
+	}
+	for rows.Next() {
+		// var p Place
+		err = rows.StructScan(&ent)
+		if err != nil {
+			return err
+		}
+	}
+	fmt.Println("ENT:", ent)
 	return nil
 }
 
