@@ -988,5 +988,9 @@ func TestCRUDCreate(t *testing.T) {
 		NonPersistentColumn: "0123456789abcdef",
 	}
 
-	err = Handle.Create(depot)
+	err = Handle.Create(&depot)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	fmt.Printf("TEST GOT: %v\n", depot)
 }

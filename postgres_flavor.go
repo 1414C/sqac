@@ -672,15 +672,20 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	t := reflect.TypeOf(ent)
 	fmt.Println("entity-type in Create CRUD call:", t)
 
+	stype := reflect.TypeOf(ent).Elem()
+	fmt.Println("stype:", stype)
+
 	// check that the interface type passed in was a struct
-	if t.Kind() != reflect.Struct {
-		return fmt.Errorf("only struct{} types can be passed in for table creation.  got %s", t.Kind())
+	if stype.Kind() != reflect.Struct {
+		return fmt.Errorf("only struct{} types can be passed in for table creation.  got %s", stype.Kind())
 	}
 
-	flDef, err := TagReader(ent, t)
+	flDef, err := TagReader(ent, stype)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
+	fmt.Println("flDef:", flDef)
 	//==============
 	// 	x := struct{Foo string; Bar int }{"foo", 2}
 
@@ -707,7 +712,7 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	fList := "("
 	vList := "("
 
-	v := reflect.ValueOf(ent)
+	v := reflect.ValueOf(ent).Elem()
 	// values := make([]interface{}, v.NumField())
 	// for i := 0; i < v.NumField(); i++ {
 	// 	values[i] = v.Field(i).Interface()
@@ -884,43 +889,62 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 		fmt.Println(k, r)
 	}
 
-	rType := reflect.TypeOf(ent)
-	fmt.Println(rType)
-	e2 := reflect.Zero(rType)
-	fmt.Println("e2 Type:", reflect.TypeOf(&e2))
+	// rType := reflect.TypeOf(ent)
 
 	fmt.Println("TYPEOF ent:", reflect.TypeOf(ent)) // sqac_test.Depot
 
-	// v := reflect.ValueOf(ent)
+	//v := reflect.ValueOf(ent)
 	values := make([]interface{}, v.NumField())
 	for i := 0; i < v.NumField(); i++ {
 		values[i] = v.Field(i).Interface()
+		//v.Field(i).Elem().SetInt(56)
 		// fmt.Printf("%v, %v\n", v.Field(i).Interface(), v.Field(i))
 		// fmt.Println(values[i])
 		// fmt.Println("type:", reflect.TypeOf(values[i]))
+		// st := reflect.TypeOf(ent).Field(i).Tag
 
-		fmt.Println("TYPE-OF e2:", reflect.TypeOf(e2))
-		st := reflect.TypeOf(ent).Field(i).Tag
-		fmt.Println("TAG:", st)
-		fn := reflect.TypeOf(ent).Field(i).Name
+		np, _ := stype.Field(i).Tag.Lookup("rgen")
+		if np == "-" {
+			continue
+		}
+		fn := stype.Field(i).Name
 		fmt.Println("NAME:", fn)
-		tp := reflect.TypeOf(ent).Field(i).Type.String()
+		st := stype.Field(i).Tag
+		fmt.Println("TAG:", st)
+		ft, _ := stype.Field(i).Tag.Lookup("db")
+		fmt.Println("name:", ft)
+		tp := stype.Field(i).Type.String()
 		fmt.Println("FIELD-TYPE:", tp) //.Kind())
 
-		fv := reflect.ValueOf(ent).FieldByName(fn)
+		fv := reflect.ValueOf(ent).Elem().FieldByName(fn)
 		if !fv.IsValid() {
 			panic(fmt.Errorf("invalid field %s in struct %s", fn, st))
 		}
+
 		if fv.CanSet() {
 			switch tp {
-			case "int", "uint", "int8", "uint8", "int16", "uint16", "int32", "uint32", "int64", "uint64", "rune", "byte":
+
+			case "int", "int8", "int16", "int32", "int64":
 				fmt.Println("INT_TYPE")
+				fv.SetInt(resultMap[ft].(int64))
+
+			case "uint", "uint8", "uint16", "uint32", "uint64", "rune", "byte":
+				fmt.Println("UINT_TYPE")
+				fv.SetUint(resultMap[ft].(uint64))
 
 			case "float32", "float64":
 				fmt.Println("FLOAT_TYPE")
+				s := fmt.Sprintf("%s", resultMap[ft].([]byte))
+				f, err := strconv.ParseFloat(s, 64)
+				if err != nil {
+					fmt.Printf("%s", err)
+				}
+				fmt.Println("f:", f)
+				fv.SetFloat(f)
 
 			case "string":
 				fmt.Println("STRING_TYPE")
+				fv.SetString(resultMap[ft].(string))
 
 			case "time.Time", "*time.Time":
 				fmt.Println("TIME_TYPE")
