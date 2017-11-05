@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // PostgresFlavor is a postgres-specific implementation.
@@ -946,11 +947,18 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 				fmt.Println("STRING_TYPE")
 				fv.SetString(resultMap[ft].(string))
 
-			case "time.Time", "*time.Time":
+			case "time.Time":
 				fmt.Println("TIME_TYPE")
+				fv.Set(reflect.ValueOf(resultMap[ft].(time.Time)))
+
+			case "*time.Time":
+				fmt.Println("TIME_TYPE")
+				fv.Set(reflect.ValueOf(resultMap[ft].(*time.Time)))
 
 			default:
 				fmt.Printf("UNSUPPORTED TYPE:%s\n", tp)
+				// try
+				// fv.Set(reflect.ValueOf(resultMap[ft].(stype.Field(i).Type)))
 
 			}
 		} else {
