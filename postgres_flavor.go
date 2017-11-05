@@ -899,16 +899,12 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	values := make([]interface{}, v.NumField())
 	for i := 0; i < v.NumField(); i++ {
 		values[i] = v.Field(i).Interface()
-		//v.Field(i).Elem().SetInt(56)
-		// fmt.Printf("%v, %v\n", v.Field(i).Interface(), v.Field(i))
-		// fmt.Println(values[i])
-		// fmt.Println("type:", reflect.TypeOf(values[i]))
-		// st := reflect.TypeOf(ent).Field(i).Tag
 
 		np, _ := stype.Field(i).Tag.Lookup("rgen")
 		if np == "-" {
 			continue
 		}
+
 		fn := stype.Field(i).Name
 		fmt.Println("NAME:", fn)
 		st := stype.Field(i).Tag
@@ -916,7 +912,7 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 		ft, _ := stype.Field(i).Tag.Lookup("db")
 		fmt.Println("name:", ft)
 		tp := stype.Field(i).Type.String()
-		fmt.Println("FIELD-TYPE:", tp) //.Kind())
+		fmt.Println("FIELD-TYPE:", tp)
 
 		fv := reflect.ValueOf(ent).Elem().FieldByName(fn)
 		if !fv.IsValid() {
