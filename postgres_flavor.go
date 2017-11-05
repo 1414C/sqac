@@ -777,7 +777,7 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 		fvr := v.Field(i)
 		switch fd.GoType {
 		case "int", "uint", "int8", "uint8", "int16", "uint16", "int32", "uint32", "int64", "uint64", "rune", "byte":
-			if bDefault == true {
+			if bDefault == true && fvr.IsNil() {
 				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
 				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
 				continue
@@ -800,7 +800,7 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 			vList = fmt.Sprintf("%s%d, ", vList, fvr)
 
 		case "float32", "float64":
-			if bDefault == true {
+			if bDefault == true && fv == nil {
 				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
 				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
 				continue
@@ -818,12 +818,12 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 			// in all other cases, just use the given value making the
 			// assumption that the float-type field contains a float-type
 			fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
-			iv, _ := strconv.ParseFloat(fv.(string), 64)
-			vList = fmt.Sprintf("%s%f, ", vList, iv)
+			//iv, _ := strconv.ParseFloat(fv.(string), 64)
+			vList = fmt.Sprintf("%s%f, ", vList, fvr)
 			continue
 
 		case "string":
-			if bDefault == true {
+			if bDefault == true && fv == nil {
 				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
 				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
 				continue
