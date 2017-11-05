@@ -673,6 +673,7 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	t := reflect.TypeOf(ent)
 	fmt.Println("entity-type in Create CRUD call:", t)
 
+	// http://speakmy.name/2014/09/14/modifying-interfaced-go-struct/
 	stype := reflect.TypeOf(ent).Elem()
 	fmt.Println("stype:", stype)
 
