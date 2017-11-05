@@ -810,7 +810,7 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 			continue
 
 		case "string":
-			if bDefault == true && fv == nil {
+			if bDefault == true && fv == "" {
 				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
 				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
 				continue
@@ -958,6 +958,9 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 
 // Update - Update an existing entity (single-row) on the database
 func (pf *PostgresFlavor) Update(ent interface{}) error {
+
+	// UPDATE weather SET (temp_lo, temp_hi, prcp) = (temp_lo+1, temp_lo+15, DEFAULT)
+	//   WHERE city = 'San Francisco' AND date = '2003-07-03' RETURNING *;
 	return nil
 }
 
