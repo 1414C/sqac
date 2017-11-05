@@ -670,37 +670,28 @@ func (pf *PostgresFlavor) GetNextSequenceValue(name string) (int, error) {
 // Create - Create the entity (single-row) on the database
 func (pf *PostgresFlavor) Create(ent interface{}) error {
 
-	t := reflect.TypeOf(ent)
-	fmt.Println("entity-type in Create CRUD call:", t)
-
 	// http://speakmy.name/2014/09/14/modifying-interfaced-go-struct/
+	// get the underlying Type of the interface ptr
 	stype := reflect.TypeOf(ent).Elem()
-	fmt.Println("stype:", stype)
+	if pf.IsLog() {
+		fmt.Println("stype:", stype)
+	}
 
 	// check that the interface type passed in was a struct
 	if stype.Kind() != reflect.Struct {
 		return fmt.Errorf("only struct{} types can be passed in for table creation.  got %s", stype.Kind())
 	}
 
+	// read the tags for the struct underlying the interface ptr
 	flDef, err := TagReader(ent, stype)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
-	fmt.Println("flDef:", flDef)
-	//==============
-	// 	x := struct{Foo string; Bar int }{"foo", 2}
+	if pf.IsLog() {
+		fmt.Println("flDef:", flDef)
+	}
 
-	// 	v := reflect.ValueOf(x)
-
-	// 	values := make([]interface{}, v.NumField())
-
-	// 	for i := 0; i < v.NumField(); i++ {
-	// 		values[i] = v.Field(i).Interface()
-	// 	}
-
-	// 	fmt.Println(values)
-	//==============
 	// determine the table name as per the table creation logic
 	tn := reflect.TypeOf(ent).String()
 	if strings.Contains(tn, ".") {
@@ -714,25 +705,19 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	fList := "("
 	vList := "("
 
+	// get the value that the interface ptr ent points to
+	// i.e. the struct holding the data for insertion
 	v := reflect.ValueOf(ent).Elem()
-	// values := make([]interface{}, v.NumField())
-	// for i := 0; i < v.NumField(); i++ {
-	// 	values[i] = v.Field(i).Interface()
-	// 	// fmt.Printf("%v, %v\n", v.Field(i).Interface(), v.Field(i))
-	// 	// fmt.Println(values[i])
-	// 	fmt.Println("type:", reflect.TypeOf(values[i]))
+	if pf.IsLog() {
+		fmt.Println("value of data in struct for insertion:", v)
+	}
 
-	// 	st := reflect.TypeOf(ent).Field(i).Tag
-	// 	fmt.Println("TAG:", st)
-	// }
-	// fmt.Println(values)
-
+	// what to do with rgen tags
 	// primary key:inc - do not fill
 	// primary key:""  - do nothing
 	// default - DEFAULT keyword for field
 	// nullable - if no and nil value, fill with default value for nullable type
 	// insQuery = "INSERT INTO depot (depot_num, region, province) VALUES (DEFAULT,'YVR','AB');"
-
 	// https: //stackoverflow.com/questions/18926303/iterate-through-the-fields-of-a-struct-in-go
 	// entity-type in Create CRUD call: sqac_test.Depot
 	// {depot_num  int false [{primary_key inc} {start 90000000}]}
@@ -748,7 +733,9 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 
 	// iterate over the entity-struct metadata
 	for i, fd := range flDef {
-		fmt.Println(fd)
+		if pf.IsLog() {
+			fmt.Println(fd)
+		}
 		if fd.NoDB == true {
 			continue
 		}
@@ -796,10 +783,9 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 			}
 			// in all other cases, just use the given value making the
 			// assumption that the int-type field contains an int-type
-			// iv, _ := strconv.Atoi(fv.(string))
-			fmt.Println("FVR:", fvr)
 			fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
-			vList = fmt.Sprintf("%s%d, ", vList, fvr)
+			vList = fmt.Sprintf("%s%d, ", vList, fvr.Int())
+			continue
 
 		case "float32", "float64":
 			if bDefault == true && fv == nil {
@@ -820,8 +806,7 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 			// in all other cases, just use the given value making the
 			// assumption that the float-type field contains a float-type
 			fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
-			//iv, _ := strconv.ParseFloat(fv.(string), 64)
-			vList = fmt.Sprintf("%s%f, ", vList, fvr)
+			vList = fmt.Sprintf("%s%f, ", vList, fvr.Float())
 			continue
 
 		case "string":
@@ -870,32 +855,31 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 
 		}
 	}
-	fmt.Println("insQuery:", insQuery)
+
+	// build the insert query string
 	fList = strings.TrimSuffix(fList, ", ")
 	fList = fmt.Sprintf("%s%s", fList, ")")
-	fmt.Println("fList:", fList)
 	vList = strings.TrimSuffix(vList, ", ")
 	vList = fmt.Sprintf("%s%s", vList, ") RETURNING *;") // depot_num
-	fmt.Println("vList:", vList)
 	insQuery = fmt.Sprintf("%s %s VALUES %s", insQuery, fList, vList)
-	fmt.Println(insQuery)
+	if pf.IsLog() {
+		fmt.Println(insQuery)
+	}
 
-	// attempt the insert
-	fmt.Println("==============================")
+	// attempt the insert and read result back into resultMap
 	resultMap := make(map[string]interface{})
 	err = pf.db.QueryRowx(insQuery).MapScan(resultMap) // SliceScan
 	if err != nil {
-		fmt.Println(err)
-	}
-	for k, r := range resultMap {
-		fmt.Println(k, r)
+		fmt.Println(err) //?
 	}
 
-	// rType := reflect.TypeOf(ent)
+	if pf.IsLog() {
+		for k, r := range resultMap {
+			fmt.Println(k, r)
+		}
+		fmt.Println("TYPEOF ent:", reflect.TypeOf(ent)) // sqac_test.Depot
+	}
 
-	fmt.Println("TYPEOF ent:", reflect.TypeOf(ent)) // sqac_test.Depot
-
-	//v := reflect.ValueOf(ent)
 	values := make([]interface{}, v.NumField())
 	for i := 0; i < v.NumField(); i++ {
 		values[i] = v.Field(i).Interface()
@@ -905,51 +889,53 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 			continue
 		}
 
-		fn := stype.Field(i).Name
-		fmt.Println("NAME:", fn)
-		st := stype.Field(i).Tag
-		fmt.Println("TAG:", st)
-		ft, _ := stype.Field(i).Tag.Lookup("db")
-		fmt.Println("name:", ft)
-		tp := stype.Field(i).Type.String()
-		fmt.Println("FIELD-TYPE:", tp)
+		fn := stype.Field(i).Name                // GoName
+		st := stype.Field(i).Tag                 // structTag
+		ft, _ := stype.Field(i).Tag.Lookup("db") // snake_name
+		tp := stype.Field(i).Type.String()       // field-type as String
 
+		if pf.IsLog() {
+			fmt.Println("NAME:", fn)
+			fmt.Println("TAG:", st)
+			fmt.Println("DB FIELD NAME:", ft)
+			fmt.Println("FIELD-TYPE:", tp)
+		}
+
+		// get the reflect.Value of the current field in the ent struct
 		fv := reflect.ValueOf(ent).Elem().FieldByName(fn)
 		if !fv.IsValid() {
 			panic(fmt.Errorf("invalid field %s in struct %s", fn, st))
 		}
 
+		// check if the reflect.Value can be updated and set the returned
+		// db field value from the resultMap.
 		if fv.CanSet() {
 			switch tp {
 
 			case "int", "int8", "int16", "int32", "int64":
-				fmt.Println("INT_TYPE")
 				fv.SetInt(resultMap[ft].(int64))
 
 			case "uint", "uint8", "uint16", "uint32", "uint64", "rune", "byte":
-				fmt.Println("UINT_TYPE")
 				fv.SetUint(resultMap[ft].(uint64))
 
 			case "float32", "float64":
-				fmt.Println("FLOAT_TYPE")
 				s := fmt.Sprintf("%s", resultMap[ft].([]byte))
 				f, err := strconv.ParseFloat(s, 64)
 				if err != nil {
 					fmt.Printf("%s", err)
 				}
-				fmt.Println("f:", f)
+				if pf.IsLog() {
+					fmt.Println("float value:", f)
+				}
 				fv.SetFloat(f)
 
 			case "string":
-				fmt.Println("STRING_TYPE")
 				fv.SetString(resultMap[ft].(string))
 
 			case "time.Time":
-				fmt.Println("TIME_TYPE")
 				fv.Set(reflect.ValueOf(resultMap[ft].(time.Time)))
 
 			case "*time.Time":
-				fmt.Println("TIME_TYPE")
 				fv.Set(reflect.ValueOf(resultMap[ft].(*time.Time)))
 
 			default:
@@ -963,9 +949,10 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 		}
 
 	}
-	fmt.Println(values)
-
-	fmt.Println("ENT:", ent)
+	if pf.IsLog() {
+		fmt.Println(values)
+		fmt.Println("ENT:", ent)
+	}
 	return nil
 }
 

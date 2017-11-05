@@ -992,5 +992,8 @@ func TestCRUDCreate(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
+	if Handle.IsLog() {
+		fmt.Printf("TEST GOT: %v\n", depot)
+	}
 	fmt.Printf("TEST GOT: %v\n", depot)
 }
