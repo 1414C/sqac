@@ -959,8 +959,75 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 // Update - Update an existing entity (single-row) on the database
 func (pf *PostgresFlavor) Update(ent interface{}) error {
 
+	// isolate key(s) for WHERE clause
+	// update all non-key fields with their values from the incoming struct
+	//   - still need to consider DEFAULT / nullable etc.
+
+	// example update query
 	// UPDATE weather SET (temp_lo, temp_hi, prcp) = (temp_lo+1, temp_lo+15, DEFAULT)
 	//   WHERE city = 'San Francisco' AND date = '2003-07-03' RETURNING *;
+
+	// http://speakmy.name/2014/09/14/modifying-interfaced-go-struct/
+	// get the underlying Type of the interface ptr
+	stype := reflect.TypeOf(ent).Elem()
+	if pf.IsLog() {
+		fmt.Println("stype:", stype)
+	}
+
+	// check that the interface type passed in was a struct
+	if stype.Kind() != reflect.Struct {
+		return fmt.Errorf("only struct{} types can be passed in for table creation.  got %s", stype.Kind())
+	}
+
+	// read the tags for the struct underlying the interface ptr
+	flDef, err := TagReader(ent, stype)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	if pf.IsLog() {
+		fmt.Println("flDef:", flDef)
+	}
+
+	// determine the table name as per the table creation logic
+	tn := reflect.TypeOf(ent).String()
+	if strings.Contains(tn, ".") {
+		el := strings.Split(tn, ".")
+		tn = strings.ToLower(el[len(el)-1])
+	} else {
+		tn = strings.ToLower(tn)
+	}
+
+	updQuery := fmt.Sprintf("UPDATE %s SET", tn)
+	fList := "("
+	vList := "("
+
+	// get the value that the interface ptr ent points to
+	// i.e. the struct holding the data for the update
+	v := reflect.ValueOf(ent).Elem()
+	if pf.IsLog() {
+		fmt.Println("value of data in struct for update:", v)
+	}
+
+	// what to do with rgen tags
+	// primary key:inc - do not fill
+	// primary key:""  - do nothing
+	// default - DEFAULT keyword for field
+	// nullable - if no and nil value, fill with default value for nullable type
+	// insQuery = "INSERT INTO depot (depot_num, region, province) VALUES (DEFAULT,'YVR','AB');"
+	// https: //stackoverflow.com/questions/18926303/iterate-through-the-fields-of-a-struct-in-go
+	// entity-type in Create CRUD call: sqac_test.Depot
+	// {depot_num  int false [{primary_key inc} {start 90000000}]}
+	// {depot_bay  int false [{primary_key }]}
+	// {create_date  time.Time false [{nullable false} {default now()} {index unique}]}
+	// {region  string false [{nullable false} {default YYC}]}
+	// {province  string false [{nullable false} {default AB}]}
+	// {country  string false [{nullable true} {default CA}]}
+	// {new_column1  string false [{nullable false}]}
+	// {new_column2  int64 false [{nullable false}]}
+	// {new_column3  float64 false [{nullable false} {default 0.0}]}
+	// {non_persistent_column  string true []}
+
 	return nil
 }
 
