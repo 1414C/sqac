@@ -1035,23 +1035,10 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 	}
 
 	// what to do with rgen tags
-	// primary key:inc - do not fill
-	// primary key:""  - do nothing
+	// primary key:inc - do not fill - add to keyList
+	// primary key:""  - do not fill - add to keyList
 	// default - DEFAULT keyword for field
 	// nullable - if no and nil value, fill with default value for nullable type
-	// insQuery = "INSERT INTO depot (depot_num, region, province) VALUES (DEFAULT,'YVR','AB');"
-	// https: //stackoverflow.com/questions/18926303/iterate-through-the-fields-of-a-struct-in-go
-	// entity-type in Create CRUD call: sqac_test.Depot
-	// {depot_num  int false [{primary_key inc} {start 90000000}]}
-	// {depot_bay  int false [{primary_key }]}
-	// {create_date  time.Time false [{nullable false} {default now()} {index unique}]}
-	// {region  string false [{nullable false} {default YYC}]}
-	// {province  string false [{nullable false} {default AB}]}
-	// {country  string false [{nullable true} {default CA}]}
-	// {new_column1  string false [{nullable false}]}
-	// {new_column2  int64 false [{nullable false}]}
-	// {new_column3  float64 false [{nullable false} {default 0.0}]}
-	// {non_persistent_column  string true []}
 
 	// iterate over the entity-struct metadata
 	for i, fd := range flDef {
@@ -1092,8 +1079,6 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 		switch fd.GoType {
 		case "int", "uint", "int8", "uint8", "int16", "uint16", "int32", "uint32", "int64", "uint64", "rune", "byte":
 			if bPkeyInc == true || bPkey == true {
-				// fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
-				// vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
 				keyMap[fd.FName] = fvr.Int()
 				continue
 			}
@@ -1115,8 +1100,6 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 
 		case "float32", "float64":
 			if bPkeyInc == true || bPkey == true {
-				// fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
-				// vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
 				keyMap[fd.FName] = fvr.Float()
 				continue
 			}
@@ -1138,8 +1121,6 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 
 		case "string":
 			if bPkeyInc == true || bPkey == true {
-				// fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
-				// vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
 				keyMap[fd.FName] = fvr.String()
 				continue
 			}
@@ -1161,8 +1142,6 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 
 		case "time.Time", "*time.Time":
 			if bPkeyInc == true || bPkey == true {
-				// fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
-				// vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
 				keyMap[fd.FName] = fv
 				continue
 			}
@@ -1188,16 +1167,20 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 	// build the update query string
 	// UPDATE weather SET (temp_lo, temp_hi, prcp) = (temp_lo+1, temp_lo+15, DEFAULT)
 	//   WHERE city = 'San Francisco' AND date = '2003-07-03' RETURNING *;
-
 	fList = strings.TrimSuffix(fList, ", ")
 	fList = fmt.Sprintf("%s%s", fList, ")")
 	vList = strings.TrimSuffix(vList, ", ")
 	vList = fmt.Sprintf("%s%s", vList, ")")
 	keyList := ""
+
 	for k, s := range keyMap {
-		fmt.Printf("key: %v, value: %v\n", k, s)
+
 		fType := reflect.TypeOf(s).String()
-		fmt.Println("TYPE:", fType)
+		if pf.IsLog() {
+			fmt.Printf("key: %v, value: %v\n", k, s)
+			fmt.Println("TYPE:", fType)
+		}
+
 		if fType == "string" {
 			keyList = fmt.Sprintf("%s %s = '%v' AND", keyList, k, s)
 		} else {
@@ -1228,11 +1211,6 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 	values := make([]interface{}, v.NumField())
 	for i := 0; i < v.NumField(); i++ {
 		values[i] = v.Field(i).Interface()
-
-		// np, _ := stype.Field(i).Tag.Lookup("rgen")
-		// if np == "-" {
-		// 	continue
-		// }
 
 		fn := stype.Field(i).Name                // GoName
 		st := stype.Field(i).Tag                 // structTag
