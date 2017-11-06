@@ -2,7 +2,6 @@ package sqac
 
 import (
 	"fmt"
-	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -893,15 +892,15 @@ func testCommon(inf *cuInfo) error {
 // Create - Create the entity (single-row) on the database
 func (pf *PostgresFlavor) Create(ent interface{}) error {
 
-	var info cuInfo
-	info.ent = ent
-	info.log = true
-	err := testCommon(&info)
-	fmt.Println(info)
-	fmt.Println(info.ent)
-	fmt.Println(info.fList)
-	fmt.Println(info.vList)
-	os.Exit(0)
+	// var info cuInfo
+	// info.ent = ent
+	// info.log = true
+	// err := testCommon(&info)
+	// fmt.Println(info)
+	// fmt.Println(info.ent)
+	// fmt.Println(info.fList)
+	// fmt.Println(info.vList)
+	// os.Exit(0)
 
 	// http://speakmy.name/2014/09/14/modifying-interfaced-go-struct/
 	// get the underlying Type of the interface ptr
