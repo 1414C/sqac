@@ -880,6 +880,7 @@ func testCommon(inf *cuInfo) error {
 			continue
 
 		case "time.Time", "*time.Time":
+
 			if inf.mode == "C" {
 				if bPkeyInc == true {
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
@@ -916,8 +917,15 @@ func testCommon(inf *cuInfo) error {
 				}
 			} else {
 				if bPkeyInc == true || bPkey == true {
+					fmt.Println("==============")
+					fmt.Println("============== GOT HERE ===")
 					fmt.Println("fv:", fv)
-					inf.keyMap[fd.FName] = fv
+					if fd.GoType == "time.Time" {
+						inf.keyMap[fd.FName] = fv.(time.Time)
+						fmt.Printf("time.Time: %v\n", fv.(time.Time))
+					} else {
+						inf.keyMap[fd.FName] = fv.(*time.Time)
+					}
 					continue
 				}
 			}
@@ -1088,7 +1096,7 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 
 	var info cuInfo
 	info.ent = ent
-	info.log = true
+	info.log = false
 	info.mode = "U"
 	info.keyMap = make(map[string]interface{})
 	info.resultMap = make(map[string]interface{})
