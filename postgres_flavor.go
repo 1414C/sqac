@@ -2,6 +2,7 @@ package sqac
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -663,12 +664,244 @@ func (pf *PostgresFlavor) GetNextSequenceValue(name string) (int, error) {
 	return 0, nil
 }
 
+// stype = type.Type
+// flDef = []FieldDef
+// tn = string
+// fList = string
+// vList = string
+// keyMap = map
+// v = Value (underlying struct of interface ptr ent)
+type cuInfo struct {
+	ent      interface{}
+	log      bool
+	mode     string // "C" || "U"  == create or update
+	stype    reflect.Type
+	flDef    []FieldDef
+	tn       string
+	fList    string
+	vList    string
+	keyMap   map[string]interface{}
+	entValue reflect.Value
+}
+
+func testCommon(inf *cuInfo) error {
+
+	// http://speakmy.name/2014/09/14/modifying-interfaced-go-struct/
+	// get the underlying Type of the interface ptr
+	inf.stype = reflect.TypeOf(inf.ent).Elem()
+	if inf.log {
+		fmt.Println("inf.stype:", inf.stype)
+	}
+
+	// check that the interface type passed in was a struct
+	if inf.stype.Kind() != reflect.Struct {
+		return fmt.Errorf("only struct{} types can be passed in for table creation.  got %s", inf.stype.Kind())
+	}
+
+	// read the tags for the struct underlying the interface ptr
+	var err error
+	inf.flDef, err = TagReader(inf.ent, inf.stype)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	if inf.log {
+		fmt.Println("inf.flDef:", inf.flDef)
+	}
+
+	// determine the table name as per the table creation logic
+	inf.tn = reflect.TypeOf(inf.ent).String()
+	if strings.Contains(inf.tn, ".") {
+		el := strings.Split(inf.tn, ".")
+		inf.tn = strings.ToLower(el[len(el)-1])
+	} else {
+		inf.tn = strings.ToLower(inf.tn)
+	}
+
+	// insQuery := fmt.Sprintf("INSERT INTO %s", tn)
+	inf.fList = "("
+	inf.vList = "("
+
+	// get the value that the interface ptr ent points to
+	// i.e. the struct holding the data for insertion
+	inf.entValue = reflect.ValueOf(inf.ent).Elem()
+	if inf.log {
+		fmt.Println("value of data in struct for insertion:", inf.entValue)
+	}
+
+	// what to do with rgen tags
+	// primary key:inc - do not fill
+	// primary key:""  - do nothing
+	// default - DEFAULT keyword for field
+	// nullable - if no and nil value, fill with default value for nullable type
+	// insQuery = "INSERT INTO depot (depot_num, region, province) VALUES (DEFAULT,'YVR','AB');"
+	// https: //stackoverflow.com/questions/18926303/iterate-through-the-fields-of-a-struct-in-go
+	// entity-type in Create CRUD call: sqac_test.Depot
+	// {depot_num  int false [{primary_key inc} {start 90000000}]}
+	// {depot_bay  int false [{primary_key }]}
+	// {create_date  time.Time false [{nullable false} {default now()} {index unique}]}
+	// {region  string false [{nullable false} {default YYC}]}
+	// {province  string false [{nullable false} {default AB}]}
+	// {country  string false [{nullable true} {default CA}]}
+	// {new_column1  string false [{nullable false}]}
+	// {new_column2  int64 false [{nullable false}]}
+	// {new_column3  float64 false [{nullable false} {default 0.0}]}
+	// {non_persistent_column  string true []}
+
+	// iterate over the entity-struct metadata
+	for i, fd := range inf.flDef {
+		if inf.log {
+			fmt.Println(fd)
+		}
+		if fd.NoDB == true {
+			continue
+		}
+		bDefault := false
+		bPkeyInc := false
+		bPkey := false
+		bNullable := false
+
+		// set the field attribute indicators
+		for _, t := range fd.RgenPairs {
+			switch t.Name {
+			case "primary_key":
+				if t.Value == "inc" {
+					bPkeyInc = true
+				} else {
+					bPkey = true
+				}
+			case "default":
+				bDefault = true
+			case "nullable":
+				if t.Value == "true" || t.Value == "TRUE" {
+					bNullable = true
+				}
+			default:
+
+			}
+		}
+
+		// get the value of the current entity field
+		if bPkey {
+			fmt.Println("")
+		}
+		fv := inf.entValue.Field(i).Interface()
+		fvr := inf.entValue.Field(i)
+		switch fd.GoType {
+		case "int", "uint", "int8", "uint8", "int16", "uint16", "int32", "uint32", "int64", "uint64", "rune", "byte":
+			if bPkeyInc == true {
+				inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+				continue
+			}
+			if bDefault == true && fv == 0 {
+				inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+				continue
+			}
+			if bNullable == false && fv == nil {
+				inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+				inf.vList = fmt.Sprintf("%s%d, ", inf.vList, 0)
+				continue
+			}
+			// in all other cases, just use the given value making the
+			// assumption that the int-type field contains an int-type
+			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+			inf.vList = fmt.Sprintf("%s%d, ", inf.vList, fvr.Int())
+			continue
+
+		case "float32", "float64":
+			if bPkeyInc == true {
+				inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+				continue
+			}
+			if bDefault == true && fv == 0 {
+				inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+				continue
+			}
+			if bNullable == false && fv == nil {
+				inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+				inf.vList = fmt.Sprintf("%s%f, ", inf.vList, 0.0)
+				continue
+			}
+			// in all other cases, just use the given value making the
+			// assumption that the float-type field contains a float-type
+			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+			inf.vList = fmt.Sprintf("%s%f, ", inf.vList, fvr.Float())
+			continue
+
+		case "string":
+			if bPkeyInc == true {
+				inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+				continue
+			}
+			if bDefault == true && fv == "" {
+				inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+				continue
+			}
+			if bNullable == false && fv == nil {
+				inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "''")
+				continue
+			}
+			// in all other cases, just use the given value making the
+			// assumption that the string-type field contains a string-type
+			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+			inf.vList = fmt.Sprintf("%s'%s', ", inf.vList, fv)
+			continue
+
+		case "time.Time", "*time.Time":
+			if bPkeyInc == true {
+				inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+				continue
+			}
+			if bDefault == true {
+				inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+				continue
+			}
+			if bNullable == false && fv == nil {
+				inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "make_timestamptz(0000, 00, 00, 00, 00, 00.0")
+				continue
+			}
+			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+			inf.vList = fmt.Sprintf("%s%v, ", inf.vList, fv)
+			continue
+
+		default:
+
+		}
+	}
+	inf.fList = strings.TrimSuffix(inf.fList, ", ")
+	inf.fList = inf.fList + ")"
+	inf.vList = strings.TrimSuffix(inf.vList, ", ")
+	inf.vList = inf.vList + ")"
+	return nil
+
+}
+
 //================================================================
 // CRUD ops :(
 //================================================================
 
 // Create - Create the entity (single-row) on the database
 func (pf *PostgresFlavor) Create(ent interface{}) error {
+
+	var info cuInfo
+	info.ent = ent
+	info.log = true
+	err := testCommon(&info)
+	fmt.Println(info)
+	fmt.Println(info.ent)
+	fmt.Println(info.fList)
+	fmt.Println(info.vList)
+	os.Exit(0)
 
 	// http://speakmy.name/2014/09/14/modifying-interfaced-go-struct/
 	// get the underlying Type of the interface ptr
@@ -766,12 +999,12 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 		fvr := v.Field(i)
 		switch fd.GoType {
 		case "int", "uint", "int8", "uint8", "int16", "uint16", "int32", "uint32", "int64", "uint64", "rune", "byte":
-			if bDefault == true && fv == 0 {
+			if bPkeyInc == true {
 				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
 				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
 				continue
 			}
-			if bPkeyInc == true {
+			if bDefault == true && fv == 0 {
 				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
 				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
 				continue
@@ -788,12 +1021,12 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 			continue
 
 		case "float32", "float64":
-			if bDefault == true && fv == 0 {
+			if bPkeyInc == true {
 				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
 				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
 				continue
 			}
-			if bPkeyInc == true {
+			if bDefault == true && fv == 0 {
 				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
 				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
 				continue
@@ -810,12 +1043,12 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 			continue
 
 		case "string":
-			if bDefault == true && fv == "" {
+			if bPkeyInc == true {
 				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
 				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
 				continue
 			}
-			if bPkeyInc == true {
+			if bDefault == true && fv == "" {
 				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
 				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
 				continue
@@ -832,12 +1065,12 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 			continue
 
 		case "time.Time", "*time.Time":
-			if bDefault == true {
+			if bPkeyInc == true {
 				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
 				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
 				continue
 			}
-			if bPkeyInc == true {
+			if bDefault == true {
 				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
 				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
 				continue
