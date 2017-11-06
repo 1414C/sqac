@@ -157,7 +157,7 @@ type PublicDB interface {
 	// CRUD ops :(
 	Create(ent interface{}) error
 	Update(ent interface{}) error
-	Delete(key interface{}) error // (id uint) error
+	Delete(ent interface{}) error // (id uint) error
 	GetEntity(key interface{}) interface{}
 	GetEntities() []interface{}
 }
@@ -380,6 +380,7 @@ func (bf *BaseFlavor) CreateIndex(in string, index IndexInfo) error {
 	if len(index.IndexFields) == 1 {
 		fList = index.IndexFields[0]
 		in = "idx_" + fList
+		// in = "idx_" + index.TableName + "_" + fList
 	} else {
 		for _, f := range index.IndexFields {
 			fList = fmt.Sprintf("%s%s,", fList, f)

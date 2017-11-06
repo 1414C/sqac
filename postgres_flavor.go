@@ -497,6 +497,7 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 		// add indexes if required
 		for k, v := range tc.ind {
 			if !pf.ExistsIndex(v.TableName, k) {
+				fmt.Printf("v.TableName: %v, k: %v", k, v)
 				pf.CreateIndex(k, v)
 			}
 		}
@@ -673,7 +674,7 @@ func (pf *PostgresFlavor) GetNextSequenceValue(name string) (int, error) {
 type cuInfo struct {
 	ent       interface{}
 	log       bool
-	mode      string // "C" || "U"  == create or update
+	mode      string // "C" || "U"  || "D" == create or update or delete
 	stype     reflect.Type
 	flDef     []FieldDef
 	tn        string
@@ -1151,13 +1152,52 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 }
 
 // Delete - Delete an existing entity (single-row) on the database using the full-key
-func (pf *PostgresFlavor) Delete(key interface{}) error { // (id uint) error
+func (pf *PostgresFlavor) Delete(ent interface{}) error { // (id uint) error
 
 	// isloate keys
 	// form delQuery
 	// execute Query
 	// return
+	var info cuInfo
+	info.ent = ent
+	info.log = false
+	info.mode = "D"
+	info.keyMap = make(map[string]interface{})
+	info.resultMap = make(map[string]interface{})
 
+	err := testCommon(&info)
+	if err != nil {
+		return err
+	}
+
+	keyList := ""
+	for k, s := range info.keyMap {
+
+		fType := reflect.TypeOf(s).String()
+		if pf.IsLog() {
+			fmt.Printf("key: %v, value: %v\n", k, s)
+			fmt.Println("TYPE:", fType)
+		}
+
+		if fType == "string" {
+			keyList = fmt.Sprintf("%s %s = '%v' AND", keyList, k, s)
+		} else {
+			keyList = fmt.Sprintf("%s %s = %v AND", keyList, k, s)
+		}
+
+		keyList = strings.TrimSuffix(keyList, " AND")
+		fmt.Println("DELETE keyList:", keyList)
+
+		delQuery := fmt.Sprintf("DELETE FROM %s", info.tn)
+		delQuery = fmt.Sprintf("%s WHERE%s;", delQuery, keyList)
+		fmt.Println(delQuery)
+
+		// attempt the delete and read result back into resultMap
+		row := pf.db.QueryRowx(delQuery)
+		if row.Err() != nil {
+			return err
+		}
+	}
 	return nil
 }
 
