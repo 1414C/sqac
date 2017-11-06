@@ -955,6 +955,9 @@ func TestCRUDCreate(t *testing.T) {
 		NewColumn1          string    `db:"new_column1" rgen:"nullable:false"`
 		NewColumn2          int64     `db:"new_column2" rgen:"nullable:false"`
 		NewColumn3          float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
+		IntDefaultZero      int       `db:"int_default_zero" rgen:"nullable:false;default:0"`
+		IntDefault42        int       `db:"int_default42" rgen:"nullable:false;default:42"`
+		IntZeroValNoDefault int       `db:"int_zero_val_no_default" rgen:"nullable:false"`
 		NonPersistentColumn string    `db:"non_persistent_column" rgen:"-"`
 	}
 

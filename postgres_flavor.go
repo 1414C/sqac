@@ -1003,7 +1003,8 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
 				continue
 			}
-			if bDefault == true && fv == 0 {
+			if bDefault == true && fv == 0 ||
+				bDefault == true && fv == nil {
 				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
 				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
 				continue
@@ -1025,7 +1026,8 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
 				continue
 			}
-			if bDefault == true && fv == 0 {
+			if bDefault == true && fv == 0 ||
+				bDefault == true && fv == nil {
 				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
 				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
 				continue
@@ -1047,7 +1049,8 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
 				continue
 			}
-			if bDefault == true && fv == "" {
+			if bDefault == true && fv == "" ||
+				bDefault == true && fv == nil {
 				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
 				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
 				continue
@@ -1069,7 +1072,24 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
 				continue
 			}
-			if bDefault == true {
+
+			bZzeroTime := false
+			if fd.GoType == "time.Time" {
+				var tt time.Time
+				tt = fv.(time.Time)
+				if tt.IsZero() {
+					bZzeroTime = true
+				}
+			} else {
+				var tt *time.Time
+				tt = fv.(*time.Time)
+				if tt.IsZero() {
+					bZzeroTime = true
+				}
+			}
+
+			if bDefault == true && bZzeroTime { // 0001-01-01 00:00:00 +0000 UTC
+				fmt.Printf("time.Time: %v\n", fv)
 				fList = fmt.Sprintf("%s%s, ", fList, fd.FName)
 				vList = fmt.Sprintf("%s%s, ", vList, "DEFAULT")
 				continue
