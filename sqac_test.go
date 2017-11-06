@@ -1015,6 +1015,7 @@ func TestCRUDUpdate(t *testing.T) {
 	type Depot struct {
 		DepotNum             int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
 		DepotBay             int       `db:"depot_bay" rgen:"primary_key:"`
+		TestKeyDate          time.Time `db:"test_key_date" rgen:"primary_key:;default:now()"`
 		CreateDate           time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
 		Region               string    `db:"region" rgen:"nullable:false;default:YYC"`
 		Province             string    `db:"province" rgen:"nullable:false;default:AB"`
