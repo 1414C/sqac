@@ -1148,23 +1148,14 @@ func TestCRUDDelete(t *testing.T) {
 		NonPersistentColumn: "0123456789abcdef",
 	}
 
-	fmt.Printf("INSERT: %v\n", depot)
 	err = Handle.Create(&depot)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	if Handle.IsLog() {
-		fmt.Printf("TEST GOT: %v\n", depot)
-	}
-	fmt.Printf("TEST GOT: %v\n", depot)
+	fmt.Printf("INSERTED: %v\n", depot)
 
 	err = Handle.Delete(&depot)
 	if err != nil {
 		t.Errorf("%s", err.Error())
 	}
-
-	// err = Handle.DropTables(Depot{})
-	// if err != nil {
-	// 	t.Errorf("failed to drop table %s", tn)
-	// }
 }
