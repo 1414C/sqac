@@ -1150,8 +1150,14 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 	return nil
 }
 
-// Delete - Delete an existing entity (single-row) on the database
+// Delete - Delete an existing entity (single-row) on the database using the full-key
 func (pf *PostgresFlavor) Delete(key interface{}) error { // (id uint) error
+
+	// isloate keys
+	// form delQuery
+	// execute Query
+	// return
+
 	return nil
 }
 
