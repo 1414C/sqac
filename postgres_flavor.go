@@ -664,28 +664,7 @@ func (pf *PostgresFlavor) GetNextSequenceValue(name string) (int, error) {
 	return 0, nil
 }
 
-// stype = type.Type
-// flDef = []FieldDef
-// tn = string
-// fList = string
-// vList = string
-// keyMap = map
-// v = Value (underlying struct of interface ptr ent)
-type cuInfo struct {
-	ent       interface{}
-	log       bool
-	mode      string // "C" || "U"  || "D" == create or update or delete
-	stype     reflect.Type
-	flDef     []FieldDef
-	tn        string
-	fList     string
-	vList     string
-	keyMap    map[string]interface{}
-	entValue  reflect.Value
-	resultMap map[string]interface{}
-}
-
-func testCommon(inf *cuInfo) error {
+func testCommon(inf *crudInfo) error {
 
 	// http://speakmy.name/2014/09/14/modifying-interfaced-go-struct/
 	// get the underlying Type of the interface ptr
@@ -950,7 +929,7 @@ func testCommon(inf *cuInfo) error {
 
 }
 
-func testCommon2(inf *cuInfo) error {
+func testCommon2(inf *crudInfo) error {
 
 	for k, v := range inf.resultMap {
 		fmt.Printf("key: %s, value: %v\n", k, v)
@@ -1065,7 +1044,7 @@ func testCommon2(inf *cuInfo) error {
 // Create the entity (single-row) on the database
 func (pf *PostgresFlavor) Create(ent interface{}) error {
 
-	var info cuInfo
+	var info crudInfo
 	info.ent = ent
 	info.log = true
 	info.mode = "C"
@@ -1101,7 +1080,7 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 // Update an existing entity (single-row) on the database
 func (pf *PostgresFlavor) Update(ent interface{}) error {
 
-	var info cuInfo
+	var info crudInfo
 	info.ent = ent
 	info.log = false
 	info.mode = "U"
@@ -1154,7 +1133,7 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 // Delete - Delete an existing entity (single-row) on the database using the full-key
 func (pf *PostgresFlavor) Delete(ent interface{}) error { // (id uint) error
 
-	var info cuInfo
+	var info crudInfo
 	info.ent = ent
 	info.log = false
 	info.mode = "D"
@@ -1198,10 +1177,11 @@ func (pf *PostgresFlavor) Delete(ent interface{}) error { // (id uint) error
 }
 
 // GetEntity - get an existing entity from the db using the primary
-// key definition.  Requires the full key.
+// key definition.  The entire key should be provided, although
+// providing a partial key will not geneate an (obvious) error.
 func (pf *PostgresFlavor) GetEntity(ent interface{}) error {
 
-	var info cuInfo
+	var info crudInfo
 	info.ent = ent
 	info.log = false
 	info.mode = "G"

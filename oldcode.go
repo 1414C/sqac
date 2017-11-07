@@ -12,7 +12,7 @@ import (
 // CreateBak - Create the entity (single-row) on the database
 func (pf *PostgresFlavor) CreateBak(ent interface{}) error {
 
-	var info cuInfo
+	var info crudInfo
 	info.ent = ent
 	info.log = true
 	info.mode = "C"
