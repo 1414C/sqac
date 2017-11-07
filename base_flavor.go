@@ -400,8 +400,8 @@ func (bf *BaseFlavor) CreateIndex(in string, index IndexInfo) error {
 
 	if len(index.IndexFields) == 1 {
 		fList = index.IndexFields[0]
-		in = "idx_" + fList
-		// in = "idx_" + index.TableName + "_" + fList
+		// in = "idx_" + fList
+		in = "idx_" + index.TableName + "_" + fList
 	} else {
 		for _, f := range index.IndexFields {
 			fList = fmt.Sprintf("%s%s,", fList, f)
@@ -634,6 +634,7 @@ func (bf *BaseFlavor) processIndexTag(iMap map[string]IndexInfo, tableName strin
 		} else {
 			fldIndex.Unique = false
 		}
+		indexName = fmt.Sprintf("%s%s_%s", indexName, tableName, fieldName)
 		iMap[indexName] = fldIndex
 		return iMap
 	}

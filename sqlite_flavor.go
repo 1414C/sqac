@@ -358,10 +358,10 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 				case "index":
 					switch p.Value {
 					case "non-unique":
-						indexes = slf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, false, true)
+						indexes = slf.processIndexTag(indexes, tn, fd.FName, "idx_", false, true)
 
 					case "unique":
-						indexes = slf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, true, true)
+						indexes = slf.processIndexTag(indexes, tn, fd.FName, "idx_", true, true)
 
 					default:
 						indexes = slf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)

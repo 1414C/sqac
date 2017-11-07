@@ -213,10 +213,10 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 				case "index":
 					switch p.Value {
 					case "non-unique":
-						indexes = myf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, false, true)
+						indexes = myf.processIndexTag(indexes, tn, fd.FName, "idx_", false, true)
 
 					case "unique":
-						indexes = myf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, true, true)
+						indexes = myf.processIndexTag(indexes, tn, fd.FName, "idx_", true, true)
 
 					default:
 						indexes = myf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)

@@ -175,10 +175,10 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 				case "index":
 					switch p.Value {
 					case "non-unique":
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, false, true)
+						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_", false, true)
 
 					case "unique":
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, true, true)
+						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_", true, true)
 
 					default:
 						indexes = pf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)
@@ -211,10 +211,10 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 
 					switch p.Value {
 					case "non-unique":
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, false, true)
+						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_", false, true)
 
 					case "unique":
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, true, true)
+						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_", true, true)
 
 					default:
 						indexes = pf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)
@@ -246,10 +246,10 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 				case "index":
 					switch p.Value {
 					case "non-unique":
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, false, true)
+						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_", false, true)
 
 					case "unique":
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, true, true)
+						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_", true, true)
 
 					default:
 						indexes = pf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)
@@ -280,10 +280,10 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 				case "index":
 					switch p.Value {
 					case "non-unique":
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, false, true)
+						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_", false, true)
 
 					case "unique":
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, true, true)
+						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_", true, true)
 
 					default:
 						indexes = pf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)
@@ -314,10 +314,10 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 				case "index":
 					switch p.Value {
 					case "non-unique":
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, false, true)
+						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_", false, true)
 
 					case "unique":
-						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, true, true)
+						indexes = pf.processIndexTag(indexes, tn, fd.FName, "idx_", true, true)
 
 					default:
 						indexes = pf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)
@@ -497,7 +497,6 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 		// add indexes if required
 		for k, v := range tc.ind {
 			if !pf.ExistsIndex(v.TableName, k) {
-				fmt.Printf("v.TableName: %v, k: %v", k, v)
 				pf.CreateIndex(k, v)
 			}
 		}
@@ -885,7 +884,7 @@ func testCommon(inf *crudInfo) error {
 				}
 
 				if bDefault == true && bZzeroTime { // 0001-01-01 00:00:00 +0000 UTC
-					fmt.Printf("time.Time: %v\n", fv)
+					// fmt.Printf("time.Time: %v\n", fv)
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
 					continue
@@ -899,7 +898,7 @@ func testCommon(inf *crudInfo) error {
 
 				// deal with time keys
 				if bPkeyInc == true || bPkey == true {
-					fmt.Println("fv:", fv)
+					// fmt.Println("fv:", fv)
 					if fd.GoType == "time.Time" {
 						// inf.keyMap[fd.FName] = fv.(time.Time).Format(time.RFC3339)
 						inf.keyMap[fd.FName] = fv.(time.Time).Format("2006-01-02 15:04:05.999999-07:00")
@@ -931,9 +930,9 @@ func testCommon(inf *crudInfo) error {
 
 func testCommon2(inf *crudInfo) error {
 
-	for k, v := range inf.resultMap {
-		fmt.Printf("key: %s, value: %v\n", k, v)
-	}
+	// for k, v := range inf.resultMap {
+	// 	fmt.Printf("key: %s, value: %v\n", k, v)
+	// }
 
 	values := make([]interface{}, inf.entValue.NumField())
 	for i := 0; i < inf.entValue.NumField(); i++ {
@@ -1005,8 +1004,8 @@ func testCommon2(inf *crudInfo) error {
 
 			case "time.Time":
 				if !bBlankField {
-					fmt.Println("FV:", fv)
-					fmt.Println("FV type-assertion:", reflect.ValueOf(inf.resultMap[ft].(time.Time)))
+					// fmt.Println("FV:", fv)
+					// fmt.Println("FV type-assertion:", reflect.ValueOf(inf.resultMap[ft].(time.Time)))
 					fv.Set(reflect.ValueOf(inf.resultMap[ft].(time.Time)))
 				} else {
 					fv.SetInt(0)
@@ -1046,7 +1045,7 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 
 	var info crudInfo
 	info.ent = ent
-	info.log = true
+	info.log = false
 	info.mode = "C"
 	info.keyMap = make(map[string]interface{})
 	info.resultMap = make(map[string]interface{})
@@ -1161,7 +1160,6 @@ func (pf *PostgresFlavor) Delete(ent interface{}) error { // (id uint) error
 		}
 
 		keyList = strings.TrimSuffix(keyList, " AND")
-		fmt.Println("DELETE keyList:", keyList)
 
 		delQuery := fmt.Sprintf("DELETE FROM %s", info.tn)
 		delQuery = fmt.Sprintf("%s WHERE%s;", delQuery, keyList)

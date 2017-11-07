@@ -450,7 +450,7 @@ func TestCreateIndex(t *testing.T) {
 	indexInfo.TableName = tn
 	indexInfo.Unique = false
 	indexInfo.IndexFields = []string{"province", "country"}
-	err = Handle.CreateIndex("idx_province_country", indexInfo)
+	err = Handle.CreateIndex("idx_depot_province_country", indexInfo)
 	if err != nil {
 		t.Errorf("%s", err.Error())
 	}
@@ -489,8 +489,8 @@ func TestExistsIndexPositive(t *testing.T) {
 		t.Errorf("table %s does not exist", tn)
 	}
 
-	if !Handle.ExistsIndex(tn, "idx_province_country") {
-		t.Errorf("index %s was not found on table %s", "idx_province_country", tn)
+	if !Handle.ExistsIndex(tn, "idx_depot_province_country") {
+		t.Errorf("index %s was not found on table %s", "idx_depot_province_country", tn)
 	}
 }
 
@@ -530,17 +530,64 @@ func TestDropIndex(t *testing.T) {
 		tn = strings.ToLower(tn)
 	}
 
-	if !Handle.ExistsIndex(tn, "idx_province_country") {
-		t.Errorf("index %s was not found on table %s", "idx_province_country", tn)
+	if !Handle.ExistsIndex(tn, "idx_depot_province_country") {
+		t.Errorf("index %s was not found on table %s", "idx_depot_province_country", tn)
 	}
 
-	err = Handle.DropIndex(tn, "idx_province_country")
+	err = Handle.DropIndex(tn, "idx_depot_province_country")
 	if err != nil {
 		t.Errorf("%s", err.Error())
 	}
 
-	if Handle.ExistsIndex(tn, "idx_province_country") {
+	if Handle.ExistsIndex(tn, "idx_depot_province_country") {
 		t.Errorf("drop of index %s did not succeed on table %s", "idx_province_country", tn)
+	}
+
+	err = Handle.DropTables(Depot{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+}
+
+// TestCreateIndex
+//
+// Create table depot via CreateTables(i ...interface{})
+// Create index idx_depot_region based on model attributes.
+func TestCreateSimpleIndexViaModelAttributes(t *testing.T) {
+
+	type Depot struct {
+		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
+		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
+		Region     string    `db:"region" rgen:"nullable:false;default:YYC;index:non-unique"`
+		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
+		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
+		NewColumn1 string    `db:"new_column1" rgen:"nullable:false"`
+		NewColumn2 int64     `db:"new_column2" rgen:"nullable:false;default:0"`
+		NewColumn3 float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
+	}
+
+	err := Handle.CreateTables(Depot{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// determine the table name as per the
+	// table creation logic
+	tn := reflect.TypeOf(Depot{}).String()
+	if strings.Contains(tn, ".") {
+		el := strings.Split(tn, ".")
+		tn = strings.ToLower(el[len(el)-1])
+	} else {
+		tn = strings.ToLower(tn)
+	}
+
+	// expect that table depot exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s was not created", tn)
+	}
+
+	if !Handle.ExistsIndex(tn, "idx_depot_region") {
+		t.Errorf("index %s was not found on table %s", "idx_depot_region", tn)
 	}
 }
 
@@ -557,7 +604,7 @@ func TestExistsColumn(t *testing.T) {
 	type Depot struct {
 		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
 		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
-		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
+		Region     string    `db:"region" rgen:"nullable:false;default:YYC;index:non-unique"`
 		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
 		Country    string    `db:"country" rgen:"nullable:true;default:CA"`
 		NewColumn1 string    `db:"new_column1" rgen:"nullable:false"`
@@ -636,9 +683,9 @@ func TestAlterTables(t *testing.T) {
 		t.Errorf("index idx_new_column2_new_column3 was not not found following alter table call on table %s", tn)
 	}
 
-	r = Handle.ExistsIndex(tn, "idx_region")
+	r = Handle.ExistsIndex(tn, "idx_depot_region")
 	if r == false {
-		t.Errorf("index idx_region was not not found following alter table call on table %s", tn)
+		t.Errorf("index idx_depot_region was not not found following alter table call on table %s", tn)
 	}
 
 }
@@ -946,7 +993,7 @@ func TestNonPersistentColumn(t *testing.T) {
 // Test CRUD Create
 func TestCRUDCreate(t *testing.T) {
 
-	type Depot struct {
+	type DepotCreate struct {
 		DepotNum            int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
 		DepotBay            int       `db:"depot_bay" rgen:"primary_key:"`
 		CreateDate          time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
@@ -958,13 +1005,15 @@ func TestCRUDCreate(t *testing.T) {
 		NewColumn3          float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
 		IntDefaultZero      int       `db:"int_default_zero" rgen:"nullable:false;default:0"`
 		IntDefault42        int       `db:"int_default42" rgen:"nullable:false;default:42"`
+		FldOne              int       `db:"fld_one" rgen:"nullable:false;default:0;index:idx_depotcreate_fld_one_fld_two"`
+		FldTwo              int       `db:"fld_two" rgen:"nullable:false;default:0;index:idx_depotcreate_fld_one_fld_two"`
 		IntZeroValNoDefault int       `db:"int_zero_val_no_default" rgen:"nullable:false"`
 		NonPersistentColumn string    `db:"non_persistent_column" rgen:"-"`
 	}
 
 	// determine the table names as per the
 	// table creation logic
-	tn := reflect.TypeOf(Depot{}).String()
+	tn := reflect.TypeOf(DepotCreate{}).String()
 	if strings.Contains(tn, ".") {
 		el := strings.Split(tn, ".")
 		tn = strings.ToLower(el[len(el)-1])
@@ -973,7 +1022,7 @@ func TestCRUDCreate(t *testing.T) {
 	}
 
 	// create table depot
-	err := Handle.CreateTables(Depot{})
+	err := Handle.CreateTables(DepotCreate{})
 	if err != nil {
 		t.Errorf("%s", err.Error())
 	}
@@ -984,7 +1033,7 @@ func TestCRUDCreate(t *testing.T) {
 	}
 
 	// create a new record via the CRUD Create call
-	var depot = Depot{
+	var depot = DepotCreate{
 		Region:              "YYC",
 		NewColumn1:          "string_value",
 		NewColumn2:          9999,
@@ -992,20 +1041,20 @@ func TestCRUDCreate(t *testing.T) {
 		NonPersistentColumn: "0123456789abcdef",
 	}
 
-	fmt.Printf("INSERT: %v\n", depot)
 	err = Handle.Create(&depot)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 	if Handle.IsLog() {
+		fmt.Printf("INSERTING: %v\n", depot)
 		fmt.Printf("TEST GOT: %v\n", depot)
 	}
 	fmt.Printf("TEST GOT: %v\n", depot)
 
-	err = Handle.DropTables(Depot{})
-	if err != nil {
-		t.Errorf("failed to drop table %s", tn)
-	}
+	// err = Handle.DropTables(DepotCreate{})
+	// if err != nil {
+	// 	t.Errorf("failed to drop table %s", tn)
+	// }
 }
 
 // TestCRUDUpdate
@@ -1024,6 +1073,8 @@ func TestCRUDUpdate(t *testing.T) {
 		NewColumn1           string    `db:"new_column1" rgen:"nullable:false"`
 		NewColumn2           int64     `db:"new_column2" rgen:"nullable:false"`
 		NewColumn3           float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
+		FldOne               int       `db:"fld_one" rgen:"nullable:false;default:0;index:idx_depot_fld_one_fld_two"`
+		FldTwo               int       `db:"fld_two" rgen:"nullable:false;default:0;index:idx_depot_fld_one_fld_two"`
 		NonPersistentColumn  string    `db:"non_persistent_column" rgen:"-"`
 		NonPersistentColumn2 string    `db:"non_persistent_column" rgen:"nullable:true;-"`
 	}
@@ -1102,7 +1153,7 @@ func TestCRUDUpdate(t *testing.T) {
 // Test CRUD Delete
 func TestCRUDDelete(t *testing.T) {
 
-	type Depot struct {
+	type DepotDelete struct {
 		DepotNum            int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
 		DepotBay            int       `db:"depot_bay" rgen:"primary_key:"`
 		CreateDate          time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
@@ -1115,12 +1166,14 @@ func TestCRUDDelete(t *testing.T) {
 		IntDefaultZero      int       `db:"int_default_zero" rgen:"nullable:false;default:0"`
 		IntDefault42        int       `db:"int_default42" rgen:"nullable:false;default:42"`
 		IntZeroValNoDefault int       `db:"int_zero_val_no_default" rgen:"nullable:false"`
+		FldOne              int       `db:"fld_one" rgen:"nullable:false;default:0;index:idx_depotdelete_fld_one_fld_two"`
+		FldTwo              int       `db:"fld_two" rgen:"nullable:false;default:0;index:idx_depotdelete_fld_one_fld_two"`
 		NonPersistentColumn string    `db:"non_persistent_column" rgen:"-"`
 	}
 
 	// determine the table names as per the
 	// table creation logic
-	tn := reflect.TypeOf(Depot{}).String()
+	tn := reflect.TypeOf(DepotDelete{}).String()
 	if strings.Contains(tn, ".") {
 		el := strings.Split(tn, ".")
 		tn = strings.ToLower(el[len(el)-1])
@@ -1129,7 +1182,7 @@ func TestCRUDDelete(t *testing.T) {
 	}
 
 	// create table depot
-	err := Handle.CreateTables(Depot{})
+	err := Handle.CreateTables(DepotDelete{})
 	if err != nil {
 		t.Errorf("%s", err.Error())
 	}
@@ -1140,7 +1193,7 @@ func TestCRUDDelete(t *testing.T) {
 	}
 
 	// create a new record via the CRUD Create call
-	var depot = Depot{
+	var depot = DepotDelete{
 		Region:              "YYC",
 		NewColumn1:          "string_value",
 		NewColumn2:          9999,
@@ -1159,7 +1212,7 @@ func TestCRUDDelete(t *testing.T) {
 		t.Errorf("%s", err.Error())
 	}
 
-	err = Handle.DropTables(Depot{})
+	err = Handle.DropTables(DepotDelete{})
 	if err != nil {
 		t.Errorf("failed to drop table %s", tn)
 	}
@@ -1170,7 +1223,7 @@ func TestCRUDDelete(t *testing.T) {
 // Test CRUD Get
 func TestCRUDGet(t *testing.T) {
 
-	type Depot struct {
+	type DepotGet struct {
 		DepotNum            int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
 		DepotBay            int       `db:"depot_bay" rgen:"primary_key:"`
 		CreateDate          time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
@@ -1182,13 +1235,15 @@ func TestCRUDGet(t *testing.T) {
 		NewColumn3          float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
 		IntDefaultZero      int       `db:"int_default_zero" rgen:"nullable:false;default:0"`
 		IntDefault42        int       `db:"int_default42" rgen:"nullable:false;default:42"`
+		FldOne              int       `db:"fld_one" rgen:"nullable:false;default:0;index:idx_depotget_fld_one_fld_two"`
+		FldTwo              int       `db:"fld_two" rgen:"nullable:false;default:0;index:idx_depotget_fld_one_fld_two"`
 		IntZeroValNoDefault int       `db:"int_zero_val_no_default" rgen:"nullable:false"`
 		NonPersistentColumn string    `db:"non_persistent_column" rgen:"-"`
 	}
 
 	// determine the table names as per the
 	// table creation logic
-	tn := reflect.TypeOf(Depot{}).String()
+	tn := reflect.TypeOf(DepotGet{}).String()
 	if strings.Contains(tn, ".") {
 		el := strings.Split(tn, ".")
 		tn = strings.ToLower(el[len(el)-1])
@@ -1197,18 +1252,18 @@ func TestCRUDGet(t *testing.T) {
 	}
 
 	// create table depot
-	err := Handle.CreateTables(Depot{})
+	err := Handle.CreateTables(DepotGet{})
 	if err != nil {
 		t.Errorf("%s", err.Error())
 	}
 
-	// expect that table depot exists
+	// expect that table depotget exists
 	if !Handle.ExistsTable(tn) {
 		t.Errorf("table %s does not exist", tn)
 	}
 
 	// create a new record via the CRUD Create call
-	var depot = Depot{
+	var depot = DepotGet{
 		Region:              "YYC",
 		NewColumn1:          "string_value",
 		NewColumn2:          9999,
@@ -1223,7 +1278,7 @@ func TestCRUDGet(t *testing.T) {
 	fmt.Printf("INSERTED: %v\n", depot)
 
 	// create a struct to read into and populate the keys
-	depotRead := Depot{
+	depotRead := DepotGet{
 		DepotNum: depot.DepotNum,
 		DepotBay: depot.DepotBay,
 	}
@@ -1235,8 +1290,8 @@ func TestCRUDGet(t *testing.T) {
 
 	fmt.Println("GetEntity() returned:", depotRead)
 
-	err = Handle.DropTables(Depot{})
-	if err != nil {
-		t.Errorf("failed to drop table %s", tn)
-	}
+	// err = Handle.DropTables(Depot{})
+	// if err != nil {
+	// 	t.Errorf("failed to drop table %s", tn)
+	// }
 }

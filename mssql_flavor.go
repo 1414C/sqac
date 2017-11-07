@@ -338,10 +338,10 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 				case "index":
 					switch p.Value {
 					case "non-unique":
-						indexes = msf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, false, true)
+						indexes = msf.processIndexTag(indexes, tn, fd.FName, "idx_", false, true)
 
 					case "unique":
-						indexes = msf.processIndexTag(indexes, tn, fd.FName, "idx_"+fd.FName, true, true)
+						indexes = msf.processIndexTag(indexes, tn, fd.FName, "idx_", true, true)
 
 					default:
 						indexes = msf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)
