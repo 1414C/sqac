@@ -449,7 +449,7 @@ func (myf *MySQLFlavor) Create(ent interface{}) error {
 		return err
 	}
 
-	// build the postgres insert query
+	// build the mysql insert query
 	insQuery := fmt.Sprintf("INSERT INTO %s", info.tn)
 	insQuery = fmt.Sprintf("%s %s VALUES %s;", insQuery, info.fList, info.vList)
 
@@ -468,7 +468,7 @@ func (myf *MySQLFlavor) Create(ent interface{}) error {
 	}
 
 	fmt.Printf("Last insert ID was %d\n", lastID)
-	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s = %d", info.tn, info.incKeyName, lastID)
+	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s = %d LIMIT 1;", info.tn, info.incKeyName, lastID)
 	err = myf.db.QueryRowx(selQuery).MapScan(info.resultMap) // SliceScan
 	if err != nil {
 		return err

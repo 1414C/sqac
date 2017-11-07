@@ -966,47 +966,148 @@ func testCommon2(inf *crudInfo) error {
 				bBlankField = true
 			}
 
-			fmt.Printf("TYPE: %v\n", reflect.TypeOf(inf.resultMap[ft])) // []uint8
-			tpBytes := inf.resultMap[ft].([]uint8)
-			if len(tpBytes) > 0 {
-				s := string(tpBytes[:])
-				fmt.Printf("S: %s\n", s)
-			}
-			switch v := inf.resultMap[ft].(type) {
-			case int:
+			// fmt.Println("go tp==", tp)
+			// fmt.Printf("TYPE: %v\n", reflect.TypeOf(inf.resultMap[ft])) // []uint8 for MySQL - array of bytes containins string
+			// tpBytes := inf.resultMap[ft].([]uint8)
+			// if len(tpBytes) > 0 {
+			// 	s := string(tpBytes[:])
+			// 	fmt.Printf("S: %s\n", s)
+			// }
+			// switch v := inf.resultMap[ft].(type) {
+			// case int:
 
-			case int8:
+			// case int8:
 
-			case int16:
+			// case int16:
 
-			case uint:
+			// case uint:
 
-			case uint8:
-				fv.Set(reflect.ValueOf(inf.resultMap[ft].(uint8)))
+			// case uint8:
+			// fv.Set(reflect.ValueOf(inf.resultMap[ft].(uint8)))
 
-			case uint16:
+			// case uint16:
 
+			// default:
+			// 	return fmt.Errorf("%v is an unknown type for table %s field %s", v, inf.tn, ft)
+
+			// }
+
+			// switch tp {
+			// case "int", "int8", "int16", "int32", "int64":
+			// 	if !bBlankField {
+			// 		fmt.Printf("field-name: %s, go type: %s\n", ft, tp)
+			// 		fv.SetInt(inf.resultMap[ft].(int64))
+			// 	} else {
+			// 		fv.SetInt(0)
+			// 	}
+
+			// case "uint", "uint8", "uint16", "uint32", "uint64", "rune", "byte":
+			// 	if !bBlankField {
+			// 		fv.SetUint(inf.resultMap[ft].(uint64))
+			// 	} else {
+			// 		fv.SetInt(0)
+			// 	}
+
+			// case "float32", "float64":
+			// 	if !bBlankField {
+			// 		s := fmt.Sprintf("%s", inf.resultMap[ft].([]byte))
+			// 		f, err := strconv.ParseFloat(s, 64)
+			// 		if err != nil {
+			// 			fmt.Printf("%s", err)
+			// 		}
+			// 		if inf.log {
+			// 			fmt.Println("float value:", f)
+			// 		}
+			// 		fv.SetFloat(f)
+			// 	} else {
+			// 		fv.SetFloat(0)
+			// 	}
+
+			// case "string":
+			// 	if !bBlankField {
+			// 		fv.SetString(inf.resultMap[ft].(string))
+			// 	} else {
+			// 		fv.SetString("")
+			// 	}
+
+			// case "time.Time":
+			// 	if !bBlankField {
+			// 		// fmt.Println("FV:", fv)
+			// 		// fmt.Println("FV type-assertion:", reflect.ValueOf(inf.resultMap[ft].(time.Time)))
+			// 		fv.Set(reflect.ValueOf(inf.resultMap[ft].(time.Time)))
+			// 	} else {
+			// 		fv.SetInt(0)
+			// 	}
+
+			// case "*time.Time":
+			// 	if !bBlankField {
+			// 		fv.Set(reflect.ValueOf(inf.resultMap[ft].(*time.Time)))
+			// 	} else {
+			// 		fv.SetInt(0)
+			// 	}
+
+			// default:
+			// 	fmt.Printf("UNSUPPORTED TYPE:%s\n", tp)
+			// 	// try
+			// 	// fv.Set(reflect.ValueOf(resultMap[ft].(stype.Field(i).Type)))
+
+			// }
+			// } else {
+			// 	fmt.Printf("CANNOT SET %s:\n", fn)
+			// }
+
+			//}
+
+			// this is where go is pedantic, as type-assertions rely on compile-time
+			// constants in the .(<type>) expression.
+			bByteVal := false
+			switch vt := inf.resultMap[ft].(type) {
+			case []byte:
+				bByteVal = true
+				fmt.Println(vt)
 			default:
-				return fmt.Errorf("%v is an unknown type for table %s field %s", v, inf.tn, ft)
-
+				bByteVal = false
 			}
 
 			switch tp {
 			case "int", "int8", "int16", "int32", "int64":
 				if !bBlankField {
 					fmt.Printf("field-name: %s, go type: %s\n", ft, tp)
-					fv.SetInt(inf.resultMap[ft].(int64))
+					if bByteVal {
+						s := fmt.Sprintf("%s", inf.resultMap[ft].([]byte))
+						f, _ := strconv.ParseInt(s, 10, 64)
+						fv.SetInt(f)
+					} else {
+						fv.SetInt(inf.resultMap[ft].(int64))
+					}
 				} else {
 					fv.SetInt(0)
 				}
-
-			case "uint", "uint8", "uint16", "uint32", "uint64", "rune", "byte":
+			case "uint", "uint8", "uint16", "uint32", "uint64":
 				if !bBlankField {
-					fv.SetUint(inf.resultMap[ft].(uint64))
+					fmt.Printf("field-name: %s, go type: %s\n", ft, tp)
+					if bByteVal {
+						s := fmt.Sprintf("%s", inf.resultMap[ft].([]byte))
+						f, _ := strconv.ParseUint(s, 10, 64)
+						fv.SetUint(f)
+					} else {
+						fv.SetInt(inf.resultMap[ft].(int64))
+					}
 				} else {
 					fv.SetInt(0)
 				}
-
+			case "rune":
+				if !bBlankField {
+					fv.Set(reflect.ValueOf(inf.resultMap[ft].(rune)))
+				} else {
+					fv.SetUint(0)
+				}
+			case "byte":
+				if !bBlankField {
+					fv.Set(reflect.ValueOf(inf.resultMap[ft].(byte)))
+				} else {
+					fv.SetUint(0)
+				}
 			case "float32", "float64":
 				if !bBlankField {
 					s := fmt.Sprintf("%s", inf.resultMap[ft].([]byte))
@@ -1021,30 +1122,30 @@ func testCommon2(inf *crudInfo) error {
 				} else {
 					fv.SetFloat(0)
 				}
-
 			case "string":
 				if !bBlankField {
-					fv.SetString(inf.resultMap[ft].(string))
+					fmt.Printf("field-name: %s, go type: %s\n", ft, tp)
+					if bByteVal {
+						s := fmt.Sprintf("%s", inf.resultMap[ft].([]byte))
+						fv.SetString(s)
+					} else {
+						fv.SetString(inf.resultMap[ft].(string))
+					}
 				} else {
 					fv.SetString("")
 				}
-
 			case "time.Time":
 				if !bBlankField {
-					// fmt.Println("FV:", fv)
-					// fmt.Println("FV type-assertion:", reflect.ValueOf(inf.resultMap[ft].(time.Time)))
 					fv.Set(reflect.ValueOf(inf.resultMap[ft].(time.Time)))
 				} else {
 					fv.SetInt(0)
 				}
-
 			case "*time.Time":
 				if !bBlankField {
 					fv.Set(reflect.ValueOf(inf.resultMap[ft].(*time.Time)))
 				} else {
 					fv.SetInt(0)
 				}
-
 			default:
 				fmt.Printf("UNSUPPORTED TYPE:%s\n", tp)
 				// try
@@ -1093,6 +1194,8 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	if err != nil {
 		return err
 	}
+
+	fmt.Println("resultMap:", info.resultMap)
 
 	// fill the underlying structure of the interface ptr with the
 	// fields returned from the database.
