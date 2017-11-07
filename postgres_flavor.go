@@ -1059,7 +1059,7 @@ func testCommon2(inf *cuInfo) error {
 }
 
 //================================================================
-// CRUD ops :(
+// CRUD ops
 //================================================================
 
 // Create the entity (single-row) on the database
@@ -1154,10 +1154,6 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 // Delete - Delete an existing entity (single-row) on the database using the full-key
 func (pf *PostgresFlavor) Delete(ent interface{}) error { // (id uint) error
 
-	// isloate keys
-	// form delQuery
-	// execute Query
-	// return
 	var info cuInfo
 	info.ent = ent
 	info.log = false
@@ -1202,8 +1198,57 @@ func (pf *PostgresFlavor) Delete(ent interface{}) error { // (id uint) error
 }
 
 // GetEntity - get an existing entity from the db using the primary
-// key definition.
-func (pf *PostgresFlavor) GetEntity(key interface{}) interface{} {
+// key definition.  Requires the full key.
+func (pf *PostgresFlavor) GetEntity(ent interface{}) error {
+
+	var info cuInfo
+	info.ent = ent
+	info.log = false
+	info.mode = "G"
+	info.keyMap = make(map[string]interface{})
+	info.resultMap = make(map[string]interface{})
+
+	err := testCommon(&info)
+	if err != nil {
+		return err
+	}
+
+	keyList := ""
+	for k, s := range info.keyMap {
+
+		fType := reflect.TypeOf(s).String()
+		if pf.IsLog() {
+			fmt.Printf("key: %v, value: %v\n", k, s)
+			fmt.Println("TYPE:", fType)
+		}
+
+		if fType == "string" {
+			keyList = fmt.Sprintf("%s %s = '%v' AND", keyList, k, s)
+		} else {
+			keyList = fmt.Sprintf("%s %s = %v AND", keyList, k, s)
+		}
+
+		keyList = strings.TrimSuffix(keyList, " AND")
+		fmt.Println("SELECT keyList:", keyList)
+
+		selQuery := fmt.Sprintf("SELECT * FROM %s", info.tn)
+		selQuery = fmt.Sprintf("%s WHERE%s;", selQuery, keyList)
+		fmt.Println(selQuery)
+
+		// attempt the delete and read result back into resultMap
+		err := pf.db.QueryRowx(selQuery).MapScan(info.resultMap) // SliceScan
+		if err != nil {
+			return err
+		}
+
+		// fill the underlying structure of the interface ptr with the
+		// fields returned from the database.
+		err = testCommon2(&info)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
 	return nil
 }
 
@@ -1211,5 +1256,6 @@ func (pf *PostgresFlavor) GetEntity(key interface{}) interface{} {
 // from the database.  the returned list is unfiltered and
 // not pageable for now.
 func (pf *PostgresFlavor) GetEntities() []interface{} {
+
 	return nil
 }

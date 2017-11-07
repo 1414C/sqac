@@ -157,8 +157,8 @@ type PublicDB interface {
 	// CRUD ops :(
 	Create(ent interface{}) error
 	Update(ent interface{}) error
-	Delete(ent interface{}) error // (id uint) error
-	GetEntity(key interface{}) interface{}
+	Delete(ent interface{}) error    // (id uint) error
+	GetEntity(ent interface{}) error // pass ptr to type containing key information
 	GetEntities() []interface{}
 }
 

@@ -1158,4 +1158,85 @@ func TestCRUDDelete(t *testing.T) {
 	if err != nil {
 		t.Errorf("%s", err.Error())
 	}
+
+	err = Handle.DropTables(Depot{})
+	if err != nil {
+		t.Errorf("failed to drop table %s", tn)
+	}
+}
+
+// TestCRUDGet
+//
+// Test CRUD Get
+func TestCRUDGet(t *testing.T) {
+
+	type Depot struct {
+		DepotNum            int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
+		DepotBay            int       `db:"depot_bay" rgen:"primary_key:"`
+		CreateDate          time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
+		Region              string    `db:"region" rgen:"nullable:false;default:YYC"`
+		Province            string    `db:"province" rgen:"nullable:false;default:AB"`
+		Country             string    `db:"country" rgen:"nullable:true;default:CA"`
+		NewColumn1          string    `db:"new_column1" rgen:"nullable:false"`
+		NewColumn2          int64     `db:"new_column2" rgen:"nullable:false"`
+		NewColumn3          float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
+		IntDefaultZero      int       `db:"int_default_zero" rgen:"nullable:false;default:0"`
+		IntDefault42        int       `db:"int_default42" rgen:"nullable:false;default:42"`
+		IntZeroValNoDefault int       `db:"int_zero_val_no_default" rgen:"nullable:false"`
+		NonPersistentColumn string    `db:"non_persistent_column" rgen:"-"`
+	}
+
+	// determine the table names as per the
+	// table creation logic
+	tn := reflect.TypeOf(Depot{}).String()
+	if strings.Contains(tn, ".") {
+		el := strings.Split(tn, ".")
+		tn = strings.ToLower(el[len(el)-1])
+	} else {
+		tn = strings.ToLower(tn)
+	}
+
+	// create table depot
+	err := Handle.CreateTables(Depot{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table depot exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s does not exist", tn)
+	}
+
+	// create a new record via the CRUD Create call
+	var depot = Depot{
+		Region:              "YYC",
+		NewColumn1:          "string_value",
+		NewColumn2:          9999,
+		NewColumn3:          45.33,
+		NonPersistentColumn: "0123456789abcdef",
+	}
+
+	err = Handle.Create(&depot)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	fmt.Printf("INSERTED: %v\n", depot)
+
+	// create a struct to read into and populate the keys
+	depotRead := Depot{
+		DepotNum: depot.DepotNum,
+		DepotBay: depot.DepotBay,
+	}
+
+	err = Handle.GetEntity(&depotRead)
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	fmt.Println("GetEntity() returned:", depotRead)
+
+	err = Handle.DropTables(Depot{})
+	if err != nil {
+		t.Errorf("failed to drop table %s", tn)
+	}
 }
