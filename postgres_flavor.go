@@ -966,9 +966,35 @@ func testCommon2(inf *crudInfo) error {
 				bBlankField = true
 			}
 
+			fmt.Printf("TYPE: %v\n", reflect.TypeOf(inf.resultMap[ft])) // []uint8
+			tpBytes := inf.resultMap[ft].([]uint8)
+			if len(tpBytes) > 0 {
+				s := string(tpBytes[:])
+				fmt.Printf("S: %s\n", s)
+			}
+			switch v := inf.resultMap[ft].(type) {
+			case int:
+
+			case int8:
+
+			case int16:
+
+			case uint:
+
+			case uint8:
+				fv.Set(reflect.ValueOf(inf.resultMap[ft].(uint8)))
+
+			case uint16:
+
+			default:
+				return fmt.Errorf("%v is an unknown type for table %s field %s", v, inf.tn, ft)
+
+			}
+
 			switch tp {
 			case "int", "int8", "int16", "int32", "int64":
 				if !bBlankField {
+					fmt.Printf("field-name: %s, go type: %s\n", ft, tp)
 					fv.SetInt(inf.resultMap[ft].(int64))
 				} else {
 					fv.SetInt(0)
