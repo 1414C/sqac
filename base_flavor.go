@@ -47,17 +47,18 @@ type TblComponents struct {
 // keyMap = map
 // v = Value (underlying struct of interface ptr ent)
 type crudInfo struct {
-	ent       interface{}
-	log       bool
-	mode      string // "C" || "U"  || "D" == create or update or delete
-	stype     reflect.Type
-	flDef     []FieldDef
-	tn        string
-	fList     string
-	vList     string
-	keyMap    map[string]interface{}
-	entValue  reflect.Value
-	resultMap map[string]interface{}
+	ent        interface{}
+	log        bool
+	mode       string // "C" || "U"  || "D" == create or update or delete
+	stype      reflect.Type
+	flDef      []FieldDef
+	tn         string
+	fList      string
+	vList      string
+	keyMap     map[string]interface{}
+	incKeyName string
+	entValue   reflect.Value
+	resultMap  map[string]interface{}
 }
 
 // Log dumps all of the raw table components to stdout is called for CreateTable

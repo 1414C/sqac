@@ -429,3 +429,58 @@ func (myf *MySQLFlavor) GetNextSequenceValue(name string) (int, error) {
 	}
 	return seq, nil
 }
+
+//================================================================
+// CRUD ops
+//================================================================
+
+// Create the entity (single-row) on the database
+func (myf *MySQLFlavor) Create(ent interface{}) error {
+
+	var info crudInfo
+	info.ent = ent
+	info.log = false
+	info.mode = "C"
+	info.keyMap = make(map[string]interface{})
+	info.resultMap = make(map[string]interface{})
+
+	err := testCommon(&info)
+	if err != nil {
+		return err
+	}
+
+	// build the postgres insert query
+	insQuery := fmt.Sprintf("INSERT INTO %s", info.tn)
+	insQuery = fmt.Sprintf("%s %s VALUES %s;", insQuery, info.fList, info.vList)
+
+	fmt.Println(insQuery)
+
+	// attempt the insert and read the result back into info.resultMap
+	result, err := myf.db.Exec(insQuery)
+	if err != nil {
+		fmt.Println("GotERROR")
+		return err
+	}
+
+	lastID, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Last insert ID was %d\n", lastID)
+	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s = %d", info.tn, info.incKeyName, lastID)
+	err = myf.db.QueryRowx(selQuery).MapScan(info.resultMap) // SliceScan
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("resultMap:", info.resultMap)
+
+	// fill the underlying structure of the interface ptr with the
+	// fields returned from the database.
+	err = testCommon2(&info)
+	if err != nil {
+		return err
+	}
+	return nil
+}

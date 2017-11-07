@@ -746,6 +746,7 @@ func testCommon(inf *crudInfo) error {
 			case "primary_key":
 				if t.Value == "inc" {
 					bPkeyInc = true
+					inf.incKeyName = fd.FName //MySQL :/
 				} else {
 					bPkey = true
 				}
