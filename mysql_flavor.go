@@ -441,13 +441,18 @@ func (myf *MySQLFlavor) Create(ent interface{}) error {
 	info.ent = ent
 	info.log = false
 	info.mode = "C"
-	info.keyMap = make(map[string]interface{})
-	info.resultMap = make(map[string]interface{})
 
 	err := BuildComponents(&info)
 	if err != nil {
 		return err
 	}
+
+	fmt.Println("========================================================")
+	fmt.Println("fldMap:")
+	for k, v := range info.fldMap {
+		fmt.Printf("k: %s, v: %v\n", k, v)
+	}
+	fmt.Println("========================================================")
 
 	// build the mysql insert query
 	insQuery := fmt.Sprintf("INSERT INTO %s", info.tn)
@@ -475,6 +480,65 @@ func (myf *MySQLFlavor) Create(ent interface{}) error {
 	}
 
 	fmt.Println("resultMap:", info.resultMap)
+
+	// fill the underlying structure of the interface ptr with the
+	// fields returned from the database.
+	err = FormatReturn(&info)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Update an existing entity (single-row) on the database
+func (myf *MySQLFlavor) Update(ent interface{}) error {
+
+	var info CrudInfo
+	info.ent = ent
+	info.log = false
+	info.mode = "U"
+
+	err := BuildComponents(&info)
+	if err != nil {
+		return err
+	}
+
+	keyList := ""
+	for k, s := range info.keyMap {
+
+		fType := reflect.TypeOf(s).String()
+		if myf.IsLog() {
+			fmt.Printf("key: %v, value: %v\n", k, s)
+			fmt.Println("TYPE:", fType)
+		}
+
+		if fType == "string" {
+			keyList = fmt.Sprintf("%s %s = '%v' AND", keyList, k, s)
+		} else {
+			keyList = fmt.Sprintf("%s %s = %v AND", keyList, k, s)
+		}
+	}
+
+	keyList = strings.TrimSuffix(keyList, " AND")
+	keyList = keyList + ";"
+
+	updQuery := fmt.Sprintf("UPDATE %s SET", info.tn)
+	updQuery = fmt.Sprintf("%s %s = %s WHERE%s", updQuery, info.fList, info.vList, keyList)
+	fmt.Println(updQuery)
+
+	// attempt the update and check for errors
+	_, err = myf.db.Exec(updQuery)
+	if err != nil {
+		fmt.Println("GotERROR")
+		return err
+	}
+
+	// read the updated row
+	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s LIMIT 1;", info.tn, keyList)
+	err = myf.db.QueryRowx(selQuery).MapScan(info.resultMap) // SliceScan
+	if err != nil {
+		return err
+	}
 
 	// fill the underlying structure of the interface ptr with the
 	// fields returned from the database.

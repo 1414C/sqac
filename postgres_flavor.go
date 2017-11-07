@@ -673,8 +673,6 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	info.ent = ent
 	info.log = false
 	info.mode = "C"
-	info.keyMap = make(map[string]interface{})
-	info.resultMap = make(map[string]interface{})
 
 	err := BuildComponents(&info)
 	if err != nil {
@@ -711,8 +709,6 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 	info.ent = ent
 	info.log = false
 	info.mode = "U"
-	info.keyMap = make(map[string]interface{})
-	info.resultMap = make(map[string]interface{})
 
 	err := BuildComponents(&info)
 	if err != nil {
@@ -764,8 +760,6 @@ func (pf *PostgresFlavor) Delete(ent interface{}) error { // (id uint) error
 	info.ent = ent
 	info.log = false
 	info.mode = "D"
-	info.keyMap = make(map[string]interface{})
-	info.resultMap = make(map[string]interface{})
 
 	err := BuildComponents(&info)
 	if err != nil {
@@ -811,8 +805,6 @@ func (pf *PostgresFlavor) GetEntity(ent interface{}) error {
 	info.ent = ent
 	info.log = false
 	info.mode = "G"
-	info.keyMap = make(map[string]interface{})
-	info.resultMap = make(map[string]interface{})
 
 	err := BuildComponents(&info)
 	if err != nil {

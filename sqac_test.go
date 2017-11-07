@@ -1142,10 +1142,10 @@ func TestCRUDUpdate(t *testing.T) {
 	}
 	fmt.Printf("UPDATE to table %s returned: %v\n", tn, depot)
 
-	err = Handle.DropTables(Depot{})
-	if err != nil {
-		t.Errorf("failed to drop table %s", tn)
-	}
+	// err = Handle.DropTables(Depot{})
+	// if err != nil {
+	// 	t.Errorf("failed to drop table %s", tn)
+	// }
 }
 
 // TestCRUDDelete

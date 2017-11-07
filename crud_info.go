@@ -24,6 +24,7 @@ type CrudInfo struct {
 	tn         string
 	fList      string
 	vList      string
+	fldMap     map[string]string
 	keyMap     map[string]interface{}
 	incKeyName string
 	entValue   reflect.Value
@@ -31,6 +32,10 @@ type CrudInfo struct {
 }
 
 func BuildComponents(inf *CrudInfo) error {
+
+	inf.keyMap = make(map[string]interface{})
+	inf.fldMap = make(map[string]string)
+	inf.resultMap = make(map[string]interface{})
 
 	// http://speakmy.name/2014/09/14/modifying-interfaced-go-struct/
 	// get the underlying Type of the interface ptr
@@ -140,17 +145,20 @@ func BuildComponents(inf *CrudInfo) error {
 				if bPkeyInc == true {
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+					inf.fldMap[fd.FName] = "DEFAULT"
 					continue
 				}
 				if bDefault == true && fv == 0 ||
 					bDefault == true && fv == nil {
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+					inf.fldMap[fd.FName] = "DEFAULT"
 					continue
 				}
 				if bNullable == false && fv == nil {
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 					inf.vList = fmt.Sprintf("%s%d, ", inf.vList, 0)
+					inf.fldMap[fd.FName] = "0"
 					continue
 				}
 
@@ -164,6 +172,7 @@ func BuildComponents(inf *CrudInfo) error {
 			// assumption that the int-type field contains an int-type
 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 			inf.vList = fmt.Sprintf("%s%d, ", inf.vList, fvr.Int())
+			inf.fldMap[fd.FName] = fmt.Sprintf("%d", fvr.Int())
 			continue
 
 		case "float32", "float64":
@@ -171,17 +180,20 @@ func BuildComponents(inf *CrudInfo) error {
 				if bPkeyInc == true {
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+					inf.fldMap[fd.FName] = "DEFAULT"
 					continue
 				}
 				if bDefault == true && fv == 0 ||
 					bDefault == true && fv == nil {
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+					inf.fldMap[fd.FName] = "DEFAULT"
 					continue
 				}
 				if bNullable == false && fv == nil {
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 					inf.vList = fmt.Sprintf("%s%f, ", inf.vList, 0.0)
+					inf.fldMap[fd.FName] = "0.0"
 					continue
 				}
 			} else {
@@ -194,6 +206,7 @@ func BuildComponents(inf *CrudInfo) error {
 			// assumption that the float-type field contains a float-type
 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 			inf.vList = fmt.Sprintf("%s%f, ", inf.vList, fvr.Float())
+			inf.fldMap[fd.FName] = fmt.Sprintf("%f", fvr.Float())
 			continue
 
 		case "string":
@@ -201,17 +214,20 @@ func BuildComponents(inf *CrudInfo) error {
 				if bPkeyInc == true {
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+					inf.fldMap[fd.FName] = "DEFAULT"
 					continue
 				}
 				if bDefault == true && fv == "" ||
 					bDefault == true && fv == nil {
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+					inf.fldMap[fd.FName] = "DEFAULT"
 					continue
 				}
 				if bNullable == false && fv == nil {
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "''")
+					inf.fldMap[fd.FName] = "''"
 					continue
 				}
 			} else {
@@ -224,6 +240,7 @@ func BuildComponents(inf *CrudInfo) error {
 			// assumption that the string-type field contains a string-type
 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 			inf.vList = fmt.Sprintf("%s'%s', ", inf.vList, fvr.String())
+			inf.fldMap[fd.FName] = fmt.Sprintf("%s", fvr.String())
 			continue
 
 		case "time.Time", "*time.Time":
@@ -232,6 +249,7 @@ func BuildComponents(inf *CrudInfo) error {
 				if bPkeyInc == true {
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+					inf.fldMap[fd.FName] = "DEFAULT"
 					continue
 				}
 
@@ -255,11 +273,13 @@ func BuildComponents(inf *CrudInfo) error {
 					// fmt.Printf("time.Time: %v\n", fv)
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+					inf.fldMap[fd.FName] = "DEFAULT"
 					continue
 				}
 				if bNullable == false && fv == nil {
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "make_timestamptz(0000, 00, 00, 00, 00, 00.0")
+					inf.fldMap[fd.FName] = "make_timestamptz(0000, 00, 00, 00, 00, 00.0"
 					continue
 				}
 			} else {
@@ -279,8 +299,10 @@ func BuildComponents(inf *CrudInfo) error {
 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 			if fd.GoType == "time.Time" {
 				inf.vList = fmt.Sprintf("%s'%v', ", inf.vList, fv.(time.Time).Format("2006-01-02 15:04:05.999999-07:00"))
+				inf.keyMap[fd.FName] = fv.(time.Time).Format("2006-01-02 15:04:05.999999-07:00")
 			} else {
 				inf.vList = fmt.Sprintf("%s'%v', ", inf.vList, fv.(*time.Time).Format("2006-01-02 15:04:05.999999-07:00"))
+				inf.keyMap[fd.FName] = fv.(*time.Time).Format("2006-01-02 15:04:05.999999-07:00")
 			}
 			continue
 
