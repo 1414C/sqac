@@ -437,14 +437,14 @@ func (myf *MySQLFlavor) GetNextSequenceValue(name string) (int, error) {
 // Create the entity (single-row) on the database
 func (myf *MySQLFlavor) Create(ent interface{}) error {
 
-	var info crudInfo
+	var info CrudInfo
 	info.ent = ent
 	info.log = false
 	info.mode = "C"
 	info.keyMap = make(map[string]interface{})
 	info.resultMap = make(map[string]interface{})
 
-	err := testCommon(&info)
+	err := BuildComponents(&info)
 	if err != nil {
 		return err
 	}
@@ -478,7 +478,7 @@ func (myf *MySQLFlavor) Create(ent interface{}) error {
 
 	// fill the underlying structure of the interface ptr with the
 	// fields returned from the database.
-	err = testCommon2(&info)
+	err = FormatReturn(&info)
 	if err != nil {
 		return err
 	}

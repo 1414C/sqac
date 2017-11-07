@@ -12,12 +12,12 @@ import (
 // CreateBak - Create the entity (single-row) on the database
 func (pf *PostgresFlavor) CreateBak(ent interface{}) error {
 
-	var info crudInfo
+	var info CrudInfo
 	info.ent = ent
 	info.log = true
 	info.mode = "C"
 	info.keyMap = make(map[string]interface{})
-	err := testCommon(&info)
+	err := BuildComponents(&info)
 	fmt.Println(info)
 	fmt.Println(info.ent)
 	fmt.Println(info.fList)
