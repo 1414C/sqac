@@ -299,6 +299,7 @@ func BuildComponents(inf *CrudInfo) error {
 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 			if fd.GoType == "time.Time" {
 				inf.vList = fmt.Sprintf("%s'%v', ", inf.vList, fv.(time.Time).Format("2006-01-02 15:04:05.999999-07:00"))
+				// inf.keyMap[fd.FName] = fv.(time.Time).UTC().Format("2006-01-02 15:04:05.999999-07:00")
 				inf.keyMap[fd.FName] = fv.(time.Time).Format("2006-01-02 15:04:05.999999-07:00")
 			} else {
 				inf.vList = fmt.Sprintf("%s'%v', ", inf.vList, fv.(*time.Time).Format("2006-01-02 15:04:05.999999-07:00"))
