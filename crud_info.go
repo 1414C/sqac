@@ -240,7 +240,7 @@ func BuildComponents(inf *CrudInfo) error {
 			// assumption that the string-type field contains a string-type
 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 			inf.vList = fmt.Sprintf("%s'%s', ", inf.vList, fvr.String())
-			inf.fldMap[fd.FName] = fmt.Sprintf("%s", fvr.String())
+			inf.fldMap[fd.FName] = fmt.Sprintf("'%s'", fvr.String())
 			continue
 
 		case "time.Time", "*time.Time":

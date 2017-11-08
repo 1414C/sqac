@@ -447,13 +447,6 @@ func (myf *MySQLFlavor) Create(ent interface{}) error {
 		return err
 	}
 
-	fmt.Println("========================================================")
-	fmt.Println("fldMap:")
-	for k, v := range info.fldMap {
-		fmt.Printf("k: %s, v: %v\n", k, v)
-	}
-	fmt.Println("========================================================")
-
 	// build the mysql insert query
 	insQuery := fmt.Sprintf("INSERT INTO %s", info.tn)
 	insQuery = fmt.Sprintf("%s %s VALUES %s;", insQuery, info.fList, info.vList)
@@ -472,14 +465,14 @@ func (myf *MySQLFlavor) Create(ent interface{}) error {
 		return err
 	}
 
-	fmt.Printf("Last insert ID was %d\n", lastID)
+	// fmt.Printf("Last insert ID was %d\n", lastID)
 	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s = %d LIMIT 1;", info.tn, info.incKeyName, lastID)
 	err = myf.db.QueryRowx(selQuery).MapScan(info.resultMap) // SliceScan
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("resultMap:", info.resultMap)
+	// fmt.Println("resultMap:", info.resultMap)
 
 	// fill the underlying structure of the interface ptr with the
 	// fields returned from the database.
@@ -518,12 +511,15 @@ func (myf *MySQLFlavor) Update(ent interface{}) error {
 			keyList = fmt.Sprintf("%s %s = %v AND", keyList, k, s)
 		}
 	}
-
 	keyList = strings.TrimSuffix(keyList, " AND")
-	keyList = keyList + ";"
 
-	updQuery := fmt.Sprintf("UPDATE %s SET", info.tn)
-	updQuery = fmt.Sprintf("%s %s = %s WHERE%s", updQuery, info.fList, info.vList, keyList)
+	colList := ""
+	for k, v := range info.fldMap {
+		colList = fmt.Sprintf("%s %s = %s, ", colList, k, v)
+	}
+	colList = strings.TrimSuffix(colList, ", ")
+
+	updQuery := fmt.Sprintf("UPDATE %s SET %s WHERE %s;", info.tn, colList, keyList)
 	fmt.Println(updQuery)
 
 	// attempt the update and check for errors
@@ -545,6 +541,103 @@ func (myf *MySQLFlavor) Update(ent interface{}) error {
 	err = FormatReturn(&info)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+// Delete - Delete an existing entity (single-row) on the database using the full-key
+func (myf *MySQLFlavor) Delete(ent interface{}) error { // (id uint) error
+
+	var info CrudInfo
+	info.ent = ent
+	info.log = false
+	info.mode = "D"
+
+	err := BuildComponents(&info)
+	if err != nil {
+		return err
+	}
+
+	keyList := ""
+	for k, s := range info.keyMap {
+
+		fType := reflect.TypeOf(s).String()
+		if myf.IsLog() {
+			fmt.Printf("key: %v, value: %v\n", k, s)
+			fmt.Println("TYPE:", fType)
+		}
+
+		if fType == "string" {
+			keyList = fmt.Sprintf("%s %s = '%v' AND", keyList, k, s)
+		} else {
+			keyList = fmt.Sprintf("%s %s = %v AND", keyList, k, s)
+		}
+
+		keyList = strings.TrimSuffix(keyList, " AND")
+
+		delQuery := fmt.Sprintf("DELETE FROM %s", info.tn)
+		delQuery = fmt.Sprintf("%s WHERE%s;", delQuery, keyList)
+		fmt.Println(delQuery)
+
+		// attempt the delete and read result back into resultMap
+		row := myf.db.QueryRowx(delQuery)
+		if row.Err() != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// GetEntity - get an existing entity from the db using the primary
+// key definition.  The entire key should be provided, although
+// providing a partial key will not geneate an (obvious) error.
+func (myf *MySQLFlavor) GetEntity(ent interface{}) error {
+
+	var info CrudInfo
+	info.ent = ent
+	info.log = false
+	info.mode = "G"
+
+	err := BuildComponents(&info)
+	if err != nil {
+		return err
+	}
+
+	keyList := ""
+	for k, s := range info.keyMap {
+
+		fType := reflect.TypeOf(s).String()
+		if myf.IsLog() {
+			fmt.Printf("key: %v, value: %v\n", k, s)
+			fmt.Println("TYPE:", fType)
+		}
+
+		if fType == "string" {
+			keyList = fmt.Sprintf("%s %s = '%v' AND", keyList, k, s)
+		} else {
+			keyList = fmt.Sprintf("%s %s = %v AND", keyList, k, s)
+		}
+
+		keyList = strings.TrimSuffix(keyList, " AND")
+		fmt.Println("SELECT keyList:", keyList)
+
+		selQuery := fmt.Sprintf("SELECT * FROM %s", info.tn)
+		selQuery = fmt.Sprintf("%s WHERE%s;", selQuery, keyList)
+		fmt.Println(selQuery)
+
+		// attempt the delete and read result back into resultMap
+		err := myf.db.QueryRowx(selQuery).MapScan(info.resultMap) // SliceScan
+		if err != nil {
+			return err
+		}
+
+		// fill the underlying structure of the interface ptr with the
+		// fields returned from the database.
+		err = FormatReturn(&info)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
 	return nil
 }
