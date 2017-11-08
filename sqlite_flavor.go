@@ -72,6 +72,8 @@ func (slf *SQLiteFlavor) CreateTables(i ...interface{}) error {
 		// get all the table parts and build the create schema
 		tc := slf.buildTablSchema(tn, i[t])
 
+		fmt.Println("CREATE SCHEMA:", tc.tblSchema)
+
 		// execute the create schema against the db
 		slf.db.MustExec(tc.tblSchema)
 		for _, sq := range tc.seq {
@@ -294,6 +296,7 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 
 		// read rgen tag pairs and apply
 		seqName := ""
+
 		if !strings.Contains(fd.GoType, "*time.Time") {
 
 			for _, p := range fd.RgenPairs {
@@ -301,9 +304,7 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 				switch p.Name {
 				case "primary_key":
 
-					col.fPrimaryKey = "PRIMARY KEY"
 					pKeys = fmt.Sprintf("%s %s%s%s,", pKeys, qt, fd.FName, qt)
-					// pKeys = pKeys + fd.FName + ","
 
 					// int-type primary keys will autoincrement based on ROWID,
 					// but the speed increase comes with the cost of losing control
@@ -314,6 +315,7 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 					// if AUTOINCREMENT is requested on an int64/uint64, downcast
 					// the db-field-type to integer.
 					if p.Value == "inc" && strings.Contains(fd.GoType, "int") {
+						col.fPrimaryKey = "PRIMARY KEY"
 						if strings.Contains(fd.GoType, "64") {
 							fldef[idx].FType = "integer"
 							col.fType = "integer"
@@ -384,6 +386,11 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 					}
 					col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
 				}
+
+				if p.Name == "primary_key" {
+					pKeys = fmt.Sprintf("%s %s%s%s,", pKeys, qt, fd.FName, qt)
+				}
+
 			}
 		}
 		fldef[idx].FType = col.fType
@@ -596,4 +603,128 @@ func (slf *SQLiteFlavor) GetNextSequenceValue(name string) (int, error) {
 		return seq, nil
 	}
 	return seq, nil
+}
+
+//================================================================
+// CRUD ops
+//================================================================
+
+// Create the entity (single-row) on the database
+func (slf *SQLiteFlavor) Create(ent interface{}) error {
+
+	var info CrudInfo
+	info.ent = ent
+	info.log = false
+	info.mode = "C"
+
+	err := BuildComponents(&info)
+	if err != nil {
+		return err
+	}
+
+	// build the sqlite insert query
+	insFlds := ""
+	insVals := ""
+	for k, v := range info.fldMap {
+		if v == "DEFAULT" {
+			continue
+		}
+		insFlds = fmt.Sprintf("%s %s, ", insFlds, k)
+		insVals = fmt.Sprintf("%s %s, ", insVals, v)
+	}
+	insFlds = strings.TrimSuffix(insFlds, ", ")
+	insVals = strings.TrimSuffix(insVals, ", ")
+
+	// INSERT OR FAIL INTO "DoubleKey4" (KeyTwo, Description) VALUES ( 40,"Second Record");
+	insQuery := fmt.Sprintf("INSERT OR FAIL INTO %s (%s) VALUES (%s);", info.tn, insFlds, insVals)
+	fmt.Println(insQuery)
+
+	// attempt the insert and read the result back into info.resultMap
+	result, err := slf.db.Exec(insQuery)
+	if err != nil {
+		fmt.Println("GotERROR")
+		return err
+	}
+
+	lastID, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+	fmt.Println("lastID:", lastID)
+
+	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s = %d LIMIT 1;", info.tn, info.incKeyName, lastID)
+	err = slf.db.QueryRowx(selQuery).MapScan(info.resultMap) // SliceScan
+	if err != nil {
+		return err
+	}
+
+	// fill the underlying structure of the interface ptr with the
+	// fields returned from the database.
+	err = FormatReturn(&info)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Update an existing entity (single-row) on the database
+func (slf *SQLiteFlavor) Update(ent interface{}) error {
+
+	var info CrudInfo
+	info.ent = ent
+	info.log = false
+	info.mode = "U"
+
+	err := BuildComponents(&info)
+	if err != nil {
+		return err
+	}
+
+	keyList := ""
+	for k, s := range info.keyMap {
+
+		fType := reflect.TypeOf(s).String()
+		if slf.IsLog() {
+			fmt.Printf("key: %v, value: %v\n", k, s)
+			fmt.Println("TYPE:", fType)
+		}
+
+		if fType == "string" {
+			keyList = fmt.Sprintf("%s %s = '%v' AND", keyList, k, s)
+		} else {
+			keyList = fmt.Sprintf("%s %s = %v AND", keyList, k, s)
+		}
+	}
+	keyList = strings.TrimSuffix(keyList, " AND")
+
+	colList := ""
+	for k, v := range info.fldMap {
+		colList = fmt.Sprintf("%s %s = %s, ", colList, k, v)
+	}
+	colList = strings.TrimSuffix(colList, ", ")
+
+	updQuery := fmt.Sprintf("UPDATE OR FAIL %s SET %s WHERE %s;", info.tn, colList, keyList)
+	fmt.Println(updQuery)
+
+	// attempt the update and check for errors
+	_, err = slf.db.Exec(updQuery)
+	if err != nil {
+		fmt.Println("GotERROR")
+		return err
+	}
+
+	// read the updated row
+	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s LIMIT 1;", info.tn, keyList)
+	err = slf.db.QueryRowx(selQuery).MapScan(info.resultMap) // SliceScan
+	if err != nil {
+		return err
+	}
+
+	// fill the underlying structure of the interface ptr with the
+	// fields returned from the database.
+	err = FormatReturn(&info)
+	if err != nil {
+		return err
+	}
+	return nil
 }

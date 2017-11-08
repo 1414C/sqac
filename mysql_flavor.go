@@ -472,8 +472,6 @@ func (myf *MySQLFlavor) Create(ent interface{}) error {
 		return err
 	}
 
-	// fmt.Println("resultMap:", info.resultMap)
-
 	// fill the underlying structure of the interface ptr with the
 	// fields returned from the database.
 	err = FormatReturn(&info)

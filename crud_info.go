@@ -406,12 +406,13 @@ func FormatReturn(inf *CrudInfo) error {
 				}
 			case "float32", "float64":
 				if !bBlankField {
-					s := fmt.Sprintf("%s", inf.resultMap[ft].([]byte))
-					f, err := strconv.ParseFloat(s, 64)
-					if err != nil {
-						fmt.Printf("%s", err)
+					if bByteVal {
+						s := fmt.Sprintf("%s", inf.resultMap[ft].([]byte))
+						f, _ := strconv.ParseFloat(s, 64)
+						fv.SetFloat(f)
+					} else {
+						fv.SetFloat(inf.resultMap[ft].(float64))
 					}
-					fv.SetFloat(f)
 				} else {
 					fv.SetFloat(0)
 				}
@@ -428,6 +429,7 @@ func FormatReturn(inf *CrudInfo) error {
 				}
 			case "time.Time":
 				if !bBlankField {
+					// fv.Set(reflect.ValueOf(inf.resultMap[ft].(time.Time).Local()))
 					fv.Set(reflect.ValueOf(inf.resultMap[ft].(time.Time)))
 				} else {
 					fv.SetInt(0)

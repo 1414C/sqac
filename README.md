@@ -48,3 +48,8 @@ SQLite:
 $ go test -v -db sqlite sqac_test.go
 
 ```
+
+
+Autoincrement fields should be designated as rgen:"primary_key:inc"
+
+SQLite stores timestamps as UTC, so clients would need to convert back to the local timezone on a read.
