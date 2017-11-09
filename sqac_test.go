@@ -1007,6 +1007,9 @@ func TestCRUDCreate(t *testing.T) {
 		IntDefault42        int       `db:"int_default42" rgen:"nullable:false;default:42"`
 		FldOne              int       `db:"fld_one" rgen:"nullable:false;default:0;index:idx_depotcreate_fld_one_fld_two"`
 		FldTwo              int       `db:"fld_two" rgen:"nullable:false;default:0;index:idx_depotcreate_fld_one_fld_two"`
+		TimeCol             time.Time `db:"time_col" rgen:"nullable:false"`
+		TimeColNow          time.Time `db:"time_col_now" rgen:"nullable:false;default:now()"`
+		TimeColEot          time.Time `db:"time_col_eot" rgen:"nullable:false;default:eot"`
 		IntZeroValNoDefault int       `db:"int_zero_val_no_default" rgen:"nullable:false"`
 		NonPersistentColumn string    `db:"non_persistent_column" rgen:"-"`
 	}
@@ -1039,6 +1042,7 @@ func TestCRUDCreate(t *testing.T) {
 		NewColumn2:          9999,
 		NewColumn3:          45.33,
 		NonPersistentColumn: "0123456789abcdef",
+		TimeCol:             time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC), // time.Now(),
 	}
 
 	err = Handle.Create(&depot)
