@@ -689,11 +689,14 @@ func (slf *SQLiteFlavor) Update(ent interface{}) error {
 			fmt.Println("TYPE:", fType)
 		}
 
-		if fType == "string" {
+		if fType == "string" { // also applies to time.Time at this point due to .Format()
 			keyList = fmt.Sprintf("%s %s = '%v' AND", keyList, k, s)
 		} else {
 			keyList = fmt.Sprintf("%s %s = %v AND", keyList, k, s)
 		}
+
+		fmt.Printf("TypeOfKey: %v, keyName: %s\n", reflect.TypeOf(s), k)
+
 	}
 	keyList = strings.TrimSuffix(keyList, " AND")
 
