@@ -442,7 +442,7 @@ func (myf *MySQLFlavor) Create(ent interface{}) error {
 	info.log = false
 	info.mode = "C"
 
-	err := BuildComponents(&info)
+	err := myf.BuildComponents(&info)
 	if err != nil {
 		return err
 	}
@@ -474,7 +474,7 @@ func (myf *MySQLFlavor) Create(ent interface{}) error {
 
 	// fill the underlying structure of the interface ptr with the
 	// fields returned from the database.
-	err = FormatReturn(&info)
+	err = myf.FormatReturn(&info)
 	if err != nil {
 		return err
 	}
@@ -489,7 +489,7 @@ func (myf *MySQLFlavor) Update(ent interface{}) error {
 	info.log = false
 	info.mode = "U"
 
-	err := BuildComponents(&info)
+	err := myf.BuildComponents(&info)
 	if err != nil {
 		return err
 	}
@@ -536,7 +536,7 @@ func (myf *MySQLFlavor) Update(ent interface{}) error {
 
 	// fill the underlying structure of the interface ptr with the
 	// fields returned from the database.
-	err = FormatReturn(&info)
+	err = myf.FormatReturn(&info)
 	if err != nil {
 		return err
 	}
@@ -551,7 +551,7 @@ func (myf *MySQLFlavor) Delete(ent interface{}) error { // (id uint) error
 	info.log = false
 	info.mode = "D"
 
-	err := BuildComponents(&info)
+	err := myf.BuildComponents(&info)
 	if err != nil {
 		return err
 	}
@@ -596,7 +596,7 @@ func (myf *MySQLFlavor) GetEntity(ent interface{}) error {
 	info.log = false
 	info.mode = "G"
 
-	err := BuildComponents(&info)
+	err := myf.BuildComponents(&info)
 	if err != nil {
 		return err
 	}
@@ -631,7 +631,7 @@ func (myf *MySQLFlavor) GetEntity(ent interface{}) error {
 
 		// fill the underlying structure of the interface ptr with the
 		// fields returned from the database.
-		err = FormatReturn(&info)
+		err = myf.FormatReturn(&info)
 		if err != nil {
 			return err
 		}

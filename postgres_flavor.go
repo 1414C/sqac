@@ -674,7 +674,7 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	info.log = false
 	info.mode = "C"
 
-	err := BuildComponents(&info)
+	err := pf.BuildComponents(&info)
 	if err != nil {
 		return err
 	}
@@ -695,7 +695,7 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 
 	// fill the underlying structure of the interface ptr with the
 	// fields returned from the database.
-	err = FormatReturn(&info)
+	err = pf.FormatReturn(&info)
 	if err != nil {
 		return err
 	}
@@ -710,7 +710,7 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 	info.log = false
 	info.mode = "U"
 
-	err := BuildComponents(&info)
+	err := pf.BuildComponents(&info)
 	if err != nil {
 		return err
 	}
@@ -746,7 +746,7 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 
 	// fill the underlying structure of the interface ptr with the
 	// fields returned from the database.
-	err = FormatReturn(&info)
+	err = pf.FormatReturn(&info)
 	if err != nil {
 		return err
 	}
@@ -761,7 +761,7 @@ func (pf *PostgresFlavor) Delete(ent interface{}) error { // (id uint) error
 	info.log = false
 	info.mode = "D"
 
-	err := BuildComponents(&info)
+	err := pf.BuildComponents(&info)
 	if err != nil {
 		return err
 	}
@@ -806,7 +806,7 @@ func (pf *PostgresFlavor) GetEntity(ent interface{}) error {
 	info.log = false
 	info.mode = "G"
 
-	err := BuildComponents(&info)
+	err := pf.BuildComponents(&info)
 	if err != nil {
 		return err
 	}
@@ -841,7 +841,7 @@ func (pf *PostgresFlavor) GetEntity(ent interface{}) error {
 
 		// fill the underlying structure of the interface ptr with the
 		// fields returned from the database.
-		err = FormatReturn(&info)
+		err = pf.FormatReturn(&info)
 		if err != nil {
 			return err
 		}

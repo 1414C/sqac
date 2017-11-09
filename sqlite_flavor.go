@@ -617,7 +617,7 @@ func (slf *SQLiteFlavor) Create(ent interface{}) error {
 	info.log = false
 	info.mode = "C"
 
-	err := BuildComponents(&info)
+	err := slf.BuildComponents(&info)
 	if err != nil {
 		return err
 	}
@@ -660,7 +660,7 @@ func (slf *SQLiteFlavor) Create(ent interface{}) error {
 
 	// fill the underlying structure of the interface ptr with the
 	// fields returned from the database.
-	err = FormatReturn(&info)
+	err = slf.FormatReturn(&info)
 	if err != nil {
 		return err
 	}
@@ -675,7 +675,7 @@ func (slf *SQLiteFlavor) Update(ent interface{}) error {
 	info.log = false
 	info.mode = "U"
 
-	err := BuildComponents(&info)
+	err := slf.BuildComponents(&info)
 	if err != nil {
 		return err
 	}
@@ -725,7 +725,7 @@ func (slf *SQLiteFlavor) Update(ent interface{}) error {
 
 	// fill the underlying structure of the interface ptr with the
 	// fields returned from the database.
-	err = FormatReturn(&info)
+	err = slf.FormatReturn(&info)
 	if err != nil {
 		return err
 	}

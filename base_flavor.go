@@ -29,6 +29,26 @@ type ColComponents struct {
 	fNullable   string
 }
 
+// CrudInfo contains information used to perform CRUD
+// activities.  Pre-call and post-call organization
+// and formatting.
+// v = Value (underlying struct of interface ptr ent)
+type CrudInfo struct {
+	ent        interface{}
+	log        bool
+	mode       string // "C" || "U"  || "D" == create or update or delete
+	stype      reflect.Type
+	flDef      []FieldDef
+	tn         string
+	fList      string
+	vList      string
+	fldMap     map[string]string
+	keyMap     map[string]interface{}
+	incKeyName string
+	entValue   reflect.Value
+	resultMap  map[string]interface{}
+}
+
 // TblComponents is used as a collector structure for internal table
 // create / alter processing.
 type TblComponents struct {

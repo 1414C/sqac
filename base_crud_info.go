@@ -15,23 +15,27 @@ import (
 // vList = string
 // keyMap = map
 // v = Value (underlying struct of interface ptr ent)
-type CrudInfo struct {
-	ent        interface{}
-	log        bool
-	mode       string // "C" || "U"  || "D" == create or update or delete
-	stype      reflect.Type
-	flDef      []FieldDef
-	tn         string
-	fList      string
-	vList      string
-	fldMap     map[string]string
-	keyMap     map[string]interface{}
-	incKeyName string
-	entValue   reflect.Value
-	resultMap  map[string]interface{}
-}
+// type CrudInfo struct {
+// 	ent        interface{}
+// 	log        bool
+// 	mode       string // "C" || "U"  || "D" == create or update or delete
+// 	stype      reflect.Type
+// 	flDef      []FieldDef
+// 	tn         string
+// 	fList      string
+// 	vList      string
+// 	fldMap     map[string]string
+// 	keyMap     map[string]interface{}
+// 	incKeyName string
+// 	entValue   reflect.Value
+// 	resultMap  map[string]interface{}
+// }
 
-func BuildComponents(inf *CrudInfo) error {
+// BuildComponents is used by each flavor to assemble the
+// struct (entity) data for CRUD operations.  There is
+// some redundancy in the structure for now, as it has
+// recently been migrated into BaseFlavor.
+func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 
 	inf.keyMap = make(map[string]interface{})
 	inf.fldMap = make(map[string]string)
@@ -319,11 +323,13 @@ func BuildComponents(inf *CrudInfo) error {
 
 }
 
-func FormatReturn(inf *CrudInfo) error {
-
-	// for k, v := range inf.resultMap {
-	// 	fmt.Printf("key: %s, value: %v\n", k, v)
-	// }
+// FormatReturn is used by CRUD operations to format
+// the result-data from INSERT/UPDATE/GET's back into
+// the go-format.  Notably, timestamps are stored as
+// UTC where the db supports it, and this is used to
+// ensure that the returned timestamp is presented in
+// server-local format.
+func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 
 	values := make([]interface{}, inf.entValue.NumField())
 	for i := 0; i < inf.entValue.NumField(); i++ {
