@@ -121,6 +121,64 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
+// TimeTest
+//
+// Test time implementation
+func TimeTest(t *testing.T) {
+
+	type DepotTime struct {
+		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
+		DepotBay   int       `db:"depot_bay" rgen:"primary_key:"`
+		Region     string    `db:"region" rgen:"nullable:false;defalt:YYC"`
+		TimeCol    time.Time `db:"time_col" rgen:"nullable:false"`
+		TimeColNow time.Time `db:"time_col_now" rgen:"nullable:false;default:now()"`
+		TimeColEot time.Time `db:"time_col_eot" rgen:"nullable:false;default:eot"`
+	}
+
+	// determine the table names as per the
+	// table creation logic
+	tn := reflect.TypeOf(DepotTime{}).String()
+	if strings.Contains(tn, ".") {
+		el := strings.Split(tn, ".")
+		tn = strings.ToLower(el[len(el)-1])
+	} else {
+		tn = strings.ToLower(tn)
+	}
+
+	// drop table depottime if it exists
+	err := Handle.DropTables(DepotTime{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// create table depottime
+	err = Handle.CreateTables(DepotTime{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table depottime exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s does not exist", tn)
+	}
+
+	// create a new record via the CRUD Create call
+	var depot = DepotTime{
+		Region:  "YYC",
+		TimeCol: time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC), // time.Now(),
+	}
+
+	err = Handle.Create(&depot)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	if Handle.IsLog() {
+		fmt.Printf("INSERTING: %v\n", depot)
+		fmt.Printf("TEST GOT: %v\n", depot)
+	}
+	fmt.Printf("TEST GOT: %v\n", depot)
+}
+
 // TestGetDBDriverName
 //
 // Check that a driver name is returned
