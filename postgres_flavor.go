@@ -691,6 +691,7 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 		return err
 	}
 
+	fmt.Println("")
 	fmt.Println("resultMap:", info.resultMap)
 
 	// fill the underlying structure of the interface ptr with the

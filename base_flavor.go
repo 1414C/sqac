@@ -6,7 +6,6 @@ import (
 	"log"
 	"reflect"
 	"strings"
-	"time"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -27,26 +26,6 @@ type ColComponents struct {
 	fAutoInc    bool // not used for Postgres
 	fDefault    string
 	fNullable   string
-}
-
-// CrudInfo contains information used to perform CRUD
-// activities.  Pre-call and post-call organization
-// and formatting.
-// v = Value (underlying struct of interface ptr ent)
-type CrudInfo struct {
-	ent        interface{}
-	log        bool
-	mode       string // "C" || "U"  || "D" == create or update or delete
-	stype      reflect.Type
-	flDef      []FieldDef
-	tn         string
-	fList      string
-	vList      string
-	fldMap     map[string]string
-	keyMap     map[string]interface{}
-	incKeyName string
-	entValue   reflect.Value
-	resultMap  map[string]interface{}
 }
 
 // TblComponents is used as a collector structure for internal table
@@ -181,10 +160,6 @@ type PublicDB interface {
 	Delete(ent interface{}) error    // (id uint) error
 	GetEntity(ent interface{}) error // pass ptr to type containing key information
 	GetEntities() []interface{}
-
-	// DateTime / Timestamp conversions
-	GoTimeToDBTime(gt time.Time) string
-	DBTimeToGoTime(dbt time.Time) time.Time
 }
 
 // ensure consistency of interface implementation
@@ -620,24 +595,6 @@ func (bf *BaseFlavor) ProcessTransaction(tList []string) error {
 		return err
 	}
 	return nil
-}
-
-// GoTimeToDBTime should convert a go time.Time field to the
-// string equivalent that can be submitted to the database.
-func (bf *BaseFlavor) GoTimeToDBTime(gt time.Time) string {
-
-	panic(fmt.Errorf("GoTimeToDBTime not implemented for the requested DB"))
-}
-
-// DBTimeToGoTime should comvert the populated time.Time field
-// retrieved from the database into the correct time.Time format
-// for use within the application.  In cases where the db stores
-// the timestamp qw UTC, this is the function that would ensure
-// the value was returned to the requester in the server-local
-// timezone.
-func (bf *BaseFlavor) DBTimeToGoTime(dbt time.Time) time.Time {
-
-	panic(fmt.Errorf("DBTimeToGoTime not implemented for the requested DB"))
 }
 
 // processIndexTag is used to create or add to an entry in the working indexes map that is

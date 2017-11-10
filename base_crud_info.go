@@ -8,28 +8,25 @@ import (
 	"time"
 )
 
-// stype = type.Type
-// flDef = []FieldDef
-// tn = string
-// fList = string
-// vList = string
-// keyMap = map
+// CrudInfo contains information used to perform CRUD
+// activities.  Pre-call and post-call organization
+// and formatting.
 // v = Value (underlying struct of interface ptr ent)
-// type CrudInfo struct {
-// 	ent        interface{}
-// 	log        bool
-// 	mode       string // "C" || "U"  || "D" == create or update or delete
-// 	stype      reflect.Type
-// 	flDef      []FieldDef
-// 	tn         string
-// 	fList      string
-// 	vList      string
-// 	fldMap     map[string]string
-// 	keyMap     map[string]interface{}
-// 	incKeyName string
-// 	entValue   reflect.Value
-// 	resultMap  map[string]interface{}
-// }
+type CrudInfo struct {
+	ent        interface{}
+	log        bool
+	mode       string // "C" || "U"  || "D" == create or update or delete
+	stype      reflect.Type
+	flDef      []FieldDef
+	tn         string
+	fList      string
+	vList      string
+	fldMap     map[string]interface{} // string
+	keyMap     map[string]interface{}
+	incKeyName string
+	entValue   reflect.Value
+	resultMap  map[string]interface{}
+}
 
 // BuildComponents is used by each flavor to assemble the
 // struct (entity) data for CRUD operations.  There is
@@ -38,7 +35,7 @@ import (
 func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 
 	inf.keyMap = make(map[string]interface{})
-	inf.fldMap = make(map[string]string)
+	inf.fldMap = make(map[string]interface{}) // string)
 	inf.resultMap = make(map[string]interface{})
 
 	// http://speakmy.name/2014/09/14/modifying-interfaced-go-struct/
@@ -253,7 +250,7 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 				if bPkeyInc == true {
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
-					inf.fldMap[fd.FName] = "DEFAULT"
+					inf.keyMap[fd.FName] = "DEFAULT"
 					continue
 				}
 
@@ -282,8 +279,8 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 				}
 				if bNullable == false && fv == nil {
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "make_timestamptz(0000, 00, 00, 00, 00, 00.0")
-					inf.fldMap[fd.FName] = "make_timestamptz(0000, 00, 00, 00, 00, 00.0"
+					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "bot") //"make_timestamptz(0000, 00, 00, 00, 00, 00.0")
+					inf.fldMap[fd.FName] = "bot"                        //"make_timestamptz(0000, 00, 00, 00, 00, 00.0"
 					continue
 				}
 			} else {
@@ -293,21 +290,22 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 					// fmt.Println("fv:", fv)
 					if fd.GoType == "time.Time" {
 						// inf.keyMap[fd.FName] = fv.(time.Time).Format(time.RFC3339)
-						inf.keyMap[fd.FName] = fv.(time.Time).Format("2006-01-02 15:04:05.999999-07:00")
+						inf.keyMap[fd.FName] = bf.TimeToFormattedString(fv.(time.Time)) // fv.(time.Time).Format("2006-01-02 15:04:05.999999-07:00")
 					} else if fd.GoType == "*time.Time" {
-						inf.keyMap[fd.FName] = fv.(*time.Time).Format("2006-01-02 15:04:05.999999-07:00")
+						tDRef := *fv.(*time.Time)
+						inf.keyMap[fd.FName] = bf.TimeToFormattedString(tDRef) // fv.(*time.Time).Format("2006-01-02 15:04:05.999999-07:00")
 					}
 					continue
 				}
 			}
 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 			if fd.GoType == "time.Time" {
-				inf.vList = fmt.Sprintf("%s'%v', ", inf.vList, fv.(time.Time).Format("2006-01-02 15:04:05.999999-07:00"))
-				// inf.keyMap[fd.FName] = fv.(time.Time).UTC().Format("2006-01-02 15:04:05.999999-07:00")
-				inf.keyMap[fd.FName] = fv.(time.Time).Format("2006-01-02 15:04:05.999999-07:00")
+				inf.vList = fmt.Sprintf("%s'%v', ", inf.vList, bf.TimeToFormattedString(fv.(time.Time))) // fv.(time.Time).Format("2006-01-02 15:04:05.999999-07:00"))
+				inf.fldMap[fd.FName] = bf.TimeToFormattedString(fv.(time.Time))                          // fv.(time.Time).Format("2006-01-02 15:04:05.999999-07:00")
 			} else {
-				inf.vList = fmt.Sprintf("%s'%v', ", inf.vList, fv.(*time.Time).Format("2006-01-02 15:04:05.999999-07:00"))
-				inf.keyMap[fd.FName] = fv.(*time.Time).Format("2006-01-02 15:04:05.999999-07:00")
+				tDRef := *fv.(*time.Time)
+				inf.vList = fmt.Sprintf("%s'%v', ", inf.vList, bf.TimeToFormattedString(tDRef)) // fv.(*time.Time).Format("2006-01-02 15:04:05.999999-07:00"))
+				inf.fldMap[fd.FName] = bf.TimeToFormattedString(tDRef)                          // fv.(*time.Time).Format("2006-01-02 15:04:05.999999-07:00")
 			}
 			continue
 
@@ -321,6 +319,33 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 	inf.vList = inf.vList + ")"
 	return nil
 
+}
+
+// TimeToFormattedString is used to format the provided time.Time
+// value in the string format required for the connected db
+// insert or update operation.  This method is called from
+// within the CRUD ops for each db flavor, and could be added
+// to the flavor-specific Query / Exec methods at some point.
+func (bf *BaseFlavor) TimeToFormattedString(t time.Time) string {
+
+	switch bf.GetDBDriverName() {
+	case "postgres":
+		return t.Format("2006-01-02 15:04:05.999999-07:00")
+
+	case "mysql":
+		return t.Format("2006-01-02 15:04:05")
+
+	case "sqlite":
+		return t.Format("2006-01-02 15:04:05")
+
+	case "mssql":
+		return t.Format("2006-01-02 15:04:05")
+
+	default:
+		// most db's will take this and convert to UTC
+		return t.Format("2006-01-02 15:04:05")
+	}
+	return t.Format("2006-01-02 15:04:05")
 }
 
 // FormatReturn is used by CRUD operations to format

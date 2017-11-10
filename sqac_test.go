@@ -121,18 +121,33 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-// TimeTest
+// TestGetDBDriverName
+//
+// Check that a driver name is returned
+func TestGetDBDriverName(t *testing.T) {
+	driverName := Handle.GetDBDriverName()
+	if driverName == "" {
+		t.Errorf("unable to determine db driver name")
+	}
+	if Handle.IsLog() {
+		fmt.Println("db driver name:", driverName)
+	}
+}
+
+// TestTimeSimple
 //
 // Test time implementation
-func TimeTest(t *testing.T) {
+func TestTimeSimple(t *testing.T) {
 
 	type DepotTime struct {
-		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		DepotBay   int       `db:"depot_bay" rgen:"primary_key:"`
-		Region     string    `db:"region" rgen:"nullable:false;defalt:YYC"`
-		TimeCol    time.Time `db:"time_col" rgen:"nullable:false"`
-		TimeColNow time.Time `db:"time_col_now" rgen:"nullable:false;default:now()"`
-		TimeColEot time.Time `db:"time_col_eot" rgen:"nullable:false;default:eot"`
+		DepotNum       int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
+		DepotBay       int       `db:"depot_bay" rgen:"primary_key:"`
+		Region         string    `db:"region" rgen:"nullable:false;defalt:YYC"`
+		TimeColUTC     time.Time `db:"time_col_utc" rgen:"nullable:false"`
+		TimeNowLocal   time.Time `db:"time_now_local" rgen:"nullable:false"`
+		TimeNowUTC     time.Time `db:"time_now_utc" rgen:"nullable:false;default:now()"`
+		TimeColNowDflt time.Time `db:"time_col_now_dflt" rgen:"nullable:false;default:now()"`
+		TimeColEot     time.Time `db:"time_col_eot" rgen:"nullable:false;default:eot"`
 	}
 
 	// determine the table names as per the
@@ -164,32 +179,24 @@ func TimeTest(t *testing.T) {
 
 	// create a new record via the CRUD Create call
 	var depot = DepotTime{
-		Region:  "YYC",
-		TimeCol: time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC), // time.Now(),
+		Region:       "YYC",
+		TimeColUTC:   time.Date(1970, 01, 01, 11, 00, 00, 651387237, time.UTC), // time.Now(),
+		TimeNowLocal: time.Now().Local(),
+		TimeNowUTC:   time.Now().UTC(),
 	}
 
 	err = Handle.Create(&depot)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	if Handle.IsLog() {
-		fmt.Printf("INSERTING: %v\n", depot)
-		fmt.Printf("TEST GOT: %v\n", depot)
-	}
-	fmt.Printf("TEST GOT: %v\n", depot)
-}
+	fmt.Println("")
 
-// TestGetDBDriverName
-//
-// Check that a driver name is returned
-func TestGetDBDriverName(t *testing.T) {
-	driverName := Handle.GetDBDriverName()
-	if driverName == "" {
-		t.Errorf("unable to determine db driver name")
-	}
 	if Handle.IsLog() {
-		fmt.Println("db driver name:", driverName)
+		fmt.Printf("INSERTING: %v\n\n", depot)
+		fmt.Printf("TEST GOT: %v\n\n", depot)
 	}
+	fmt.Printf("TEST GOT: %v\n\n", depot)
+	// os.Exit(0)
 }
 
 // TestExistsTableNegative
