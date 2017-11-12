@@ -572,9 +572,9 @@ func (msf *MSSQLFlavor) Create(ent interface{}) error {
 		return err
 	}
 
-	// build the mysql insert query
+	// build the mssql insert query
 	insQuery := fmt.Sprintf("INSERT INTO %s", info.tn)
-	insQuery = fmt.Sprintf("%s %s VALUES %s;", insQuery, info.fList, info.vList)
+	insQuery = fmt.Sprintf("%s (%s) VALUES (%s);", insQuery, info.fList, info.vList)
 
 	fmt.Println(insQuery)
 
