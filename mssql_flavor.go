@@ -573,8 +573,21 @@ func (msf *MSSQLFlavor) Create(ent interface{}) error {
 	}
 
 	// build the mssql insert query
+	insFlds := "("
+	insVals := "("
+	for k, v := range info.fldMap {
+		if v == "DEFAULT" {
+			continue
+		}
+		insFlds = fmt.Sprintf("%s %s, ", insFlds, k)
+		insVals = fmt.Sprintf("%s %s, ", insVals, v)
+	}
+	insFlds = strings.TrimSuffix(insFlds, ", ") + ")"
+	insVals = strings.TrimSuffix(insVals, ", ") + ")"
+
+	// build the mssql insert query
 	insQuery := fmt.Sprintf("INSERT INTO %s", info.tn)
-	insQuery = fmt.Sprintf("%s (%s) VALUES (%s);", insQuery, info.fList, info.vList)
+	insQuery = fmt.Sprintf("%s %s VALUES %s;", insQuery, insFlds, insVals)
 
 	fmt.Println(insQuery)
 
@@ -591,7 +604,76 @@ func (msf *MSSQLFlavor) Create(ent interface{}) error {
 	}
 
 	// fmt.Printf("Last insert ID was %d\n", lastID)
-	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s = %d LIMIT 1;", info.tn, info.incKeyName, lastID)
+	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s = %v;", info.tn, info.incKeyName, lastID)
+	err = msf.db.QueryRowx(selQuery).MapScan(info.resultMap) // SliceScan
+	if err != nil {
+		return err
+	}
+
+	// fill the underlying structure of the interface ptr with the
+	// fields returned from the database.
+	err = msf.FormatReturn(&info)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Update an existing entity (single-row) on the database
+func (msf *MSSQLFlavor) Update(ent interface{}) error {
+
+	var info CrudInfo
+	info.ent = ent
+	info.log = false
+	info.mode = "U"
+
+	err := msf.BuildComponents(&info)
+	if err != nil {
+		return err
+	}
+
+	keyList := ""
+	for k, s := range info.keyMap {
+
+		fType := reflect.TypeOf(s).String()
+		if msf.IsLog() {
+			fmt.Printf("key: %v, value: %v\n", k, s)
+			fmt.Println("TYPE:", fType)
+		}
+
+		if fType == "string" {
+			keyList = fmt.Sprintf("%s %s = '%v' AND", keyList, k, s)
+		} else {
+			keyList = fmt.Sprintf("%s %s = %v AND", keyList, k, s)
+		}
+	}
+	keyList = strings.TrimSuffix(keyList, " AND")
+
+	colList := ""
+	fmt.Println("INFO.FLDMAP contains:", len(info.fldMap))
+	for k, v := range info.fldMap {
+		// if reflect.TypeOf(v).String() == "string" {
+		// 	colList = fmt.Sprintf("%s %s = '%s', ", colList, k, v)
+		// } else {
+		// 	colList = fmt.Sprintf("%s %s = %v, ", colList, k, v)
+		// }
+		fmt.Printf("k: %s, v: %v\n", k, v)
+		colList = fmt.Sprintf("%s %s = %s, ", colList, k, v)
+	}
+	colList = strings.TrimSuffix(colList, ", ")
+
+	updQuery := fmt.Sprintf("UPDATE %s SET %s WHERE %s;", info.tn, colList, keyList)
+	fmt.Println(updQuery)
+
+	// attempt the update and check for errors
+	_, err = msf.db.Exec(updQuery)
+	if err != nil {
+		fmt.Println("GotERROR")
+		return err
+	}
+
+	// read the updated row
+	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %v;", info.tn, keyList)
 	err = msf.db.QueryRowx(selQuery).MapScan(info.resultMap) // SliceScan
 	if err != nil {
 		return err

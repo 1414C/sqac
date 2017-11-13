@@ -339,13 +339,12 @@ func (bf *BaseFlavor) TimeToFormattedString(t time.Time) string {
 		return t.Format("2006-01-02 15:04:05")
 
 	case "mssql":
-		return t.Format("2006-01-02 15:04:05")
+		return t.Format("2006-01-02 15:04:05.999999")
 
 	default:
 		// most db's will take this and convert to UTC
 		return t.Format("2006-01-02 15:04:05")
 	}
-	return t.Format("2006-01-02 15:04:05")
 }
 
 // FormatReturn is used by CRUD operations to format
