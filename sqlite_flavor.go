@@ -642,7 +642,6 @@ func (slf *SQLiteFlavor) Create(ent interface{}) error {
 	// attempt the insert and read the result back into info.resultMap
 	result, err := slf.db.Exec(insQuery)
 	if err != nil {
-		fmt.Println("GotERROR")
 		return err
 	}
 
@@ -650,7 +649,6 @@ func (slf *SQLiteFlavor) Create(ent interface{}) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("lastID:", lastID)
 
 	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s = %d LIMIT 1;", info.tn, info.incKeyName, lastID)
 	err = slf.db.QueryRowx(selQuery).MapScan(info.resultMap) // SliceScan

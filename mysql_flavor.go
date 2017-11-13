@@ -456,7 +456,6 @@ func (myf *MySQLFlavor) Create(ent interface{}) error {
 	// attempt the insert and read the result back into info.resultMap
 	result, err := myf.db.Exec(insQuery)
 	if err != nil {
-		fmt.Println("GotERROR")
 		return err
 	}
 
@@ -512,14 +511,7 @@ func (myf *MySQLFlavor) Update(ent interface{}) error {
 	keyList = strings.TrimSuffix(keyList, " AND")
 
 	colList := ""
-	fmt.Println("INFO.FLDMAP contains:", len(info.fldMap))
 	for k, v := range info.fldMap {
-		// if reflect.TypeOf(v).String() == "string" {
-		// 	colList = fmt.Sprintf("%s %s = '%s', ", colList, k, v)
-		// } else {
-		// 	colList = fmt.Sprintf("%s %s = %v, ", colList, k, v)
-		// }
-		fmt.Printf("k: %s, v: %v\n", k, v)
 		colList = fmt.Sprintf("%s %s = %s, ", colList, k, v)
 	}
 	colList = strings.TrimSuffix(colList, ", ")
@@ -530,7 +522,6 @@ func (myf *MySQLFlavor) Update(ent interface{}) error {
 	// attempt the update and check for errors
 	_, err = myf.db.Exec(updQuery)
 	if err != nil {
-		fmt.Println("GotERROR")
 		return err
 	}
 
