@@ -635,7 +635,7 @@ func (slf *SQLiteFlavor) Create(ent interface{}) error {
 	insFlds = strings.TrimSuffix(insFlds, ", ")
 	insVals = strings.TrimSuffix(insVals, ", ")
 
-	// INSERT OR FAIL INTO "DoubleKey4" (KeyTwo, Description) VALUES ( 40,"Second Record");
+	// build the sqlite insert query
 	insQuery := fmt.Sprintf("INSERT OR FAIL INTO %s (%s) VALUES (%s);", info.tn, insFlds, insVals)
 	fmt.Println(insQuery)
 
@@ -692,9 +692,7 @@ func (slf *SQLiteFlavor) Update(ent interface{}) error {
 		} else {
 			keyList = fmt.Sprintf("%s %s = %v AND", keyList, k, s)
 		}
-
-		fmt.Printf("TypeOfKey: %v, keyName: %s\n", reflect.TypeOf(s), k)
-
+		// fmt.Printf("TypeOfKey: %v, keyName: %s\n", reflect.TypeOf(s), k)
 	}
 	keyList = strings.TrimSuffix(keyList, " AND")
 
@@ -710,7 +708,6 @@ func (slf *SQLiteFlavor) Update(ent interface{}) error {
 	// attempt the update and check for errors
 	_, err = slf.db.Exec(updQuery)
 	if err != nil {
-		fmt.Println("GotERROR")
 		return err
 	}
 

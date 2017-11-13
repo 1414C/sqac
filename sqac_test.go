@@ -11,20 +11,14 @@ import (
 	"time"
 
 	"github.com/1414C/sqac"
+	_ "github.com/SAP/go-hdb/driver"
 	_ "github.com/denisenkom/go-mssqldb"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// type dbac struct {
-// 	DB   *sqlx.DB
-// 	Log  bool
-// 	Hndl sqac.PublicDB
-// }
-
 var (
-	// dbAccess dbac
 	Handle sqac.PublicDB
 )
 
@@ -109,7 +103,7 @@ func TestMain(m *testing.M) {
 	case "db2":
 		cs = ""
 	case "hdb":
-		cs = ""
+		cs = "hdb://SMACLEOD:blockhead@clkhana01-hd1.lab.clockwork.ca:8000"
 	default:
 		cs = ""
 	}

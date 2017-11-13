@@ -682,7 +682,6 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	// build the postgres insert query
 	insQuery := fmt.Sprintf("INSERT INTO %s", info.tn)
 	insQuery = fmt.Sprintf("%s %s VALUES %s RETURNING *;", insQuery, info.fList, info.vList)
-
 	fmt.Println(insQuery)
 
 	// attempt the insert and read the result back into info.resultMap
@@ -690,9 +689,6 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	if err != nil {
 		return err
 	}
-
-	fmt.Println("")
-	fmt.Println("resultMap:", info.resultMap)
 
 	// fill the underlying structure of the interface ptr with the
 	// fields returned from the database.

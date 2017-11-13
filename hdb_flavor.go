@@ -7,21 +7,23 @@ import (
 	"strings"
 )
 
-// MSSQLFlavor is a MSSQL-specific implementation.
+// HDBFlavor is a SAP Hana-specific implementation, where
+// the Hana DB is approached as a traditional SQL-92 compliant
+// database.  As such, some of the nice HDB things are left out.
 // Methods defined in the PublicDB interface of struct-type
-// BaseFlavor are called by default for MSSQLFlavor. If
+// BaseFlavor are called by default for HDBFlavor. If
 // the method as it exists in the BaseFlavor implementation
 // is not compatible with the schema-syntax required by
-// MSSQL, the method in question may be overridden.
+// HDB, the method in question may be overridden.
 // Overriding (redefining) a BaseFlavor method may be
 // accomplished through the addition of a matching method
-// signature and implementation on the MSSQLFlavor
+// signature and implementation on the HDBFlavor
 // struct-type.
-type MSSQLFlavor struct {
+type HDBFlavor struct {
 	BaseFlavor
 
 	//================================================================
-	// possible local MSSQL-specific overrides
+	// possible local HDB-specific overrides
 	//================================================================
 	// GetDBDriverName() string
 	// CreateTables(i ...interface{}) error
@@ -48,13 +50,13 @@ type MSSQLFlavor struct {
 // - pg make_timestamptz(9999, 12, 31, 23, 59, 59.9) equivalent
 
 // CreateTables creates tables on the mysql database referenced
-// by msf.DB.
-func (msf *MSSQLFlavor) CreateTables(i ...interface{}) error {
+// by hf.DB.
+func (hf *HDBFlavor) CreateTables(i ...interface{}) error {
 
 	for t, ent := range i {
 
 		ftr := reflect.TypeOf(ent)
-		if msf.log {
+		if hf.log {
 			fmt.Println("CreateTable() entity type:", ftr)
 		}
 
@@ -72,32 +74,32 @@ func (msf *MSSQLFlavor) CreateTables(i ...interface{}) error {
 
 		// if the table is found to exist, skip the creation
 		// and move on to the next table in the list.
-		if msf.ExistsTable(tn) {
-			if msf.log {
+		if hf.ExistsTable(tn) {
+			if hf.log {
 				fmt.Printf("CreateTable - table %s exists - skipping...\n", tn)
 			}
 			continue
 		}
 
 		// build the create table schema and return all of the table info
-		tc := msf.buildTablSchema(tn, i[t])
+		tc := hf.buildTablSchema(tn, i[t])
 
 		// create the table on the db
-		msf.db.MustExec(tc.tblSchema)
+		hf.db.MustExec(tc.tblSchema)
 		for _, sq := range tc.seq {
 			start, _ := strconv.Atoi(sq.Value)
-			msf.AlterSequenceStart(sq.Name, start)
+			hf.AlterSequenceStart(sq.Name, start)
 		}
 		for k, in := range tc.ind {
-			msf.CreateIndex(k, in)
+			hf.CreateIndex(k, in)
 		}
 	}
 	return nil
 }
 
-// AlterTables alters tables on the MSSQL database referenced
-// by msf.DB.
-func (msf *MSSQLFlavor) AlterTables(i ...interface{}) error {
+// AlterTables alters tables on the HDB database referenced
+// by hf.DB.
+func (hf *HDBFlavor) AlterTables(i ...interface{}) error {
 
 	for t, ent := range i {
 
@@ -112,29 +114,29 @@ func (msf *MSSQLFlavor) AlterTables(i ...interface{}) error {
 			tn = strings.ToLower(tn)
 		}
 		if tn == "" {
-			return fmt.Errorf("unable to determine table name in msf.AlterTables")
+			return fmt.Errorf("unable to determine table name in hf.AlterTables")
 		}
 
 		// if the table does not exist, call CreateTables
 		// if the table does exist, examine it and perform
 		// alterations if neccessary
-		if !msf.ExistsTable(tn) {
-			msf.CreateTables(ent)
+		if !hf.ExistsTable(tn) {
+			hf.CreateTables(ent)
 			continue
 		}
 
 		// build the altered table schema and get its components
-		tc := msf.buildTablSchema(tn, i[t])
+		tc := hf.buildTablSchema(tn, i[t])
 
 		// go through the latest version of the model and check each
 		// field against its definition in the database.
-		qt := msf.GetDBQuote()
+		qt := hf.GetDBQuote()
 		alterSchema := fmt.Sprintf("ALTER TABLE %s%s%s ADD ", qt, tn, qt)
 		var cols []string
 
 		for _, fd := range tc.flDef {
 			// new columns first
-			if !msf.ExistsColumn(tn, fd.FName) && fd.NoDB == false {
+			if !hf.ExistsColumn(tn, fd.FName) && fd.NoDB == false {
 
 				colSchema := fmt.Sprintf("%s%s%s %s", qt, fd.FName, qt, fd.FType)
 				for _, p := range fd.RgenPairs {
@@ -184,26 +186,26 @@ func (msf *MSSQLFlavor) AlterTables(i ...interface{}) error {
 			}
 
 			alterSchema = strings.TrimSuffix(alterSchema, ",")
-			msf.ProcessSchema(alterSchema)
+			hf.ProcessSchema(alterSchema)
 		}
 
 		// add indexes if required
 		for k, v := range tc.ind {
-			if !msf.ExistsIndex(v.TableName, k) {
-				msf.CreateIndex(k, v)
+			if !hf.ExistsIndex(v.TableName, k) {
+				hf.CreateIndex(k, v)
 			}
 		}
 	}
 	return nil
 }
 
-// buildTableSchema builds a CREATE TABLE schema for the MSSQL DB
+// buildTableSchema builds a CREATE TABLE schema for the HDB DB
 // and returns it to the caller, along with the components determined from
 // the db and rgen struct-tags.  this method is used in CreateTables
 // and AlterTables methods.
-func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
+func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 
-	qt := msf.GetDBQuote()
+	qt := hf.GetDBQuote()
 	pKeys := ""
 	var sequences []RgenPair
 	indexes := make(map[string]IndexInfo)
@@ -218,7 +220,7 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 		panic(err)
 	}
 
-	// set the MSSQL field-types and build the table schema,
+	// set the HDB field-types and build the table schema,
 	// as well as any other schemas that are needed to support
 	// the table definition. In all cases any foreign-key or
 	// index requirements must be deferred until all other
@@ -338,13 +340,13 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 				case "index":
 					switch p.Value {
 					case "non-unique":
-						indexes = msf.processIndexTag(indexes, tn, fd.FName, "idx_", false, true)
+						indexes = hf.processIndexTag(indexes, tn, fd.FName, "idx_", false, true)
 
 					case "unique":
-						indexes = msf.processIndexTag(indexes, tn, fd.FName, "idx_", true, true)
+						indexes = hf.processIndexTag(indexes, tn, fd.FName, "idx_", true, true)
 
 					default:
-						indexes = msf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)
+						indexes = hf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)
 					}
 
 				default:
@@ -402,7 +404,7 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 		err:       err,
 	}
 
-	if msf.log {
+	if hf.log {
 		rc.Log()
 	}
 	return rc
@@ -410,7 +412,7 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 
 // DropTables drops tables on the db if they exist, based on
 // the provided list of go struct definitions.
-func (msf *MSSQLFlavor) DropTables(i ...interface{}) error {
+func (hf *HDBFlavor) DropTables(i ...interface{}) error {
 
 	dropSchema := ""
 	for t := range i {
@@ -424,19 +426,19 @@ func (msf *MSSQLFlavor) DropTables(i ...interface{}) error {
 			tn = strings.ToLower(tn)
 		}
 		if tn == "" {
-			return fmt.Errorf("unable to determine table name in msf.DropTables")
+			return fmt.Errorf("unable to determine table name in hf.DropTables")
 		}
 
 		// if the table is found to exist, add a DROP statement
 		// to the dropSchema string and move on to the next
 		// table in the list.
-		if msf.ExistsTable(tn) {
-			if msf.log {
+		if hf.ExistsTable(tn) {
+			if hf.log {
 				fmt.Printf("table %s exists - adding to drop schema...\n", tn)
 			}
 			// submit 1 at a time for mysql
 			dropSchema = dropSchema + fmt.Sprintf("DROP TABLE %s; ", tn)
-			msf.ProcessSchema(dropSchema)
+			hf.ProcessSchema(dropSchema)
 			dropSchema = ""
 		}
 	}
@@ -445,11 +447,11 @@ func (msf *MSSQLFlavor) DropTables(i ...interface{}) error {
 
 // ExistsTable checks the currently connected database and
 // returns true if the named table is found to exist.
-func (msf *MSSQLFlavor) ExistsTable(tn string) bool {
+func (hf *HDBFlavor) ExistsTable(tn string) bool {
 
 	n := 0
 	etQuery := fmt.Sprintf("SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = '%s';", tn)
-	msf.db.QueryRow(etQuery).Scan(&n)
+	hf.db.QueryRow(etQuery).Scan(&n)
 	if n > 0 {
 		return true
 	}
@@ -457,9 +459,9 @@ func (msf *MSSQLFlavor) ExistsTable(tn string) bool {
 }
 
 // GetDBName returns the name of the currently connected db
-func (msf *MSSQLFlavor) GetDBName() (dbName string) {
+func (hf *HDBFlavor) GetDBName() (dbName string) {
 
-	row := msf.db.QueryRow("SELECT DB_NAME()")
+	row := hf.db.QueryRow("SELECT DB_NAME()")
 	if row != nil {
 		err := row.Scan(&dbName)
 		if err != nil {
@@ -471,11 +473,11 @@ func (msf *MSSQLFlavor) GetDBName() (dbName string) {
 
 // ExistsIndex checks the connected database for the presence
 // of the specified index.
-func (msf *MSSQLFlavor) ExistsIndex(tn string, in string) bool {
+func (hf *HDBFlavor) ExistsIndex(tn string, in string) bool {
 
 	n := 0
-	// msf.db.QueryRow("SELECT count(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema = ? AND table_name = ? AND index_name = ?", bf.GetDBName(), tn, in).Scan(&n)
-	msf.db.QueryRow("SELECT COUNT(*) FROM sys.indexes WHERE name=? AND object_id = OBJECT_ID(?);", in, tn).Scan(&n)
+	// hf.db.QueryRow("SELECT count(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema = ? AND table_name = ? AND index_name = ?", bf.GetDBName(), tn, in).Scan(&n)
+	hf.db.QueryRow("SELECT COUNT(*) FROM sys.indexes WHERE name=? AND object_id = OBJECT_ID(?);", in, tn).Scan(&n)
 	if n > 0 {
 		return true
 	}
@@ -483,11 +485,11 @@ func (msf *MSSQLFlavor) ExistsIndex(tn string, in string) bool {
 }
 
 // DropIndex drops the specfied index on the connected database.
-func (msf *MSSQLFlavor) DropIndex(tn string, in string) error {
+func (hf *HDBFlavor) DropIndex(tn string, in string) error {
 
-	if msf.ExistsIndex(tn, in) {
+	if hf.ExistsIndex(tn, in) {
 		indexSchema := fmt.Sprintf("DROP INDEX %s ON %s;", in, tn)
-		msf.ProcessSchema(indexSchema)
+		hf.ProcessSchema(indexSchema)
 		return nil
 	}
 	return nil
@@ -497,11 +499,11 @@ func (msf *MSSQLFlavor) DropIndex(tn string, in string) error {
 // returns true if the named table-column is found to exist.
 // this checks the column name only, not the column data-type
 // or properties.
-func (msf *MSSQLFlavor) ExistsColumn(tn string, cn string) bool {
+func (hf *HDBFlavor) ExistsColumn(tn string, cn string) bool {
 
 	n := 0
-	if msf.ExistsTable(tn) {
-		msf.db.QueryRow("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ? AND column_name = ?;", tn, cn).Scan(&n)
+	if hf.ExistsTable(tn) {
+		hf.db.QueryRow("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ? AND column_name = ?;", tn, cn).Scan(&n)
 		if n > 0 {
 			return true
 		}
@@ -509,17 +511,17 @@ func (msf *MSSQLFlavor) ExistsColumn(tn string, cn string) bool {
 	return false
 }
 
-// DestructiveResetTables drops tables on the MSSQL db if they exist,
+// DestructiveResetTables drops tables on the HDB db if they exist,
 // as well as any related objects such as sequences.  this is
 // useful if you wish to regenerated your table and the
 // number-range used by an auto-incementing primary key.
-func (msf *MSSQLFlavor) DestructiveResetTables(i ...interface{}) error {
+func (hf *HDBFlavor) DestructiveResetTables(i ...interface{}) error {
 
-	err := msf.DropTables(i...)
+	err := hf.DropTables(i...)
 	if err != nil {
 		return err
 	}
-	err = msf.CreateTables(i...)
+	err = hf.CreateTables(i...)
 	if err != nil {
 		return err
 	}
@@ -527,26 +529,26 @@ func (msf *MSSQLFlavor) DestructiveResetTables(i ...interface{}) error {
 }
 
 // AlterSequenceStart may be used to make changes to the start value of the
-// named identity-field on the currently connected MSSQL database.
-func (msf *MSSQLFlavor) AlterSequenceStart(name string, start int) error {
+// named identity-field on the currently connected HDB database.
+func (hf *HDBFlavor) AlterSequenceStart(name string, start int) error {
 
 	// reseed the primary key
 	// DBCC CHECKIDENT ('dbo.depot', RESEED, 50000000);
 	alterSequenceSchema := fmt.Sprintf("DBCC CHECKIDENT (%s, RESEED, %d)", name, start)
-	msf.ProcessSchema(alterSequenceSchema)
+	hf.ProcessSchema(alterSequenceSchema)
 	return nil
 }
 
 // GetNextSequenceValue is used primarily for testing.  It returns
-// the current value of the MSSQL identity (auto-increment) field for
+// the current value of the HDB identity (auto-increment) field for
 // the named table.
-func (msf *MSSQLFlavor) GetNextSequenceValue(name string) (int, error) {
+func (hf *HDBFlavor) GetNextSequenceValue(name string) (int, error) {
 
 	seq := 0
-	if msf.ExistsTable(name) {
+	if hf.ExistsTable(name) {
 
 		seqQuery := fmt.Sprintf("SELECT IDENT_CURRENT( '%s' );", name)
-		err := msf.db.QueryRow(seqQuery).Scan(&seq)
+		err := hf.db.QueryRow(seqQuery).Scan(&seq)
 		if err != nil {
 			return 0, err
 		}
@@ -560,19 +562,19 @@ func (msf *MSSQLFlavor) GetNextSequenceValue(name string) (int, error) {
 //================================================================
 
 // Create the entity (single-row) on the database
-func (msf *MSSQLFlavor) Create(ent interface{}) error {
+func (hf *HDBFlavor) Create(ent interface{}) error {
 
 	var info CrudInfo
 	info.ent = ent
 	info.log = false
 	info.mode = "C"
 
-	err := msf.BuildComponents(&info)
+	err := hf.BuildComponents(&info)
 	if err != nil {
 		return err
 	}
 
-	// build the mssql insert query
+	// build the hdb insert query
 	insFlds := "("
 	insVals := "("
 	for k, v := range info.fldMap {
@@ -585,12 +587,12 @@ func (msf *MSSQLFlavor) Create(ent interface{}) error {
 	insFlds = strings.TrimSuffix(insFlds, ", ") + ")"
 	insVals = strings.TrimSuffix(insVals, ", ") + ")"
 
-	// build the mssql insert query
+	// build the hdb insert query
 	insQuery := fmt.Sprintf("INSERT INTO %s %s VALUES %s;", info.tn, insFlds, insVals)
 	fmt.Println(insQuery)
 
 	// attempt the insert and read the result back into info.resultMap
-	result, err := msf.db.Exec(insQuery)
+	result, err := hf.db.Exec(insQuery)
 	if err != nil {
 		return err
 	}
@@ -601,14 +603,14 @@ func (msf *MSSQLFlavor) Create(ent interface{}) error {
 	}
 
 	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s = %v;", info.tn, info.incKeyName, lastID)
-	err = msf.db.QueryRowx(selQuery).MapScan(info.resultMap) // SliceScan
+	err = hf.db.QueryRowx(selQuery).MapScan(info.resultMap) // SliceScan
 	if err != nil {
 		return err
 	}
 
 	// fill the underlying structure of the interface ptr with the
 	// fields returned from the database.
-	err = msf.FormatReturn(&info)
+	err = hf.FormatReturn(&info)
 	if err != nil {
 		return err
 	}
@@ -616,14 +618,14 @@ func (msf *MSSQLFlavor) Create(ent interface{}) error {
 }
 
 // Update an existing entity (single-row) on the database
-func (msf *MSSQLFlavor) Update(ent interface{}) error {
+func (hf *HDBFlavor) Update(ent interface{}) error {
 
 	var info CrudInfo
 	info.ent = ent
 	info.log = false
 	info.mode = "U"
 
-	err := msf.BuildComponents(&info)
+	err := hf.BuildComponents(&info)
 	if err != nil {
 		return err
 	}
@@ -632,7 +634,7 @@ func (msf *MSSQLFlavor) Update(ent interface{}) error {
 	for k, s := range info.keyMap {
 
 		fType := reflect.TypeOf(s).String()
-		if msf.IsLog() {
+		if hf.IsLog() {
 			fmt.Printf("key: %v, value: %v\n", k, s)
 			fmt.Println("TYPE:", fType)
 		}
@@ -655,21 +657,21 @@ func (msf *MSSQLFlavor) Update(ent interface{}) error {
 	fmt.Println(updQuery)
 
 	// attempt the update and check for errors
-	_, err = msf.db.Exec(updQuery)
+	_, err = hf.db.Exec(updQuery)
 	if err != nil {
 		return err
 	}
 
 	// read the updated row
 	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %v;", info.tn, keyList)
-	err = msf.db.QueryRowx(selQuery).MapScan(info.resultMap) // SliceScan
+	err = hf.db.QueryRowx(selQuery).MapScan(info.resultMap) // SliceScan
 	if err != nil {
 		return err
 	}
 
 	// fill the underlying structure of the interface ptr with the
 	// fields returned from the database.
-	err = msf.FormatReturn(&info)
+	err = hf.FormatReturn(&info)
 	if err != nil {
 		return err
 	}

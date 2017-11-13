@@ -70,7 +70,6 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 		inf.tn = strings.ToLower(inf.tn)
 	}
 
-	// insQuery := fmt.Sprintf("INSERT INTO %s", tn)
 	inf.fList = "("
 	inf.vList = "("
 
@@ -411,6 +410,7 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 				} else {
 					fv.SetInt(0)
 				}
+
 			case "uint", "uint8", "uint16", "uint32", "uint64":
 				if !bBlankField {
 					if bByteVal {
@@ -423,18 +423,21 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 				} else {
 					fv.SetInt(0)
 				}
+
 			case "rune":
 				if !bBlankField {
 					fv.Set(reflect.ValueOf(inf.resultMap[ft].(rune)))
 				} else {
 					fv.SetUint(0)
 				}
+
 			case "byte":
 				if !bBlankField {
 					fv.Set(reflect.ValueOf(inf.resultMap[ft].(byte)))
 				} else {
 					fv.SetUint(0)
 				}
+
 			case "float32", "float64":
 				if !bBlankField {
 					if bByteVal {
@@ -447,6 +450,7 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 				} else {
 					fv.SetFloat(0)
 				}
+
 			case "string":
 				if !bBlankField {
 					if bByteVal {
@@ -458,6 +462,7 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 				} else {
 					fv.SetString("")
 				}
+
 			case "time.Time":
 				if !bBlankField {
 					// fv.Set(reflect.ValueOf(inf.resultMap[ft].(time.Time).Local()))
@@ -465,17 +470,18 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 				} else {
 					fv.SetInt(0)
 				}
+
 			case "*time.Time":
 				if !bBlankField {
 					fv.Set(reflect.ValueOf(inf.resultMap[ft].(*time.Time)))
 				} else {
-					fv.SetInt(0)
+					fv
+					.SetInt(0)
 				}
 			default:
 				fmt.Printf("UNSUPPORTED TYPE:%s\n", tp)
-				// try
+				// one could try something like this:		
 				// fv.Set(reflect.ValueOf(resultMap[ft].(stype.Field(i).Type)))
-
 			}
 		} else {
 			fmt.Printf("CANNOT SET %s:\n", fn)

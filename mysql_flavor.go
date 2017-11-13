@@ -450,7 +450,6 @@ func (myf *MySQLFlavor) Create(ent interface{}) error {
 	// build the mysql insert query
 	insQuery := fmt.Sprintf("INSERT INTO %s", info.tn)
 	insQuery = fmt.Sprintf("%s %s VALUES %s;", insQuery, info.fList, info.vList)
-
 	fmt.Println(insQuery)
 
 	// attempt the insert and read the result back into info.resultMap
