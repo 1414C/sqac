@@ -650,14 +650,7 @@ func (msf *MSSQLFlavor) Update(ent interface{}) error {
 	keyList = strings.TrimSuffix(keyList, " AND")
 
 	colList := ""
-	fmt.Println("INFO.FLDMAP contains:", len(info.fldMap))
 	for k, v := range info.fldMap {
-		// if reflect.TypeOf(v).String() == "string" {
-		// 	colList = fmt.Sprintf("%s %s = '%s', ", colList, k, v)
-		// } else {
-		// 	colList = fmt.Sprintf("%s %s = %v, ", colList, k, v)
-		// }
-		fmt.Printf("k: %s, v: %v\n", k, v)
 		colList = fmt.Sprintf("%s %s = %s, ", colList, k, v)
 	}
 	colList = strings.TrimSuffix(colList, ", ")
