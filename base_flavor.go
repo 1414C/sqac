@@ -474,9 +474,12 @@ func (bf *BaseFlavor) ProcessSchema(schema string) {
 	if err != nil {
 		fmt.Println("err:", err)
 	}
+
+	// not all db's support rows affected, so reading it is
+	// for interests sake only.
 	ra, err := result.RowsAffected()
 	if err != nil {
-		fmt.Println("err:", err)
+		return
 	} else {
 		if bf.log {
 			fmt.Printf("%d rows affected.\n", ra)

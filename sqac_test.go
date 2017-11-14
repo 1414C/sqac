@@ -103,7 +103,7 @@ func TestMain(m *testing.M) {
 	case "db2":
 		cs = ""
 	case "hdb":
-		cs = "hdb://SMACLEOD:blockhead@clkhana01-hd1.lab.clockwork.ca:8000"
+		cs = "hdb://SMACLEOD:Blockhead1@clkhana01.lab.clockwork.ca:30047"
 	default:
 		cs = ""
 	}
@@ -128,70 +128,70 @@ func TestGetDBDriverName(t *testing.T) {
 	}
 }
 
-// TestTimeSimple
-//
-// Test time implementation
-func TestTimeSimple(t *testing.T) {
+// // TestTimeSimple
+// //
+// // Test time implementation
+// func TestTimeSimple(t *testing.T) {
 
-	type DepotTime struct {
-		DepotNum       int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		DepotBay       int       `db:"depot_bay" rgen:"primary_key:"`
-		Region         string    `db:"region" rgen:"nullable:false;defalt:YYC"`
-		TimeColUTC     time.Time `db:"time_col_utc" rgen:"nullable:false"`
-		TimeNowLocal   time.Time `db:"time_now_local" rgen:"nullable:false"`
-		TimeNowUTC     time.Time `db:"time_now_utc" rgen:"nullable:false;default:now()"`
-		TimeColNowDflt time.Time `db:"time_col_now_dflt" rgen:"nullable:false;default:now()"`
-		TimeColEot     time.Time `db:"time_col_eot" rgen:"nullable:false;default:eot"`
-	}
+// 	type DepotTime struct {
+// 		DepotNum       int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
+// 		DepotBay       int       `db:"depot_bay" rgen:"primary_key:"`
+// 		Region         string    `db:"region" rgen:"nullable:false;defalt:YYC"`
+// 		TimeColUTC     time.Time `db:"time_col_utc" rgen:"nullable:false"`
+// 		TimeNowLocal   time.Time `db:"time_now_local" rgen:"nullable:false"`
+// 		TimeNowUTC     time.Time `db:"time_now_utc" rgen:"nullable:false;default:now()"`
+// 		TimeColNowDflt time.Time `db:"time_col_now_dflt" rgen:"nullable:false;default:now()"`
+// 		TimeColEot     time.Time `db:"time_col_eot" rgen:"nullable:false;default:eot"`
+// 	}
 
-	// determine the table names as per the
-	// table creation logic
-	tn := reflect.TypeOf(DepotTime{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+// 	// determine the table names as per the
+// 	// table creation logic
+// 	tn := reflect.TypeOf(DepotTime{}).String()
+// 	if strings.Contains(tn, ".") {
+// 		el := strings.Split(tn, ".")
+// 		tn = strings.ToLower(el[len(el)-1])
+// 	} else {
+// 		tn = strings.ToLower(tn)
+// 	}
 
-	// drop table depottime if it exists
-	err := Handle.DropTables(DepotTime{})
-	if err != nil {
-		t.Errorf("%s", err.Error())
-	}
+// 	// drop table depottime if it exists
+// 	err := Handle.DropTables(DepotTime{})
+// 	if err != nil {
+// 		t.Errorf("%s", err.Error())
+// 	}
 
-	// create table depottime
-	err = Handle.CreateTables(DepotTime{})
-	if err != nil {
-		t.Errorf("%s", err.Error())
-	}
+// 	// create table depottime
+// 	err = Handle.CreateTables(DepotTime{})
+// 	if err != nil {
+// 		t.Errorf("%s", err.Error())
+// 	}
 
-	// expect that table depottime exists
-	if !Handle.ExistsTable(tn) {
-		t.Errorf("table %s does not exist", tn)
-	}
+// 	// expect that table depottime exists
+// 	if !Handle.ExistsTable(tn) {
+// 		t.Errorf("table %s does not exist", tn)
+// 	}
 
-	// create a new record via the CRUD Create call
-	var depot = DepotTime{
-		Region:       "YYC",
-		TimeColUTC:   time.Date(1970, 01, 01, 11, 00, 00, 651387237, time.UTC), // time.Now(),
-		TimeNowLocal: time.Now().Local(),
-		TimeNowUTC:   time.Now().UTC(),
-	}
+// 	// create a new record via the CRUD Create call
+// 	var depot = DepotTime{
+// 		Region:       "YYC",
+// 		TimeColUTC:   time.Date(1970, 01, 01, 11, 00, 00, 651387237, time.UTC), // time.Now(),
+// 		TimeNowLocal: time.Now().Local(),
+// 		TimeNowUTC:   time.Now().UTC(),
+// 	}
 
-	err = Handle.Create(&depot)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	fmt.Println("")
+// 	err = Handle.Create(&depot)
+// 	if err != nil {
+// 		t.Errorf(err.Error())
+// 	}
+// 	fmt.Println("")
 
-	if Handle.IsLog() {
-		fmt.Printf("INSERTING: %v\n\n", depot)
-		fmt.Printf("TEST GOT: %v\n\n", depot)
-	}
-	fmt.Printf("TEST GOT: %v\n\n", depot)
-	// os.Exit(0)
-}
+// 	if Handle.IsLog() {
+// 		fmt.Printf("INSERTING: %v\n\n", depot)
+// 		fmt.Printf("TEST GOT: %v\n\n", depot)
+// 	}
+// 	fmt.Printf("TEST GOT: %v\n\n", depot)
+// 	// os.Exit(0)
+// }
 
 // TestExistsTableNegative
 //
@@ -333,7 +333,14 @@ func TestCreateTableWithAlterSequence(t *testing.T) {
 
 	// check the next value of the auto-increment, sequence or
 	// identity field depending on db-system.
-	seq, err := Handle.GetNextSequenceValue(tn)
+	var hdbName string
+	var seq int
+	if Handle.GetDBDriverName() != "hdb" {
+		seq, err = Handle.GetNextSequenceValue(tn)
+	} else {
+		hdbName = tn + "+" + "depot_num"
+		seq, err = Handle.GetNextSequenceValue(hdbName)
+	}
 	if err != nil {
 		t.Errorf(err.Error())
 	}

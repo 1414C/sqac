@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	_ "github.com/SAP/go-hdb/driver"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -81,12 +82,25 @@ func Create(flavor string, logFlag bool, connectionString string) (handle Public
 
 	case "db2":
 
-	case "go-hdb":
+	case "hdb":
+		hdh := new(HDBFlavor)
+		handle = hdh
+		db, err := Open("hdb", "hdb://SMACLEOD:Blockhead1@clkhana01.lab.clockwork.ca:30047")
+		if err != nil {
+			log.Fatalf("%s\n", err.Error())
+			panic(err)
+		}
+		handle.SetDB(db)
+		err = db.Ping()
+		if err != nil {
+			log.Fatalf("%s\n", err.Error())
+			panic(err)
+		}
 
 	default:
 
 	}
-	fmt.Printf("HANDLE: %v", handle)
+	fmt.Printf("HANDLE: %v\n", handle)
 	// detailed logging?
 	if logFlag {
 		handle.Log(true)

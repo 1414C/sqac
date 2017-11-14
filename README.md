@@ -56,3 +56,6 @@ SQLite stores timestamps as UTC, so clients would need to convert back to the lo
 Consider saving all time as UTC
 Consider converting all time reads as Local
 This is not perfect, as hand-written SQL will not pass the requests through the CrudInfo conversions.  Problem.
+
+
+- HDB ExistsTable should include SCHEMA field in selection?
