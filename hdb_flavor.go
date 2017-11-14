@@ -49,6 +49,91 @@ type HDBFlavor struct {
 // - pg now() equivalent
 // - pg make_timestamptz(9999, 12, 31, 23, 59, 59.9) equivalent
 
+//=======================================================================================
+// SQL Commands
+//=======================================================================================
+
+// SELECT Column, Column, COUNT(*)
+//	FROM  Table
+//	WHERE Condition
+//	GROUP BY Column, Column
+// 	HAVING Group_Condition
+//	ORDER BY Column ASC, Column DESC;
+
+// SELECT a, 'b', "c", 1, '2', "3" FROM "4";
+//
+//	a -> existing column
+//  'b' -> artificial result column
+//	"c" -> existing column named c
+//	1	-> artificial column with 1 as a numeric constant
+//	'2' -> artificial result column with string 2 as value in each row
+//	"3"	-> existing column named 3
+//	"4"	-> existing table named 4
+
+// SELECT Name, Overtime * 60 FROM Official;
+// SELECT Name, ADD_YEARS(Birthday, 18) As "18th Birthday" FROM Owner;
+// SELECT Name, DAYNAME(ADD_YEARS(Birthday, ROUND(ABS(-18.2)))) AS Weekday FROM Owner;
+
+// YEAR(Date) 						-> Year
+// ADD_YEARS(Date, n)				-> n years later
+// DAYNAME(Date)					-> weekday
+// CURRENT_DATE						-> current date
+// ABS(Number)						-> absolute value
+// ROUND(Number)					-> rounding
+// SQRT(Number)						-> square root
+// UPPER(String)					-> convert to upper case
+// SUBSTR(String, Start, Length)	-> cut out of a string (substring)
+// LENGTH(String)                   -> length of a string
+
+// SELECT Official.Name FROM Official;
+
+// INSERT INTO Table VALUES (Value, Value, Value);
+// INSERT INTO Table(Column, Column) VALUES (Value, Value);
+
+// UPDATE Table SET Column = Value, Column = Value, Column = Value WHERE Condition;
+
+// DELETE FROM Table WHERE Condition;
+//=======================================================================================
+
+//=======================================================================================
+// DDL
+//=======================================================================================
+//
+// data-types
+//
+// TINYINT			-> 0 - 255
+// SMALLINT			-> -32768 - 32767
+// INTEGER			-> -2147483648 - 2147483647
+// BIGINT			-> big ....
+//
+// -> DECIMAL(p,s)
+// SMALLDECIMAL		-> -369 to 368
+// DECIMAL			-> -6111 to 6176
+// REAL				-> 32-bit
+// DOUBLE			-> 64-bit
+//
+// VARCHAR(n)		-> ASCII string maxlen (n <= 5000)
+// NVARCHAR(n)		-> Unicode string maxlen (n <= 5000)
+// ALPHANUM			-> Alpanumeric (n <= 127)
+// SHORTTEXT		-> Unicode string maxlen (n <= 5000) special text/string search features
+//
+// DATE				-> 'YYYY-MM-DD'
+// TIME				-> 'HH:MM:SS'
+// SECONDDATE		-> 'YYYY-MM-DD HH:MM:SS'
+// TIMESTAMP		-> '2012-05-21 18:00:57.1234567'
+//
+// VARBINARY		-> binary data maxlen (n <= 5000)
+// BLOB				-> blob (max 2Gb)
+// CLOB				-> long ASCII character string (max 2Gb)
+// NCLOB			-> long unicode character string (max 2Gb)
+// TEXT				-> long unicode character string (max 2Gb)
+//
+//
+// CREATE COLUMN
+// ALTER TABLE
+// RENAME TABLE
+// DROP TABLE
+
 // CreateTables creates tables on the mysql database referenced
 // by hf.DB.
 func (hf *HDBFlavor) CreateTables(i ...interface{}) error {
