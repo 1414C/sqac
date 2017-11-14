@@ -238,9 +238,9 @@ func (hf *HDBFlavor) CreateTables(i ...interface{}) error {
 		tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
 		if strings.Contains(tn, ".") {
 			el := strings.Split(tn, ".")
-			tn = strings.ToUpper(el[len(el)-1])
+			tn = strings.ToLower(el[len(el)-1])
 		} else {
-			tn = strings.ToUpper(tn)
+			tn = strings.ToLower(tn)
 		}
 		if tn == "" {
 			return fmt.Errorf("unable to determine table name in myf.CreateTables")
@@ -284,9 +284,9 @@ func (hf *HDBFlavor) AlterTables(i ...interface{}) error {
 		tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
 		if strings.Contains(tn, ".") {
 			el := strings.Split(tn, ".")
-			tn = strings.ToUpper(el[len(el)-1])
+			tn = strings.ToLower(el[len(el)-1])
 		} else {
-			tn = strings.ToUpper(tn)
+			tn = strings.ToLower(tn)
 		}
 		if tn == "" {
 			return fmt.Errorf("unable to determine table name in hf.AlterTables")
@@ -712,43 +712,40 @@ func (hf *HDBFlavor) DestructiveResetTables(i ...interface{}) error {
 // and then assigns the resulting values to tn and fn respectively.
 func (hf *HDBFlavor) getSequenceName(name string) (seqName string, err error) {
 
-	type seqMeta struct {
-		columnName string
-		columnID   int64
-	}
-	var seqInfo seqMeta
-
 	// need table and column name - set as tn+fn in name
 	tn := ""
 	fn := ""
+	var colID int
 
 	names := strings.Split(name, "+")
 	fmt.Printf("CHECK: names: %v\n", names)
 	if len(names) == 2 {
-		tn = names[0]
-		fn = names[1]
+		tn = strings.ToUpper(names[0])
+		fn = strings.ToUpper(names[1])
 	} else {
 		return "", fmt.Errorf("expected table_name and field_name: got %v", names)
 	}
 
 	fmt.Printf("CHECK tn: %s, fn: %s\n", tn, fn)
 	// identify the column_id associated with the sequence
-	seqQuery := fmt.Sprintf("SELECT column_name, column_id FROM table_columns WHERE table_name = '%s'", tn)
+	seqQuery := fmt.Sprintf("SELECT column_id FROM table_columns WHERE table_name = '%s' and column_name = '%s';", tn, fn)
 	fmt.Println("CHECK: ", seqQuery)
-	err = hf.db.QueryRow(seqQuery).Scan(&seqInfo)
+	err = hf.db.QueryRowx(seqQuery).Scan(&colID)
 	if err != nil {
-		fmt.Println("CHECK: ERROR1")
+		fmt.Println("CHECK: ERROR1", err)
+		fmt.Println("CHECK: ", colID)
 		return "", err
 	}
-	fmt.Printf("CHECK: seqInfo: %v\n", seqInfo)
+	fmt.Printf("CHECK: colID: %v\n", colID)
 
-	if seqInfo.columnName == "" {
+	if colID == 0 {
 		return "", fmt.Errorf("could not find sequence for table %s / field %s", tn, fn)
 	}
 
 	// identify the requested sequence's name
-	seqSearchVal := fmt.Sprintf("%%%v%%", seqInfo.columnID) // % escapes %
-	seqNameQuery := fmt.Sprintf("SELECT sequence_name FROM Sys.Sequences WHERE SEQUENCE_NAME LIKE %s", seqSearchVal)
+	seqSearchVal := fmt.Sprintf("%%%v%%", colID) // % escapes %
+	seqNameQuery := fmt.Sprintf("SELECT sequence_name FROM Sys.Sequences WHERE SEQUENCE_NAME LIKE '%s'", seqSearchVal)
+	fmt.Println("CHECK: ", seqNameQuery)
 	err = hf.db.QueryRow(seqNameQuery).Scan(&seqName)
 	if err != nil {
 		return "", err
@@ -769,6 +766,7 @@ func (hf *HDBFlavor) AlterSequenceStart(name string, start int) error {
 
 	// alter the start and min values of the sequence
 	alterSequenceSchema := fmt.Sprintf("ALTER SEQUENCE %s RESTART WITH %d", seqName, start)
+	fmt.Println("CHECK: ", alterSequenceSchema)
 	hf.ProcessSchema(alterSequenceSchema)
 
 	// SELECT NEXTVAL so that subsequent calls to CURRVAL return the new start value
