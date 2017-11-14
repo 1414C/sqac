@@ -240,6 +240,9 @@ func (bf *BaseFlavor) GetDBQuote() string {
 	case "mssql":
 		return ""
 
+	case "hdb":
+		return ""
+
 	default:
 		return CDblQuote
 	}
