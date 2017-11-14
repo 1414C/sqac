@@ -475,12 +475,11 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 				if !bBlankField {
 					fv.Set(reflect.ValueOf(inf.resultMap[ft].(*time.Time)))
 				} else {
-					fv
-					.SetInt(0)
+					fv.SetInt(0)
 				}
 			default:
 				fmt.Printf("UNSUPPORTED TYPE:%s\n", tp)
-				// one could try something like this:		
+				// one could try something like this:
 				// fv.Set(reflect.ValueOf(resultMap[ft].(stype.Field(i).Type)))
 			}
 		} else {
