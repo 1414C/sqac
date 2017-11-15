@@ -433,7 +433,7 @@ func TestExistsIndexNegative(t *testing.T) {
 
 	type Depot struct {
 		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
+		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now()"`
 		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
 		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
 		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
@@ -463,8 +463,8 @@ func TestExistsIndexNegative(t *testing.T) {
 		t.Errorf("table %s does not exist", tn)
 	}
 
-	if Handle.ExistsIndex(tn, "idx_province_country") {
-		t.Errorf("index %s was found on table %s, but was not expected", "idx_province_country", tn)
+	if Handle.ExistsIndex(tn, "idx_depot_province_country") {
+		t.Errorf("index %s was found on table %s, but was not expected", "idx_depot_province_country", tn)
 	}
 
 	// drop the depot table
@@ -474,16 +474,114 @@ func TestExistsIndexNegative(t *testing.T) {
 	}
 }
 
-// TestCreateIndex
+// TestCreateSingleUniqueIndexFromModel
 //
 // Create table depot via CreateTables(i ...interface{})
-// Create an index not based on model attributes, but
-// based on a constructed sqac.IndexInfo struct.
-func TestCreateIndex(t *testing.T) {
+// Create a single-field unique index based on model
+// attributes.
+func TestCreateSingleUniqueIndexFromModel(t *testing.T) {
 
 	type Depot struct {
 		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
 		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
+		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
+		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
+		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
+		NewColumn1 string    `db:"new_column1" rgen:"nullable:false"`
+		NewColumn2 int64     `db:"new_column2" rgen:"nullable:false;default:0"`
+		NewColumn3 float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
+	}
+
+	err := Handle.CreateTables(Depot{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// determine the table name as per the
+	// table creation logic
+	tn := reflect.TypeOf(Depot{}).String()
+	if strings.Contains(tn, ".") {
+		el := strings.Split(tn, ".")
+		tn = strings.ToLower(el[len(el)-1])
+	} else {
+		tn = strings.ToLower(tn)
+	}
+
+	// expect that table depot exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s was not created", tn)
+	}
+
+	if !Handle.ExistsIndex(tn, "idx_depot_create_date") {
+		t.Errorf("expected unique index idx_depot_create_date - got: ")
+	}
+
+	// drop the depot table
+	err = Handle.DropTables(Depot{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+}
+
+// TestCreateSingleNonUniqueIndexFromModel
+//
+// Create table depot via CreateTables(i ...interface{})
+// Create a single-field non-unique index based on model
+// attributes.
+func TestCreateSingleNonUniqueIndexFromModel(t *testing.T) {
+
+	type Depot struct {
+		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
+		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();index:non-unique"`
+		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
+		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
+		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
+		NewColumn1 string    `db:"new_column1" rgen:"nullable:false"`
+		NewColumn2 int64     `db:"new_column2" rgen:"nullable:false;default:0"`
+		NewColumn3 float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
+	}
+
+	err := Handle.CreateTables(Depot{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// determine the table name as per the
+	// table creation logic
+	tn := reflect.TypeOf(Depot{}).String()
+	if strings.Contains(tn, ".") {
+		el := strings.Split(tn, ".")
+		tn = strings.ToLower(el[len(el)-1])
+	} else {
+		tn = strings.ToLower(tn)
+	}
+
+	// expect that table depot exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s was not created", tn)
+	}
+
+	if !Handle.ExistsIndex(tn, "idx_depot_create_date") {
+		t.Errorf("expected unique index idx_depot_create_date - got: ")
+	}
+
+	// drop the depot table
+	err = Handle.DropTables(Depot{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+}
+
+// TestCreateSimpleCompositeIndex
+//
+// Create table depot via CreateTables(i ...interface{})
+// Create an index not based on model attributes, but
+// based on a constructed sqac.IndexInfo struct.
+func TestCreateSimpleCompositeIndex(t *testing.T) {
+
+	type Depot struct {
+		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
+		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now()"`
 		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
 		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
 		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
@@ -615,20 +713,21 @@ func TestDropIndex(t *testing.T) {
 	}
 }
 
-// TestCreateIndex
+// TestCreateCompositeIndexFromModel
 //
 // Create table depot via CreateTables(i ...interface{})
-// Create index idx_depot_region based on model attributes.
-func TestCreateSimpleIndexViaModelAttributes(t *testing.T) {
+// Create an index not based on model attributes, but
+// based on a constructed sqac.IndexInfo struct.
+func TestCreateCompositeIndexFromModel(t *testing.T) {
 
 	type Depot struct {
 		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
-		Region     string    `db:"region" rgen:"nullable:false;default:YYC;index:non-unique"`
+		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now()"`
+		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
 		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
 		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
-		NewColumn1 string    `db:"new_column1" rgen:"nullable:false"`
-		NewColumn2 int64     `db:"new_column2" rgen:"nullable:false;default:0"`
+		NewColumn1 string    `db:"new_column1" rgen:"nullable:false;index:idx_depot_new_column1_new_column2"`
+		NewColumn2 int64     `db:"new_column2" rgen:"nullable:false;default:0;index:idx_depot_new_column1_new_column2"`
 		NewColumn3 float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
 	}
 
@@ -652,8 +751,13 @@ func TestCreateSimpleIndexViaModelAttributes(t *testing.T) {
 		t.Errorf("table %s was not created", tn)
 	}
 
-	if !Handle.ExistsIndex(tn, "idx_depot_region") {
-		t.Errorf("index %s was not found on table %s", "idx_depot_region", tn)
+	if !Handle.ExistsIndex(tn, "idx_depot_new_column1_new_column2") {
+		t.Errorf("index %s was not found on table %s", "idx_depot_new_column1_new_column2", tn)
+	}
+
+	err = Handle.DropTables(Depot{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
 	}
 }
 
@@ -673,9 +777,6 @@ func TestExistsColumn(t *testing.T) {
 		Region     string    `db:"region" rgen:"nullable:false;default:YYC;index:non-unique"`
 		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
 		Country    string    `db:"country" rgen:"nullable:true;default:CA"`
-		NewColumn1 string    `db:"new_column1" rgen:"nullable:false"`
-		NewColumn2 int64     `db:"new_column2" rgen:"nullable:false"`
-		NewColumn3 float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
 	}
 
 	// determine the table name as per the
@@ -744,6 +845,19 @@ func TestAlterTables(t *testing.T) {
 	} else {
 		tn = strings.ToLower(tn)
 	}
+
+	if !Handle.ExistsColumn("depot", "new_column1") {
+		t.Errorf("new_column1 was expected to exist but does not ")
+	}
+
+	if !Handle.ExistsColumn("depot", "new_column2") {
+		t.Errorf("new_column2 was expected to exist but does not ")
+	}
+
+	if !Handle.ExistsColumn("depot", "new_column3") {
+		t.Errorf("new_column3 was expected to exist but does not ")
+	}
+
 	r := Handle.ExistsIndex(tn, "idx_new_column2_new_column3")
 	if r == false {
 		t.Errorf("index idx_new_column2_new_column3 was not not found following alter table call on table %s", tn)

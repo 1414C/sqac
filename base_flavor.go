@@ -24,6 +24,7 @@ type ColComponents struct {
 	fType       string
 	fPrimaryKey string
 	fAutoInc    bool // not used for Postgres
+	fStart      int  // only used for HDB
 	fDefault    string
 	fNullable   string
 }
