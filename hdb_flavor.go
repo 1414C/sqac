@@ -763,7 +763,8 @@ func (hf *HDBFlavor) getSequenceName(name string) (seqName string, err error) {
 
 // GetNextSequenceValue is used primarily for testing.  It returns
 // the next value of the named HDB identity (auto-increment) field
-// in the named table.
+// in the named table.  this is not a reliable way to get the inserted
+// id in a multi-transaction environment.
 func (hf *HDBFlavor) GetNextSequenceValue(name string) (int, error) {
 
 	// determine the sequence name
@@ -773,13 +774,13 @@ func (hf *HDBFlavor) GetNextSequenceValue(name string) (int, error) {
 	}
 	// fmt.Println("CHECK: seqName:", seqName)
 
-	var currVal int
-	currQuery := fmt.Sprintf("SELECT %s.NEXTVAL FROM dummy;", seqName)
-	err = hf.db.QueryRow(currQuery).Scan(&currVal)
+	var nextVal int
+	nextQuery := fmt.Sprintf("SELECT %s.NEXTVAL FROM dummy;", seqName)
+	err = hf.db.QueryRow(nextQuery).Scan(&nextVal)
 	if err != nil {
 		return 0, err
 	}
-	return currVal, nil
+	return nextVal, nil
 }
 
 //================================================================
