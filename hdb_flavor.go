@@ -823,6 +823,7 @@ func (hf *HDBFlavor) Create(ent interface{}) error {
 	}
 
 	lastID, err := result.LastInsertId()
+	fmt.Printf("lastID: %v\n", lastID)
 	if err != nil {
 		return err
 	}

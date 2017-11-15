@@ -953,6 +953,11 @@ func TestDestructiveResetTables(t *testing.T) {
 	if len(e) > 0 {
 		t.Errorf("table equipment contained records after attempted DestructiveReset - got %v\n", d)
 	}
+
+	err = Handle.DropTables(Depot{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
 }
 
 // TestNullableValues
@@ -999,8 +1004,8 @@ func TestNullableValues(t *testing.T) {
 		Active     bool      `db:"active" rgen:"nullable:true"`      // nullable
 	}
 
-	// drop and recreate table depot via DestructiveReset
-	err := Handle.DestructiveResetTables(Depot{})
+	// create table depot
+	err := Handle.CreateTables(Depot{})
 	if err != nil {
 		t.Errorf("%s", err.Error())
 	}
@@ -1030,6 +1035,8 @@ func TestNullableValues(t *testing.T) {
 		insQuery = "INSERT INTO depot (region, province) VALUES ('YVR','AB');"
 	case "mssql":
 		// INSERT INTO Persons(name, age) values('Bob', 20)
+		insQuery = "INSERT INTO depot (region, province) VALUES ('YVR','AB');"
+	case "hdb":
 		insQuery = "INSERT INTO depot (region, province) VALUES ('YVR','AB');"
 	default:
 		insQuery = "INSERT INTO depot (depot_num, region, province) VALUES (DEFAULT, 'YVR','AB');"

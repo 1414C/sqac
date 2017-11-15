@@ -2,7 +2,9 @@ package sqac
 
 import (
 	"fmt"
+	"github.com/jmoiron/sqlx/reflectx"
 	"log"
+	"strings"
 
 	_ "github.com/SAP/go-hdb/driver"
 	"github.com/jmoiron/sqlx"
@@ -90,6 +92,13 @@ func Create(flavor string, logFlag bool, connectionString string) (handle Public
 			log.Fatalf("%s\n", err.Error())
 			panic(err)
 		}
+
+		// hdb shifts defs to upper-case if the DDL omits parentheses around the column /
+		// table / view names. this is the SAP recommended approach to DDL definition,
+		// so set the mapper to perform the shift in order to allow mapping of query results.
+		db.Mapper = reflectx.NewMapperTagFunc("db", nil, func(s string) string {
+			return strings.ToUpper(s)
+		})
 		handle.SetDB(db)
 		err = db.Ping()
 		if err != nil {
