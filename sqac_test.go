@@ -338,7 +338,7 @@ func TestCreateTableWithAlterSequence(t *testing.T) {
 	if Handle.GetDBDriverName() != "hdb" {
 		seq, err = Handle.GetNextSequenceValue(tn)
 	} else {
-		hdbName = tn + "+" + "depot_num"
+		hdbName = fmt.Sprintf("SEQ_%s_%s", strings.ToUpper(tn), "DEPOT_NUM")
 		seq, err = Handle.GetNextSequenceValue(hdbName)
 	}
 	if err != nil {
@@ -1037,13 +1037,14 @@ func TestNullableValues(t *testing.T) {
 		// INSERT INTO Persons(name, age) values('Bob', 20)
 		insQuery = "INSERT INTO depot (region, province) VALUES ('YVR','AB');"
 	case "hdb":
-		incKey := 0
+		var incKey int
 		keyQuery := "SELECT SEQ_DEPOT_DEPOT_NUM.NEXTVAL FROM DUMMY;"
 		err = Handle.ExecuteQueryRowx(keyQuery).Scan(&incKey)
 		if err != nil {
+			fmt.Println("ERRORRRRRRRRR!")
 			t.Errorf(err.Error())
 		}
-		insQuery = fmt.Sprintf("INSERT INTO depot (depot_num, region, province) VALUES ('%d, YVR','AB');", incKey)
+		insQuery = fmt.Sprintf("INSERT INTO depot (depot_num, region, province) VALUES (%d, 'YVR','AB');", incKey)
 	default:
 		insQuery = "INSERT INTO depot (depot_num, region, province) VALUES (DEFAULT, 'YVR','AB');"
 	}

@@ -514,7 +514,9 @@ func (bf *BaseFlavor) ExecuteQueryRow(queryString string, qParams ...interface{}
 // against the connected DB using sql/database.
 func (bf *BaseFlavor) ExecuteQuery(queryString string, qParams ...interface{}) (*sql.Rows, error) {
 
-	queryString = bf.db.Rebind(queryString)
+	if qParams != nil {
+		queryString = bf.db.Rebind(queryString)
+	}
 	rows, err := bf.db.Query(queryString, qParams)
 	if err != nil {
 		return nil, err
@@ -526,9 +528,11 @@ func (bf *BaseFlavor) ExecuteQuery(queryString string, qParams ...interface{}) (
 // against the connected DB using sqlx.
 func (bf *BaseFlavor) ExecuteQueryRowx(queryString string, qParams ...interface{}) *sqlx.Row {
 
-	queryString = bf.db.Rebind(queryString)
-	row := bf.db.QueryRowx(queryString, qParams)
-	return row
+	if qParams != nil {
+		queryString = bf.db.Rebind(queryString)
+		return bf.db.QueryRowx(queryString, qParams)
+	}
+	return bf.db.QueryRowx(queryString)
 }
 
 // ExecuteQueryx processes the multi-row query contained in queryString

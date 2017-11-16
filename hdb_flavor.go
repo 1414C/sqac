@@ -293,9 +293,9 @@ func (hf *HDBFlavor) CreateTables(i ...interface{}) error {
 			hf.CreateSequence(seqDef.SeqName, seqDef.Start)
 			// delete the existing procedure if it exists
 			// create a new procedure
-			for _, v := range tc.flDef {
-				fmt.Println("fldef:", v)
-			}
+			// for _, v := range tc.flDef {
+			// 	fmt.Println("fldef:", v)
+			// }
 			// create a procedure
 			// err = hf.createInsertSP(*seqDef, tc.flDef)
 			// if err != nil {
@@ -937,16 +937,9 @@ func (hf *HDBFlavor) DropSequence(sn string) error {
 // id in a multi-transaction environment.
 func (hf *HDBFlavor) GetNextSequenceValue(name string) (int, error) {
 
-	// determine the sequence name
-	seqName, err := hf.getSequenceName(name)
-	if err != nil {
-		return 0, err
-	}
-	// fmt.Println("CHECK: seqName:", seqName)
-
 	var nextVal int
-	nextQuery := fmt.Sprintf("SELECT %s.NEXTVAL FROM dummy;", seqName)
-	err = hf.db.QueryRow(nextQuery).Scan(&nextVal)
+	nextQuery := fmt.Sprintf("SELECT %s.NEXTVAL FROM dummy;", name)
+	err := hf.db.QueryRow(nextQuery).Scan(&nextVal)
 	if err != nil {
 		return 0, err
 	}
@@ -976,7 +969,6 @@ func (hf *HDBFlavor) Create(ent interface{}) error {
 	insVals := "("
 	fmt.Println("info.incKeyName:", info.incKeyName)
 	for k, v := range info.fldMap {
-		fmt.Printf("CREATE k: %s, CREATE v: %v\n", k, v)
 
 		// pull an id - this is ugly, but hdb does not have a reliable
 		// mechanism to report a new row-id.  Dynamic SQL in a SP may
