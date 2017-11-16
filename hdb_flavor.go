@@ -1019,10 +1019,12 @@ func (hf *HDBFlavor) Create(ent interface{}) error {
 		return err
 	}
 
-	// Push K to lower-case
+	// Push k to lower-case
+	rm := make(map[string]interface{})
 	for k, v := range info.resultMap {
-		fmt.Printf("GOT: k: %s , v: %v\n", k, v)
+		rm[strings.ToLower(k)] = v
 	}
+	info.resultMap = rm
 
 	// fill the underlying structure of the interface ptr with the
 	// fields returned from the database.
@@ -1084,6 +1086,13 @@ func (hf *HDBFlavor) Update(ent interface{}) error {
 	if err != nil {
 		return err
 	}
+
+	// Push k to lower-case
+	rm := make(map[string]interface{})
+	for k, v := range info.resultMap {
+		rm[strings.ToLower(k)] = v
+	}
+	info.resultMap = rm
 
 	// fill the underlying structure of the interface ptr with the
 	// fields returned from the database.

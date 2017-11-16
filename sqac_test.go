@@ -1030,14 +1030,20 @@ func TestNullableValues(t *testing.T) {
 	insQuery := ""
 	switch Handle.GetDBDriverName() {
 	case "postgres", "mysql":
-		insQuery = "INSERT INTO depot (depot_num, region, province) VALUES (DEFAULT,'YVR','AB');"
+		insQuery = "INSERT INTO depot (depot_num, region, province) VALUES (EFAULT,'YVR','AB');"
 	case "sqlite3":
 		insQuery = "INSERT INTO depot (region, province) VALUES ('YVR','AB');"
 	case "mssql":
 		// INSERT INTO Persons(name, age) values('Bob', 20)
 		insQuery = "INSERT INTO depot (region, province) VALUES ('YVR','AB');"
 	case "hdb":
-		insQuery = "INSERT INTO depot (region, province) VALUES ('YVR','AB');"
+		incKey := 0
+		keyQuery := "SELECT SEQ_DEPOT_DEPOT_NUM.NEXTVAL FROM DUMMY;"
+		err = hf.db.QueryRowx(keyQuery).Scan(&incKey)
+		if err != nil {
+			return err
+		}
+		insQuery = fmt.Sprintf("INSERT INTO depot (depot_num, region, province) VALUES ('%d, YVR','AB');", incKey)
 	default:
 		insQuery = "INSERT INTO depot (depot_num, region, province) VALUES (DEFAULT, 'YVR','AB');"
 	}
