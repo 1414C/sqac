@@ -405,6 +405,7 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 						f, _ := strconv.ParseInt(s, 10, 64)
 						fv.SetInt(f)
 					} else {
+						fmt.Println("FN:", fn)
 						fv.SetInt(inf.resultMap[ft].(int64))
 					}
 				} else {

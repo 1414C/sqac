@@ -1,10 +1,12 @@
 package sqac
 
 import (
+	"bytes"
 	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
+	"text/template"
 )
 
 // HDBFlavor is a SAP Hana-specific implementation, where
@@ -161,7 +163,7 @@ type HDBFlavor struct {
 //  | <datetime_value_function>
 //
 // <datetime_value_function> ::=
-//  CURRENT_DATE
+//  | CURRENT_DATE
 //  | CURRENT_TIME
 //  | CURRENT_TIMESTAMP
 //  | CURRENT_UTCDATE
@@ -223,6 +225,13 @@ type HDBFlavor struct {
 // Sys.Index_Columns
 //
 
+type hdbSeqTyp struct {
+	TableName string
+	FieldName string
+	Start     int
+	SeqName   string
+}
+
 // CreateTables creates tables on the mysql database referenced
 // by hf.DB.
 func (hf *HDBFlavor) CreateTables(i ...interface{}) error {
@@ -261,13 +270,111 @@ func (hf *HDBFlavor) CreateTables(i ...interface{}) error {
 		// create the table on the db
 		fmt.Println("DDL:", tc.tblSchema)
 		hf.db.MustExec(tc.tblSchema)
-		// for _, sq := range tc.seq {
-		// 	start, _ := strconv.Atoi(sq.Value)
-		// 	hf.AlterSequenceStart(sq.Name, start)
-		// }
+
+		// deal with the auto-incrementing by creating sequence manually
+		for _, sq := range tc.seq {
+			fmt.Printf("sequenceVals: %v\n", sq)
+			vals := strings.Split(sq.Value, " ")
+			if len(vals) != 4 {
+				return fmt.Errorf("insufficient information to create sequence %s - got %v", sq.Name, sq.Value)
+			}
+
+			start, err := strconv.Atoi(vals[2])
+			if err != nil {
+				return fmt.Errorf("%v is not a valid start value for sequence %s", vals[2], sq.Name)
+			}
+
+			seqDef := &hdbSeqTyp{
+				TableName: strings.Replace(vals[0], "{", "", 1),
+				FieldName: vals[1],
+				Start:     start,
+				SeqName:   strings.Replace(vals[3], "}", "", 1),
+			}
+			hf.CreateSequence(seqDef.SeqName, seqDef.Start)
+			// delete the existing procedure if it exists
+			// create a new procedure
+			for _, v := range tc.flDef {
+				fmt.Println("fldef:", v)
+			}
+			// create a procedure
+			// err = hf.createInsertSP(*seqDef, tc.flDef)
+			// if err != nil {
+			// 	return err
+			// }
+			// // procName := "procINSERT" + tn
+			// procDDL := `CREATE PROCEDURE procINSERTDEPOT(
+			// 			  IN col_one VARCHAR(255),
+			// 			  IN col_two INTEGER,
+			// 			  OUT id     INTEGER)
+			// 			  LANGUAGE SQLSCRIPT AS
+			// 			  BEGIN
+			// 				id := 42;
+			// 			  END;
+			// `
+			// fmt.Println(procDDL)
+
+			// // attempt to create the procedure on the db
+			// _, err = hf.db.Exec(procDDL)
+			// if err != nil {
+			// 	panic(err)
+			// }
+		}
 		for k, in := range tc.ind {
 			hf.CreateIndex(k, in)
 		}
+	}
+	return nil
+}
+
+func (hf *HDBFlavor) createInsertSP(seqDef hdbSeqTyp, fldef []FieldDef) error {
+
+	type tmplDataTyp struct {
+		Header hdbSeqTyp
+		Fields []FieldDef
+	}
+
+	var tmplData tmplDataTyp
+	tmplData.Header = seqDef
+	tmplData.Fields = fldef
+
+	fmt.Println("seqDef:", seqDef)
+	for _, v := range fldef {
+		fmt.Println(v)
+	}
+
+	spTemplate := template.New("Entity Insert SP")
+	spTemplate, err := template.ParseFiles("templates/createInsertSP.gotmpl")
+	if err != nil {
+		return err
+	}
+
+	var buf bytes.Buffer
+
+	err = spTemplate.Execute(&buf, tmplData)
+	if err != nil {
+		return err
+	}
+
+	procDDL := buf.String()
+	fmt.Println(procDDL)
+
+	// procName := "procInsert" + seqDef.tableName
+	// procDDL := fmt.Sprintf(`CREATE PROCEDURE SMACLEOD.%s(
+	// 						  IN col_one VARCHAR(255),
+	// 						  IN col_two INTEGER,
+	// 						  OUT id	 INTEGER)
+	// 						  LANGUAGE SQLSCRIPT AS
+	// 						  BEGIN
+	//                             SELECT
+
+	// 						  END;
+
+	// 	`, procName)
+
+	// attempt to create the procedure on the db
+	_, err = hf.db.Exec(procDDL)
+	if err != nil {
+		return err
 	}
 	return nil
 }
@@ -384,6 +491,8 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 	qt := hf.GetDBQuote()
 	pKeys := ""
 	var sequences []RgenPair
+	var hdbSeq hdbSeqTyp
+
 	indexes := make(map[string]IndexInfo)
 	tableSchema := fmt.Sprintf("CREATE COLUMN TABLE %s%s%s (", qt, tn, qt)
 
@@ -410,6 +519,7 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 		col.fPrimaryKey = ""
 		col.fDefault = ""
 		col.fNullable = ""
+		col.fStart = 0
 
 		// https://stackoverflow.com/questions/168736/how-do-you-set-a-default-value-for-a-mysql-datetime-column
 
@@ -465,6 +575,9 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 					pKeys = fmt.Sprintf("%s %s%s%s,", pKeys, qt, fd.FName, qt)
 
 					if p.Value == "inc" {
+						hdbSeq.TableName = strings.ToUpper(tn)
+						hdbSeq.FieldName = strings.ToUpper(fd.FName)
+						hdbSeq.SeqName = fmt.Sprintf("SEQ_%s_%s", hdbSeq.TableName, hdbSeq.FieldName)
 						col.fAutoInc = true
 					}
 
@@ -474,8 +587,9 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 						panic(err)
 					}
 					if seqName == "" && start > 0 {
-						seqName = tn + "+" + fd.FName
-						sequences = append(sequences, RgenPair{Name: seqName, Value: p.Value})
+						hdbSeq.Start = start
+						sequences = append(sequences, RgenPair{Name: hdbSeq.SeqName, Value: fmt.Sprintf("%v", hdbSeq)}) //Value: p.Value})
+						hdbSeq = hdbSeqTyp{}
 						col.fStart = start
 					}
 
@@ -553,10 +667,10 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 		// add the current column to the schema
 		tableSchema = tableSchema + fmt.Sprintf("%s%s%s %s", qt, col.fName, qt, col.fType)
 		if col.fAutoInc == true {
-			tableSchema = tableSchema + " GENERATED BY DEFAULT AS IDENTITY"
-			if col.fStart > 1 {
-				tableSchema = fmt.Sprintf("%s (START WITH %d)", tableSchema, col.fStart)
-			}
+			//tableSchema = tableSchema + " GENERATED BY DEFAULT AS IDENTITY"
+			//if col.fStart > 1 {
+			//	tableSchema = fmt.Sprintf("%s (START WITH %d)", tableSchema, col.fStart)
+			//}
 		}
 		if col.fNullable != "" {
 			tableSchema = tableSchema + " " + col.fNullable
@@ -761,6 +875,62 @@ func (hf *HDBFlavor) getSequenceName(name string) (seqName string, err error) {
 	return seqName, nil
 }
 
+// ExistsSequence is used to check for the existence of the named
+// sequence in HDB.
+func (hf *HDBFlavor) ExistsSequence(sn string) bool {
+
+	seqCount := 0
+
+	// search for sequence by name
+	seqNameQuery := fmt.Sprintf("SELECT COUNT(*) FROM Sys.Sequences WHERE SEQUENCE_NAME = '%s'", sn)
+	err := hf.db.QueryRow(seqNameQuery).Scan(&seqCount)
+	if err != nil {
+		panic(err)
+	}
+	if seqCount > 0 {
+		return true
+	}
+	return false
+}
+
+// CreateSequence is used to create a sequence for use with HDB
+// Identity columns.
+func (hf *HDBFlavor) CreateSequence(sn string, start int) {
+
+	// check for and drop existing sequence if exists
+	if hf.ExistsSequence(sn) {
+		err := hf.DropSequence(sn)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	// build the sequence creation DDL
+	crtSequence := fmt.Sprintf("CREATE SEQUENCE %s START WITH %d INCREMENT BY 1;", sn, start)
+	fmt.Println(crtSequence)
+
+	// attempt to create the sequence on the db
+	_, err := hf.db.Exec(crtSequence)
+	if err != nil {
+		panic(err)
+	}
+}
+
+// DropSequence is used to drop an existing sequence in HDB.
+func (hf *HDBFlavor) DropSequence(sn string) error {
+
+	// build the sequence creation DDL
+	dropSequence := fmt.Sprintf("DROP SEQUENCE %s;", sn)
+	fmt.Println(dropSequence)
+
+	// attempt to drop the sequence from the db
+	_, err := hf.db.Exec(dropSequence)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // GetNextSequenceValue is used primarily for testing.  It returns
 // the next value of the named HDB identity (auto-increment) field
 // in the named table.  this is not a reliable way to get the inserted
@@ -794,6 +964,7 @@ func (hf *HDBFlavor) Create(ent interface{}) error {
 	info.ent = ent
 	info.log = false
 	info.mode = "C"
+	incKey := 0
 
 	err := hf.BuildComponents(&info)
 	if err != nil {
@@ -803,13 +974,32 @@ func (hf *HDBFlavor) Create(ent interface{}) error {
 	// build the hdb insert query
 	insFlds := "("
 	insVals := "("
+	fmt.Println("info.incKeyName:", info.incKeyName)
 	for k, v := range info.fldMap {
+		fmt.Printf("CREATE k: %s, CREATE v: %v\n", k, v)
+
+		// pull an id - this is ugly, but hdb does not have a reliable
+		// mechanism to report a new row-id.  Dynamic SQL in a SP may
+		// be better, but opens the door for bad behaviour.  Try this
+		// for now.
+		if strings.Compare(k, info.incKeyName) == 0 {
+			keyQuery := fmt.Sprintf("SELECT SEQ_%s_%s.NEXTVAL FROM DUMMY;", strings.ToUpper(info.tn), strings.ToUpper(info.incKeyName))
+			err = hf.db.QueryRowx(keyQuery).Scan(&incKey)
+			if err != nil {
+				return err
+			}
+			insFlds = fmt.Sprintf("%s %s, ", insFlds, k)
+			insVals = fmt.Sprintf("%s %v, ", insVals, incKey)
+			continue
+		}
+
 		if v == "DEFAULT" {
 			continue
 		}
 		insFlds = fmt.Sprintf("%s %s, ", insFlds, k)
 		insVals = fmt.Sprintf("%s %s, ", insVals, v)
 	}
+
 	insFlds = strings.TrimSuffix(insFlds, ", ") + ")"
 	insVals = strings.TrimSuffix(insVals, ", ") + ")"
 
@@ -818,21 +1008,19 @@ func (hf *HDBFlavor) Create(ent interface{}) error {
 	fmt.Println(insQuery)
 
 	// attempt the insert and read the result back into info.resultMap
-	result, err := hf.db.Exec(insQuery)
+	_, err = hf.db.Exec(insQuery)
 	if err != nil {
 		return err
 	}
 
-	lastID, err := result.LastInsertId()
-	fmt.Printf("lastID: %v\n", lastID)
-	if err != nil {
-		return err
-	}
-
-	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s = %v;", info.tn, info.incKeyName, lastID)
+	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s = %v;", info.tn, info.incKeyName, incKey)
 	err = hf.db.QueryRowx(selQuery).MapScan(info.resultMap) // SliceScan
 	if err != nil {
 		return err
+	}
+
+	for k, v := range info.resultMap {
+		fmt.Printf("GOT: k: %s , v: %v\n", k, v)
 	}
 
 	// fill the underlying structure of the interface ptr with the

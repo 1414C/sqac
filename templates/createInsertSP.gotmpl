@@ -1,0 +1,16 @@
+{{/*  Entity struct fields for use inside pipelines */}}
+{{$tableName := .Header.Name -}}
+{{$headerValue := .Header.Value -}}
+
+CREATE PROCEDURE {{.Header.SeqName}} (
+    {{range .Fields -}}
+        IN {{.FName}} {{.FType}},
+    {{end -}}
+        OUT {{.Header.FieldName}}
+)
+LANGUAGE SQLSCRIPT AS
+BEGIN
+
+END;
+
+
