@@ -121,15 +121,15 @@ func (slf *SQLiteFlavor) AlterTables(i ...interface{}) error {
 
 		// go through the latest version of the model and check each
 		// field against its definition in the database.
-		qt := slf.GetDBQuote()
-		alterSchema := fmt.Sprintf("ALTER TABLE %s%s%s", qt, tn, qt)
+		// qt := slf.GetDBQuote()
+		// alterSchema := fmt.Sprintf("ALTER TABLE %s%s%s", qt, tn, qt)
 		var cols []string
 
 		for _, fd := range tc.flDef {
 			// new columns first
 			if !slf.ExistsColumn(tn, fd.FName) && fd.NoDB == false {
 
-				colSchema := fmt.Sprintf("ADD COLUMN %s%s%s %s", qt, fd.FName, qt, fd.FType)
+				colSchema := fmt.Sprintf("ALTER TABLE %s ADD COLUMN %s %s", tn, fd.FName, fd.FType)
 				for _, p := range fd.RgenPairs {
 					switch p.Name {
 					case "primary_key":
@@ -152,17 +152,17 @@ func (slf *SQLiteFlavor) AlterTables(i ...interface{}) error {
 
 					}
 				}
-				cols = append(cols, colSchema+",")
+				cols = append(cols, colSchema+";")
+				colSchema = ""
 			}
 		}
 
-		// ALTER TABLE ADD COLUMNS...
+		// ALTER TABLE ADD COLUMN ...
 		if len(cols) > 0 {
 			for _, c := range cols {
-				alterSchema = fmt.Sprintf("%s %s", alterSchema, c)
+				fmt.Println("ALTER SCHEMA:", c)
+				slf.ProcessSchema(c)
 			}
-			alterSchema = strings.TrimSuffix(alterSchema, ",")
-			slf.ProcessSchema(alterSchema)
 		}
 
 		// add indexes if required

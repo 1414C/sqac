@@ -469,7 +469,11 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 						panic(fmt.Errorf("aborting - cannot add a primary-key (table-field %s-%s) through migration", tn, fd.FName))
 
 					case "default":
-						colSchema = fmt.Sprintf("%s DEFAULT %s", colSchema, p.Value)
+						if fd.GoType == "string" {
+							colSchema = fmt.Sprintf("%s DEFAULT '%s'", colSchema, p.Value)
+						} else {
+							colSchema = fmt.Sprintf("%s DEFAULT %s", colSchema, p.Value)
+						}
 
 					case "nullable":
 						if p.Value == "false" {
@@ -490,6 +494,7 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 				alterSchema = fmt.Sprintf("%s %s", alterSchema, c)
 			}
 			alterSchema = strings.TrimSuffix(alterSchema, ",")
+			fmt.Println("ALTER SCHEMA:", alterSchema)
 			pf.ProcessSchema(alterSchema)
 		}
 

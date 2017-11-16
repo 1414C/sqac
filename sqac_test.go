@@ -827,7 +827,7 @@ func TestAlterTables(t *testing.T) {
 		Region     string    `db:"region" rgen:"nullable:false;default:YYC;index:non-unique"`
 		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
 		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
-		NewColumn1 string    `db:"new_column1" rgen:"nullable:false;index:unique"`
+		NewColumn1 string    `db:"new_column1" rgen:"nullable:false;default:nc1_default;index:non-unique"`
 		NewColumn2 int64     `db:"new_column2" rgen:"nullable:false;default:0;index:idx_new_column2_new_column3"`
 		NewColumn3 float64   `db:"new_column3" rgen:"nullable:false;default:0.0;index:idx_new_column2_new_column3"`
 	}
@@ -1030,7 +1030,7 @@ func TestNullableValues(t *testing.T) {
 	insQuery := ""
 	switch Handle.GetDBDriverName() {
 	case "postgres", "mysql":
-		insQuery = "INSERT INTO depot (depot_num, region, province) VALUES (EFAULT,'YVR','AB');"
+		insQuery = "INSERT INTO depot (depot_num, region, province) VALUES (DEFAULT,'YVR','AB');"
 	case "sqlite3":
 		insQuery = "INSERT INTO depot (region, province) VALUES ('YVR','AB');"
 	case "mssql":
@@ -1039,9 +1039,9 @@ func TestNullableValues(t *testing.T) {
 	case "hdb":
 		incKey := 0
 		keyQuery := "SELECT SEQ_DEPOT_DEPOT_NUM.NEXTVAL FROM DUMMY;"
-		err = hf.db.QueryRowx(keyQuery).Scan(&incKey)
+		err = Handle.ExecuteQueryRowx(keyQuery).Scan(&incKey)
 		if err != nil {
-			return err
+			t.Errorf(err.Error())
 		}
 		insQuery = fmt.Sprintf("INSERT INTO depot (depot_num, region, province) VALUES ('%d, YVR','AB');", incKey)
 	default:
