@@ -363,6 +363,10 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 		ft, _ := inf.stype.Field(i).Tag.Lookup("db") // snake_name
 		tp := inf.stype.Field(i).Type.String()       // field-type as String
 
+		// if bf.GetDBDriverName() == "hdb" {
+		// 	ft = strings.ToUpper(ft)
+		// }
+
 		if inf.log {
 			fmt.Println("NAME:", fn)
 			fmt.Println("TAG:", st)

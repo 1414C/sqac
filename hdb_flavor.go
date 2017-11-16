@@ -1019,6 +1019,7 @@ func (hf *HDBFlavor) Create(ent interface{}) error {
 		return err
 	}
 
+	// Push K to lower-case
 	for k, v := range info.resultMap {
 		fmt.Printf("GOT: k: %s , v: %v\n", k, v)
 	}
