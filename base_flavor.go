@@ -674,18 +674,17 @@ func (bf *BaseFlavor) Delete(ent interface{}) error { // (id uint) error
 		} else {
 			keyList = fmt.Sprintf("%s %s = %v AND", keyList, k, s)
 		}
+	}
 
-		keyList = strings.TrimSuffix(keyList, " AND")
+	keyList = strings.TrimSuffix(keyList, " AND")
+	delQuery := fmt.Sprintf("DELETE FROM %s", info.tn)
+	delQuery = fmt.Sprintf("%s WHERE%s;", delQuery, keyList)
+	fmt.Println(delQuery)
 
-		delQuery := fmt.Sprintf("DELETE FROM %s", info.tn)
-		delQuery = fmt.Sprintf("%s WHERE%s;", delQuery, keyList)
-		fmt.Println(delQuery)
-
-		// attempt the delete and read result back into resultMap
-		row := bf.db.QueryRowx(delQuery)
-		if row.Err() != nil {
-			return err
-		}
+	// attempt the delete and read result back into resultMap
+	row := bf.db.QueryRowx(delQuery)
+	if row.Err() != nil {
+		return err
 	}
 	return nil
 }
