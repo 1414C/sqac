@@ -71,8 +71,9 @@ func (slf *SQLiteFlavor) CreateTables(i ...interface{}) error {
 
 		// get all the table parts and build the create schema
 		tc := slf.buildTablSchema(tn, i[t])
-
-		fmt.Println("CREATE SCHEMA:", tc.tblSchema)
+		if slf.IsLog() {
+			fmt.Println(tc.tblSchema)
+		}
 
 		// execute the create schema against the db
 		slf.db.MustExec(tc.tblSchema)
@@ -160,7 +161,9 @@ func (slf *SQLiteFlavor) AlterTables(i ...interface{}) error {
 		// ALTER TABLE ADD COLUMN ...
 		if len(cols) > 0 {
 			for _, c := range cols {
-				fmt.Println("ALTER SCHEMA:", c)
+				if slf.IsLog() {
+					fmt.Println(c)
+				}
 				slf.ProcessSchema(c)
 			}
 		}

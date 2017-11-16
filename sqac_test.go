@@ -960,35 +960,205 @@ func TestDestructiveResetTables(t *testing.T) {
 	}
 }
 
+// TestQueryOps
+//
+// This test is designed to illustrate the handling of database reads when dealing with db fields that
+// contain null values.  Create db table depot based on an updated Depot struct containing a number of
+// nullable and non-defaulted fields.
+// Insert a new record containing null-values into db table depot.
+// Declare struct DepotN{} as a parallel structure to Depot{} making use of sql.Null<type> fields in
+// place of the gotypes for the nullable fields.
+// Note that DepotN{} also contains one *string pointer type instead of sql.NullString in order
+// to demonstrate a different way to handle the situation.
+// Read all the records (1) from db table depot assigning them to a slice declared as type DepotN.
+// Iterate over the record(s) contained in the result set and take note of the manner in which the
+// nullable field values are accessed / converted from nil values to their base-type's default value.
+// In this example, the Valid bool flag in the nullable field is not checked, as it is typically(?)
+// okay to simply ask for base-type default through .Sting, .Int64, .Float64 or .Bool.
+func TestQueryOps(t *testing.T) {
+
+	type QOps struct {
+		OpNum       int       `db:"op_num" rgen:"primary_key:inc;start:70000000"`
+		CreateDate  time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
+		Description string    `db:"description" rgen:"nullable:false;default:initial"`
+	}
+
+	// create table qops
+	err := Handle.CreateTables(QOps{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// determine the table names as per the table creation logic
+	tn := reflect.TypeOf(QOps{}).String()
+	if strings.Contains(tn, ".") {
+		el := strings.Split(tn, ".")
+		tn = strings.ToLower(el[len(el)-1])
+	} else {
+		tn = strings.ToLower(tn)
+	}
+
+	// ensure table qops exists in db
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("%s", err.Error())
+	}
+
+	// insert a new record containing null-values into db-table qops
+	// sql.NullBool, sql.NullFloat64, sql.NullInt64, sql.NullString
+	insQuery := ""
+	switch Handle.GetDBDriverName() {
+	case "postgres", "mysql":
+		insQuery = "INSERT INTO qops (op_num, create_date, description) VALUES (DEFAULT, DEFAULT, 'test_value');"
+	case "sqlite3":
+		insQuery = "INSERT INTO qops (description) VALUES ('test_value');"
+	case "mssql":
+		// INSERT INTO Persons(name, age) values('Bob', 20)
+		insQuery = "INSERT INTO qops (description) VALUES ('test_value');"
+	case "hdb":
+		var incKey int
+		keyQuery := "SELECT SEQ_QOPS_OP_NUM.NEXTVAL FROM DUMMY;"
+		err = Handle.ExecuteQueryRowx(keyQuery).Scan(&incKey)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+		insQuery = fmt.Sprintf("INSERT INTO qops (op_num, description) VALUES (%d, 'test_value');", incKey)
+	default:
+		insQuery = "INSERT INTO qops (op_num, create_date, description) VALUES (DEFAULT, DEFAULT, 'test_value');"
+	}
+	_, err = Handle.Exec(insQuery)
+	if err != nil {
+		t.Errorf("error inserting into table qops - got %s", err.Error())
+	}
+
+	// read all records from db-table qops into a QOps struct using Select
+	qo := []QOps{}
+	err = Handle.Select(&qo, "SELECT * FROM qops;")
+	if err != nil {
+		t.Errorf("error reading from table qops - got %s", err.Error())
+	}
+
+	if len(qo) == 0 {
+		t.Errorf("expected 1 record in table qops - got 0")
+	}
+
+	if Handle.IsLog() {
+		fmt.Println("sqlx.Select got:", qo)
+		for _, v := range qo {
+			fmt.Println("got op_num:", v.OpNum)
+			fmt.Println("got create_date:", v.CreateDate)
+			fmt.Println("got description:", v.Description)
+		}
+	}
+
+	// read all records from db-table qops into a QOps struct where description == 'test_value' using Select
+	qo = []QOps{}
+	err = Handle.Select(&qo, "SELECT * FROM qops WHERE description = ?;", "test_value")
+	if err != nil {
+		t.Errorf("error reading from table qops - got %s", err.Error())
+	}
+
+	if len(qo) == 0 {
+		t.Errorf("expected 1 record in table qops - got 0")
+	}
+
+	if Handle.IsLog() {
+		fmt.Println("sqlx.Select got:", qo)
+		for _, v := range qo {
+			fmt.Println("got op_num:", v.OpNum)
+			fmt.Println("got create_date:", v.CreateDate)
+			fmt.Println("got description:", v.Description)
+		}
+	}
+
+	// read all records from db-table qops into a QOps struct using sql.Query
+	qos := QOps{}
+	rows, err := Handle.ExecuteQuery("SELECT * FROM qops;")
+	if err != nil {
+		t.Errorf("error reading from table qops  - got %s", err.Error())
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&qos.OpNum, &qos.CreateDate, &qos.Description)
+		if err != nil {
+			t.Errorf("error reading from table qops  - got %s", err.Error())
+		}
+	}
+
+	if Handle.IsLog() {
+		fmt.Println("sql.Query got:", qo)
+		for _, v := range qo {
+			fmt.Println("got op_num:", v.OpNum)
+			fmt.Println("got create_date:", v.CreateDate)
+			fmt.Println("got description:", v.Description)
+		}
+	}
+
+	// read all records from db-table qops into a QOps struct using sql.Query with a parameter
+	qos = QOps{}
+	rows, err = Handle.ExecuteQuery("SELECT * FROM qops WHERE description = ?;", "test_value")
+	if err != nil {
+		t.Errorf("error reading from table qops  - got %s", err.Error())
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&qos.OpNum, &qos.CreateDate, &qos.Description)
+		if err != nil {
+			t.Errorf("error reading from table qops  - got %s", err.Error())
+		}
+	}
+
+	if Handle.IsLog() {
+		fmt.Println("sql.Query got:", qo)
+		for _, v := range qo {
+			fmt.Println("got op_num:", v.OpNum)
+			fmt.Println("got create_date:", v.CreateDate)
+			fmt.Println("got description:", v.Description)
+		}
+	}
+
+	// read all records from db-table qops into a QOps struct using sqlx.Queryx
+	qos = QOps{}
+	sqlxRows, err := Handle.ExecuteQueryx("SELECT * FROM qops;")
+	if err != nil {
+		t.Errorf("error reading from table qops  - got %s", err.Error())
+	}
+	defer sqlxRows.Close()
+
+	for sqlxRows.Next() {
+		err = sqlxRows.Scan(&qos.OpNum, &qos.CreateDate, &qos.Description)
+		if err != nil {
+			t.Errorf("error reading from table qops  - got %s", err.Error())
+		}
+	}
+
+	if Handle.IsLog() {
+		fmt.Println("sql.Queryx got:", qo)
+		for _, v := range qo {
+			fmt.Println("got op_num:", v.OpNum)
+			fmt.Println("got create_date:", v.CreateDate)
+			fmt.Println("got description:", v.Description)
+		}
+	}
+
+}
+
 // TestNullableValues
 //
-// This test is designed to illustrate the handling of
-// database reads when dealing with db fields that
-// contain null values.
-// Create db table depot based on an updated Depot
-// struct containing a number of nullable and non-
-// defaulted fields.
-// Insert a new record containing null-values into
-// db table depot.
-// Declare struct DepotN{} as a parallel structure to
-// Depot{} making use of sql.Null<type> fields in
+// This test is designed to illustrate the handling of database reads when dealing with db fields that
+// contain null values.  Create db table depot based on an updated Depot struct containing a number of
+// nullable and non-defaulted fields.
+// Insert a new record containing null-values into db table depot.
+// Declare struct DepotN{} as a parallel structure to Depot{} making use of sql.Null<type> fields in
 // place of the gotypes for the nullable fields.
-// Note that DepotN{} also contains one *string
-// pointer type instead of sql.NullString in order
-// to demonstrate a different way to handle the
-// situation.
-// Read all the records (1) from db table depot
-// assigning them to a slice declared as type
-// DepotN.
-// Iterate over the record(s) contained in the
-// result set and take note of the manner in
-// which the nullable field values are accessed /
-// converted from nil values to their base-type's
-// default value.  In this example, the Valid
-// bool flag in the nullable field is not checked,
-// as it is typically(?) okay to simply ask for
-// base-type default through .Sting, .Int64,
-// .Float64 or .Bool.
+// Note that DepotN{} also contains one *string pointer type instead of sql.NullString in order
+// to demonstrate a different way to handle the situation.
+// Read all the records (1) from db table depot assigning them to a slice declared as type DepotN.
+// Iterate over the record(s) contained in the result set and take note of the manner in which the
+// nullable field values are accessed / converted from nil values to their base-type's default value.
+// In this example, the Valid bool flag in the nullable field is not checked, as it is typically(?)
+// okay to simply ask for base-type default through .Sting, .Int64, .Float64 or .Bool.
 func TestNullableValues(t *testing.T) {
 
 	type Depot struct {
@@ -1041,7 +1211,6 @@ func TestNullableValues(t *testing.T) {
 		keyQuery := "SELECT SEQ_DEPOT_DEPOT_NUM.NEXTVAL FROM DUMMY;"
 		err = Handle.ExecuteQueryRowx(keyQuery).Scan(&incKey)
 		if err != nil {
-			fmt.Println("ERRORRRRRRRRR!")
 			t.Errorf(err.Error())
 		}
 		insQuery = fmt.Sprintf("INSERT INTO depot (depot_num, region, province) VALUES (%d, 'YVR','AB');", incKey)

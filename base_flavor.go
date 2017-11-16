@@ -507,23 +507,25 @@ func (bf *BaseFlavor) ExecuteQueryRow(queryString string, qParams ...interface{}
 
 	if qParams != nil {
 		queryString = bf.db.Rebind(queryString)
-		return bf.db.QueryRow(queryString, qParams)
+		return bf.db.QueryRow(queryString, qParams...)
 	}
-	return bf.db.QueryRow(queryString, qParams)
+	return bf.db.QueryRow(queryString)
 }
 
 // ExecuteQuery processes the multi-row query contained in queryString
 // against the connected DB using sql/database.
 func (bf *BaseFlavor) ExecuteQuery(queryString string, qParams ...interface{}) (*sql.Rows, error) {
 
+	var rows *sql.Rows
+	var err error
+
 	if qParams != nil {
 		queryString = bf.db.Rebind(queryString)
+		rows, err = bf.db.Query(queryString, qParams...)
+	} else {
+		rows, err = bf.db.Query(queryString)
 	}
-	rows, err := bf.db.Query(queryString, qParams)
-	if err != nil {
-		return nil, err
-	}
-	return rows, nil
+	return rows, err
 }
 
 // ExecuteQueryRowx processes the single-row query contained in queryString
@@ -532,7 +534,7 @@ func (bf *BaseFlavor) ExecuteQueryRowx(queryString string, qParams ...interface{
 
 	if qParams != nil {
 		queryString = bf.db.Rebind(queryString)
-		return bf.db.QueryRowx(queryString, qParams)
+		return bf.db.QueryRowx(queryString, qParams...)
 	}
 	return bf.db.QueryRowx(queryString)
 }
@@ -541,47 +543,53 @@ func (bf *BaseFlavor) ExecuteQueryRowx(queryString string, qParams ...interface{
 // against the connected DB using sqlx.
 func (bf *BaseFlavor) ExecuteQueryx(queryString string, qParams ...interface{}) (*sqlx.Rows, error) {
 
-	queryString = bf.db.Rebind(queryString)
-	rows, err := bf.db.Queryx(queryString, qParams)
-	if err != nil {
-		return nil, err
+	var rows *sqlx.Rows
+	var err error
+
+	if qParams != nil {
+		queryString = bf.db.Rebind(queryString)
+		rows, err = bf.db.Queryx(queryString, qParams...)
+	} else {
+		rows, err = bf.db.Queryx(queryString)
 	}
-	return rows, nil
+	return rows, err
 }
 
 // Get reads a single row into the dst interface.
 // This calls sqlx.Get(...)
 func (bf *BaseFlavor) Get(dst interface{}, queryString string, args ...interface{}) error {
 
-	queryString = bf.db.Rebind(queryString)
-	err := bf.db.Get(dst, queryString, args...)
-	if err != nil {
-		return err
+	if args != nil {
+		queryString = bf.db.Rebind(queryString)
+		return bf.db.Get(dst, queryString, args...)
 	}
-	return nil
+	return bf.db.Get(dst, queryString)
 }
 
 // Select reads some rows into the dst interface.
 // This calls sqlx.Select(...)
 func (bf *BaseFlavor) Select(dst interface{}, queryString string, args ...interface{}) error {
 
-	queryString = bf.db.Rebind(queryString)
-	err := bf.db.Select(dst, queryString, args...)
-	if err != nil {
-		return err
+	if args != nil {
+		queryString = bf.db.Rebind(queryString)
+		return bf.db.Select(dst, queryString, args...)
 	}
-	return nil
+	return bf.db.Select(dst, queryString)
 }
 
 // Exec runs the queryString against the connected db
 func (bf *BaseFlavor) Exec(queryString string, args ...interface{}) (sql.Result, error) {
 
-	queryString = bf.db.Rebind(queryString)
-	result, err := bf.db.Exec(queryString, args...)
-	if err != nil {
-		return nil, err
+	var result sql.Result
+	var err error
+
+	if args != nil {
+		queryString = bf.db.Rebind(queryString)
+		result, err = bf.db.Exec(queryString, args...)
+	} else {
+		result, err = bf.db.Exec(queryString)
 	}
-	return result, nil
+	return result, err
 }
 
 // ProcessTransaction processes the list of commands as a transaction.

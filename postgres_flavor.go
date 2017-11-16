@@ -494,7 +494,9 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 				alterSchema = fmt.Sprintf("%s %s", alterSchema, c)
 			}
 			alterSchema = strings.TrimSuffix(alterSchema, ",")
-			fmt.Println("ALTER SCHEMA:", alterSchema)
+			if pf.IsLog() {
+				fmt.Println(alterSchema)
+			}
 			pf.ProcessSchema(alterSchema)
 		}
 
