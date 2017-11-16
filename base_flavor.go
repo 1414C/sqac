@@ -505,9 +505,11 @@ func (bf *BaseFlavor) ProcessSchemaList(sList []string) {
 // against the connected DB using sql/database.
 func (bf *BaseFlavor) ExecuteQueryRow(queryString string, qParams ...interface{}) *sql.Row {
 
-	queryString = bf.db.Rebind(queryString)
-	row := bf.db.QueryRow(queryString, qParams)
-	return row
+	if qParams != nil {
+		queryString = bf.db.Rebind(queryString)
+		return bf.db.QueryRow(queryString, qParams)
+	}
+	return bf.db.QueryRow(queryString, qParams)
 }
 
 // ExecuteQuery processes the multi-row query contained in queryString
