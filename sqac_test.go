@@ -1142,6 +1142,30 @@ func TestQueryOps(t *testing.T) {
 		}
 	}
 
+	// read all records from db-table qops into a QOps struct using sqlx.Queryx with a parameter
+	qos = QOps{}
+	sqlxRows, err = Handle.ExecuteQueryx("SELECT * FROM qops WHERE description = ?;", "test_value")
+	if err != nil {
+		t.Errorf("error reading from table qops  - got %s", err.Error())
+	}
+	defer sqlxRows.Close()
+
+	for sqlxRows.Next() {
+		err = sqlxRows.Scan(&qos.OpNum, &qos.CreateDate, &qos.Description)
+		if err != nil {
+			t.Errorf("error reading from table qops  - got %s", err.Error())
+		}
+	}
+
+	if Handle.IsLog() {
+		fmt.Println("sql.Queryx got:", qo)
+		for _, v := range qo {
+			fmt.Println("got op_num:", v.OpNum)
+			fmt.Println("got create_date:", v.CreateDate)
+			fmt.Println("got description:", v.Description)
+		}
+	}
+
 }
 
 // TestNullableValues
