@@ -252,7 +252,7 @@ func (hf *HDBFlavor) CreateTables(i ...interface{}) error {
 			tn = strings.ToLower(tn)
 		}
 		if tn == "" {
-			return fmt.Errorf("unable to determine table name in myf.CreateTables")
+			return fmt.Errorf("unable to determine table name in hf.CreateTables")
 		}
 
 		// if the table is found to exist, skip the creation
@@ -268,12 +268,16 @@ func (hf *HDBFlavor) CreateTables(i ...interface{}) error {
 		tc := hf.buildTablSchema(tn, i[t])
 
 		// create the table on the db
-		fmt.Println("DDL:", tc.tblSchema)
+		if hf.IsLog() {
+			fmt.Println(tc.tblSchema)
+		}
 		hf.db.MustExec(tc.tblSchema)
 
 		// deal with the auto-incrementing by creating sequence manually
 		for _, sq := range tc.seq {
-			fmt.Printf("sequenceVals: %v\n", sq)
+			if hf.IsLog() {
+				fmt.Printf("sequenceVals: %v\n", sq)
+			}
 			vals := strings.Split(sq.Value, " ")
 			if len(vals) != 4 {
 				return fmt.Errorf("insufficient information to create sequence %s - got %v", sq.Name, sq.Value)
@@ -468,7 +472,9 @@ func (hf *HDBFlavor) AlterTables(i ...interface{}) error {
 			}
 
 			alterSchema = strings.TrimSuffix(alterSchema, ",") + ");"
-			fmt.Printf("DDL: %v\n", alterSchema)
+			if hf.IsLog() {
+				fmt.Println(alterSchema)
+			}
 			hf.ProcessSchema(alterSchema)
 		}
 
@@ -907,7 +913,9 @@ func (hf *HDBFlavor) CreateSequence(sn string, start int) {
 
 	// build the sequence creation DDL
 	crtSequence := fmt.Sprintf("CREATE SEQUENCE %s START WITH %d INCREMENT BY 1;", sn, start)
-	fmt.Println(crtSequence)
+	if hf.IsLog() {
+		fmt.Println(crtSequence)
+	}
 
 	// attempt to create the sequence on the db
 	_, err := hf.db.Exec(crtSequence)
@@ -921,7 +929,9 @@ func (hf *HDBFlavor) DropSequence(sn string) error {
 
 	// build the sequence creation DDL
 	dropSequence := fmt.Sprintf("DROP SEQUENCE %s;", sn)
-	fmt.Println(dropSequence)
+	if hf.IsLog() {
+		fmt.Println(dropSequence)
+	}
 
 	// attempt to drop the sequence from the db
 	_, err := hf.db.Exec(dropSequence)
@@ -939,6 +949,9 @@ func (hf *HDBFlavor) GetNextSequenceValue(name string) (int, error) {
 
 	var nextVal int
 	nextQuery := fmt.Sprintf("SELECT %s.NEXTVAL FROM dummy;", name)
+	if hf.IsLog() {
+		fmt.Println(nextQuery)
+	}
 	err := hf.db.QueryRow(nextQuery).Scan(&nextVal)
 	if err != nil {
 		return 0, err
@@ -967,7 +980,11 @@ func (hf *HDBFlavor) Create(ent interface{}) error {
 	// build the hdb insert query
 	insFlds := "("
 	insVals := "("
-	fmt.Println("info.incKeyName:", info.incKeyName)
+
+	if hf.IsLog() {
+		fmt.Println("info.incKeyName:", info.incKeyName)
+	}
+
 	for k, v := range info.fldMap {
 
 		// pull an id - this is ugly, but hdb does not have a reliable

@@ -591,6 +591,9 @@ func (pf *PostgresFlavor) ExistsIndex(tn string, in string) bool {
 func (pf *PostgresFlavor) DropIndex(tn string, in string) error {
 
 	indexSchema := fmt.Sprintf("DROP INDEX IF EXISTS %s;", in)
+	if pf.IsLog() {
+		fmt.Println(indexSchema)
+	}
 	pf.ProcessSchema(indexSchema)
 	return nil
 }
@@ -623,6 +626,9 @@ func (pf *PostgresFlavor) ExistsSequence(sn string) bool {
 func (pf *PostgresFlavor) CreateSequence(sn string, start int) {
 
 	seqSchema := fmt.Sprintf("CREATE SEQUENCE %s START %d;", sn, start)
+	if pf.IsLog() {
+		fmt.Println(seqSchema)
+	}
 	pf.ProcessSchema(seqSchema)
 }
 
@@ -632,6 +638,9 @@ func (pf *PostgresFlavor) CreateSequence(sn string, start int) {
 func (pf *PostgresFlavor) AlterSequenceStart(sn string, start int) error {
 
 	seqSchema := fmt.Sprintf("ALTER SEQUENCE IF EXISTS %s RESTART WITH %d;", sn, start)
+	if pf.IsLog() {
+		fmt.Println(seqSchema)
+	}
 	pf.ProcessSchema(seqSchema)
 	return nil
 }

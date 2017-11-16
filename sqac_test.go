@@ -194,9 +194,9 @@ func TestGetDBDriverName(t *testing.T) {
 // }
 
 // TestExistsTableNegative
-//
+
 // Test for non-existent table 'Footle'
-//
+
 func TestExistsTableNegative(t *testing.T) {
 
 	type Footle struct {
@@ -1379,7 +1379,7 @@ func TestCRUDDelete(t *testing.T) {
 		tn = strings.ToLower(tn)
 	}
 
-	// create table depot
+	// create table depot if it does not exist
 	err := Handle.CreateTables(DepotDelete{})
 	if err != nil {
 		t.Errorf("%s", err.Error())
@@ -1408,11 +1408,6 @@ func TestCRUDDelete(t *testing.T) {
 	err = Handle.Delete(&depot)
 	if err != nil {
 		t.Errorf("%s", err.Error())
-	}
-
-	err = Handle.DropTables(DepotDelete{})
-	if err != nil {
-		t.Errorf("failed to drop table %s", tn)
 	}
 }
 

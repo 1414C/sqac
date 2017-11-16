@@ -718,9 +718,7 @@ func (bf *BaseFlavor) GetEntity(ent interface{}) error {
 		} else {
 			keyList = fmt.Sprintf("%s %s = %v AND", keyList, k, s)
 		}
-
 		keyList = strings.TrimSuffix(keyList, " AND")
-		fmt.Println("SELECT keyList:", keyList)
 
 		selQuery := fmt.Sprintf("SELECT * FROM %s", info.tn)
 		selQuery = fmt.Sprintf("%s WHERE%s;", selQuery, keyList)
@@ -730,6 +728,16 @@ func (bf *BaseFlavor) GetEntity(ent interface{}) error {
 		err := bf.db.QueryRowx(selQuery).MapScan(info.resultMap) // SliceScan
 		if err != nil {
 			return err
+		}
+
+		// Push k to lower-case for hdb - this breaks the model slightly, but
+		// allows us to use GetEntity as a base method
+		rm := make(map[string]interface{})
+		if bf.GetDBDriverName() == "hdb" {
+			for k, v := range info.resultMap {
+				rm[strings.ToLower(k)] = v
+			}
+			info.resultMap = rm
 		}
 
 		// fill the underlying structure of the interface ptr with the

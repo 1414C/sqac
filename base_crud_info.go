@@ -134,9 +134,6 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 		}
 
 		// get the value of the current entity field
-		if bPkey {
-			fmt.Println("")
-		}
 		fv := inf.entValue.Field(i).Interface()
 		fvr := inf.entValue.Field(i)
 		switch fd.GoType {
@@ -340,6 +337,9 @@ func (bf *BaseFlavor) TimeToFormattedString(t time.Time) string {
 	case "mssql":
 		return t.Format("2006-01-02 15:04:05.9999999")
 
+	case "hdb":
+		return t.Format("2006-01-02 15:04:05.9999999")
+
 	default:
 		// most db's will take this and convert to UTC
 		return t.Format("2006-01-02 15:04:05")
@@ -362,10 +362,6 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 		st := inf.stype.Field(i).Tag                 // structTag
 		ft, _ := inf.stype.Field(i).Tag.Lookup("db") // snake_name
 		tp := inf.stype.Field(i).Type.String()       // field-type as String
-
-		// if bf.GetDBDriverName() == "hdb" {
-		// 	ft = strings.ToUpper(ft)
-		// }
 
 		if inf.log {
 			fmt.Println("NAME:", fn)
@@ -409,7 +405,6 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 						f, _ := strconv.ParseInt(s, 10, 64)
 						fv.SetInt(f)
 					} else {
-						fmt.Println("FN:", fn)
 						fv.SetInt(inf.resultMap[ft].(int64))
 					}
 				} else {
@@ -490,7 +485,6 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 		} else {
 			fmt.Printf("CANNOT SET %s:\n", fn)
 		}
-
 	}
 	if inf.log {
 		fmt.Println(values)
