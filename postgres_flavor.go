@@ -690,6 +690,7 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	info.log = false
 	info.mode = "C"
 
+	fmt.Println("IN pf.Create")
 	err := pf.BuildComponents(&info)
 	if err != nil {
 		return err
