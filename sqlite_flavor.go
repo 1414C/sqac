@@ -37,6 +37,22 @@ type SQLiteFlavor struct {
 	// ExistsSequence(sn string) bool
 }
 
+// GetDBName returns the name of the currently connected db
+func (slf *SQLiteFlavor) GetDBName() (dbName string) {
+
+	dbNum := ""
+	dbMain := ""
+
+	row := slf.db.QueryRow("PRAGMA database_list;")
+	if row != nil {
+		err := row.Scan(&dbNum, &dbMain, &dbName)
+		if err != nil {
+			panic(err)
+		}
+	}
+	return dbName
+}
+
 // CreateTables creates tables on the sqlite3 database referenced
 // by slf.DB.
 func (slf *SQLiteFlavor) CreateTables(i ...interface{}) error {

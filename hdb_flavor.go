@@ -232,6 +232,19 @@ type hdbSeqTyp struct {
 	SeqName   string
 }
 
+// GetDBName returns the first db in the list - should only be one?
+func (hf *HDBFlavor) GetDBName() (dbName string) {
+
+	row := hf.db.QueryRow("SELECT DATABASE_NAME FROM Sys.M_Databases;")
+	if row != nil {
+		err := row.Scan(&dbName)
+		if err != nil {
+			panic(err)
+		}
+	}
+	return dbName
+}
+
 // CreateTables creates tables on the mysql database referenced
 // by hf.DB.
 func (hf *HDBFlavor) CreateTables(i ...interface{}) error {
@@ -761,19 +774,6 @@ func (hf *HDBFlavor) ExistsTable(tn string) bool {
 		return true
 	}
 	return false
-}
-
-// GetDBName returns the name of the currently connected db
-func (hf *HDBFlavor) GetDBName() (dbName string) {
-
-	row := hf.db.QueryRow("SELECT DB_NAME()")
-	if row != nil {
-		err := row.Scan(&dbName)
-		if err != nil {
-			panic(err)
-		}
-	}
-	return dbName
 }
 
 // ExistsIndex checks the connected database for the presence
