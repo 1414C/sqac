@@ -1,6 +1,5 @@
 # sqac
 
-
 sqac is a simple overlay to provide a common interface to attached mssql, mysql, postgres, sqlite or SAP Hana databases.
 
 - create tables, supporting default, nullable, start, primary-key, index tags
@@ -49,11 +48,18 @@ $ go test -v -db sqlite sqac_test.go
 
 ```
 
+SAP Hana:
+```bash
 
-Autoincrement fields should be designated as rgen:"primary_key:inc"
+$ go test -v -db hdb sqac_test.go
 
+```
+
+- [ ]Complete sql/sqlx query/exec wrapper tests
+- [ ]Autoincrement fields should be designated as rgen:"primary_key:inc"
 - [ ]SQLite stores timestamps as UTC, so clients would need to convert back to the local timezone on a read.
 - [ ]Consider saving all time as UTC
 - [ ]Consider converting all time reads as Local
 - [ ]This is not perfect, as hand-written SQL will not pass the requests through the CrudInfo conversions.  Problem.
 - [ ]HDB ExistsTable should include SCHEMA field in selection?
+- [ ]Really consider what to do with nullable fields
