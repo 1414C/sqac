@@ -104,7 +104,6 @@ func (pf *PostgresFlavor) CreateTables(i ...interface{}) error {
 // and AlterTables methods.
 func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 
-	fmt.Println("In pf.AlterTables")
 	pKeys := ""
 	var sequences []RgenPair
 	indexes := make(map[string]IndexInfo)

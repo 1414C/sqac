@@ -31,13 +31,18 @@ func Open(flavor string, args ...interface{}) (db *sqlx.DB, err error) {
 	return db, nil
 }
 
+// Create establishes a connection with the db based on the connectionString.  A handle
+// conforming to the sqac.PublicDB interface is passed back to the caller.  The type of
+// the underlying handle object is that of the DBFlavor corresponding to the flavor var
+// in the function definition.
 func Create(flavor string, logFlag bool, connectionString string) (handle PublicDB) {
 
 	switch flavor {
 	case "postgres":
 		pgh := new(PostgresFlavor)
 		handle = pgh
-		db, err := Open("postgres", "host=127.0.0.1 user=godev dbname=sqlx sslmode=disable password=gogogo123")
+		// db, err := Open("postgres", "host=127.0.0.1 user=godev dbname=sqlx sslmode=disable password=gogogo123")
+		db, err := Open("postgres", connectionString)
 		if err != nil {
 			log.Fatalf("%s\n", err.Error())
 		}
@@ -47,7 +52,8 @@ func Create(flavor string, logFlag bool, connectionString string) (handle Public
 	case "mysql":
 		myh := new(MySQLFlavor)
 		handle = myh
-		db, err := Open("mysql", "stevem:gogogo123@tcp(192.168.1.50:3306)/sqlx?charset=utf8&parseTime=True&loc=Local")
+		// db, err := Open("mysql", "stevem:gogogo123@tcp(192.168.1.50:3306)/sqlx?charset=utf8&parseTime=True&loc=Local")
+		db, err := Open("mysql", connectionString)
 		if err != nil {
 			log.Fatalf("%s\n", err.Error())
 			panic(err)
@@ -69,7 +75,8 @@ func Create(flavor string, logFlag bool, connectionString string) (handle Public
 	case "mssql":
 		msh := new(MSSQLFlavor)
 		handle = msh
-		db, err := Open("mssql", "sqlserver://SA:Bunny123!!@localhost:1401?database=sqlx")
+		// db, err := Open("mssql", "sqlserver://SA:Bunny123!!@localhost:1401?database=sqlx")
+		db, err := Open("mssql", connectionString)
 		if err != nil {
 			log.Fatalf("%s\n", err.Error())
 			panic(err)
@@ -87,7 +94,8 @@ func Create(flavor string, logFlag bool, connectionString string) (handle Public
 	case "hdb":
 		hdh := new(HDBFlavor)
 		handle = hdh
-		db, err := Open("hdb", "hdb://SMACLEOD:Blockhead1@clkhana01.lab.clockwork.ca:30047")
+		// db, err := Open("hdb", "hdb://SMACLEOD:Blockhead1@clkhana01.lab.clockwork.ca:30047")
+		db, err := Open("hdb", connectionString)
 		if err != nil {
 			log.Fatalf("%s\n", err.Error())
 			panic(err)
