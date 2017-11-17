@@ -328,6 +328,7 @@ func (bf *BaseFlavor) DropTables(i ...interface{}) error {
 // the provided list of go struct definitions.
 func (bf *BaseFlavor) AlterTables(i ...interface{}) error {
 
+	fmt.Println("in bf.AlterTables")
 	return fmt.Errorf("method AlterTables has not been implemented for db type %s", bf.GetDBDriverName())
 }
 

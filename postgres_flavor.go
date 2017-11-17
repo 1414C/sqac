@@ -37,6 +37,19 @@ type PostgresFlavor struct {
 	// ExistsSequence(sn string) bool
 }
 
+// GetDBName returns the name of the currently connected db
+func (pf *PostgresFlavor) GetDBName() (dbName string) {
+
+	row := pf.db.QueryRow("SELECT current_database();")
+	if row != nil {
+		err := row.Scan(&dbName)
+		if err != nil {
+			panic(err)
+		}
+	}
+	return dbName
+}
+
 // CreateTables creates tables on the postgres database referenced
 // by pf.DB.
 func (pf *PostgresFlavor) CreateTables(i ...interface{}) error {
@@ -91,6 +104,7 @@ func (pf *PostgresFlavor) CreateTables(i ...interface{}) error {
 // and AlterTables methods.
 func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 
+	fmt.Println("In pf.AlterTables")
 	pKeys := ""
 	var sequences []RgenPair
 	indexes := make(map[string]IndexInfo)

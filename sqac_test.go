@@ -128,6 +128,19 @@ func TestGetDBDriverName(t *testing.T) {
 	}
 }
 
+// TestGetDBName
+//
+// Check that a db name is known
+func TestGetDBName(t *testing.T) {
+	dbName := Handle.GetDBName()
+	if dbName == "" {
+		t.Errorf("unable to determine db name")
+	}
+	if Handle.IsLog() {
+		fmt.Println("db driver name:", dbName)
+	}
+}
+
 // // TestTimeSimple
 // //
 // // Test time implementation
