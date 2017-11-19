@@ -137,7 +137,42 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 		fv := inf.entValue.Field(i).Interface()
 		fvr := inf.entValue.Field(i)
 		switch fd.GoType {
-		case "int", "uint", "int8", "uint8", "int16", "uint16", "int32", "uint32", "int64", "uint64", "rune", "byte":
+		// case "int", "uint", "int8", "uint8", "int16", "uint16", "int32", "uint32", "int64", "uint64", "rune", "byte":
+		// 	if inf.mode == "C" {
+		// 		if bPkeyInc == true {
+		// 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+		// 			inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+		// 			inf.fldMap[fd.FName] = "DEFAULT"
+		// 			continue
+		// 		}
+		// 		if bDefault == true && fv == 0 ||
+		// 			bDefault == true && fv == nil {
+		// 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+		// 			inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+		// 			inf.fldMap[fd.FName] = "DEFAULT"
+		// 			continue
+		// 		}
+		// 		if bNullable == false && fv == nil {
+		// 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+		// 			inf.vList = fmt.Sprintf("%s%d, ", inf.vList, 0)
+		// 			inf.fldMap[fd.FName] = "0"
+		// 			continue
+		// 		}
+
+		// 	} else {
+		// 		if bPkeyInc == true || bPkey == true {
+		// 			inf.keyMap[fd.FName] = fvr.Int()
+		// 			continue
+		// 		}
+		// 	}
+		// 	// in all other cases, just use the given value making the
+		// 	// assumption that the int-type field contains an int-type
+		// 	inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+		// 	inf.vList = fmt.Sprintf("%s%d, ", inf.vList, fvr.Int())
+		// 	inf.fldMap[fd.FName] = fmt.Sprintf("%d", fvr.Int())
+		// 	continue
+
+		case "int", "int8", "int16", "int32", "int64":
 			if inf.mode == "C" {
 				if bPkeyInc == true {
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
@@ -170,6 +205,41 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 			inf.vList = fmt.Sprintf("%s%d, ", inf.vList, fvr.Int())
 			inf.fldMap[fd.FName] = fmt.Sprintf("%d", fvr.Int())
+			continue
+
+		case "uint", "uint8", "uint16", "uint32", "uint64", "rune", "byte":
+			if inf.mode == "C" {
+				if bPkeyInc == true {
+					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+					inf.fldMap[fd.FName] = "DEFAULT"
+					continue
+				}
+				if bDefault == true && fv == 0 ||
+					bDefault == true && fv == nil {
+					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+					inf.fldMap[fd.FName] = "DEFAULT"
+					continue
+				}
+				if bNullable == false && fv == nil {
+					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+					inf.vList = fmt.Sprintf("%s%d, ", inf.vList, 0)
+					inf.fldMap[fd.FName] = "0"
+					continue
+				}
+
+			} else {
+				if bPkeyInc == true || bPkey == true {
+					inf.keyMap[fd.FName] = fvr.Uint()
+					continue
+				}
+			}
+			// in all other cases, just use the given value making the
+			// assumption that the int-type field contains an int-type
+			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+			inf.vList = fmt.Sprintf("%s%d, ", inf.vList, fvr.Uint())
+			inf.fldMap[fd.FName] = fmt.Sprintf("%d", fvr.Uint())
 			continue
 
 		case "float32", "float64":
@@ -418,7 +488,17 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 						f, _ := strconv.ParseUint(s, 10, 64)
 						fv.SetUint(f)
 					} else {
-						fv.SetUint(inf.resultMap[ft].(uint64))
+						switch inf.resultMap[ft].(type) {
+						case uint64:
+							fv.SetUint(inf.resultMap[ft].(uint64))
+
+						case int64:
+							fv.SetInt(inf.resultMap[ft].(int64))
+
+						default:
+							fv.SetUint(inf.resultMap[ft].(uint64))
+						}
+						// fv.SetUint(inf.resultMap[ft].(uint64))
 					}
 				} else {
 					fv.SetInt(0)
