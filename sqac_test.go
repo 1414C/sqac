@@ -1749,3 +1749,58 @@ func TestCRUDCreateIntUint(t *testing.T) {
 		t.Errorf("failed to drop table %s", tn)
 	}
 }
+
+// TestCRUDBool
+//
+// Test CRUD Bool
+func TestCRUDCreateBool(t *testing.T) {
+
+	type TBool struct {
+		ID             uint   `db:"id" rgen:"primary_key:inc;start:90000000"`
+		FldOneBool     bool   `db:"fld_one_bool" rgen:"nullable:false;default:false"`
+		FldTwoBool     bool   `db:"fld_two_bool" rgen:"nullable:false;default:true"`
+		FldThreeString string `db:"fld_three_string" rgen:"nullable:false;default:fuddle-duddle"`
+	}
+
+	// determine the table names as per the
+	// table creation logic
+	tn := reflect.TypeOf(TBool{}).String()
+	if strings.Contains(tn, ".") {
+		el := strings.Split(tn, ".")
+		tn = strings.ToLower(el[len(el)-1])
+	} else {
+		tn = strings.ToLower(tn)
+	}
+
+	// create table tbool
+	err := Handle.CreateTables(TBool{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table tbool exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s does not exist", tn)
+	}
+
+	// create a new record via the CRUD Create call
+	var tbool = TBool{
+		FldOneBool:     true,
+		FldTwoBool:     false,
+		FldThreeString: "test_string",
+	}
+
+	err = Handle.Create(&tbool)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	if Handle.IsLog() {
+		fmt.Printf("INSERTING: %v\n", tbool)
+		fmt.Printf("TEST GOT: %v\n", tbool)
+	}
+
+	// err = Handle.DropTables(TBool{})
+	// if err != nil {
+	// 	t.Errorf("failed to drop table %s", tn)
+	// }
+}

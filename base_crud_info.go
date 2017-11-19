@@ -545,6 +545,25 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 					fv.SetString("")
 				}
 
+			case "bool":
+				if !bBlankField {
+					if bByteVal {
+						s := fmt.Sprintf("%s", inf.resultMap[ft].([]byte))
+						switch s {
+						case "0", "false", "FALSE":
+							fv.SetBool(false)
+						case "1", "true", "TRUE":
+							fv.SetBool(true)
+						default:
+
+						}
+					} else {
+						fv.Set(reflect.ValueOf(inf.resultMap[ft].(bool)))
+					}
+				} else {
+					fv.SetBool(false) // nullable?
+				}
+
 			case "time.Time":
 				if !bBlankField {
 					// fv.Set(reflect.ValueOf(inf.resultMap[ft].(time.Time).Local()))
