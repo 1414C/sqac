@@ -488,14 +488,11 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 						f, _ := strconv.ParseUint(s, 10, 64)
 						fv.SetUint(f)
 					} else {
-						fmt.Println("field-name:", fn)
 						switch inf.resultMap[ft].(type) {
 						case uint64:
-							fmt.Println("detected: uint64 for go-type:", tp)
 							fv.SetUint(inf.resultMap[ft].(uint64))
 
 						case int64:
-							fmt.Println("detected: int64 for go-type:", tp)
 							fv.SetUint(uint64(inf.resultMap[ft].(int64)))
 
 						default:
@@ -537,10 +534,8 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 				if !bBlankField {
 					if bByteVal {
 						s := fmt.Sprintf("%s", inf.resultMap[ft].([]byte))
-						fmt.Printf("FormatReturn: string: %s\n", inf.resultMap[ft].([]byte))
 						fv.SetString(s)
 					} else {
-						fmt.Printf("FormatReturn: string: %s\n", inf.resultMap[ft].(string))
 						fv.SetString(inf.resultMap[ft].(string))
 					}
 				} else {

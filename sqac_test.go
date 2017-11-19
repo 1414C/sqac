@@ -1480,7 +1480,7 @@ func TestCRUDUpdate(t *testing.T) {
 		FldOne               int       `db:"fld_one" rgen:"nullable:false;default:0;index:idx_depot_fld_one_fld_two"`
 		FldTwo               int       `db:"fld_two" rgen:"nullable:false;default:0;index:idx_depot_fld_one_fld_two"`
 		NonPersistentColumn  string    `db:"non_persistent_column" rgen:"-"`
-		NonPersistentColumn2 string    `db:"non_persistent_column" rgen:"nullable:true;-"`
+		NonPersistentColumn2 string    `db:"non_persistent_column" rgen:"-"`
 	}
 
 	// determine the table names as per the
