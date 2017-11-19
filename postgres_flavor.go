@@ -720,6 +720,10 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 		return err
 	}
 
+	for k, v := range info.resultMap {
+		fmt.Printf("k:%s, v:%v\n", k, v)
+	}
+
 	// fill the underlying structure of the interface ptr with the
 	// fields returned from the database.
 	err = pf.FormatReturn(&info)

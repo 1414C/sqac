@@ -451,7 +451,7 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 		if fv.CanSet() {
 			bBlankField := false
 			np, _ := inf.stype.Field(i).Tag.Lookup("rgen")
-			if strings.Contains(np, "-") {
+			if strings.Contains(np, "-") && len(np) == 1 {
 				bBlankField = true
 			}
 
@@ -537,8 +537,10 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 				if !bBlankField {
 					if bByteVal {
 						s := fmt.Sprintf("%s", inf.resultMap[ft].([]byte))
+						fmt.Printf("FormatReturn: string: %s\n", inf.resultMap[ft].([]byte))
 						fv.SetString(s)
 					} else {
+						fmt.Printf("FormatReturn: string: %s\n", inf.resultMap[ft].(string))
 						fv.SetString(inf.resultMap[ft].(string))
 					}
 				} else {
