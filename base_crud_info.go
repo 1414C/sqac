@@ -496,15 +496,14 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 
 						case int64:
 							fmt.Println("detected: int64 for go-type:", tp)
-							fv.SetInt(inf.resultMap[ft].(int64))
+							fv.SetUint(uint64(inf.resultMap[ft].(int64)))
 
 						default:
 							fv.SetUint(inf.resultMap[ft].(uint64))
 						}
-						// fv.SetUint(inf.resultMap[ft].(uint64))
 					}
 				} else {
-					fv.SetInt(0)
+					fv.SetUint(0)
 				}
 
 			case "rune":

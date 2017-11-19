@@ -1743,10 +1743,9 @@ func TestCRUDCreateIntUint(t *testing.T) {
 		fmt.Printf("INSERTING: %v\n", intuint)
 		fmt.Printf("TEST GOT: %v\n", intuint)
 	}
-	fmt.Printf("TEST GOT: %v\n", intuint)
 
-	// err = Handle.DropTables(DepotCreate{})
-	// if err != nil {
-	// 	t.Errorf("failed to drop table %s", tn)
-	// }
+	err = Handle.DropTables(IntUint{})
+	if err != nil {
+		t.Errorf("failed to drop table %s", tn)
+	}
 }
