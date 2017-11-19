@@ -18,6 +18,7 @@ type RgenPair struct {
 type FieldDef struct {
 	FName     string
 	FType     string
+	GoName    string
 	GoType    string
 	NoDB      bool
 	RgenPairs []RgenPair
@@ -77,6 +78,7 @@ func TagReader(i interface{}, t reflect.Type) (fd []FieldDef, err error) {
 		// go struct generation (tag `db:"field_name"`).  The function
 		// is used here to make that point.
 		fldDef.FName = common.CamelToSnake(t.Field(i).Name)
+		fldDef.GoName = t.Field(i).Name
 		fldDef.GoType = fts // go-type here
 
 		// get the other field-level db attributes

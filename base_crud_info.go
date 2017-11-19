@@ -310,6 +310,27 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 			inf.fldMap[fd.FName] = fmt.Sprintf("'%s'", fvr.String())
 			continue
 
+		case "bool":
+			if bDefault == true && fv == "" ||
+				bDefault == true && fv == nil {
+				inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+				inf.fldMap[fd.FName] = "DEFAULT"
+				continue
+			}
+			if bNullable == false && fv == nil {
+				inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+				inf.vList = fmt.Sprintf("%s%t, ", inf.vList, false) // or let it fail?
+				inf.fldMap[fd.FName] = false
+				continue
+			}
+			// in all other cases, just use the given value making the
+			// assumption that the string-type field contains a string-type
+			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+			inf.vList = fmt.Sprintf("%s%t, ", inf.vList, fvr.Bool())
+			inf.fldMap[fd.FName] = fmt.Sprintf("%t", fvr.Bool())
+			continue
+
 		case "time.Time", "*time.Time":
 
 			if inf.mode == "C" {
