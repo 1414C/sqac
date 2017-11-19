@@ -418,7 +418,7 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 						f, _ := strconv.ParseUint(s, 10, 64)
 						fv.SetUint(f)
 					} else {
-						fv.SetInt(inf.resultMap[ft].(int64))
+						fv.SetUint(inf.resultMap[ft].(uint64))
 					}
 				} else {
 					fv.SetInt(0)
