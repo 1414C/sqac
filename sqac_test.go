@@ -1694,3 +1694,59 @@ func TestCRUDGet(t *testing.T) {
 	// 	t.Errorf("failed to drop table %s", tn)
 	// }
 }
+
+// TestCRUDIntUint
+//
+// Test CRUD CreateIntUint
+func TestCRUDCreateIntUint(t *testing.T) {
+
+	type IntUint struct {
+		ID             uint   `db:"id" rgen:"primary_key:inc;start:90000000"`
+		FldOneInt      int    `db:"fld_one_int" rgen:"nullable:false;default:1"`
+		FldTwoUint     uint   `db:"fld_two_uint" rgen:"nullable:false;default:2"`
+		FldThreeString string `db:"fld_three_string" rgen:"nullable:false;default:fuddle-duddle"`
+	}
+
+	// determine the table names as per the
+	// table creation logic
+	tn := reflect.TypeOf(IntUint{}).String()
+	if strings.Contains(tn, ".") {
+		el := strings.Split(tn, ".")
+		tn = strings.ToLower(el[len(el)-1])
+	} else {
+		tn = strings.ToLower(tn)
+	}
+
+	// create table intuint
+	err := Handle.CreateTables(IntUint{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table intuint exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s does not exist", tn)
+	}
+
+	// create a new record via the CRUD Create call
+	var intuint = IntUint{
+		FldOneInt:      40,
+		FldTwoUint:     50,
+		FldThreeString: "test_string",
+	}
+
+	err = Handle.Create(&intuint)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	if Handle.IsLog() {
+		fmt.Printf("INSERTING: %v\n", intuint)
+		fmt.Printf("TEST GOT: %v\n", intuint)
+	}
+	fmt.Printf("TEST GOT: %v\n", intuint)
+
+	// err = Handle.DropTables(DepotCreate{})
+	// if err != nil {
+	// 	t.Errorf("failed to drop table %s", tn)
+	// }
+}
