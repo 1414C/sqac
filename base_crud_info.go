@@ -488,11 +488,14 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 						f, _ := strconv.ParseUint(s, 10, 64)
 						fv.SetUint(f)
 					} else {
+						fmt.Println("field-name:", fn)
 						switch inf.resultMap[ft].(type) {
 						case uint64:
+							fmt.Println("detected: uint64 for go-type:", tp)
 							fv.SetUint(inf.resultMap[ft].(uint64))
 
 						case int64:
+							fmt.Println("detected: int64 for go-type:", tp)
 							fv.SetInt(inf.resultMap[ft].(int64))
 
 						default:
