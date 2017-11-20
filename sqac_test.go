@@ -1756,10 +1756,11 @@ func TestCRUDCreateIntUint(t *testing.T) {
 func TestCRUDCreateBool(t *testing.T) {
 
 	type TBool struct {
-		ID             uint   `db:"id" rgen:"primary_key:inc;start:90000000"`
-		FldOneBool     bool   `db:"fld_one_bool" rgen:"nullable:false;default:false"`
-		FldTwoBool     bool   `db:"fld_two_bool" rgen:"nullable:false;default:true"`
-		FldThreeString string `db:"fld_three_string" rgen:"nullable:false;default:fuddle-duddle"`
+		ID         uint `db:"id" rgen:"primary_key:inc;start:90000000"`
+		FldOneBool bool `db:"fld_one_bool" rgen:"nullable:false;default:true"`
+		FldTwoBool bool `db:"fld_two_bool" rgen:"nullable:false;default:false"`
+		// FldThreeBoolN bool   `db:"fld_three_booln" rgen:"nullable:true"`
+		FldFourString string `db:"fld_four_string" rgen:"nullable:false;default:fuddle-duddle"`
 	}
 
 	// determine the table names as per the
@@ -1772,8 +1773,14 @@ func TestCRUDCreateBool(t *testing.T) {
 		tn = strings.ToLower(tn)
 	}
 
+	// drop table tbool if exists
+	err := Handle.DropTables(TBool{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
 	// create table tbool
-	err := Handle.CreateTables(TBool{})
+	err = Handle.CreateTables(TBool{})
 	if err != nil {
 		t.Errorf("%s", err.Error())
 	}
@@ -1785,9 +1792,9 @@ func TestCRUDCreateBool(t *testing.T) {
 
 	// create a new record via the CRUD Create call
 	var tbool = TBool{
-		FldOneBool:     true,
-		FldTwoBool:     false,
-		FldThreeString: "test_string",
+		FldOneBool:    false,
+		FldTwoBool:    true,
+		FldFourString: "test_string",
 	}
 
 	err = Handle.Create(&tbool)
@@ -1795,10 +1802,36 @@ func TestCRUDCreateBool(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 	if Handle.IsLog() {
-		fmt.Printf("INSERTING: %v\n", tbool)
+		fmt.Printf("INSERTED: %v\n", tbool)
 		fmt.Printf("TEST GOT: %v\n", tbool)
 	}
 
+	// key populated?
+	if tbool.ID == 0 {
+		t.Errorf("insert into tbool did not succeed: tbool.ID == 0")
+	}
+
+	//
+	// create a struct to read into and populate the keys
+	tboolRead := TBool{
+		ID: tbool.ID,
+	}
+
+	err = Handle.GetEntity(&tboolRead)
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	fmt.Println("GetEntity() returned:", tboolRead)
+	if tboolRead.FldOneBool != false {
+		t.Errorf("insert into tbool did not succeed: tbool.FldOneBool == %v, expected false", tboolRead.FldOneBool)
+	}
+	if tboolRead.FldTwoBool != true {
+		t.Errorf("insert into tbool did not succeed: tbool.FldTwoBool == %v, expected true", tboolRead.FldTwoBool)
+	}
+	if tboolRead.FldFourString != "test_string" {
+		t.Errorf("insert into tbool did not succeed: tbool.FldFourString == %v, expected 'test_string'", tboolRead.FldFourString)
+	}
 	// err = Handle.DropTables(TBool{})
 	// if err != nil {
 	// 	t.Errorf("failed to drop table %s", tn)

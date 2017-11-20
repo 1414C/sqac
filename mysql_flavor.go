@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/1414C/sqac/common"
 )
 
 // MySQLFlavor is a MySQL-specific implementation.
@@ -93,7 +95,7 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 
 	qt := myf.GetDBQuote()
 	pKeys := ""
-	var sequences []RgenPair
+	var sequences []common.RgenPair
 	indexes := make(map[string]IndexInfo)
 	tableSchema := fmt.Sprintf("CREATE TABLE %s%s%s (", qt, tn, qt)
 
@@ -101,7 +103,7 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 	// TagReader is a common function across db-flavors. For
 	// this reason, the db-specific-data-type for each field
 	// is determined locally.
-	fldef, err := TagReader(ent, nil)
+	fldef, err := common.TagReader(ent, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -191,7 +193,7 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 					}
 					if seqName == "" && start > 0 {
 						seqName = tn
-						sequences = append(sequences, RgenPair{Name: seqName, Value: p.Value})
+						sequences = append(sequences, common.RgenPair{Name: seqName, Value: p.Value})
 					}
 
 				case "default":

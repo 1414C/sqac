@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/1414C/sqac/common"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -33,8 +34,8 @@ type ColComponents struct {
 // create / alter processing.
 type TblComponents struct {
 	tblSchema string
-	flDef     []FieldDef
-	seq       []RgenPair
+	flDef     []common.FieldDef
+	seq       []common.RgenPair
 	ind       map[string]IndexInfo
 	pk        string
 	err       error
@@ -155,6 +156,10 @@ type PublicDB interface {
 	Get(dst interface{}, queryString string, args ...interface{}) error
 	Select(dst interface{}, queryString string, args ...interface{}) error
 
+	// Boolean conversions
+	BoolToDBBool(b bool) *int
+	DBBoolToBool(interface{}) bool
+
 	// CRUD ops :(
 	Create(ent interface{}) error
 	Update(ent interface{}) error
@@ -270,6 +275,56 @@ func (bf *BaseFlavor) InBase() {
 
 func (bf *BaseFlavor) InDB() {
 	fmt.Println("InDB called in BF")
+}
+
+// BoolToDBBool converts a go-bool value into the
+// DB bool representation.  called for DB's that
+// do not support a true/false boolean type.
+func (bf *BaseFlavor) BoolToDBBool(b bool) *int {
+
+	var r int
+
+	switch b {
+	case true:
+		r = 1
+		return &r
+
+	case false:
+		r = 0
+		return &r
+
+	default:
+		return nil
+	}
+}
+
+// DBBoolToBool converts from the DB representation
+// of a bool into the go-bool type.  The is called for
+// DB's that do not support a true/false boolean type.
+func (bf *BaseFlavor) DBBoolToBool(i interface{}) bool {
+
+	switch i.(type) {
+	case string:
+		if i.(string) == "TRUE" || i.(string) == "true" {
+			return true
+		}
+		return false
+
+	case int:
+		if i.(int) == 1 {
+			return true
+		}
+		return false
+
+	case int64:
+		if i.(int64) == 1 {
+			return true
+		}
+		return false
+
+	default:
+		return false
+	}
 }
 
 // GetRelations is designed to take a tablename and use it

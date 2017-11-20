@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/1414C/sqac/common"
 )
 
 // PostgresFlavor is a postgres-specific implementation.
@@ -105,7 +107,7 @@ func (pf *PostgresFlavor) CreateTables(i ...interface{}) error {
 func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 
 	pKeys := ""
-	var sequences []RgenPair
+	var sequences []common.RgenPair
 	indexes := make(map[string]IndexInfo)
 	tableSchema := fmt.Sprintf("CREATE TABLE %s (", tn)
 
@@ -113,7 +115,7 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 	// TagReader is a common function across db-flavors. For
 	// this reason, the db-specific-data-type for each field
 	// is determined locally.
-	fldef, err := TagReader(ent, nil)
+	fldef, err := common.TagReader(ent, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -173,7 +175,7 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 					}
 					if seqName == "" && start > 0 {
 						seqName = tn + "_" + fd.FName + "_seq"
-						sequences = append(sequences, RgenPair{Name: seqName, Value: p.Value})
+						sequences = append(sequences, common.RgenPair{Name: seqName, Value: p.Value})
 					}
 
 				case "default":

@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/1414C/sqac/common"
 )
 
 // CrudInfo contains information used to perform CRUD
@@ -17,7 +19,7 @@ type CrudInfo struct {
 	log        bool
 	mode       string // "C" || "U"  || "D" == create or update or delete
 	stype      reflect.Type
-	flDef      []FieldDef
+	flDef      []common.FieldDef
 	tn         string
 	fList      string
 	vList      string
@@ -52,7 +54,7 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 
 	// read the tags for the struct underlying the interface ptr
 	var err error
-	inf.flDef, err = TagReader(inf.ent, inf.stype)
+	inf.flDef, err = common.TagReader(inf.ent, inf.stype)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -318,17 +320,30 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 				inf.fldMap[fd.FName] = "DEFAULT"
 				continue
 			}
-			if bNullable == false && fv == nil {
-				inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-				inf.vList = fmt.Sprintf("%s%t, ", inf.vList, false) // or let it fail?
-				inf.fldMap[fd.FName] = false
-				continue
-			}
+			// if bNullable == false && fv == nil {
+			// 	inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+			// 	if bf.GetDBDriverName() == "sqlite" {
+			// 		inf.vList = fmt.Sprintf("%s%d, ", inf.vList, 0) // or let it fail?
+			// 		inf.fldMap[fd.FName] = 0
+			// 	} else {
+			// 		inf.vList = fmt.Sprintf("%s%t, ", inf.vList, false) // or let it fail?
+			// 		inf.fldMap[fd.FName] = false
+			// 	}
+			// 	continue
+			// }
+
 			// in all other cases, just use the given value making the
-			// assumption that the string-type field contains a string-type
+			// assumption that the string-type field contains a bool-type
 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-			inf.vList = fmt.Sprintf("%s%t, ", inf.vList, fvr.Bool())
-			inf.fldMap[fd.FName] = fmt.Sprintf("%t", fvr.Bool())
+			switch bf.GetDBDriverName() {
+			case "sqlite3":
+				i := bf.BoolToDBBool(fvr.Bool())
+				inf.vList = fmt.Sprintf("%s%d, ", inf.vList, *i)
+				inf.fldMap[fd.FName] = fmt.Sprintf("%d", *i)
+			default:
+				inf.vList = fmt.Sprintf("%s%t, ", inf.vList, fvr.Bool())
+				inf.fldMap[fd.FName] = fmt.Sprintf("%t", fvr.Bool())
+			}
 			continue
 
 		case "time.Time", "*time.Time":
@@ -576,7 +591,13 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 
 						}
 					} else {
-						fv.Set(reflect.ValueOf(inf.resultMap[ft].(bool)))
+						switch bf.GetDBDriverName() {
+						case "hdb":
+							b := bf.DBBoolToBool(inf.resultMap[ft])
+							fv.SetBool(b)
+						default:
+							fv.Set(reflect.ValueOf(inf.resultMap[ft].(bool)))
+						}
 					}
 				} else {
 					fv.SetBool(false) // nullable?

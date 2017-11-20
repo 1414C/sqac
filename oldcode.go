@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/1414C/sqac/common"
 )
 
 // CreateBak - Create the entity (single-row) on the database
@@ -40,7 +42,7 @@ func (pf *PostgresFlavor) CreateBak(ent interface{}) error {
 	}
 
 	// read the tags for the struct underlying the interface ptr
-	flDef, err := TagReader(ent, stype)
+	flDef, err := common.TagReader(ent, stype)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -381,7 +383,7 @@ func (pf *PostgresFlavor) UpdateBak(ent interface{}) error {
 	}
 
 	// read the tags for the struct underlying the interface ptr
-	flDef, err := TagReader(ent, stype)
+	flDef, err := common.TagReader(ent, stype)
 	if err != nil {
 		fmt.Println(err)
 		return err

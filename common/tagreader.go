@@ -1,4 +1,4 @@
-package sqac
+package common
 
 import (
 	"fmt"

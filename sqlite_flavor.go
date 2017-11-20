@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/1414C/sqac/common"
 )
 
 // SQLiteFlavor is a sqlite3-specific implementation.
@@ -90,6 +92,7 @@ func (slf *SQLiteFlavor) CreateTables(i ...interface{}) error {
 		if slf.IsLog() {
 			fmt.Println(tc.tblSchema)
 		}
+		fmt.Println(tc.tblSchema)
 
 		// execute the create schema against the db
 		slf.db.MustExec(tc.tblSchema)
@@ -202,7 +205,7 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 
 	qt := slf.GetDBQuote()
 	pKeys := ""
-	var sequences []RgenPair
+	var sequences []common.RgenPair
 	indexes := make(map[string]IndexInfo)
 	tableSchema := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s%s%s (", qt, tn, qt)
 
@@ -210,7 +213,7 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 	// TagReader is a common function across db-flavors. For
 	// this reason, the db-specific-data-type for each field
 	// is determined locally.
-	fldef, err := TagReader(ent, nil)
+	fldef, err := common.TagReader(ent, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -299,7 +302,7 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 			col.fType = "real"
 
 		case "bool":
-			col.fType = "bool"
+			col.fType = "boolean"
 
 		case "string":
 			col.fType = "varchar(255)"
@@ -349,13 +352,25 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 					}
 					if seqName == "" && start > 0 {
 						seqName = tn
-						sequences = append(sequences, RgenPair{Name: seqName, Value: p.Value})
+						sequences = append(sequences, common.RgenPair{Name: seqName, Value: p.Value})
 					}
 
 				case "default":
 					if fd.GoType == "string" {
 						col.fDefault = fmt.Sprintf("DEFAULT '%s'", p.Value)
 					} else {
+						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
+					}
+
+					if fd.GoType == "bool" {
+						switch p.Value {
+						case "TRUE", "true":
+							p.Value = "1"
+						case "FALSE", "false":
+							p.Value = "0"
+						default:
+
+						}
 						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
 					}
 

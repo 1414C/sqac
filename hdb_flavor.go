@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"text/template"
+
+	"github.com/1414C/sqac/common"
 )
 
 // HDBFlavor is a SAP Hana-specific implementation, where
@@ -343,11 +345,11 @@ func (hf *HDBFlavor) CreateTables(i ...interface{}) error {
 	return nil
 }
 
-func (hf *HDBFlavor) createInsertSP(seqDef hdbSeqTyp, fldef []FieldDef) error {
+func (hf *HDBFlavor) createInsertSP(seqDef hdbSeqTyp, fldef []common.FieldDef) error {
 
 	type tmplDataTyp struct {
 		Header hdbSeqTyp
-		Fields []FieldDef
+		Fields []common.FieldDef
 	}
 
 	var tmplData tmplDataTyp
@@ -509,7 +511,7 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 
 	qt := hf.GetDBQuote()
 	pKeys := ""
-	var sequences []RgenPair
+	var sequences []common.RgenPair
 	var hdbSeq hdbSeqTyp
 
 	indexes := make(map[string]IndexInfo)
@@ -519,7 +521,7 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 	// TagReader is a common function across db-flavors. For
 	// this reason, the db-specific-data-type for each field
 	// is determined locally.
-	fldef, err := TagReader(ent, nil)
+	fldef, err := common.TagReader(ent, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -607,7 +609,7 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 					}
 					if seqName == "" && start > 0 {
 						hdbSeq.Start = start
-						sequences = append(sequences, RgenPair{Name: hdbSeq.SeqName, Value: fmt.Sprintf("%v", hdbSeq)}) //Value: p.Value})
+						sequences = append(sequences, common.RgenPair{Name: hdbSeq.SeqName, Value: fmt.Sprintf("%v", hdbSeq)}) //Value: p.Value})
 						hdbSeq = hdbSeqTyp{}
 						col.fStart = start
 					}
@@ -635,12 +637,9 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 					// 	switch p.Value {
 					// 	case "TRUE", "true":
 					// 		p.Value = "1"
-
 					// 	case "FALSE", "false":
 					// 		p.Value = "0"
-
 					// 	default:
-
 					// 	}
 					// 	col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
 					// }
