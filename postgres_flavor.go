@@ -705,7 +705,6 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	info.log = false
 	info.mode = "C"
 
-	fmt.Println("IN pf.Create")
 	err := pf.BuildComponents(&info)
 	if err != nil {
 		return err
@@ -720,10 +719,6 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	err = pf.db.QueryRowx(insQuery).MapScan(info.resultMap) // SliceScan
 	if err != nil {
 		return err
-	}
-
-	for k, v := range info.resultMap {
-		fmt.Printf("k:%s, v:%v\n", k, v)
 	}
 
 	// fill the underlying structure of the interface ptr with the
