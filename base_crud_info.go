@@ -56,7 +56,7 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 	var err error
 	inf.flDef, err = common.TagReader(inf.ent, inf.stype)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("error reading model definition", err)
 		return err
 	}
 	if inf.log {
@@ -389,7 +389,6 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 
 				// deal with time keys
 				if bPkeyInc == true || bPkey == true {
-					// fmt.Println("fv:", fv)
 					if fd.GoType == "time.Time" {
 						// inf.keyMap[fd.FName] = fv.(time.Time).Format(time.RFC3339)
 						inf.keyMap[fd.FName] = bf.TimeToFormattedString(fv.(time.Time)) // fv.(time.Time).Format("2006-01-02 15:04:05.999999-07:00")
@@ -627,8 +626,7 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 		}
 	}
 	if inf.log {
-		fmt.Println(values)
-		fmt.Println("ENT:", inf.ent)
+		fmt.Println("populated entity:", inf.ent)
 	}
 	return nil
 }
