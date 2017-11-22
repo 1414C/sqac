@@ -2,6 +2,7 @@ package sqac
 
 import (
 	"fmt"
+	"log"
 	"reflect"
 	"strconv"
 	"strings"
@@ -64,13 +65,7 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 	}
 
 	// determine the table name as per the table creation logic
-	inf.tn = reflect.TypeOf(inf.ent).String()
-	if strings.Contains(inf.tn, ".") {
-		el := strings.Split(inf.tn, ".")
-		inf.tn = strings.ToLower(el[len(el)-1])
-	} else {
-		inf.tn = strings.ToLower(inf.tn)
-	}
+	inf.tn = common.GetTableName(inf.ent)
 
 	inf.fList = "("
 	inf.vList = "("
@@ -113,6 +108,7 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 		bPkeyInc := false
 		bPkey := false
 		bNullable := false
+		bIsNull := false
 
 		// set the field attribute indicators
 		for _, t := range fd.RgenPairs {
@@ -138,6 +134,21 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 		// get the value of the current entity field
 		fv := inf.entValue.Field(i).Interface()
 		fvr := inf.entValue.Field(i)
+		fmt.Println("FV:", fv)
+		fmt.Println("FVR:", fvr)
+
+		// is the struct member a pointer?
+		if fvr.Kind() == reflect.Ptr {
+			fmt.Printf("%s is a pointer!\n", fd.FName)
+			if fvr.IsNil() {
+				fmt.Println("fvr is nil!")
+				bIsNull = true
+			} else {
+				fvr = fvr.Elem() // get the value
+			}
+		}
+		fmt.Println("FV:", fv)
+		fmt.Println("FVR:", fvr)
 		switch fd.GoType {
 		// case "int", "uint", "int8", "uint8", "int16", "uint16", "int32", "uint32", "int64", "uint64", "rune", "byte":
 		// 	if inf.mode == "C" {
@@ -278,7 +289,7 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 			inf.fldMap[fd.FName] = fmt.Sprintf("%f", fvr.Float())
 			continue
 
-		case "string":
+		case "string", "*string":
 			if inf.mode == "C" {
 				if bPkeyInc == true {
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
@@ -308,8 +319,16 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 			// in all other cases, just use the given value making the
 			// assumption that the string-type field contains a string-type
 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-			inf.vList = fmt.Sprintf("%s'%s', ", inf.vList, fvr.String())
-			inf.fldMap[fd.FName] = fmt.Sprintf("'%s'", fvr.String())
+			if !bIsNull {
+				inf.vList = fmt.Sprintf("%s'%s', ", inf.vList, fvr.String())
+				inf.fldMap[fd.FName] = fmt.Sprintf("'%s'", fvr.String())
+			} else {
+				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "NULL")
+				inf.fldMap[fd.FName] = fmt.Sprintf("%s", "NULL")
+			}
+			// inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+			// inf.vList = fmt.Sprintf("%s'%s', ", inf.vList, fvr.String())
+			// inf.fldMap[fd.FName] = fmt.Sprintf("'%s'", fvr.String())
 			continue
 
 		case "bool":
@@ -470,7 +489,7 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 
 		if inf.log {
 			fmt.Println("NAME:", fn)
-			fmt.Println("TAG:", st)
+			// fmt.Println("TAG:", st)
 			fmt.Println("DB FIELD NAME:", ft)
 			fmt.Println("FIELD-TYPE:", tp)
 		}
@@ -479,6 +498,11 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 		fv := reflect.ValueOf(inf.ent).Elem().FieldByName(fn)
 		if !fv.IsValid() {
 			panic(fmt.Errorf("invalid field %s in struct %s", fn, st))
+		}
+
+		// deal with pointer members in tehe target struct
+		if fv.Kind() == reflect.Ptr {
+			fv = fv.Elem()
 		}
 
 		// check if the reflect.Value can be updated and set the returned
@@ -565,7 +589,7 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 					fv.SetFloat(0)
 				}
 
-			case "string":
+			case "string", "*string":
 				if !bBlankField {
 					if bByteVal {
 						s := fmt.Sprintf("%s", inf.resultMap[ft].([]byte))
@@ -617,12 +641,190 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 					fv.SetInt(0)
 				}
 			default:
-				fmt.Printf("UNSUPPORTED TYPE:%s\n", tp)
+				log.Printf("UNSUPPORTED TYPE:%s\n", tp)
 				// one could try something like this:
 				// fv.Set(reflect.ValueOf(resultMap[ft].(stype.Field(i).Type)))
 			}
 		} else {
-			fmt.Printf("CANNOT SET %s:\n", fn)
+			if inf.log {
+				log.Printf("CANNOT SET %s:\n", fn)
+			}
+			log.Printf("CANNOT SET %s:\n", fn)
+		}
+	}
+	if inf.log {
+		fmt.Println("populated entity:", inf.ent)
+	}
+	return nil
+}
+
+// FormatReturn2 is used by CRUD operations to format
+// the result-data from INSERT/UPDATE/GET's back into
+// the go-format.  Notably, timestamps are stored as
+// UTC where the db supports it, and this is used to
+// ensure that the returned timestamp is presented in
+// server-local format.
+func (bf *BaseFlavor) FormatReturn2(inf *CrudInfo) error {
+
+	for _, flDef := range inf.flDef {
+		if inf.log {
+			fmt.Println("======================================================")
+			fmt.Println("flDef: ", flDef)
+			fmt.Println("bf.FormatReturn")
+			fmt.Println("GoFieldName:", flDef.GoName)
+			fmt.Println("snake_name:", flDef.FName)
+			fmt.Println("go-field-type:", flDef.GoType)
+		}
+
+		// get the reflect.Value of the current field in the ent struct
+		fv := reflect.ValueOf(inf.ent).Elem().FieldByName(flDef.GoName)
+		if !fv.IsValid() {
+			panic(fmt.Errorf("invalid field %s in struct %s", flDef.GoName, "foo"))
+		}
+
+		// deal with pointer members in the target struct
+		if fv.Kind() == reflect.Ptr {
+			fv = fv.Elem()
+		}
+
+		if fv.CanSet() {
+
+			// this is where go is pedantic, as type-assertions rely on compile-time
+			// constants in the .(<type>) expression.
+			bByteVal := false
+			switch vt := inf.resultMap[flDef.FName].(type) {
+			case []byte:
+				bByteVal = true
+				_ = vt // go is awkward
+			default:
+				bByteVal = false
+			}
+
+			switch flDef.GoType {
+			case "int", "int8", "int16", "int32", "int64":
+				if !flDef.NoDB {
+					// fmt.Printf("field-name: %s, go type: %s\n", ft, tp)
+					if bByteVal {
+						s := fmt.Sprintf("%s", inf.resultMap[flDef.FName].([]byte))
+						f, _ := strconv.ParseInt(s, 10, 64)
+						fv.SetInt(f)
+					} else {
+						fv.SetInt(inf.resultMap[flDef.FName].(int64))
+					}
+				} else {
+					fv.SetInt(0)
+				}
+
+			case "uint", "uint8", "uint16", "uint32", "uint64":
+				if !flDef.NoDB {
+					if bByteVal {
+						s := fmt.Sprintf("%s", inf.resultMap[flDef.FName].([]byte))
+						f, _ := strconv.ParseUint(s, 10, 64)
+						fv.SetUint(f)
+					} else {
+						switch inf.resultMap[flDef.FName].(type) {
+						case uint64:
+							fv.SetUint(inf.resultMap[flDef.FName].(uint64))
+
+						case int64:
+							fv.SetUint(uint64(inf.resultMap[flDef.FName].(int64)))
+
+						default:
+							fv.SetUint(inf.resultMap[flDef.FName].(uint64))
+						}
+					}
+				} else {
+					fv.SetUint(0)
+				}
+
+			case "rune":
+				if !flDef.NoDB {
+					fv.Set(reflect.ValueOf(inf.resultMap[flDef.FName].(rune)))
+				} else {
+					fv.SetUint(0)
+				}
+
+			case "byte":
+				if !flDef.NoDB {
+					fv.Set(reflect.ValueOf(inf.resultMap[flDef.FName].(byte)))
+				} else {
+					fv.SetUint(0)
+				}
+
+			case "float32", "float64":
+				if !flDef.NoDB {
+					if bByteVal {
+						s := fmt.Sprintf("%s", inf.resultMap[flDef.FName].([]byte))
+						f, _ := strconv.ParseFloat(s, 64)
+						fv.SetFloat(f)
+					} else {
+						fv.SetFloat(inf.resultMap[flDef.FName].(float64))
+					}
+				} else {
+					fv.SetFloat(0)
+				}
+
+			case "string", "*string":
+				if !flDef.NoDB {
+					if bByteVal {
+						s := fmt.Sprintf("%s", inf.resultMap[flDef.FName].([]byte))
+						fv.SetString(s)
+					} else {
+						fv.SetString(inf.resultMap[flDef.FName].(string))
+					}
+				} else {
+					fv.SetString("")
+				}
+
+			case "bool":
+				if !flDef.NoDB {
+					if bByteVal {
+						s := fmt.Sprintf("%s", inf.resultMap[flDef.FName].([]byte))
+						switch s {
+						case "0", "false", "FALSE":
+							fv.SetBool(false)
+						case "1", "true", "TRUE":
+							fv.SetBool(true)
+						default:
+
+						}
+					} else {
+						switch bf.GetDBDriverName() {
+						case "hdb":
+							b := bf.DBBoolToBool(inf.resultMap[flDef.FName])
+							fv.SetBool(b)
+						default:
+							fv.Set(reflect.ValueOf(inf.resultMap[flDef.FName].(bool)))
+						}
+					}
+				} else {
+					fv.SetBool(false) // nullable?
+				}
+
+			case "time.Time":
+				if !flDef.NoDB {
+					// fv.Set(reflect.ValueOf(inf.resultMap[ft].(time.Time).Local()))
+					fv.Set(reflect.ValueOf(inf.resultMap[flDef.FName].(time.Time)))
+				} else {
+					fv.SetInt(0)
+				}
+
+			case "*time.Time":
+				if !flDef.NoDB {
+					fv.Set(reflect.ValueOf(inf.resultMap[flDef.FName].(*time.Time)))
+				} else {
+					fv.SetInt(0)
+				}
+			default:
+				log.Printf("UNSUPPORTED TYPE:%s\n", flDef.GoType)
+				// one could try something like this:
+				// fv.Set(reflect.ValueOf(resultMap[ft].(stype.Field(i).Type)))
+			}
+		} else {
+			if inf.log {
+				log.Printf("CANNOT SET %s:\n", flDef.GoName)
+			}
+			log.Printf("CANNOT SET %s:\n", flDef.GoName)
 		}
 	}
 	if inf.log {

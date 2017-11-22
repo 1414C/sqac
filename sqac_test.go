@@ -5,12 +5,12 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"reflect"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/1414C/sqac"
+	"github.com/1414C/sqac/common"
 	_ "github.com/SAP/go-hdb/driver"
 	_ "github.com/denisenkom/go-mssqldb"
 	_ "github.com/go-sql-driver/mysql"
@@ -220,13 +220,14 @@ func TestExistsTableNegative(t *testing.T) {
 
 	// determine the table name as per the
 	// table creation logic
-	tn := reflect.TypeOf(Footle{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	tn := common.GetTableName(Footle{})
+	// tn := reflect.TypeOf(Footle{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 
 	// expect that table depot does not exist
 	if Handle.ExistsTable(tn) {
@@ -256,15 +257,15 @@ func TestCreateTableBasic(t *testing.T) {
 		t.Errorf("%s", err.Error())
 	}
 
-	// determine the table name as per the
-	// table creation logic
-	tn := reflect.TypeOf(Depot{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	// determine the table name as per the table creation logic
+	tn := common.GetTableName(Depot{})
+	// tn := reflect.TypeOf(Depot{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 
 	// expect that table depot exists
 	if !Handle.ExistsTable(tn) {
@@ -291,15 +292,15 @@ func TestDropTablesBasic(t *testing.T) {
 		t.Errorf("%s", err.Error())
 	}
 
-	// determine the table name as per the
-	// table creation logic
-	tn := reflect.TypeOf(Depot{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	// determine the table name as per the table creation logic
+	tn := common.GetTableName(Depot{})
+	// tn := reflect.TypeOf(Depot{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 
 	// expect that table depot has been dropped
 	if Handle.ExistsTable(tn) {
@@ -329,15 +330,15 @@ func TestCreateTableWithAlterSequence(t *testing.T) {
 		t.Errorf("%s", err.Error())
 	}
 
-	// determine the table name as per the
-	// table creation logic
-	tn := reflect.TypeOf(Depot{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	// determine the table name as per the  table creation logic
+	tn := common.GetTableName(Depot{})
+	// tn := reflect.TypeOf(Depot{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 
 	// expect that table depot exists
 	if !Handle.ExistsTable(tn) {
@@ -415,15 +416,15 @@ func TestCreateTablesWithInclude(t *testing.T) {
 		t.Errorf("%s", err.Error())
 	}
 
-	// determine the table name as per the
-	// table creation logic
-	tn := reflect.TypeOf(Equipment{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	// determine the table name as per the table creation logic
+	tn := common.GetTableName(Equipment{})
+	// tn := reflect.TypeOf(Equipment{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 
 	// expect that table depot exists
 	if !Handle.ExistsTable(tn) {
@@ -461,15 +462,15 @@ func TestExistsIndexNegative(t *testing.T) {
 		t.Errorf("%s", err.Error())
 	}
 
-	// determine the table name as per the
-	// table creation logic
-	tn := reflect.TypeOf(Depot{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	// determine the table name as per the table creation logic
+	tn := common.GetTableName(Depot{})
+	// tn := reflect.TypeOf(Depot{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 
 	// expect that table depot exists
 	if !Handle.ExistsTable(tn) {
@@ -510,15 +511,15 @@ func TestCreateSingleUniqueIndexFromModel(t *testing.T) {
 		t.Errorf("%s", err.Error())
 	}
 
-	// determine the table name as per the
-	// table creation logic
-	tn := reflect.TypeOf(Depot{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	// determine the table name as per the table creation logic
+	tn := common.GetTableName(Depot{})
+	// tn := reflect.TypeOf(Depot{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 
 	// expect that table depot exists
 	if !Handle.ExistsTable(tn) {
@@ -559,15 +560,15 @@ func TestCreateSingleNonUniqueIndexFromModel(t *testing.T) {
 		t.Errorf("%s", err.Error())
 	}
 
-	// determine the table name as per the
-	// table creation logic
-	tn := reflect.TypeOf(Depot{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	// determine the table name as per the table creation logic
+	tn := common.GetTableName(Depot{})
+	// tn := reflect.TypeOf(Depot{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 
 	// expect that table depot exists
 	if !Handle.ExistsTable(tn) {
@@ -608,15 +609,15 @@ func TestCreateSimpleCompositeIndex(t *testing.T) {
 		t.Errorf("%s", err.Error())
 	}
 
-	// determine the table name as per the
-	// table creation logic
-	tn := reflect.TypeOf(Depot{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	// determine the table name as per the table creation logic
+	tn := common.GetTableName(Depot{})
+	// tn := reflect.TypeOf(Depot{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 
 	// expect that table depot exists
 	if !Handle.ExistsTable(tn) {
@@ -651,15 +652,15 @@ func TestExistsIndexPositive(t *testing.T) {
 		NewColumn3 float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
 	}
 
-	// determine the table name as per the
-	// table creation logic
-	tn := reflect.TypeOf(Depot{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	// determine the table name as per the table creation logic
+	tn := common.GetTableName(Depot{})
+	// tn := reflect.TypeOf(Depot{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 
 	// expect that table depot exists
 	if !Handle.ExistsTable(tn) {
@@ -697,15 +698,15 @@ func TestDropIndex(t *testing.T) {
 		t.Errorf("%s", err.Error())
 	}
 
-	// determine the table name as per the
-	// table creation logic
-	tn := reflect.TypeOf(Depot{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	// determine the table name as per the table creation logic
+	tn := common.GetTableName(Depot{})
+	// tn := reflect.TypeOf(Depot{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 
 	if !Handle.ExistsIndex(tn, "idx_depot_province_country") {
 		t.Errorf("index %s was not found on table %s", "idx_depot_province_country", tn)
@@ -749,15 +750,15 @@ func TestCreateCompositeIndexFromModel(t *testing.T) {
 		t.Errorf("%s", err.Error())
 	}
 
-	// determine the table name as per the
-	// table creation logic
-	tn := reflect.TypeOf(Depot{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	// determine the table name as per the table creation logic
+	tn := common.GetTableName(Depot{})
+	// tn := reflect.TypeOf(Depot{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 
 	// expect that table depot exists
 	if !Handle.ExistsTable(tn) {
@@ -792,15 +793,15 @@ func TestExistsColumn(t *testing.T) {
 		Country    string    `db:"country" rgen:"nullable:true;default:CA"`
 	}
 
-	// determine the table name as per the
-	// table creation logic
-	tn := reflect.TypeOf(Depot{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	// determine the table name as per the table creation logic
+	tn := common.GetTableName(Depot{})
+	// tn := reflect.TypeOf(Depot{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 
 	// ensure table exists in db - create via alter
 	err := Handle.AlterTables(Depot{})
@@ -851,13 +852,15 @@ func TestAlterTables(t *testing.T) {
 	}
 
 	// determine the table name as per the table creation logic
-	tn := reflect.TypeOf(Depot{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	tn := common.GetTableName(Depot{})
+
+	// reflect.TypeOf(Depot{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 
 	if !Handle.ExistsColumn("depot", "new_column1") {
 		t.Errorf("new_column1 was expected to exist but does not ")
@@ -905,22 +908,24 @@ func TestDestructiveResetTables(t *testing.T) {
 	// determine the table names as per the
 	// table creation logic
 	tns := make([]string, 0)
-	tn := reflect.TypeOf(Depot{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	tn := common.GetTableName(Depot{})
+	// tn := reflect.TypeOf(Depot{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 	tns = append(tns, tn)
 
-	tn = reflect.TypeOf(Equipment{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	tn = common.GetTableName(Equipment{})
+	//tn = reflect.TypeOf(Equipment{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 	tns = append(tns, tn)
 
 	// ensure tables exist in db
@@ -1003,13 +1008,14 @@ func TestQueryOps(t *testing.T) {
 	}
 
 	// determine the table names as per the table creation logic
-	tn := reflect.TypeOf(QOps{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	tn := common.GetTableName(QOps{})
+	// tn := reflect.TypeOf(QOps{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 
 	// ensure table qops exists in db
 	if !Handle.ExistsTable(tn) {
@@ -1217,15 +1223,15 @@ func TestNullableValues(t *testing.T) {
 		t.Errorf("%s", err.Error())
 	}
 
-	// determine the table names as per the
-	// table creation logic
-	tn := reflect.TypeOf(Depot{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	// determine the table names as per the table creation logic
+	tn := common.GetTableName(Depot{})
+	// tn := reflect.TypeOf(Depot{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 
 	// ensure table depot exists in db
 	if !Handle.ExistsTable(tn) {
@@ -1350,15 +1356,15 @@ func TestNonPersistentColumn(t *testing.T) {
 		t.Errorf("%s", err.Error())
 	}
 
-	// determine the table names as per the
-	// table creation logic
-	tn := reflect.TypeOf(Depot{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	// determine the table names as per the table creation logic
+	tn := common.GetTableName(Depot{})
+	// tn := reflect.TypeOf(Depot{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 
 	// create table depot in the db
 	err = Handle.CreateTables(Depot{})
@@ -1414,15 +1420,15 @@ func TestCRUDCreate(t *testing.T) {
 		NonPersistentColumn string    `db:"non_persistent_column" rgen:"-"`
 	}
 
-	// determine the table names as per the
-	// table creation logic
-	tn := reflect.TypeOf(DepotCreate{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	// determine the table names as per the table creation logic
+	tn := common.GetTableName(DepotCreate{})
+	// tn := reflect.TypeOf(DepotCreate{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 
 	// create table depot
 	err := Handle.CreateTables(DepotCreate{})
@@ -1461,6 +1467,77 @@ func TestCRUDCreate(t *testing.T) {
 	// }
 }
 
+// TestCRUDCreateNullable
+//
+// Test CRUD Create Nullable
+func TestCRUDCreateNullable(t *testing.T) {
+
+	type DCNullable struct {
+		DepotNum    int     `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
+		Region      string  `db:"region" rgen:"nullable:false;default:YYC"`
+		Province    string  `db:"province" rgen:"nullable:false;default:AB"`
+		NullStrFld  *string `db:"null_str_fld" rgen:"nullable:true"`
+		NullStrFld2 *string `db:"null_str_fld2" rgen:"nullable:true"`
+	}
+
+	// alter table dcnullable if exists
+	err := Handle.AlterTables(DCNullable{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// determine the table names as per the table creation logic
+	tn := common.GetTableName(DCNullable{})
+	// tn := reflect.TypeOf(DCNullable{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
+
+	// create table dcnullable
+	err = Handle.CreateTables(DCNullable{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table depot exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s does not exist", tn)
+	}
+
+	// create a new record via the CRUD Create call
+	var nsf string
+	nsf = "test_nullable_fld"
+	var dcnullable = DCNullable{
+		Region:     "YYC",
+		NullStrFld: &nsf,
+	}
+
+	err = Handle.Create(&dcnullable)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	if Handle.IsLog() {
+		fmt.Printf("INSERTING: %v\n", dcnullable)
+		fmt.Printf("TEST GOT: %v\n", dcnullable)
+	}
+	fmt.Println("TEST GOT:", dcnullable)
+	fmt.Println("DepotNum:", dcnullable.DepotNum)
+	fmt.Println("Region:", dcnullable.Region)
+	fmt.Println("Province:", dcnullable.Province)
+	fmt.Println("NullStrFld:", *dcnullable.NullStrFld)
+	if dcnullable.NullStrFld2 == nil {
+		fmt.Println("NullStrFld2 is nil")
+	}
+
+	// err = Handle.DropTables(DepotCreate{})
+	// if err != nil {
+	// 	t.Errorf("failed to drop table %s", tn)
+	// }
+}
+
 // TestCRUDUpdate
 //
 // Test CRUD Update
@@ -1483,15 +1560,15 @@ func TestCRUDUpdate(t *testing.T) {
 		NonPersistentColumn2 string    `db:"non_persistent_column" rgen:"-"`
 	}
 
-	// determine the table names as per the
-	// table creation logic
-	tn := reflect.TypeOf(Depot{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	// determine the table names as per the table creation logic
+	tn := common.GetTableName(Depot{})
+	// tn := reflect.TypeOf(Depot{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 
 	err := Handle.DestructiveResetTables(Depot{})
 	if err != nil {
@@ -1575,15 +1652,15 @@ func TestCRUDDelete(t *testing.T) {
 		NonPersistentColumn string    `db:"non_persistent_column" rgen:"-"`
 	}
 
-	// determine the table names as per the
-	// table creation logic
-	tn := reflect.TypeOf(DepotDelete{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	// determine the table names as per the table creation logic
+	tn := common.GetTableName(DepotDelete{})
+	// tn := reflect.TypeOf(DepotDelete{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 
 	// create table depot if it does not exist
 	err := Handle.CreateTables(DepotDelete{})
@@ -1640,15 +1717,15 @@ func TestCRUDGet(t *testing.T) {
 		NonPersistentColumn string    `db:"non_persistent_column" rgen:"-"`
 	}
 
-	// determine the table names as per the
-	// table creation logic
-	tn := reflect.TypeOf(DepotGet{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	// determine the table names as per the table creation logic
+	tn := common.GetTableName(DepotGet{})
+	// tn := reflect.TypeOf(DepotGet{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 
 	// create table depot
 	err := Handle.CreateTables(DepotGet{})
@@ -1707,15 +1784,15 @@ func TestCRUDCreateIntUint(t *testing.T) {
 		FldThreeString string `db:"fld_three_string" rgen:"nullable:false;default:fuddle-duddle"`
 	}
 
-	// determine the table names as per the
-	// table creation logic
-	tn := reflect.TypeOf(IntUint{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	// determine the table names as per the table creation logic
+	tn := common.GetTableName(IntUint{})
+	// tn := reflect.TypeOf(IntUint{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 
 	// create table intuint
 	err := Handle.CreateTables(IntUint{})
@@ -1763,15 +1840,15 @@ func TestCRUDCreateBool(t *testing.T) {
 		FldFourString string `db:"fld_four_string" rgen:"nullable:false;default:fuddle-duddle"`
 	}
 
-	// determine the table names as per the
-	// table creation logic
-	tn := reflect.TypeOf(TBool{}).String()
-	if strings.Contains(tn, ".") {
-		el := strings.Split(tn, ".")
-		tn = strings.ToLower(el[len(el)-1])
-	} else {
-		tn = strings.ToLower(tn)
-	}
+	// determine the table names as per the table creation logic
+	tn := common.GetTableName(TBool{})
+	// tn := reflect.TypeOf(TBool{}).String()
+	// if strings.Contains(tn, ".") {
+	// 	el := strings.Split(tn, ".")
+	// 	tn = strings.ToLower(el[len(el)-1])
+	// } else {
+	// 	tn = strings.ToLower(tn)
+	// }
 
 	// drop table tbool if exists
 	err := Handle.DropTables(TBool{})

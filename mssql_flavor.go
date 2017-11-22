@@ -61,13 +61,14 @@ func (msf *MSSQLFlavor) CreateTables(i ...interface{}) error {
 		}
 
 		// determine the table name
-		tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
-		if strings.Contains(tn, ".") {
-			el := strings.Split(tn, ".")
-			tn = strings.ToLower(el[len(el)-1])
-		} else {
-			tn = strings.ToLower(tn)
-		}
+		tn := common.GetTableName(i[t])
+		// tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
+		// if strings.Contains(tn, ".") {
+		// 	el := strings.Split(tn, ".")
+		// 	tn = strings.ToLower(el[len(el)-1])
+		// } else {
+		// 	tn = strings.ToLower(tn)
+		// }
 		if tn == "" {
 			return fmt.Errorf("unable to determine table name in myf.CreateTables")
 		}
@@ -106,13 +107,14 @@ func (msf *MSSQLFlavor) AlterTables(i ...interface{}) error {
 		// ftr := reflect.TypeOf(ent)
 
 		// determine the table name
-		tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
-		if strings.Contains(tn, ".") {
-			el := strings.Split(tn, ".")
-			tn = strings.ToLower(el[len(el)-1])
-		} else {
-			tn = strings.ToLower(tn)
-		}
+		tn := common.GetTableName(i[t])
+		// tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
+		// if strings.Contains(tn, ".") {
+		// 	el := strings.Split(tn, ".")
+		// 	tn = strings.ToLower(el[len(el)-1])
+		// } else {
+		// 	tn = strings.ToLower(tn)
+		// }
 		if tn == "" {
 			return fmt.Errorf("unable to determine table name in msf.AlterTables")
 		}
@@ -418,13 +420,14 @@ func (msf *MSSQLFlavor) DropTables(i ...interface{}) error {
 	for t := range i {
 
 		// determine the table name
-		tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
-		if strings.Contains(tn, ".") {
-			el := strings.Split(tn, ".")
-			tn = strings.ToLower(el[len(el)-1])
-		} else {
-			tn = strings.ToLower(tn)
-		}
+		tn := common.GetTableName(i[t])
+		// tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
+		// if strings.Contains(tn, ".") {
+		// 	el := strings.Split(tn, ".")
+		// 	tn = strings.ToLower(el[len(el)-1])
+		// } else {
+		// 	tn = strings.ToLower(tn)
+		// }
 		if tn == "" {
 			return fmt.Errorf("unable to determine table name in msf.DropTables")
 		}

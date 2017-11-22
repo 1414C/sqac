@@ -16,12 +16,13 @@ type RgenPair struct {
 
 // FieldDef holds field-names and a slice of their db attributes
 type FieldDef struct {
-	FName     string
-	FType     string
-	GoName    string
-	GoType    string
-	NoDB      bool
-	RgenPairs []RgenPair
+	FName       string
+	FType       string
+	GoName      string
+	GoType      string
+	UnderGoType string // underlying go-type (strip *)
+	NoDB        bool
+	RgenPairs   []RgenPair
 }
 
 // TagReader reads the `db:`, `rgen:` and (maybe)`sql:` tags and returns
@@ -42,8 +43,9 @@ func TagReader(i interface{}, t reflect.Type) (fd []FieldDef, err error) {
 		// dealing with a basic field, or an embedded struct?
 		// get the field-type as a string
 		fts := t.Field(i).Type.String()
+		ftu := strings.TrimPrefix(fts, "*")
 		if fts != "uint" && fts != "uint8" && fts != "uint16" && fts != "uint32" && fts != "uint64" &&
-			fts != "int" && fts != "int8" && fts != "int16" && fts != "int32" && fts != "int64" &&
+			fts != "int" && fts != "*string" && fts != "int8" && fts != "int16" && fts != "int32" && fts != "int64" &&
 			fts != "rune" && fts != "byte" && fts != "string" && fts != "float32" && fts != "float64" &&
 			fts != "bool" && fts != "time.Time" && fts != "*time.Time" {
 
@@ -79,7 +81,8 @@ func TagReader(i interface{}, t reflect.Type) (fd []FieldDef, err error) {
 		// is used here to make that point.
 		fldDef.FName = common.CamelToSnake(t.Field(i).Name)
 		fldDef.GoName = t.Field(i).Name
-		fldDef.GoType = fts // go-type here
+		fldDef.GoType = fts      // go-type here
+		fldDef.UnderGoType = ftu // underlying type of pointer
 
 		// get the other field-level db attributes
 		rgenTag := t.Field(i).Tag.Get("rgen")
