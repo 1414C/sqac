@@ -134,11 +134,11 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 			continue
 		}
 
-		switch fd.GoType {
+		switch fd.UnderGoType { // fd.GoType {
 		case "uint", "uint8", "uint16", "uint32", "uint64",
 			"int", "int8", "int16", "int32", "int64", "rune", "byte":
 
-			if strings.Contains(fd.GoType, "64") {
+			if strings.Contains(fd.UnderGoType, "64") {
 				col.fType = "bigint"
 			} else {
 				col.fType = "integer"
@@ -155,7 +155,7 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 					pKeys = pKeys + fd.FName + ","
 
 					if p.Value == "inc" {
-						if strings.Contains(fd.GoType, "64") {
+						if strings.Contains(fd.UnderGoType, "64") {
 							col.fType = "bigserial"
 						} else {
 							col.fType = "serial"
@@ -198,7 +198,7 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 			}
 			fldef[idx].FType = col.fType
 
-		case "string", "*string":
+		case "string":
 			col.fType = "text"
 
 			for _, p := range fd.RgenPairs {
@@ -473,7 +473,7 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 						panic(fmt.Errorf("aborting - cannot add a primary-key (table-field %s-%s) through migration", tn, fd.FName))
 
 					case "default":
-						if fd.GoType == "string" {
+						if fd.UnderGoType == "string" {
 							colSchema = fmt.Sprintf("%s DEFAULT '%s'", colSchema, p.Value)
 						} else {
 							colSchema = fmt.Sprintf("%s DEFAULT %s", colSchema, p.Value)
@@ -705,17 +705,20 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	fmt.Println(insQuery)
 
 	// attempt the insert and read the result back into info.resultMap
-	err = pf.db.QueryRowx(insQuery).MapScan(info.resultMap) // SliceScan
+	fmt.Println("info.ent:", info.ent)
+	err = pf.db.QueryRowx(insQuery).StructScan(info.ent) //.MapScan(info.resultMap) // SliceScan
 	if err != nil {
 		return err
 	}
+	info.entValue = reflect.ValueOf(info.ent)
+	fmt.Println("info.ent:", info.ent)
 
 	// fill the underlying structure of the interface ptr with the
 	// fields returned from the database.
-	err = pf.FormatReturn2(&info)
-	if err != nil {
-		return err
-	}
+	// err = pf.FormatReturn2(&info)
+	// if err != nil {
+	// 	return err
+	// }
 	return nil
 }
 

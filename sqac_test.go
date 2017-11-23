@@ -29,67 +29,6 @@ func TestMain(m *testing.M) {
 	logFlag := flag.Bool("l", false, "activate sqac logging")
 	flag.Parse()
 
-	// // select the db implementation
-	// switch *dbFlag {
-	// case "pg":
-	// 	pgh := new(sqac.PostgresFlavor)
-	// 	Handle = pgh
-	// 	db, err := sqac.Open("postgres", "host=127.0.0.1 user=godev dbname=sqlx sslmode=disable password=gogogo123")
-	// 	if err != nil {
-	// 		log.Fatalf("%s\n", err.Error())
-	// 	}
-	// 	Handle.SetDB(db)
-	// 	defer db.Close()
-
-	// case "mysql":
-	// 	myh := new(sqac.MySQLFlavor)
-	// 	Handle = myh
-	// 	db, err := sqac.Open("mysql", "stevem:gogogo123@tcp(192.168.1.50:3306)/sqlx?charset=utf8&parseTime=True&loc=Local")
-	// 	if err != nil {
-	// 		log.Fatalf("%s\n", err.Error())
-	// 	}
-	// 	Handle.SetDB(db)
-	// 	defer db.Close()
-
-	// case "sqlite":
-	// 	sqh := new(sqac.SQLiteFlavor)
-	// 	Handle = sqh
-	// 	db, err := sqac.Open("sqlite3", "testdb.sqlite")
-	// 	if err != nil {
-	// 		log.Fatalf("%s\n", err.Error())
-	// 	}
-	// 	Handle.SetDB(db)
-	// 	defer db.Close()
-
-	// case "mssql":
-	// 	msh := new(sqac.MSSQLFlavor)
-	// 	Handle = msh
-	// 	db, err := sqac.Open("mssql", "sqlserver://SA:Bunny123!!@localhost:1401?database=sqlx")
-	// 	if err != nil {
-	// 		log.Fatalf("%s\n", err.Error())
-	// 	}
-	// 	Handle.SetDB(db)
-	// 	err = db.Ping()
-	// 	if err != nil {
-	// 		fmt.Println(err)
-	// 	}
-	// 	defer db.Close()
-
-	// case "db2":
-
-	// case "go-hdb":
-
-	// default:
-
-	// }
-
-	// // detailed logging?
-	// if *logFlag {
-	// 	Handle.Log(true)
-	// } else {
-	// 	Handle.Log(false)
-	// }
-
 	var cs string
 	switch *dbFlag {
 	case "postgres":
@@ -141,70 +80,79 @@ func TestGetDBName(t *testing.T) {
 	}
 }
 
-// // TestTimeSimple
-// //
-// // Test time implementation
-// func TestTimeSimple(t *testing.T) {
+// TestTimeSimple
+//
+// Test time implementation
+func TestTimeSimple(t *testing.T) {
 
-// 	type DepotTime struct {
-// 		DepotNum       int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-// 		DepotBay       int       `db:"depot_bay" rgen:"primary_key:"`
-// 		Region         string    `db:"region" rgen:"nullable:false;defalt:YYC"`
-// 		TimeColUTC     time.Time `db:"time_col_utc" rgen:"nullable:false"`
-// 		TimeNowLocal   time.Time `db:"time_now_local" rgen:"nullable:false"`
-// 		TimeNowUTC     time.Time `db:"time_now_utc" rgen:"nullable:false;default:now()"`
-// 		TimeColNowDflt time.Time `db:"time_col_now_dflt" rgen:"nullable:false;default:now()"`
-// 		TimeColEot     time.Time `db:"time_col_eot" rgen:"nullable:false;default:eot"`
-// 	}
+	type DepotTime struct {
+		DepotNum            int        `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
+		DepotBay            int        `db:"depot_bay" rgen:"primary_key:"`
+		Region              string     `db:"region" rgen:"nullable:false;defalt:YYC"`
+		TimeColUTC          time.Time  `db:"time_col_utc" rgen:"nullable:false"`
+		TimeNowLocal        time.Time  `db:"time_now_local" rgen:"nullable:false"`
+		TimeNowUTC          time.Time  `db:"time_now_utc" rgen:"nullable:false;default:now()"`
+		TimeColNowDflt      time.Time  `db:"time_col_now_dflt" rgen:"nullable:false;default:now()"`
+		TimeColEot          time.Time  `db:"time_col_eot" rgen:"nullable:false;default:eot"`
+		TimeNull            *time.Time `db:"time_null" rgen:"nullable:true"`
+		TimeNotNull         *time.Time `db:"time_not_null" rgen:"nullable:true"`
+		TimeNullWithDefault *time.Time `db:"time_null_with_default" rgen:"nullable:true;default:eot"`
+	}
 
-// 	// determine the table names as per the
-// 	// table creation logic
-// 	tn := reflect.TypeOf(DepotTime{}).String()
-// 	if strings.Contains(tn, ".") {
-// 		el := strings.Split(tn, ".")
-// 		tn = strings.ToLower(el[len(el)-1])
-// 	} else {
-// 		tn = strings.ToLower(tn)
-// 	}
+	// determine the table names as per the table creation logic
+	tn := common.GetTableName(DepotTime{})
 
-// 	// drop table depottime if it exists
-// 	err := Handle.DropTables(DepotTime{})
-// 	if err != nil {
-// 		t.Errorf("%s", err.Error())
-// 	}
+	// drop table depottime if it exists
+	err := Handle.DropTables(DepotTime{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
 
-// 	// create table depottime
-// 	err = Handle.CreateTables(DepotTime{})
-// 	if err != nil {
-// 		t.Errorf("%s", err.Error())
-// 	}
+	// create table depottime
+	err = Handle.CreateTables(DepotTime{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
 
-// 	// expect that table depottime exists
-// 	if !Handle.ExistsTable(tn) {
-// 		t.Errorf("table %s does not exist", tn)
-// 	}
+	// expect that table depottime exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s does not exist", tn)
+	}
 
-// 	// create a new record via the CRUD Create call
-// 	var depot = DepotTime{
-// 		Region:       "YYC",
-// 		TimeColUTC:   time.Date(1970, 01, 01, 11, 00, 00, 651387237, time.UTC), // time.Now(),
-// 		TimeNowLocal: time.Now().Local(),
-// 		TimeNowUTC:   time.Now().UTC(),
-// 	}
+	// create a new record via the CRUD Create call
+	tNotNull := new(time.Time)
+	*tNotNull = time.Now().Local()
 
-// 	err = Handle.Create(&depot)
-// 	if err != nil {
-// 		t.Errorf(err.Error())
-// 	}
-// 	fmt.Println("")
+	st := Handle.TimeToFormattedString(tNotNull)
+	fmt.Println("st:", st)
 
-// 	if Handle.IsLog() {
-// 		fmt.Printf("INSERTING: %v\n\n", depot)
-// 		fmt.Printf("TEST GOT: %v\n\n", depot)
-// 	}
-// 	fmt.Printf("TEST GOT: %v\n\n", depot)
-// 	// os.Exit(0)
-// }
+	tNow := time.Now().Local()
+	stNow := Handle.TimeToFormattedString(tNow)
+	fmt.Println("stNow", stNow)
+
+	var depottime = DepotTime{
+		Region:       "YYC",
+		TimeColUTC:   time.Date(1970, 01, 01, 11, 00, 00, 651387237, time.UTC), // time.Now(),
+		TimeNowLocal: time.Now().Local(),
+		TimeNowUTC:   time.Now().UTC(),
+		// TimeNull:     nil,         omission == nil
+		TimeNotNull: tNotNull,
+		// TimeNullWithDefault: nil,
+	}
+
+	err = Handle.Create(&depottime)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	fmt.Println("")
+
+	if Handle.IsLog() {
+		fmt.Printf("INSERTING: %v\n\n", depottime)
+		fmt.Printf("TEST GOT: %v\n\n", depottime)
+	}
+	fmt.Printf("TEST GOT: %v\n\n", depottime)
+	//os.Exit(0)
+}
 
 // TestExistsTableNegative
 
@@ -1488,13 +1436,6 @@ func TestCRUDCreateNullable(t *testing.T) {
 
 	// determine the table names as per the table creation logic
 	tn := common.GetTableName(DCNullable{})
-	// tn := reflect.TypeOf(DCNullable{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
 
 	// create table dcnullable
 	err = Handle.CreateTables(DCNullable{})

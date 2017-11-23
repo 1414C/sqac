@@ -109,6 +109,7 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 		bPkey := false
 		bNullable := false
 		bIsNull := false
+		// bIsPointer := false
 
 		// set the field attribute indicators
 		for _, t := range fd.RgenPairs {
@@ -134,57 +135,24 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 		// get the value of the current entity field
 		fv := inf.entValue.Field(i).Interface()
 		fvr := inf.entValue.Field(i)
-		fmt.Println("FV:", fv)
-		fmt.Println("FVR:", fvr)
+		// fmt.Println("FV:", fv)
+		// fmt.Println("FVR:", fvr)
 
 		// is the struct member a pointer?
 		if fvr.Kind() == reflect.Ptr {
-			fmt.Printf("%s is a pointer!\n", fd.FName)
+			// fmt.Printf("%s is a pointer!\n", fd.FName)
+			// bIsPointer = true
 			if fvr.IsNil() {
-				fmt.Println("fvr is nil!")
+				// fmt.Println("fvr is nil!")
 				bIsNull = true
 			} else {
 				fvr = fvr.Elem() // get the value
 			}
 		}
-		fmt.Println("FV:", fv)
-		fmt.Println("FVR:", fvr)
-		switch fd.GoType {
-		// case "int", "uint", "int8", "uint8", "int16", "uint16", "int32", "uint32", "int64", "uint64", "rune", "byte":
-		// 	if inf.mode == "C" {
-		// 		if bPkeyInc == true {
-		// 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-		// 			inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
-		// 			inf.fldMap[fd.FName] = "DEFAULT"
-		// 			continue
-		// 		}
-		// 		if bDefault == true && fv == 0 ||
-		// 			bDefault == true && fv == nil {
-		// 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-		// 			inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
-		// 			inf.fldMap[fd.FName] = "DEFAULT"
-		// 			continue
-		// 		}
-		// 		if bNullable == false && fv == nil {
-		// 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-		// 			inf.vList = fmt.Sprintf("%s%d, ", inf.vList, 0)
-		// 			inf.fldMap[fd.FName] = "0"
-		// 			continue
-		// 		}
+		// fmt.Println("FV:", fv)
+		// fmt.Println("FVR:", fvr)
 
-		// 	} else {
-		// 		if bPkeyInc == true || bPkey == true {
-		// 			inf.keyMap[fd.FName] = fvr.Int()
-		// 			continue
-		// 		}
-		// 	}
-		// 	// in all other cases, just use the given value making the
-		// 	// assumption that the int-type field contains an int-type
-		// 	inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-		// 	inf.vList = fmt.Sprintf("%s%d, ", inf.vList, fvr.Int())
-		// 	inf.fldMap[fd.FName] = fmt.Sprintf("%d", fvr.Int())
-		// 	continue
-
+		switch fd.UnderGoType {
 		case "int", "int8", "int16", "int32", "int64":
 			if inf.mode == "C" {
 				if bPkeyInc == true {
@@ -365,7 +333,7 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 			}
 			continue
 
-		case "time.Time", "*time.Time":
+		case "time.Time":
 
 			if inf.mode == "C" {
 				if bPkeyInc == true {
@@ -375,57 +343,36 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 					continue
 				}
 
-				// only insert with DEFAULT if a zero-value time.Time was provided
+				// only insert with DEFAULT if a zero-value time.Time was provided or
+				// if a nil value was passed for a *time.Time
 				bZzeroTime := false
-				if fd.GoType == "time.Time" {
-					var tt time.Time
-					tt = fv.(time.Time)
-					if tt.IsZero() {
-						bZzeroTime = true
-					}
-				} else {
-					var tt *time.Time
-					tt = fv.(*time.Time)
-					if tt.IsZero() {
-						bZzeroTime = true
-					}
+				if fv == reflect.Zero(reflect.TypeOf(fv)).Interface() {
+					bZzeroTime = true
 				}
 
-				if bDefault == true && bZzeroTime { // 0001-01-01 00:00:00 +0000 UTC
-					// fmt.Printf("time.Time: %v\n", fv)
+				if bDefault == true && bZzeroTime || // 0001-01-01 00:00:00 +0000 UTC
+					bDefault == true && bIsNull { // nil pointer case
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
 					inf.fldMap[fd.FName] = "DEFAULT"
 					continue
 				}
-				if bNullable == false && fv == nil {
-					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "bot") //"make_timestamptz(0000, 00, 00, 00, 00, 00.0")
-					inf.fldMap[fd.FName] = "bot"                        //"make_timestamptz(0000, 00, 00, 00, 00, 00.0"
-					continue
-				}
 			} else {
 
-				// deal with time keys
+				// deal with time keys, as they are immutable in update scenario
 				if bPkeyInc == true || bPkey == true {
-					if fd.GoType == "time.Time" {
-						// inf.keyMap[fd.FName] = fv.(time.Time).Format(time.RFC3339)
-						inf.keyMap[fd.FName] = bf.TimeToFormattedString(fv.(time.Time)) // fv.(time.Time).Format("2006-01-02 15:04:05.999999-07:00")
-					} else if fd.GoType == "*time.Time" {
-						tDRef := *fv.(*time.Time)
-						inf.keyMap[fd.FName] = bf.TimeToFormattedString(tDRef) // fv.(*time.Time).Format("2006-01-02 15:04:05.999999-07:00")
-					}
+					// inf.keyMap[fd.FName] = fv.(time.Time).Format(time.RFC3339)
+					inf.keyMap[fd.FName] = bf.TimeToFormattedString(fv) // fv.(time.Time).Format("2006-01-02 15:04:05.999999-07:00")
 					continue
 				}
 			}
 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-			if fd.GoType == "time.Time" {
-				inf.vList = fmt.Sprintf("%s'%v', ", inf.vList, bf.TimeToFormattedString(fv.(time.Time))) // fv.(time.Time).Format("2006-01-02 15:04:05.999999-07:00"))
-				inf.fldMap[fd.FName] = fmt.Sprintf("'%s'", bf.TimeToFormattedString(fv.(time.Time)))     // fv.(time.Time).Format("2006-01-02 15:04:05.999999-07:00")
+			if !bIsNull {
+				inf.vList = fmt.Sprintf("%s'%v', ", inf.vList, bf.TimeToFormattedString(fv)) // fv.(time.Time).Format("2006-01-02 15:04:05.999999-07:00"))
+				inf.fldMap[fd.FName] = fmt.Sprintf("'%s'", bf.TimeToFormattedString(fv))     // fv.(time.Time).Format("2006-01-02 15:04:05.999999-07:00")
 			} else {
-				tDRef := *fv.(*time.Time)
-				inf.vList = fmt.Sprintf("%s'%v', ", inf.vList, bf.TimeToFormattedString(tDRef)) // fv.(*time.Time).Format("2006-01-02 15:04:05.999999-07:00"))
-				inf.fldMap[fd.FName] = fmt.Sprintf("'%s'", bf.TimeToFormattedString(tDRef))     // fv.(*time.Time).Format("2006-01-02 15:04:05.999999-07:00")
+				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "NULL")
+				inf.fldMap[fd.FName] = fmt.Sprintf("%s", "NULL")
 			}
 			continue
 
@@ -442,11 +389,28 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 }
 
 // TimeToFormattedString is used to format the provided time.Time
-// value in the string format required for the connected db
-// insert or update operation.  This method is called from
-// within the CRUD ops for each db flavor, and could be added
+// or *time.Time value in the string format required for the
+// connected db insert or update operation.  This method is called
+// from within the CRUD ops for each db flavor, and could be added
 // to the flavor-specific Query / Exec methods at some point.
-func (bf *BaseFlavor) TimeToFormattedString(t time.Time) string {
+func (bf *BaseFlavor) TimeToFormattedString(i interface{}) string {
+
+	var t time.Time
+
+	if i == nil {
+		panic(fmt.Errorf("nil value passed to TimeToFormattedString()"))
+	}
+
+	switch i.(type) {
+	case time.Time:
+		t = i.(time.Time)
+	case *time.Time:
+		iValPtr := reflect.ValueOf(i)
+		iVal := iValPtr.Elem()
+		t = iVal.Interface().(time.Time)
+	default:
+		panic(fmt.Errorf("type %v is not permitted in TimeToFormattedString()", reflect.TypeOf(i)))
+	}
 
 	switch bf.GetDBDriverName() {
 	case "postgres":
@@ -500,7 +464,7 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 			panic(fmt.Errorf("invalid field %s in struct %s", fn, st))
 		}
 
-		// deal with pointer members in tehe target struct
+		// deal with pointer members in the target struct
 		if fv.Kind() == reflect.Ptr {
 			fv = fv.Elem()
 		}
@@ -666,7 +630,35 @@ func (bf *BaseFlavor) FormatReturn(inf *CrudInfo) error {
 // server-local format.
 func (bf *BaseFlavor) FormatReturn2(inf *CrudInfo) error {
 
-	for _, flDef := range inf.flDef {
+	for k, v := range inf.resultMap {
+		fmt.Printf("k: %s, v: %v\n", k, v)
+	}
+	fmt.Printf("inf.ent: %v\n", inf.ent)
+
+	for i, flDef := range inf.flDef {
+
+		// get the value of the current entity field
+		// tstfv := inf.entValue.Field(i).Interface()
+		tstfvr := inf.entValue.Field(i)
+		// fmt.Println("FV:", fv)
+		// fmt.Println("FVR:", fvr)
+
+		// is the struct member a pointer?
+		if tstfvr.Kind() == reflect.Ptr {
+			// fmt.Printf("%s is a pointer!\n", fd.FName)
+			// bIsPointer = true
+			if tstfvr.IsNil() {
+				fmt.Println("tstfvr is nil!", flDef.FName)
+				if inf.resultMap[flDef.FName] != nil {
+					fmt.Printf("%s is not not nil: %v\n", flDef.FName, inf.resultMap[flDef.FName])
+				}
+				//var t time.Time
+				// bIsNull = true
+			} else {
+				tstfvr = tstfvr.Elem() // get the value
+			}
+		}
+
 		if inf.log {
 			fmt.Println("======================================================")
 			fmt.Println("flDef: ", flDef)
@@ -681,10 +673,17 @@ func (bf *BaseFlavor) FormatReturn2(inf *CrudInfo) error {
 		if !fv.IsValid() {
 			panic(fmt.Errorf("invalid field %s in struct %s", flDef.GoName, "foo"))
 		}
+		// if flDef.GoName == "TimeNullWithDefault" {
+		fmt.Printf("fv: %v, FName: %s\n", fv, flDef.FName)
+		//}
 
 		// deal with pointer members in the target struct
 		if fv.Kind() == reflect.Ptr {
+			fmt.Println("fv.Kind is pointer:", flDef.FName)
+			fmt.Println("fv.CanSet()", fv.CanSet())
 			fv = fv.Elem()
+			fmt.Printf("fv: %v, FName: %s\n", fv, flDef.FName)
+			fmt.Println("fv.CanSet()", fv.CanSet())
 		}
 
 		if fv.CanSet() {
@@ -700,7 +699,7 @@ func (bf *BaseFlavor) FormatReturn2(inf *CrudInfo) error {
 				bByteVal = false
 			}
 
-			switch flDef.GoType {
+			switch flDef.UnderGoType {
 			case "int", "int8", "int16", "int32", "int64":
 				if !flDef.NoDB {
 					// fmt.Printf("field-name: %s, go type: %s\n", ft, tp)

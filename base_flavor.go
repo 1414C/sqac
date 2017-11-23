@@ -159,6 +159,7 @@ type PublicDB interface {
 	// Boolean conversions
 	BoolToDBBool(b bool) *int
 	DBBoolToBool(interface{}) bool
+	TimeToFormattedString(i interface{}) string
 
 	// CRUD ops :(
 	Create(ent interface{}) error
