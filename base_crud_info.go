@@ -347,7 +347,8 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 				// only insert with DEFAULT if a zero-value time.Time was provided or
 				// if a nil value was passed for a *time.Time
 				bZzeroTime := false
-				if fv == reflect.Zero(reflect.TypeOf(fv)).Interface() {
+				// if fv == reflect.Zero(reflect.TypeOf(fv)).Interface() {
+				if reflect.DeepEqual(fv, reflect.Zero(reflect.TypeOf(fv)).Interface()) {
 					bZzeroTime = true
 				}
 
