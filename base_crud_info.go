@@ -258,7 +258,7 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 			inf.fldMap[fd.FName] = fmt.Sprintf("%f", fvr.Float())
 			continue
 
-		case "string", "*string":
+		case "string":
 			if inf.mode == "C" {
 				if bPkeyInc == true {
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
@@ -267,21 +267,15 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 					continue
 				}
 				if bDefault == true && fv == "" ||
-					bDefault == true && fv == nil {
+					bDefault == true && bIsNull {
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
 					inf.fldMap[fd.FName] = "DEFAULT"
 					continue
 				}
-				if bNullable == false && fv == nil {
-					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "''")
-					inf.fldMap[fd.FName] = "''"
-					continue
-				}
 			} else {
 				if bPkeyInc == true || bPkey == true {
-					inf.keyMap[fd.FName] = fvr.String()
+					inf.keyMap[fd.FName] = reflect.ValueOf(&fvr) //fvr.String()
 					continue
 				}
 			}
@@ -289,15 +283,12 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 			// assumption that the string-type field contains a string-type
 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 			if !bIsNull {
-				inf.vList = fmt.Sprintf("%s'%s', ", inf.vList, fvr.String())
-				inf.fldMap[fd.FName] = fmt.Sprintf("'%s'", fvr.String())
+				inf.vList = fmt.Sprintf("%s'%s', ", inf.vList, reflect.ValueOf(&fvr)) // fvr.String())
+				inf.fldMap[fd.FName] = fmt.Sprintf("'%s'", reflect.ValueOf(&fvr))     // fvr.String())
 			} else {
 				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "NULL")
 				inf.fldMap[fd.FName] = fmt.Sprintf("%s", "NULL")
 			}
-			// inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-			// inf.vList = fmt.Sprintf("%s'%s', ", inf.vList, fvr.String())
-			// inf.fldMap[fd.FName] = fmt.Sprintf("'%s'", fvr.String())
 			continue
 
 		case "bool":

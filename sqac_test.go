@@ -1380,13 +1380,6 @@ func TestCRUDCreate(t *testing.T) {
 
 	// determine the table names as per the table creation logic
 	tn := common.GetTableName(DepotCreate{})
-	// tn := reflect.TypeOf(DepotCreate{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
 
 	// create table depot
 	err := Handle.CreateTables(DepotCreate{})
