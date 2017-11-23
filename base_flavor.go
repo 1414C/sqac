@@ -791,27 +791,28 @@ func (bf *BaseFlavor) GetEntity(ent interface{}) error {
 		fmt.Println(selQuery)
 
 		// attempt the delete and read result back into resultMap
-		err := bf.db.QueryRowx(selQuery).MapScan(info.resultMap) // SliceScan
+		err := bf.db.QueryRowx(selQuery).StructScan(info.ent) //.MapScan(info.resultMap) // SliceScan
 		if err != nil {
 			return err
 		}
+		info.entValue = reflect.ValueOf(info.ent)
 
 		// Push k to lower-case for hdb - this breaks the model slightly, but
 		// allows us to use GetEntity as a base method
-		rm := make(map[string]interface{})
-		if bf.GetDBDriverName() == "hdb" {
-			for k, v := range info.resultMap {
-				rm[strings.ToLower(k)] = v
-			}
-			info.resultMap = rm
-		}
+		// rm := make(map[string]interface{})
+		// if bf.GetDBDriverName() == "hdb" {
+		// 	for k, v := range info.resultMap {
+		// 		rm[strings.ToLower(k)] = v
+		// 	}
+		// 	info.resultMap = rm
+		// }
 
 		// fill the underlying structure of the interface ptr with the
 		// fields returned from the database.
-		err = bf.FormatReturn2(&info)
-		if err != nil {
-			return err
-		}
+		// err = bf.FormatReturn2(&info)
+		// if err != nil {
+		// 	return err
+		// }
 		return nil
 	}
 	return nil

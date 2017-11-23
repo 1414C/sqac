@@ -152,6 +152,16 @@ func TestTimeSimple(t *testing.T) {
 	}
 	fmt.Printf("TEST GOT: %v\n\n", depottime)
 	//os.Exit(0)
+
+	dt2 := DepotTime{
+		DepotNum: depottime.DepotNum,
+	}
+
+	err = Handle.GetEntity(&dt2)
+	if err != nil {
+		t.Errorf("GetEntity failed with: %v", err)
+	}
+	fmt.Printf("GetEntity for key %v returned: %v\n", dt2.DepotNum, dt2)
 }
 
 // TestExistsTableNegative

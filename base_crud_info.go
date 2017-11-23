@@ -104,6 +104,7 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 		if fd.NoDB == true {
 			continue
 		}
+		// fvr = reflect.Zero(fvr.Type())
 		bDefault := false
 		bPkeyInc := false
 		bPkey := false
