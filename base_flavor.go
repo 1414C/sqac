@@ -79,10 +79,8 @@ const CDblQuote = "\""
 
 // PublicDB exposes functions for db schema operations
 type PublicDB interface {
-	InBase()
-	InDB()
 
-	// postgres, sqlite, mariadb, db2, hana etc.
+	// postgres, sqlite, mariadb, hdb, hana etc.
 	GetDBDriverName() string
 
 	// activate / check logging
@@ -202,6 +200,35 @@ func (bf *BaseFlavor) IsDBLog() bool {
 	return bf.dbLog
 }
 
+// QsLog is used to log SQL statements to stdout.  Statements are text approximations
+// of what was sent to the database.  For the most part they should be correct, but
+// quoting around parameter values is rudimentary.
+func (bf *BaseFlavor) QsLog(queryString string, qParams ...interface{}) {
+	if !bf.dbLog {
+		return
+	}
+
+	if qParams != nil {
+		for _, v := range qParams {
+			switch v.(type) {
+			case string:
+				rVal := ""
+				if bf.GetDBName() == "sqlite3" {
+					rVal = "\"" + v.(string) + "\""
+				} else {
+					rVal = "'" + v.(string) + "'"
+				}
+				queryString = strings.Replace(queryString, "?", rVal, 1)
+			default:
+				queryString = strings.Replace(queryString, "?", v.(string), 1)
+			}
+		}
+		fmt.Println(queryString)
+		return
+	}
+	log.Println(queryString)
+}
+
 // SetDB sets the sqlx.DB connection in the
 // db-flavor environment.
 func (bf *BaseFlavor) SetDB(db *sqlx.DB) {
@@ -283,14 +310,6 @@ func (bf *BaseFlavor) GetDBDriverName() string {
 	return bf.db.DriverName()
 }
 
-func (bf *BaseFlavor) InBase() {
-	fmt.Println("InBase() called in BF")
-}
-
-func (bf *BaseFlavor) InDB() {
-	fmt.Println("InDB called in BF")
-}
-
 // BoolToDBBool converts a go-bool value into the
 // DB bool representation.  called for DB's that
 // do not support a true/false boolean type.
@@ -355,7 +374,7 @@ func (bf *BaseFlavor) GetRelations(tn string) []string {
 func (bf *BaseFlavor) CreateTables(i ...interface{}) error {
 
 	// handled in each db flavor
-	return nil
+	return fmt.Errorf("method CreateTables has not been implemented for %s", bf.GetDBDriverName())
 }
 
 // DropTables drops tables on the db if they exist, based on
@@ -367,13 +386,6 @@ func (bf *BaseFlavor) DropTables(i ...interface{}) error {
 
 		// determine the table name
 		tn := common.GetTableName(i[t])
-		// tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
-		// if strings.Contains(tn, ".") {
-		// 	el := strings.Split(tn, ".")
-		// 	tn = strings.ToLower(el[len(el)-1])
-		// } else {
-		// 	tn = strings.ToLower(tn)
-		// }
 		if tn == "" {
 			return fmt.Errorf("unable to determine table name in bf.DropTables")
 		}
@@ -398,8 +410,7 @@ func (bf *BaseFlavor) DropTables(i ...interface{}) error {
 // the provided list of go struct definitions.
 func (bf *BaseFlavor) AlterTables(i ...interface{}) error {
 
-	fmt.Println("in bf.AlterTables")
-	return fmt.Errorf("method AlterTables has not been implemented for db type %s", bf.GetDBDriverName())
+	return fmt.Errorf("method AlterTables has not been implemented for %s", bf.GetDBDriverName())
 }
 
 // DestructiveResetTables drops tables on the db if they exist,
@@ -408,7 +419,7 @@ func (bf *BaseFlavor) AlterTables(i ...interface{}) error {
 // number-range used by an auto-incementing primary key.
 func (bf *BaseFlavor) DestructiveResetTables(i ...interface{}) error {
 
-	return fmt.Errorf("method DestructiveResetTable has not been implemented for db type %s", bf.GetDBDriverName())
+	return fmt.Errorf("method DestructiveResetTable has not been implemented for %s", bf.GetDBDriverName())
 }
 
 // ExistsTable checks the currently connected database and
@@ -468,6 +479,7 @@ func (bf *BaseFlavor) CreateIndex(in string, index IndexInfo) error {
 	} else {
 		indexSchema = fmt.Sprintf("CREATE UNIQUE INDEX %s ON %s (%s)", in, index.TableName, fList)
 	}
+
 	bf.ProcessSchema(indexSchema)
 	return nil
 }
@@ -475,7 +487,7 @@ func (bf *BaseFlavor) CreateIndex(in string, index IndexInfo) error {
 // DropIndex drops the specfied index on the connected database.
 func (bf *BaseFlavor) DropIndex(tn string, in string) error {
 
-	return nil
+	return fmt.Errorf("method DropIndex has not been implemented for %s", bf.GetDBDriverName())
 }
 
 // ExistsIndex checks the connected database for the presence
@@ -494,6 +506,7 @@ func (bf *BaseFlavor) ExistsIndex(tn string, in string) bool {
 // currently connected database.
 func (bf *BaseFlavor) CreateSequence(sn string, start int) {
 
+	log.Printf("method CreateSequence has not been implemented for %s\n", bf.GetDBDriverName())
 	return
 }
 
@@ -519,6 +532,7 @@ func (bf *BaseFlavor) DropSequence(sn string) error {
 // the currently connected database.
 func (bf *BaseFlavor) ExistsSequence(sn string) bool {
 
+	log.Printf("method ExistsSequence has not been implemented for %s\n", bf.GetDBDriverName())
 	return false
 }
 
@@ -539,9 +553,7 @@ func (bf *BaseFlavor) ProcessSchema(schema string) {
 
 	// MustExec panics on error, so just call it
 	// bf.DB.MustExec(schema)
-	if bf.log {
-		fmt.Println(schema)
-	}
+	bf.QsLog(schema)
 	result, err := bf.db.Exec(schema)
 	if err != nil {
 		fmt.Println("err:", err)
@@ -552,10 +564,10 @@ func (bf *BaseFlavor) ProcessSchema(schema string) {
 	ra, err := result.RowsAffected()
 	if err != nil {
 		return
-	} else {
-		if bf.log {
-			fmt.Printf("%d rows affected.\n", ra)
-		}
+	}
+
+	if bf.log {
+		fmt.Printf("%d rows affected.\n", ra)
 	}
 }
 
@@ -578,8 +590,10 @@ func (bf *BaseFlavor) ExecuteQueryRow(queryString string, qParams ...interface{}
 
 	if qParams != nil {
 		queryString = bf.db.Rebind(queryString)
+		bf.QsLog(queryString, qParams...)
 		return bf.db.QueryRow(queryString, qParams...)
 	}
+	bf.QsLog(queryString)
 	return bf.db.QueryRow(queryString)
 }
 
@@ -592,8 +606,10 @@ func (bf *BaseFlavor) ExecuteQuery(queryString string, qParams ...interface{}) (
 
 	if qParams != nil {
 		queryString = bf.db.Rebind(queryString)
+		bf.QsLog(queryString, qParams...)
 		rows, err = bf.db.Query(queryString, qParams...)
 	} else {
+		bf.QsLog(queryString)
 		rows, err = bf.db.Query(queryString)
 	}
 	return rows, err
@@ -605,8 +621,10 @@ func (bf *BaseFlavor) ExecuteQueryRowx(queryString string, qParams ...interface{
 
 	if qParams != nil {
 		queryString = bf.db.Rebind(queryString)
+		bf.QsLog(queryString, qParams...)
 		return bf.db.QueryRowx(queryString, qParams...)
 	}
+	bf.QsLog(queryString)
 	return bf.db.QueryRowx(queryString)
 }
 
@@ -619,8 +637,10 @@ func (bf *BaseFlavor) ExecuteQueryx(queryString string, qParams ...interface{}) 
 
 	if qParams != nil {
 		queryString = bf.db.Rebind(queryString)
+		bf.QsLog(queryString, qParams...)
 		rows, err = bf.db.Queryx(queryString, qParams...)
 	} else {
+		bf.QsLog(queryString)
 		rows, err = bf.db.Queryx(queryString)
 	}
 	return rows, err
@@ -632,8 +652,10 @@ func (bf *BaseFlavor) Get(dst interface{}, queryString string, args ...interface
 
 	if args != nil {
 		queryString = bf.db.Rebind(queryString)
+		bf.QsLog(queryString, args...)
 		return bf.db.Get(dst, queryString, args...)
 	}
+	bf.QsLog(queryString)
 	return bf.db.Get(dst, queryString)
 }
 
@@ -643,8 +665,10 @@ func (bf *BaseFlavor) Select(dst interface{}, queryString string, args ...interf
 
 	if args != nil {
 		queryString = bf.db.Rebind(queryString)
+		bf.QsLog(queryString, args...)
 		return bf.db.Select(dst, queryString, args...)
 	}
+	bf.QsLog(queryString)
 	return bf.db.Select(dst, queryString)
 }
 
@@ -656,8 +680,10 @@ func (bf *BaseFlavor) Exec(queryString string, args ...interface{}) (sql.Result,
 
 	if args != nil {
 		queryString = bf.db.Rebind(queryString)
+		bf.QsLog(queryString, args...)
 		result, err = bf.db.Exec(queryString, args...)
 	} else {
+		bf.QsLog(queryString)
 		result, err = bf.db.Exec(queryString)
 	}
 	return result, err
@@ -666,7 +692,7 @@ func (bf *BaseFlavor) Exec(queryString string, args ...interface{}) (sql.Result,
 // ProcessTransaction processes the list of commands as a transaction.
 // If any of the commands encounter an error, the transaction will be
 // cancelled via a Rollback and the error message will be returned to
-// the caller.
+// the caller.  It is assumed that tList contains bound queryStrings.
 func (bf *BaseFlavor) ProcessTransaction(tList []string) error {
 
 	tx, err := bf.db.Begin()
@@ -758,7 +784,7 @@ func (bf *BaseFlavor) Delete(ent interface{}) error { // (id uint) error
 	keyList = strings.TrimSuffix(keyList, " AND")
 	delQuery := fmt.Sprintf("DELETE FROM %s", info.tn)
 	delQuery = fmt.Sprintf("%s WHERE%s;", delQuery, keyList)
-	fmt.Println(delQuery)
+	bf.QsLog(delQuery)
 
 	// attempt the delete and read result back into resultMap
 	row := bf.db.QueryRowx(delQuery)
@@ -801,7 +827,7 @@ func (bf *BaseFlavor) GetEntity(ent interface{}) error {
 
 		selQuery := fmt.Sprintf("SELECT * FROM %s", info.tn)
 		selQuery = fmt.Sprintf("%s WHERE%s;", selQuery, keyList)
-		fmt.Println(selQuery)
+		bf.QsLog(selQuery)
 
 		// attempt the delete and read result back into resultMap
 		err := bf.db.QueryRowx(selQuery).StructScan(info.ent) //.MapScan(info.resultMap) // SliceScan
@@ -809,23 +835,6 @@ func (bf *BaseFlavor) GetEntity(ent interface{}) error {
 			return err
 		}
 		info.entValue = reflect.ValueOf(info.ent)
-
-		// Push k to lower-case for hdb - this breaks the model slightly, but
-		// allows us to use GetEntity as a base method
-		// rm := make(map[string]interface{})
-		// if bf.GetDBDriverName() == "hdb" {
-		// 	for k, v := range info.resultMap {
-		// 		rm[strings.ToLower(k)] = v
-		// 	}
-		// 	info.resultMap = rm
-		// }
-
-		// fill the underlying structure of the interface ptr with the
-		// fields returned from the database.
-		// err = bf.FormatReturn2(&info)
-		// if err != nil {
-		// 	return err
-		// }
 		return nil
 	}
 	return nil

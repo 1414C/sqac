@@ -77,6 +77,7 @@ func (msf *MSSQLFlavor) CreateTables(i ...interface{}) error {
 
 		// build the create table schema and return all of the table info
 		tc := msf.buildTablSchema(tn, i[t])
+		msf.QsLog(tc.tblSchema)
 
 		// create the table on the db
 		msf.db.MustExec(tc.tblSchema)
@@ -433,6 +434,7 @@ func (msf *MSSQLFlavor) ExistsTable(tn string) bool {
 
 	n := 0
 	etQuery := fmt.Sprintf("SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = '%s';", tn)
+	msf.QsLog(etQuery)
 	msf.db.QueryRow(etQuery).Scan(&n)
 	if n > 0 {
 		return true
@@ -459,6 +461,7 @@ func (msf *MSSQLFlavor) ExistsIndex(tn string, in string) bool {
 
 	n := 0
 	// msf.db.QueryRow("SELECT count(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema = ? AND table_name = ? AND index_name = ?", bf.GetDBName(), tn, in).Scan(&n)
+	msf.QsLog("SELECT COUNT(*) FROM sys.indexes WHERE name=? AND object_id = OBJECT_ID(?);", in, tn)
 	msf.db.QueryRow("SELECT COUNT(*) FROM sys.indexes WHERE name=? AND object_id = OBJECT_ID(?);", in, tn).Scan(&n)
 	if n > 0 {
 		return true
@@ -485,6 +488,7 @@ func (msf *MSSQLFlavor) ExistsColumn(tn string, cn string) bool {
 
 	n := 0
 	if msf.ExistsTable(tn) {
+		msf.QsLog("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ? AND column_name = ?;", tn, cn)
 		msf.db.QueryRow("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ? AND column_name = ?;", tn, cn).Scan(&n)
 		if n > 0 {
 			return true
@@ -529,6 +533,7 @@ func (msf *MSSQLFlavor) GetNextSequenceValue(name string) (int, error) {
 	seq := 0
 	if msf.ExistsTable(name) {
 		seqQuery := fmt.Sprintf("SELECT IDENT_CURRENT( '%s' );", name)
+		msf.QsLog(seqQuery)
 		err := msf.db.QueryRow(seqQuery).Scan(&seq)
 		if err != nil {
 			return 0, err
@@ -570,7 +575,6 @@ func (msf *MSSQLFlavor) Create(ent interface{}) error {
 
 	// build the mssql insert query
 	insQuery := fmt.Sprintf("INSERT INTO %s %s VALUES %s;", info.tn, insFlds, insVals)
-	fmt.Println(insQuery)
 
 	// clear the source data - deals with non-persistet columns
 	e := reflect.ValueOf(info.ent).Elem()
@@ -588,18 +592,12 @@ func (msf *MSSQLFlavor) Create(ent interface{}) error {
 	}
 
 	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s = %v;", info.tn, info.incKeyName, lastID)
+	msf.QsLog(selQuery)
 	err = msf.db.QueryRowx(selQuery).StructScan(info.ent) //.MapScan(info.resultMap) // SliceScan
 	if err != nil {
 		return err
 	}
 	info.entValue = reflect.ValueOf(info.ent)
-
-	// fill the underlying structure of the interface ptr with the
-	// fields returned from the database.
-	err = msf.FormatReturn(&info)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
@@ -640,7 +638,7 @@ func (msf *MSSQLFlavor) Update(ent interface{}) error {
 	colList = strings.TrimSuffix(colList, ", ")
 
 	updQuery := fmt.Sprintf("UPDATE %s SET %s WHERE %s;", info.tn, colList, keyList)
-	fmt.Println(updQuery)
+	msf.QsLog(updQuery)
 
 	// clear the source data - deals with non-persistet columns
 	e := reflect.ValueOf(info.ent).Elem()
@@ -654,6 +652,7 @@ func (msf *MSSQLFlavor) Update(ent interface{}) error {
 
 	// read the updated row
 	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %v;", info.tn, keyList)
+	msf.QsLog(selQuery)
 	err = msf.db.QueryRowx(selQuery).StructScan(info.ent) // .MapScan(info.resultMap) // SliceScan
 	if err != nil {
 		return err
