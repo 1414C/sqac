@@ -104,13 +104,11 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 		if fd.NoDB == true {
 			continue
 		}
-		// fvr = reflect.Zero(fvr.Type())
+
 		bDefault := false
 		bPkeyInc := false
 		bPkey := false
-		bNullable := false
 		bIsNull := false
-		// bIsPointer := false
 
 		// set the field attribute indicators
 		for _, t := range fd.RgenPairs {
@@ -125,9 +123,7 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 			case "default":
 				bDefault = true
 			case "nullable":
-				if t.Value == "true" || t.Value == "TRUE" {
-					bNullable = true
-				}
+				// it is on the caller to know this
 			default:
 
 			}
@@ -136,22 +132,15 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 		// get the value of the current entity field
 		fv := inf.entValue.Field(i).Interface()
 		fvr := inf.entValue.Field(i)
-		// fmt.Println("FV:", fv)
-		// fmt.Println("FVR:", fvr)
 
 		// is the struct member a pointer?
 		if fvr.Kind() == reflect.Ptr {
-			// fmt.Printf("%s is a pointer!\n", fd.FName)
-			// bIsPointer = true
 			if fvr.IsNil() {
-				// fmt.Println("fvr is nil!")
 				bIsNull = true
 			} else {
 				fvr = fvr.Elem() // get the value
 			}
 		}
-		// fmt.Println("FV:", fv)
-		// fmt.Println("FVR:", fvr)
 
 		switch fd.UnderGoType {
 		case "int", "int8", "int16", "int32", "int64":
@@ -163,19 +152,12 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 					continue
 				}
 				if bDefault == true && fv == 0 ||
-					bDefault == true && fv == nil {
+					bDefault == true && bIsNull {
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
 					inf.fldMap[fd.FName] = "DEFAULT"
 					continue
 				}
-				if bNullable == false && fv == nil {
-					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-					inf.vList = fmt.Sprintf("%s%d, ", inf.vList, 0)
-					inf.fldMap[fd.FName] = "0"
-					continue
-				}
-
 			} else {
 				if bPkeyInc == true || bPkey == true {
 					inf.keyMap[fd.FName] = fvr.Int()
@@ -185,8 +167,13 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 			// in all other cases, just use the given value making the
 			// assumption that the int-type field contains an int-type
 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-			inf.vList = fmt.Sprintf("%s%d, ", inf.vList, fvr.Int())
-			inf.fldMap[fd.FName] = fmt.Sprintf("%d", fvr.Int())
+			if !bIsNull {
+				inf.vList = fmt.Sprintf("%s%d, ", inf.vList, fvr.Int())
+				inf.fldMap[fd.FName] = fmt.Sprintf("%d", fvr.Int())
+			} else {
+				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "NULL")
+				inf.fldMap[fd.FName] = fmt.Sprintf("%s", "NULL")
+			}
 			continue
 
 		case "uint", "uint8", "uint16", "uint32", "uint64", "rune", "byte":
@@ -198,19 +185,12 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 					continue
 				}
 				if bDefault == true && fv == 0 ||
-					bDefault == true && fv == nil {
+					bDefault == true && bIsNull {
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
 					inf.fldMap[fd.FName] = "DEFAULT"
 					continue
 				}
-				if bNullable == false && fv == nil {
-					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-					inf.vList = fmt.Sprintf("%s%d, ", inf.vList, 0)
-					inf.fldMap[fd.FName] = "0"
-					continue
-				}
-
 			} else {
 				if bPkeyInc == true || bPkey == true {
 					inf.keyMap[fd.FName] = fvr.Uint()
@@ -218,10 +198,15 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 				}
 			}
 			// in all other cases, just use the given value making the
-			// assumption that the int-type field contains an int-type
+			// assumption that the uint-type field contains a uint-type
 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-			inf.vList = fmt.Sprintf("%s%d, ", inf.vList, fvr.Uint())
-			inf.fldMap[fd.FName] = fmt.Sprintf("%d", fvr.Uint())
+			if !bIsNull {
+				inf.vList = fmt.Sprintf("%s%d, ", inf.vList, fvr.Uint())
+				inf.fldMap[fd.FName] = fmt.Sprintf("%d", fvr.Uint())
+			} else {
+				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "NULL")
+				inf.fldMap[fd.FName] = fmt.Sprintf("%s", "NULL")
+			}
 			continue
 
 		case "float32", "float64":
@@ -232,17 +217,11 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 					inf.fldMap[fd.FName] = "DEFAULT"
 					continue
 				}
-				if bDefault == true && fv == 0 ||
-					bDefault == true && fv == nil {
+				if bDefault == true && reflect.DeepEqual(fv, reflect.Zero(reflect.TypeOf(fv)).Interface()) ||
+					bDefault == true && bIsNull {
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
 					inf.fldMap[fd.FName] = "DEFAULT"
-					continue
-				}
-				if bNullable == false && fv == nil {
-					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-					inf.vList = fmt.Sprintf("%s%f, ", inf.vList, 0.0)
-					inf.fldMap[fd.FName] = "0.0"
 					continue
 				}
 			} else {
@@ -254,8 +233,13 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 			// in all other cases, just use the given value making the
 			// assumption that the float-type field contains a float-type
 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-			inf.vList = fmt.Sprintf("%s%f, ", inf.vList, fvr.Float())
-			inf.fldMap[fd.FName] = fmt.Sprintf("%f", fvr.Float())
+			if !bIsNull {
+				inf.vList = fmt.Sprintf("%s%f, ", inf.vList, fvr.Float())
+				inf.fldMap[fd.FName] = fmt.Sprintf("%f", fvr.Float())
+			} else {
+				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "NULL")
+				inf.fldMap[fd.FName] = fmt.Sprintf("%s", "NULL")
+			}
 			continue
 
 		case "string":
@@ -293,35 +277,29 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 
 		case "bool":
 			if bDefault == true && fv == "" ||
-				bDefault == true && fv == nil {
+				bDefault == true && bIsNull {
 				inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
 				inf.fldMap[fd.FName] = "DEFAULT"
 				continue
 			}
-			// if bNullable == false && fv == nil {
-			// 	inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-			// 	if bf.GetDBDriverName() == "sqlite" {
-			// 		inf.vList = fmt.Sprintf("%s%d, ", inf.vList, 0) // or let it fail?
-			// 		inf.fldMap[fd.FName] = 0
-			// 	} else {
-			// 		inf.vList = fmt.Sprintf("%s%t, ", inf.vList, false) // or let it fail?
-			// 		inf.fldMap[fd.FName] = false
-			// 	}
-			// 	continue
-			// }
 
 			// in all other cases, just use the given value making the
 			// assumption that the string-type field contains a bool-type
 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-			switch bf.GetDBDriverName() {
-			case "sqlite3":
-				i := bf.BoolToDBBool(fvr.Bool())
-				inf.vList = fmt.Sprintf("%s%d, ", inf.vList, *i)
-				inf.fldMap[fd.FName] = fmt.Sprintf("%d", *i)
-			default:
-				inf.vList = fmt.Sprintf("%s%t, ", inf.vList, fvr.Bool())
-				inf.fldMap[fd.FName] = fmt.Sprintf("%t", fvr.Bool())
+			if !bIsNull {
+				switch bf.GetDBDriverName() {
+				case "sqlite3":
+					i := bf.BoolToDBBool(fvr.Bool())
+					inf.vList = fmt.Sprintf("%s%d, ", inf.vList, *i)
+					inf.fldMap[fd.FName] = fmt.Sprintf("%d", *i)
+				default:
+					inf.vList = fmt.Sprintf("%s%t, ", inf.vList, fvr.Bool())
+					inf.fldMap[fd.FName] = fmt.Sprintf("%t", fvr.Bool())
+				}
+			} else {
+				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "NULL")
+				inf.fldMap[fd.FName] = fmt.Sprintf("%s", "NULL")
 			}
 			continue
 
@@ -370,6 +348,42 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 			continue
 
 		default:
+			if inf.mode == "C" {
+				if bPkeyInc == true {
+					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+					inf.fldMap[fd.FName] = "DEFAULT"
+					continue
+				}
+				if bDefault == true && fv == "" ||
+					bDefault == true && bIsNull {
+					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+					inf.fldMap[fd.FName] = "DEFAULT"
+					continue
+				}
+			} else {
+				if bPkeyInc == true || bPkey == true {
+					inf.keyMap[fd.FName] = reflect.ValueOf(&fvr) //fvr.String()
+					continue
+				}
+			}
+			// in all other cases, just use the given value making the
+			// assumption that the string-type field contains a string-type
+			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+			if !bIsNull {
+				if fd.UnderGoType != "string" {
+					inf.vList = fmt.Sprintf("%s%v, ", inf.vList, reflect.ValueOf(&fvr)) // fvr.Int();fvr.UInt();fvr.Float();fvr.Bool()
+					inf.fldMap[fd.FName] = fmt.Sprintf("%v", reflect.ValueOf(&fvr))     // fvr.Int();fvr.UInt();fvr.Float();fvr.Bool()
+					continue
+				}
+				inf.vList = fmt.Sprintf("%s'%s', ", inf.vList, reflect.ValueOf(&fvr)) // fvr.String())
+				inf.fldMap[fd.FName] = fmt.Sprintf("'%s'", reflect.ValueOf(&fvr))     // fvr.String())
+			} else {
+				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "NULL")
+				inf.fldMap[fd.FName] = fmt.Sprintf("%s", "NULL")
+			}
+			continue
 
 		}
 	}

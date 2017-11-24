@@ -44,10 +44,14 @@ func TagReader(i interface{}, t reflect.Type) (fd []FieldDef, err error) {
 		// get the field-type as a string
 		fts := t.Field(i).Type.String()
 		ftu := strings.TrimPrefix(fts, "*")
-		if fts != "uint" && fts != "uint8" && fts != "uint16" && fts != "uint32" && fts != "uint64" &&
-			fts != "int" && fts != "*string" && fts != "int8" && fts != "int16" && fts != "int32" && fts != "int64" &&
-			fts != "rune" && fts != "byte" && fts != "string" && fts != "float32" && fts != "float64" &&
-			fts != "bool" && fts != "time.Time" && fts != "*time.Time" {
+
+		// this would be cleaner for embedded structs, but time.Time is a struct etc..
+		// if t.Field(i).Type.Kind() == reflect.Struct {
+		// }
+		if ftu != "uint" && ftu != "uint8" && ftu != "uint16" && ftu != "uint32" && ftu != "uint64" &&
+			ftu != "int" && ftu != "int8" && ftu != "int16" && ftu != "int32" && ftu != "int64" &&
+			ftu != "rune" && ftu != "byte" && ftu != "string" && ftu != "float32" && ftu != "float64" &&
+			ftu != "bool" && ftu != "time.Time" {
 
 			// embedded struct - recurse and append resulting field defs
 			// get the Value from the StructField (t.Field(i))

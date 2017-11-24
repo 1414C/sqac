@@ -867,23 +867,9 @@ func TestDestructiveResetTables(t *testing.T) {
 	// table creation logic
 	tns := make([]string, 0)
 	tn := common.GetTableName(Depot{})
-	// tn := reflect.TypeOf(Depot{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
 	tns = append(tns, tn)
 
 	tn = common.GetTableName(Equipment{})
-	//tn = reflect.TypeOf(Equipment{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
 	tns = append(tns, tn)
 
 	// ensure tables exist in db

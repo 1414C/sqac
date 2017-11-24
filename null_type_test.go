@@ -9,7 +9,7 @@ import "github.com/1414C/sqac/common"
 func TestNullString(t *testing.T) {
 
 	type NString struct {
-		NSKey                   int       `db:"ns_key" rgen:"primary_key:inc"`
+		NSKey                   string    `db:"ns_key" rgen:"primary_key:inc"`
 		CreateDate              time.Time `db:"create_date" rgen:"nullable:false;default:now();"`
 		StringDflt              string    `db:"string_dflt" rgen:"nullable:false;default:dflt_value"`
 		StringDfltWithValue     string    `db:"string_dflt_with_value" rgen:"nullable:false;default:dflt_value2"`
@@ -108,6 +108,425 @@ func TestNullString(t *testing.T) {
 	} else {
 		if Handle.IsLog() {
 			fmt.Printf("nstring.NullString: %v\n", nstring.NullString)
+		}
+	}
+	Handle.Log(false)
+}
+
+func TestNullInt(t *testing.T) {
+
+	type NInt struct {
+		NIKey                int       `db:"ni_key" rgen:"primary_key:inc"`
+		CreateDate           time.Time `db:"create_date" rgen:"nullable:false;default:now();"`
+		IntDflt              int       `db:"int_dflt" rgen:"nullable:false;default:1111"`
+		IntDfltWithValue     int       `db:"int_dflt_with_value" rgen:"nullable:false;default:2222"`
+		IntWithValue         int       `db:"int_with_value" rgen:"nullable:false"`
+		NullIntDflt          *int      `db:"null_int_dflt" rgen:"nullable:true;default:5555"`
+		NullIntDfltWithValue *int      `db:"null_int_dflt_with_value" rgen:"nullable:true;default:6666"`
+		NullIntWithValue     *int      `db:"null_int_with_value" rgen:"nullable:true"`
+		NullInt              *int      `db:"null_int" rgen:"nullable:true"`
+	}
+
+	err := Handle.CreateTables(NInt{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// determine the table name as per the table creation logic
+	tn := common.GetTableName(NInt{})
+
+	// expect that table depot exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s was not created", tn)
+	}
+
+	i1 := 100
+	i2 := 200
+
+	// create a new record via the CRUD Create call
+	var nint = NInt{
+		IntDflt:              0,
+		IntDfltWithValue:     10,
+		IntWithValue:         20,
+		NullIntDflt:          nil,
+		NullIntDfltWithValue: &i1,
+		NullIntWithValue:     &i2,
+		NullInt:              nil,
+	}
+
+	if Handle.IsLog() {
+		fmt.Printf("INSERTING: %v\n", nint)
+	}
+
+	err = Handle.Create(&nint)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	if Handle.IsLog() {
+		fmt.Printf("TEST GOT: %v\n", nint)
+	}
+	fmt.Printf("TEST GOT: %v\n", nint)
+
+	Handle.Log(true)
+	if nint.IntDflt != 1111 {
+		t.Errorf("nint expected %d for field 'IntDflt', got: %v", 1111, nint.IntDflt)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("nint.IntDflt: %v\n", nint.IntDflt)
+		}
+	}
+	if nint.IntDfltWithValue != 10 {
+		t.Errorf("nint expected %d for field 'IntDfltWithValue', got: %v", 10, nint.IntDfltWithValue)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("nint.IntDfltWithValue: %v\n", nint.IntDfltWithValue)
+		}
+	}
+	if nint.IntWithValue != 20 {
+		t.Errorf("nint expected %d for field 'IntWithValue', got: %v", 20, nint.IntWithValue)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("nint.IntWithValue : %v\n", nint.IntWithValue)
+		}
+	}
+	if *nint.NullIntDflt != 5555 {
+		t.Errorf("nint expected %d for field '*NullIntDflt', got: %v", 5555, *nint.NullIntDflt)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("*nint.NullIntDflt: %v\n", *nint.NullIntDflt)
+		}
+	}
+	if *nint.NullIntDfltWithValue != 100 {
+		t.Errorf("nint expected %d for field '*NullIntDfltWithValue', got: %v", 100, *nint.NullIntDfltWithValue)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("*nint.NullIntDfltWithValue: %v\n", *nint.NullIntDfltWithValue)
+		}
+	}
+	if *nint.NullIntWithValue != 200 {
+		t.Errorf("nint expected %d for field '*NullIntWithValue', got: %v", 200, *nint.NullIntWithValue)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("*nint.NullIntWithValue: %v\n", *nint.NullIntWithValue)
+		}
+	}
+	if nint.NullInt != nil {
+		t.Errorf("nint expected <nil> for field 'NullInt', got: %#v", *nint.NullInt)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("*nint.NullInt: %v\n", nint.NullInt)
+		}
+	}
+	Handle.Log(false)
+}
+
+func TestNullUint(t *testing.T) {
+
+	type NUint struct {
+		NIKey                 int       `db:"ni_key" rgen:"primary_key:inc"`
+		CreateDate            time.Time `db:"create_date" rgen:"nullable:false;default:now();"`
+		UintDflt              int       `db:"uint_dflt" rgen:"nullable:false;default:1111"`
+		UintDfltWithValue     int       `db:"uint_dflt_with_value" rgen:"nullable:false;default:2222"`
+		UintWithValue         int       `db:"uint_with_value" rgen:"nullable:false"`
+		NullUintDflt          *int      `db:"null_uint_dflt" rgen:"nullable:true;default:5555"`
+		NullUintDfltWithValue *int      `db:"null_uint_dflt_with_value" rgen:"nullable:true;default:6666"`
+		NullUintWithValue     *int      `db:"null_uint_with_value" rgen:"nullable:true"`
+		NullUint              *int      `db:"null_uint" rgen:"nullable:true"`
+	}
+
+	err := Handle.CreateTables(NUint{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// determine the table name as per the table creation logic
+	tn := common.GetTableName(NUint{})
+
+	// expect that table depot exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s was not created", tn)
+	}
+
+	i1 := 100
+	i2 := 200
+
+	// create a new record via the CRUD Create call
+	var nuint = NUint{
+		UintDflt:              0,
+		UintDfltWithValue:     10,
+		UintWithValue:         20,
+		NullUintDflt:          nil,
+		NullUintDfltWithValue: &i1,
+		NullUintWithValue:     &i2,
+		NullUint:              nil,
+	}
+
+	if Handle.IsLog() {
+		fmt.Printf("INSERTING: %v\n", nuint)
+	}
+
+	err = Handle.Create(&nuint)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	if Handle.IsLog() {
+		fmt.Printf("TEST GOT: %v\n", nuint)
+	}
+	fmt.Printf("TEST GOT: %v\n", nuint)
+
+	Handle.Log(true)
+	if nuint.UintDflt != 1111 {
+		t.Errorf("nint expected %d for field 'UintDflt', got: %v", 1111, nuint.UintDflt)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("nint.IntDflt: %v\n", nuint.UintDflt)
+		}
+	}
+	if nuint.UintDfltWithValue != 10 {
+		t.Errorf("nuint expected %d for field 'UintDfltWithValue', got: %v", 10, nuint.UintDfltWithValue)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("nuint.UintDfltWithValue: %v\n", nuint.UintDfltWithValue)
+		}
+	}
+	if nuint.UintWithValue != 20 {
+		t.Errorf("nuint expected %d for field 'UintWithValue', got: %v", 20, nuint.UintWithValue)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("nuint.UintWithValue : %v\n", nuint.UintWithValue)
+		}
+	}
+	if *nuint.NullUintDflt != 5555 {
+		t.Errorf("nuint expected %d for field '*NullUintDflt', got: %v", 5555, *nuint.NullUintDflt)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("*nuint.NullUintDflt: %v\n", *nuint.NullUintDflt)
+		}
+	}
+	if *nuint.NullUintDfltWithValue != 100 {
+		t.Errorf("nuint expected %d for field '*NullUintDfltWithValue', got: %v", 100, *nuint.NullUintDfltWithValue)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("*nuint.NullUintDfltWithValue: %v\n", *nuint.NullUintDfltWithValue)
+		}
+	}
+	if *nuint.NullUintWithValue != 200 {
+		t.Errorf("nuint expected %d for field '*NullUintWithValue', got: %v", 200, *nuint.NullUintWithValue)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("*nuint.NullUintWithValue: %v\n", *nuint.NullUintWithValue)
+		}
+	}
+	if nuint.NullUint != nil {
+		t.Errorf("nuint expected <nil> for field 'NullUint', got: %#v", *nuint.NullUint)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("*nuint.NullUint: %v\n", nuint.NullUint)
+		}
+	}
+	Handle.Log(false)
+}
+
+func TestNullFloat(t *testing.T) {
+
+	type NFloat struct {
+		NIKey                  int       `db:"ni_key" rgen:"primary_key:inc"`
+		CreateDate             time.Time `db:"create_date" rgen:"nullable:false;default:now();"`
+		FloatDflt              float64   `db:"float_dflt" rgen:"nullable:false;default:1111.222"`
+		FloatDfltWithValue     float64   `db:"float_dflt_with_value" rgen:"nullable:false;default:3333.444"`
+		FloatWithValue         float64   `db:"float_with_value" rgen:"nullable:false"`
+		NullFloatDflt          *float64  `db:"null_float_dflt" rgen:"nullable:true;default:6666.777"`
+		NullFloatDfltWithValue *float64  `db:"null_float_dflt_with_value" rgen:"nullable:true;default:8888.999"`
+		NullFloatWithValue     *float64  `db:"null_float_with_value" rgen:"nullable:true"`
+		NullFloat              *float64  `db:"null_float" rgen:"nullable:true"`
+	}
+
+	err := Handle.CreateTables(NFloat{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// determine the table name as per the table creation logic
+	tn := common.GetTableName(NFloat{})
+
+	// expect that table nfloat exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s was not created", tn)
+	}
+
+	f1 := 100.4242
+	f2 := 200.5656
+
+	// create a new record via the CRUD Create call
+	var nfloat = NFloat{
+		FloatDflt:              0,
+		FloatDfltWithValue:     10.701,
+		FloatWithValue:         20.702,
+		NullFloatDflt:          nil,
+		NullFloatDfltWithValue: &f1,
+		NullFloatWithValue:     &f2,
+		NullFloat:              nil,
+	}
+
+	if Handle.IsLog() {
+		fmt.Printf("INSERTING: %v\n", nfloat)
+	}
+
+	err = Handle.Create(&nfloat)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	if Handle.IsLog() {
+		fmt.Printf("TEST GOT: %v\n", nfloat)
+	}
+	fmt.Printf("TEST GOT: %v\n", nfloat)
+
+	Handle.Log(true)
+	if nfloat.FloatDflt != 1111.222 {
+		t.Errorf("nfloat expected %f for field 'FloatDflt', got: %v", 1111.222, nfloat.FloatDflt)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("nfloat.FloattDflt: %f\n", nfloat.FloatDflt)
+		}
+	}
+	if nfloat.FloatDfltWithValue != 10.701 {
+		t.Errorf("nfloat expected %f for field 'FloatDfltWithValue', got: %v", 10.701, nfloat.FloatDfltWithValue)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("nfloat.FloatDfltWithValue: %f\n", nfloat.FloatDfltWithValue)
+		}
+	}
+	if nfloat.FloatWithValue != 20.702 {
+		t.Errorf("nfloat expected %f for field 'FloatWithValue', got: %v", 20.702, nfloat.FloatWithValue)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("nfloat.FloatWithValue : %f\n", nfloat.FloatWithValue)
+		}
+	}
+	if *nfloat.NullFloatDflt != 6666.777 {
+		t.Errorf("nfloat expected %f for field '*NullFloatDflt', got: %v", 6666.777, *nfloat.NullFloatDflt)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("*nfloat.NullFloatDflt: %f\n", *nfloat.NullFloatDflt)
+		}
+	}
+	if *nfloat.NullFloatDfltWithValue != 100.4242 {
+		t.Errorf("nfloat expected %f for field '*NullFloatDfltWithValue', got: %v", 100.4242, *nfloat.NullFloatDfltWithValue)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("*nfloat.NullFloatDfltWithValue: %f\n", *nfloat.NullFloatDfltWithValue)
+		}
+	}
+	if *nfloat.NullFloatWithValue != 200.5656 {
+		t.Errorf("nfloat expected %f for field '*NullFloatWithValue', got: %v", 200.5656, *nfloat.NullFloatWithValue)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("*nfloat.NullFloatWithValue: %f\n", *nfloat.NullFloatWithValue)
+		}
+	}
+	if nfloat.NullFloat != nil {
+		t.Errorf("nfloat expected <nil> for field 'NullFloat', got: %#v", *nfloat.NullFloat)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("*nfloat.NullFloat: %v\n", nfloat.NullFloat)
+		}
+	}
+	Handle.Log(false)
+}
+
+func TestNullBool(t *testing.T) {
+
+	type NBool struct {
+		NIKey                 int       `db:"ni_key" rgen:"primary_key:inc"`
+		CreateDate            time.Time `db:"create_date" rgen:"nullable:false;default:now();"`
+		BoolDfltWithValue     bool      `db:"bool_dflt_with_value" rgen:"nullable:false;default:true"`
+		BoolWithValue         bool      `db:"bool_with_value" rgen:"nullable:false"`
+		NullBoolDflt          *bool     `db:"null_bool_dflt" rgen:"nullable:true;default:true"`
+		NullBoolDfltWithValue *bool     `db:"null_bool_dflt_with_value" rgen:"nullable:true;default:true"`
+		NullBoolWithValue     *bool     `db:"null_bool_with_value" rgen:"nullable:true"`
+		NullBool              *bool     `db:"null_bool" rgen:"nullable:true"`
+	}
+
+	err := Handle.CreateTables(NBool{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// determine the table name as per the table creation logic
+	tn := common.GetTableName(NBool{})
+
+	// expect that table nbool exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s was not created", tn)
+	}
+
+	b1 := false
+	b2 := false
+
+	// create a new record via the CRUD Create call
+	var nbool = NBool{
+		BoolDfltWithValue:     false,
+		BoolWithValue:         false,
+		NullBoolDflt:          nil,
+		NullBoolDfltWithValue: &b1,
+		NullBoolWithValue:     &b2,
+		NullBool:              nil,
+	}
+
+	if Handle.IsLog() {
+		fmt.Printf("INSERTING: %v\n", nbool)
+	}
+
+	err = Handle.Create(&nbool)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	if Handle.IsLog() {
+		fmt.Printf("TEST GOT: %v\n", nbool)
+	}
+	fmt.Printf("TEST GOT: %v\n", nbool)
+
+	Handle.Log(true)
+	if nbool.BoolDfltWithValue != false {
+		t.Errorf("nbool expected %t for field 'BoolDfltWithValue', got: %v", false, nbool.BoolDfltWithValue)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("nbool.BoolDfltWithValue: %v\n", nbool.BoolDfltWithValue)
+		}
+	}
+	if nbool.BoolWithValue != false {
+		t.Errorf("nbool expected %t for field 'BoolWithValue', got: %v", false, nbool.BoolWithValue)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("nbool.BoolWithValue : %v\n", nbool.BoolWithValue)
+		}
+	}
+	if *nbool.NullBoolDflt != true {
+		t.Errorf("nbool expected %t for field '*NullBoolDflt', got: %v", true, *nbool.NullBoolDflt)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("*nbool.NullBoolflt: %v\n", *nbool.NullBoolDflt)
+		}
+	}
+	if *nbool.NullBoolDfltWithValue != false {
+		t.Errorf("nbool expected %t for field '*NullBoolDfltWithValue', got: %v", false, *nbool.NullBoolDfltWithValue)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("*nbool.NullBoolDfltWithValue: %v\n", *nbool.NullBoolDfltWithValue)
+		}
+	}
+	if *nbool.NullBoolWithValue != false {
+		t.Errorf("nbool expected %t for field '*NullBoolWithValue', got: %v", false, *nbool.NullBoolWithValue)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("*nbool.NullBoolWithValue: %v\n", *nbool.NullBoolWithValue)
+		}
+	}
+	if nbool.NullBool != nil {
+		t.Errorf("nbool expected <nil> for field 'NullBool', got: %#v", *nbool.NullBool)
+	} else {
+		if Handle.IsLog() {
+			fmt.Printf("*nbool.NullBool: %v\n", nbool.NullBool)
 		}
 	}
 	Handle.Log(false)
