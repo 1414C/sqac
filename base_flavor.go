@@ -88,6 +88,8 @@ type PublicDB interface {
 	// activate / check logging
 	Log(b bool)
 	IsLog() bool
+	DBLog(b bool)
+	IsDBLog() bool
 
 	// set the *sqlx.DB handle in the PublicDB interface
 	SetDB(db *sqlx.DB)
@@ -174,8 +176,9 @@ var _ PublicDB = &BaseFlavor{}
 
 // BaseFlavor is a supporting struct for interface PublicDB
 type BaseFlavor struct {
-	db  *sqlx.DB
-	log bool
+	db    *sqlx.DB
+	log   bool
+	dbLog bool
 	PublicDB
 }
 
@@ -187,6 +190,16 @@ func (bf *BaseFlavor) Log(b bool) {
 // IsLog reports whether logging is active
 func (bf *BaseFlavor) IsLog() bool {
 	return bf.log
+}
+
+// DBLog sets the db-access-logging status
+func (bf *BaseFlavor) DBLog(b bool) {
+	bf.dbLog = b
+}
+
+// IsDBLog reports whether db-access-logging is active
+func (bf *BaseFlavor) IsDBLog() bool {
+	return bf.dbLog
 }
 
 // SetDB sets the sqlx.DB connection in the
