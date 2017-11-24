@@ -160,7 +160,7 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 				}
 			} else {
 				if bPkeyInc == true || bPkey == true {
-					inf.keyMap[fd.FName] = fvr.Int()
+					inf.keyMap[fd.FName] = fvr.Int() // reflect.ValueOf(&fvr))??
 					continue
 				}
 			}
@@ -168,8 +168,8 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 			// assumption that the int-type field contains an int-type
 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 			if !bIsNull {
-				inf.vList = fmt.Sprintf("%s%d, ", inf.vList, fvr.Int())
-				inf.fldMap[fd.FName] = fmt.Sprintf("%d", fvr.Int())
+				inf.vList = fmt.Sprintf("%s%v, ", inf.vList, fvr.Int())
+				inf.fldMap[fd.FName] = fmt.Sprintf("%v", fvr.Int())
 			} else {
 				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "NULL")
 				inf.fldMap[fd.FName] = fmt.Sprintf("%s", "NULL")
@@ -234,8 +234,8 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 			// assumption that the float-type field contains a float-type
 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 			if !bIsNull {
-				inf.vList = fmt.Sprintf("%s%f, ", inf.vList, fvr.Float())
-				inf.fldMap[fd.FName] = fmt.Sprintf("%f", fvr.Float())
+				inf.vList = fmt.Sprintf("%s%v, ", inf.vList, fvr.Float())
+				inf.fldMap[fd.FName] = fmt.Sprintf("%v", fvr.Float())
 			} else {
 				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "NULL")
 				inf.fldMap[fd.FName] = fmt.Sprintf("%s", "NULL")
@@ -259,7 +259,7 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 				}
 			} else {
 				if bPkeyInc == true || bPkey == true {
-					inf.keyMap[fd.FName] = reflect.ValueOf(&fvr) //fvr.String()
+					inf.keyMap[fd.FName] = fvr.String()
 					continue
 				}
 			}
@@ -267,8 +267,8 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 			// assumption that the string-type field contains a string-type
 			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 			if !bIsNull {
-				inf.vList = fmt.Sprintf("%s'%s', ", inf.vList, reflect.ValueOf(&fvr)) // fvr.String())
-				inf.fldMap[fd.FName] = fmt.Sprintf("'%s'", reflect.ValueOf(&fvr))     // fvr.String())
+				inf.vList = fmt.Sprintf("%s'%s', ", inf.vList, fvr.String())
+				inf.fldMap[fd.FName] = fmt.Sprintf("'%s'", fvr.String())
 			} else {
 				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "NULL")
 				inf.fldMap[fd.FName] = fmt.Sprintf("%s", "NULL")
@@ -322,7 +322,7 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 				}
 
 				if bDefault == true && bZzeroTime || // 0001-01-01 00:00:00 +0000 UTC
-					bDefault == true && bIsNull { // nil pointer case
+					bDefault == true && bIsNull {
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
 					inf.fldMap[fd.FName] = "DEFAULT"
@@ -348,41 +348,7 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 			continue
 
 		default:
-			if inf.mode == "C" {
-				if bPkeyInc == true {
-					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
-					inf.fldMap[fd.FName] = "DEFAULT"
-					continue
-				}
-				if bDefault == true && fv == "" ||
-					bDefault == true && bIsNull {
-					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
-					inf.fldMap[fd.FName] = "DEFAULT"
-					continue
-				}
-			} else {
-				if bPkeyInc == true || bPkey == true {
-					inf.keyMap[fd.FName] = reflect.ValueOf(&fvr) //fvr.String()
-					continue
-				}
-			}
-			// in all other cases, just use the given value making the
-			// assumption that the string-type field contains a string-type
-			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-			if !bIsNull {
-				if fd.UnderGoType != "string" {
-					inf.vList = fmt.Sprintf("%s%v, ", inf.vList, reflect.ValueOf(&fvr)) // fvr.Int();fvr.UInt();fvr.Float();fvr.Bool()
-					inf.fldMap[fd.FName] = fmt.Sprintf("%v", reflect.ValueOf(&fvr))     // fvr.Int();fvr.UInt();fvr.Float();fvr.Bool()
-					continue
-				}
-				inf.vList = fmt.Sprintf("%s'%s', ", inf.vList, reflect.ValueOf(&fvr)) // fvr.String())
-				inf.fldMap[fd.FName] = fmt.Sprintf("'%s'", reflect.ValueOf(&fvr))     // fvr.String())
-			} else {
-				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "NULL")
-				inf.fldMap[fd.FName] = fmt.Sprintf("%s", "NULL")
-			}
+			log.Printf("%s with go-type %s is unsupported\n", fd.FName, fd.GoType)
 			continue
 
 		}

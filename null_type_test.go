@@ -223,15 +223,15 @@ func TestNullInt(t *testing.T) {
 func TestNullUint(t *testing.T) {
 
 	type NUint struct {
-		NIKey                 int       `db:"ni_key" rgen:"primary_key:inc"`
+		NIKey                 uint      `db:"ni_key" rgen:"primary_key:inc"`
 		CreateDate            time.Time `db:"create_date" rgen:"nullable:false;default:now();"`
-		UintDflt              int       `db:"uint_dflt" rgen:"nullable:false;default:1111"`
-		UintDfltWithValue     int       `db:"uint_dflt_with_value" rgen:"nullable:false;default:2222"`
-		UintWithValue         int       `db:"uint_with_value" rgen:"nullable:false"`
-		NullUintDflt          *int      `db:"null_uint_dflt" rgen:"nullable:true;default:5555"`
-		NullUintDfltWithValue *int      `db:"null_uint_dflt_with_value" rgen:"nullable:true;default:6666"`
-		NullUintWithValue     *int      `db:"null_uint_with_value" rgen:"nullable:true"`
-		NullUint              *int      `db:"null_uint" rgen:"nullable:true"`
+		UintDflt              uint      `db:"uint_dflt" rgen:"nullable:false;default:1111"`
+		UintDfltWithValue     uint      `db:"uint_dflt_with_value" rgen:"nullable:false;default:2222"`
+		UintWithValue         uint      `db:"uint_with_value" rgen:"nullable:false"`
+		NullUintDflt          *uint     `db:"null_uint_dflt" rgen:"nullable:true;default:5555"`
+		NullUintDfltWithValue *uint     `db:"null_uint_dflt_with_value" rgen:"nullable:true;default:6666"`
+		NullUintWithValue     *uint     `db:"null_uint_with_value" rgen:"nullable:true"`
+		NullUint              *uint     `db:"null_uint" rgen:"nullable:true"`
 	}
 
 	err := Handle.CreateTables(NUint{})
@@ -247,8 +247,10 @@ func TestNullUint(t *testing.T) {
 		t.Errorf("table %s was not created", tn)
 	}
 
-	i1 := 100
-	i2 := 200
+	var u1 uint
+	var u2 uint
+	u1 = 100
+	u2 = 200
 
 	// create a new record via the CRUD Create call
 	var nuint = NUint{
@@ -256,8 +258,8 @@ func TestNullUint(t *testing.T) {
 		UintDfltWithValue:     10,
 		UintWithValue:         20,
 		NullUintDflt:          nil,
-		NullUintDfltWithValue: &i1,
-		NullUintWithValue:     &i2,
+		NullUintDfltWithValue: &u1,
+		NullUintWithValue:     &u2,
 		NullUint:              nil,
 	}
 
