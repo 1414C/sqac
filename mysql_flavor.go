@@ -442,6 +442,10 @@ func (myf *MySQLFlavor) Create(ent interface{}) error {
 	insQuery = fmt.Sprintf("%s %s VALUES %s;", insQuery, info.fList, info.vList)
 	fmt.Println(insQuery)
 
+	// clear the source data - deals with non-persistet columns
+	e := reflect.ValueOf(info.ent).Elem()
+	e.Set(reflect.Zero(e.Type()))
+
 	// attempt the insert and read the result back into info.resultMap
 	result, err := myf.db.Exec(insQuery)
 	if err != nil {
@@ -500,6 +504,10 @@ func (myf *MySQLFlavor) Update(ent interface{}) error {
 
 	updQuery := fmt.Sprintf("UPDATE %s SET %s WHERE %s;", info.tn, colList, keyList)
 	fmt.Println(updQuery)
+
+	// clear the source data - deals with non-persistet columns
+	e := reflect.ValueOf(info.ent).Elem()
+	e.Set(reflect.Zero(e.Type()))
 
 	// attempt the update and check for errors
 	_, err = myf.db.Exec(updQuery)

@@ -697,10 +697,9 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	insQuery = fmt.Sprintf("%s %s VALUES %s RETURNING *;", insQuery, info.fList, info.vList)
 	fmt.Println(insQuery)
 
-	// fmt.Println("^^^^^^^info.ent:", info.ent)
-	// p := reflect.ValueOf(info.ent).Elem()
-	// p.Set(reflect.Zero(p.Type()))
-	// fmt.Println("^^^^^^^info.ent:", info.ent)
+	// clear the source data - deals with non-persistet columns
+	e := reflect.ValueOf(info.ent).Elem()
+	e.Set(reflect.Zero(e.Type()))
 
 	// attempt the insert and read the result back into info.resultMap
 	err = pf.db.QueryRowx(insQuery).StructScan(info.ent) //.MapScan(info.resultMap) // SliceScan
@@ -746,6 +745,10 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 	updQuery := fmt.Sprintf("UPDATE %s SET", info.tn)
 	updQuery = fmt.Sprintf("%s %s = %s WHERE%s", updQuery, info.fList, info.vList, keyList)
 	fmt.Println(updQuery)
+
+	// clear the source data - deals with non-persistet columns
+	e := reflect.ValueOf(info.ent).Elem()
+	e.Set(reflect.Zero(e.Type()))
 
 	// attempt the update and read result back into resultMap
 	err = pf.db.QueryRowx(updQuery).StructScan(info.ent) //.MapScan(info.resultMap) // SliceScan

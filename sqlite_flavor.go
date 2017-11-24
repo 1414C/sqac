@@ -159,7 +159,7 @@ func (slf *SQLiteFlavor) AlterTables(i ...interface{}) error {
 						panic(fmt.Errorf("aborting - cannot add a primary-key (table-field %s-%s) through migration", tn, fd.FName))
 
 					case "default":
-						if fd.GoType == "string" {
+						if fd.UnderGoType == "string" {
 							colSchema = fmt.Sprintf("%s DEFAULT '%s'", colSchema, p.Value)
 						} else {
 							colSchema = fmt.Sprintf("%s DEFAULT %s", colSchema, p.Value)
@@ -292,7 +292,7 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 			continue
 		}
 
-		switch fd.GoType {
+		switch fd.UnderGoType {
 		case "int64", "uint64":
 			col.fType = "bigint"
 
@@ -309,7 +309,7 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 		case "string":
 			col.fType = "varchar(255)"
 
-		case "time.Time", "*time.Time":
+		case "time.Time":
 			col.fType = "datetime"
 
 		default:
@@ -338,9 +338,9 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 					// (for me at least).  for this reason, AUTOINCREMENT is used.
 					// if AUTOINCREMENT is requested on an int64/uint64, downcast
 					// the db-field-type to integer.
-					if p.Value == "inc" && strings.Contains(fd.GoType, "int") {
+					if p.Value == "inc" && strings.Contains(fd.UnderGoType, "int") {
 						col.fPrimaryKey = "PRIMARY KEY"
-						if strings.Contains(fd.GoType, "64") {
+						if strings.Contains(fd.UnderGoType, "64") {
 							fldef[idx].FType = "integer"
 							col.fType = "integer"
 						}
@@ -358,13 +358,13 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 					}
 
 				case "default":
-					if fd.GoType == "string" {
+					if fd.UnderGoType == "string" {
 						col.fDefault = fmt.Sprintf("DEFAULT '%s'", p.Value)
 					} else {
 						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
 					}
 
-					if fd.GoType == "bool" {
+					if fd.UnderGoType == "bool" {
 						switch p.Value {
 						case "TRUE", "true":
 							p.Value = "1"
@@ -376,7 +376,7 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
 					}
 
-					if fd.GoType == "time.Time" {
+					if fd.UnderGoType == "time.Time" {
 						switch p.Value {
 						case "now()":
 							p.Value = "(datetime('now'))"
@@ -482,13 +482,6 @@ func (slf *SQLiteFlavor) DropTables(i ...interface{}) error {
 
 		// determine the table name
 		tn := common.GetTableName(i[t])
-		// tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
-		// if strings.Contains(tn, ".") {
-		// 	el := strings.Split(tn, ".")
-		// 	tn = strings.ToLower(el[len(el)-1])
-		// } else {
-		// 	tn = strings.ToLower(tn)
-		// }
 		if tn == "" {
 			return fmt.Errorf("unable to determine table name in slf.DropTables")
 		}
@@ -676,6 +669,10 @@ func (slf *SQLiteFlavor) Create(ent interface{}) error {
 	insQuery := fmt.Sprintf("INSERT OR FAIL INTO %s (%s) VALUES (%s);", info.tn, insFlds, insVals)
 	fmt.Println(insQuery)
 
+	// clear the source data - deals with non-persistet columns
+	e := reflect.ValueOf(info.ent).Elem()
+	e.Set(reflect.Zero(e.Type()))
+
 	// attempt the insert and read the result back into info.resultMap
 	result, err := slf.db.Exec(insQuery)
 	if err != nil {
@@ -688,17 +685,11 @@ func (slf *SQLiteFlavor) Create(ent interface{}) error {
 	}
 
 	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s = %d LIMIT 1;", info.tn, info.incKeyName, lastID)
-	err = slf.db.QueryRowx(selQuery).MapScan(info.resultMap) // SliceScan
+	err = slf.db.QueryRowx(selQuery).StructScan(info.ent) //.MapScan(info.resultMap) // SliceScan
 	if err != nil {
 		return err
 	}
-
-	// fill the underlying structure of the interface ptr with the
-	// fields returned from the database.
-	err = slf.FormatReturn(&info)
-	if err != nil {
-		return err
-	}
+	info.entValue = reflect.ValueOf(info.ent)
 	return nil
 }
 
@@ -742,6 +733,10 @@ func (slf *SQLiteFlavor) Update(ent interface{}) error {
 	updQuery := fmt.Sprintf("UPDATE OR FAIL %s SET %s WHERE %s;", info.tn, colList, keyList)
 	fmt.Println(updQuery)
 
+	// clear the source data - deals with non-persistent columns
+	e := reflect.ValueOf(info.ent).Elem()
+	e.Set(reflect.Zero(e.Type()))
+
 	// attempt the update and check for errors
 	_, err = slf.db.Exec(updQuery)
 	if err != nil {
@@ -750,16 +745,10 @@ func (slf *SQLiteFlavor) Update(ent interface{}) error {
 
 	// read the updated row
 	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s LIMIT 1;", info.tn, keyList)
-	err = slf.db.QueryRowx(selQuery).MapScan(info.resultMap) // SliceScan
+	err = slf.db.QueryRowx(selQuery).StructScan(info.ent) //.MapScan(info.resultMap) // SliceScan
 	if err != nil {
 		return err
 	}
-
-	// fill the underlying structure of the interface ptr with the
-	// fields returned from the database.
-	err = slf.FormatReturn(&info)
-	if err != nil {
-		return err
-	}
+	info.entValue = reflect.ValueOf(info.ent)
 	return nil
 }

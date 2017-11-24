@@ -48,6 +48,7 @@ func TestNullString(t *testing.T) {
 		NullString:              nil,
 	}
 
+	Handle.Log(true)
 	if Handle.IsLog() {
 		fmt.Printf("INSERTING: %v\n", nstring)
 	}
@@ -60,6 +61,7 @@ func TestNullString(t *testing.T) {
 	if Handle.IsLog() {
 		fmt.Printf("TEST GOT: %v\n", nstring)
 	}
+	Handle.Log(false)
 
 	if nstring.StringDflt != "dflt_value" {
 		t.Errorf("nstring expected %s for field 'StringDflt', got: %v", "dflt_value", nstring.StringDflt)

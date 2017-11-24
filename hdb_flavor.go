@@ -260,13 +260,6 @@ func (hf *HDBFlavor) CreateTables(i ...interface{}) error {
 
 		// determine the table name
 		tn := common.GetTableName(i[t])
-		// tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
-		// if strings.Contains(tn, ".") {
-		// 	el := strings.Split(tn, ".")
-		// 	tn = strings.ToLower(el[len(el)-1])
-		// } else {
-		// 	tn = strings.ToLower(tn)
-		// }
 		if tn == "" {
 			return fmt.Errorf("unable to determine table name in hf.CreateTables")
 		}
@@ -409,13 +402,6 @@ func (hf *HDBFlavor) AlterTables(i ...interface{}) error {
 
 		// determine the table name
 		tn := common.GetTableName(i[t])
-		// tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
-		// if strings.Contains(tn, ".") {
-		// 	el := strings.Split(tn, ".")
-		// 	tn = strings.ToLower(el[len(el)-1])
-		// } else {
-		// 	tn = strings.ToLower(tn)
-		// }
 		if tn == "" {
 			return fmt.Errorf("unable to determine table name in hf.AlterTables")
 		}
@@ -449,7 +435,7 @@ func (hf *HDBFlavor) AlterTables(i ...interface{}) error {
 						panic(fmt.Errorf("aborting - cannot add a primary-key (table-field %s-%s) through migration", tn, fd.FName))
 
 					case "default":
-						switch fd.GoType {
+						switch fd.UnderGoType {
 						case "string":
 							colSchema = fmt.Sprintf("%s DEFAULT '%s'", colSchema, p.Value)
 
@@ -462,7 +448,7 @@ func (hf *HDBFlavor) AlterTables(i ...interface{}) error {
 								p.Value = "0"
 
 							default:
-
+								// nil
 							}
 
 						default:
@@ -551,7 +537,7 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 			continue
 		}
 
-		switch fd.GoType {
+		switch fd.UnderGoType {
 		case "int64", "uint64":
 			col.fType = "bigint"
 
@@ -576,7 +562,7 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 		case "string":
 			col.fType = "nvarchar(255)" //
 
-		case "time.Time", "*time.Time":
+		case "time.Time":
 			col.fType = "timestamp"
 
 		default:
@@ -586,7 +572,7 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 		fldef[idx].FType = col.fType
 
 		// read rgen tag pairs and apply
-		seqName := ""
+		// seqName := ""
 		if !strings.Contains(fd.GoType, "*time.Time") {
 
 			for _, p := range fd.RgenPairs {
@@ -601,6 +587,9 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 						hdbSeq.TableName = strings.ToUpper(tn)
 						hdbSeq.FieldName = strings.ToUpper(fd.FName)
 						hdbSeq.SeqName = fmt.Sprintf("SEQ_%s_%s", hdbSeq.TableName, hdbSeq.FieldName)
+						if hdbSeq.Start == 0 {
+							hdbSeq.Start = 1
+						}
 						col.fAutoInc = true
 					}
 
@@ -609,21 +598,21 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 					if err != nil {
 						panic(err)
 					}
-					if seqName == "" && start > 0 {
+					if start > 0 {
 						hdbSeq.Start = start
-						sequences = append(sequences, common.RgenPair{Name: hdbSeq.SeqName, Value: fmt.Sprintf("%v", hdbSeq)}) //Value: p.Value})
-						hdbSeq = hdbSeqTyp{}
+						// sequences = append(sequences, common.RgenPair{Name: hdbSeq.SeqName, Value: fmt.Sprintf("%v", hdbSeq)}) //Value: p.Value})
+						// hdbSeq = hdbSeqTyp{}
 						col.fStart = start
 					}
 
 				case "default":
-					if fd.GoType == "string" {
+					if fd.UnderGoType == "string" {
 						col.fDefault = fmt.Sprintf("DEFAULT '%s'", p.Value)
 					} else {
 						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
 					}
 
-					if fd.GoType == "time.Time" {
+					if fd.UnderGoType == "time.Time" {
 						switch p.Value {
 						case "now()":
 							p.Value = "CURRENT_UTCTIMESTAMP"
@@ -684,6 +673,12 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 		}
 		fldef[idx].FType = col.fType
 
+		// record the sequence(no start-value)
+		if col.fAutoInc {
+			sequences = append(sequences, common.RgenPair{Name: hdbSeq.SeqName, Value: fmt.Sprintf("%v", hdbSeq)})
+			hdbSeq = hdbSeqTyp{}
+		}
+
 		// add the current column to the schema
 		tableSchema = tableSchema + fmt.Sprintf("%s%s%s %s", qt, col.fName, qt, col.fType)
 		if col.fAutoInc == true {
@@ -736,13 +731,6 @@ func (hf *HDBFlavor) DropTables(i ...interface{}) error {
 
 		// determine the table name
 		tn := common.GetTableName(i[t])
-		// tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
-		// if strings.Contains(tn, ".") {
-		// 	el := strings.Split(tn, ".")
-		// 	tn = strings.ToLower(el[len(el)-1])
-		// } else {
-		// 	tn = strings.ToLower(tn)
-		// }
 		if tn == "" {
 			return fmt.Errorf("unable to determine table name in hf.DropTables")
 		}
@@ -754,7 +742,6 @@ func (hf *HDBFlavor) DropTables(i ...interface{}) error {
 			if hf.log {
 				fmt.Printf("table %s exists - adding to drop schema...\n", tn)
 			}
-			// submit 1 at a time for mysql
 			dropSchema = dropSchema + fmt.Sprintf("DROP TABLE %s; ", strings.ToUpper(tn))
 			hf.ProcessSchema(dropSchema)
 			dropSchema = ""
@@ -768,11 +755,9 @@ func (hf *HDBFlavor) DropTables(i ...interface{}) error {
 func (hf *HDBFlavor) ExistsTable(tn string) bool {
 
 	n := 0
-	// etQuery := fmt.Sprintf("SELECT COUNT(*) FROM Sys.Tables WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = '%s';", tn)
 	etQuery := fmt.Sprintf("SELECT COUNT(*) FROM Sys.Tables WHERE TABLE_NAME = '%s';", strings.ToUpper(tn))
 	hf.db.QueryRow(etQuery).Scan(&n)
 	if n > 0 {
-
 		return true
 	}
 	return false
@@ -783,7 +768,6 @@ func (hf *HDBFlavor) ExistsTable(tn string) bool {
 func (hf *HDBFlavor) ExistsIndex(tn string, in string) bool {
 
 	n := 0
-	// hf.db.QueryRow("SELECT count(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema = ? AND table_name = ? AND index_name = ?", bf.GetDBName(), tn, in).Scan(&n)
 	hf.db.QueryRow("SELECT COUNT(*) FROM sys.indexes WHERE index_name=? AND table_name = ?;", strings.ToUpper(in), strings.ToUpper(tn)).Scan(&n)
 	if n > 0 {
 		return true
@@ -847,7 +831,6 @@ func (hf *HDBFlavor) getSequenceName(name string) (seqName string, err error) {
 	var colID int
 
 	names := strings.Split(name, "+")
-	// fmt.Printf("CHECK: names: %v\n", names)
 	if len(names) == 2 {
 		tn = strings.ToUpper(names[0])
 		fn = strings.ToUpper(names[1])
@@ -855,17 +838,12 @@ func (hf *HDBFlavor) getSequenceName(name string) (seqName string, err error) {
 		return "", fmt.Errorf("expected table_name and field_name: got %v", names)
 	}
 
-	// fmt.Printf("CHECK tn: %s, fn: %s\n", tn, fn)
 	// identify the column_id associated with the sequence
 	seqQuery := fmt.Sprintf("SELECT column_id FROM table_columns WHERE table_name = '%s' and column_name = '%s';", tn, fn)
-	// fmt.Println("CHECK: ", seqQuery)
 	err = hf.db.QueryRowx(seqQuery).Scan(&colID)
 	if err != nil {
-		//	fmt.Println("CHECK: ERROR1", err)
-		//	fmt.Println("CHECK: ", colID)
 		return "", err
 	}
-	// fmt.Printf("CHECK: colID: %v\n", colID)
 
 	if colID == 0 {
 		return "", fmt.Errorf("could not find sequence for table %s / field %s", tn, fn)
@@ -874,12 +852,10 @@ func (hf *HDBFlavor) getSequenceName(name string) (seqName string, err error) {
 	// identify the requested sequence's name
 	seqSearchVal := fmt.Sprintf("%%%v%%", colID) // % escapes %
 	seqNameQuery := fmt.Sprintf("SELECT sequence_name FROM Sys.Sequences WHERE SEQUENCE_NAME LIKE '%s'", seqSearchVal)
-	// fmt.Println("CHECK: ", seqNameQuery)
 	err = hf.db.QueryRow(seqNameQuery).Scan(&seqName)
 	if err != nil {
 		return "", err
 	}
-	// fmt.Printf("CHECK: seqName: %v\n", seqName)
 	return seqName, nil
 }
 
@@ -887,14 +863,14 @@ func (hf *HDBFlavor) getSequenceName(name string) (seqName string, err error) {
 // sequence in HDB.
 func (hf *HDBFlavor) ExistsSequence(sn string) bool {
 
-	seqCount := 0
-
 	// search for sequence by name
+	seqCount := 0
 	seqNameQuery := fmt.Sprintf("SELECT COUNT(*) FROM Sys.Sequences WHERE SEQUENCE_NAME = '%s'", sn)
 	err := hf.db.QueryRow(seqNameQuery).Scan(&seqCount)
 	if err != nil {
 		panic(err)
 	}
+
 	if seqCount > 0 {
 		return true
 	}
@@ -999,16 +975,16 @@ func (hf *HDBFlavor) Create(ent interface{}) error {
 			if err != nil {
 				return err
 			}
-			insFlds = fmt.Sprintf("%s %s, ", insFlds, k)
-			insVals = fmt.Sprintf("%s %v, ", insVals, incKey)
+			insFlds = fmt.Sprintf("%s%s, ", insFlds, k)
+			insVals = fmt.Sprintf("%s%v, ", insVals, incKey)
 			continue
 		}
 
 		if v == "DEFAULT" {
 			continue
 		}
-		insFlds = fmt.Sprintf("%s %s, ", insFlds, k)
-		insVals = fmt.Sprintf("%s %s, ", insVals, v)
+		insFlds = fmt.Sprintf("%s%s, ", insFlds, k)
+		insVals = fmt.Sprintf("%s%s, ", insVals, v)
 	}
 
 	insFlds = strings.TrimSuffix(insFlds, ", ") + ")"
@@ -1018,6 +994,10 @@ func (hf *HDBFlavor) Create(ent interface{}) error {
 	insQuery := fmt.Sprintf("INSERT INTO %s %s VALUES %s;", info.tn, insFlds, insVals)
 	fmt.Println(insQuery)
 
+	// clear the source data - deals with non-persistet columns
+	e := reflect.ValueOf(info.ent).Elem()
+	e.Set(reflect.Zero(e.Type()))
+
 	// attempt the insert and read the result back into info.resultMap
 	_, err = hf.db.Exec(insQuery)
 	if err != nil {
@@ -1025,24 +1005,11 @@ func (hf *HDBFlavor) Create(ent interface{}) error {
 	}
 
 	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s = %v;", info.tn, info.incKeyName, incKey)
-	err = hf.db.QueryRowx(selQuery).MapScan(info.resultMap) // SliceScan
+	err = hf.db.QueryRowx(selQuery).StructScan(info.ent) //.MapScan(info.resultMap) // SliceScan
 	if err != nil {
 		return err
 	}
-
-	// Push k to lower-case
-	rm := make(map[string]interface{})
-	for k, v := range info.resultMap {
-		rm[strings.ToLower(k)] = v
-	}
-	info.resultMap = rm
-
-	// fill the underlying structure of the interface ptr with the
-	// fields returned from the database.
-	err = hf.FormatReturn(&info)
-	if err != nil {
-		return err
-	}
+	info.entValue = reflect.ValueOf(info.ent)
 	return nil
 }
 
@@ -1085,6 +1052,10 @@ func (hf *HDBFlavor) Update(ent interface{}) error {
 	updQuery := fmt.Sprintf("UPDATE %s SET %s WHERE %s;", info.tn, colList, keyList)
 	fmt.Println(updQuery)
 
+	// clear the source data - deals with non-persistet columns
+	e := reflect.ValueOf(info.ent).Elem()
+	e.Set(reflect.Zero(e.Type()))
+
 	// attempt the update and check for errors
 	_, err = hf.db.Exec(updQuery)
 	if err != nil {
@@ -1093,23 +1064,10 @@ func (hf *HDBFlavor) Update(ent interface{}) error {
 
 	// read the updated row
 	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %v;", info.tn, keyList)
-	err = hf.db.QueryRowx(selQuery).MapScan(info.resultMap) // SliceScan
+	err = hf.db.QueryRowx(selQuery).StructScan(info.ent) //.MapScan(info.resultMap) // SliceScan
 	if err != nil {
 		return err
 	}
-
-	// Push k to lower-case
-	rm := make(map[string]interface{})
-	for k, v := range info.resultMap {
-		rm[strings.ToLower(k)] = v
-	}
-	info.resultMap = rm
-
-	// fill the underlying structure of the interface ptr with the
-	// fields returned from the database.
-	err = hf.FormatReturn(&info)
-	if err != nil {
-		return err
-	}
+	info.entValue = reflect.ValueOf(info.ent)
 	return nil
 }
