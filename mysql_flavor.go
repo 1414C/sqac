@@ -52,13 +52,6 @@ func (myf *MySQLFlavor) CreateTables(i ...interface{}) error {
 
 		// determine the table name
 		tn := common.GetTableName(i[t])
-		// tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
-		// if strings.Contains(tn, ".") {
-		// 	el := strings.Split(tn, ".")
-		// 	tn = strings.ToLower(el[len(el)-1])
-		// } else {
-		// 	tn = strings.ToLower(tn)
-		// }
 		if tn == "" {
 			return fmt.Errorf("unable to determine table name in myf.CreateTables")
 		}
