@@ -275,11 +275,9 @@ func (hf *HDBFlavor) CreateTables(i ...interface{}) error {
 
 		// build the create table schema and return all of the table info
 		tc := hf.buildTablSchema(tn, i[t])
+		hf.QsLog(tc.tblSchema)
 
 		// create the table on the db
-		if hf.IsLog() {
-			fmt.Println(tc.tblSchema)
-		}
 		hf.db.MustExec(tc.tblSchema)
 
 		// deal with the auto-incrementing by creating sequence manually
@@ -475,9 +473,6 @@ func (hf *HDBFlavor) AlterTables(i ...interface{}) error {
 			}
 
 			alterSchema = strings.TrimSuffix(alterSchema, ",") + ");"
-			if hf.IsLog() {
-				fmt.Println(alterSchema)
-			}
 			hf.ProcessSchema(alterSchema)
 		}
 
@@ -600,8 +595,6 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 					}
 					if start > 0 {
 						hdbSeq.Start = start
-						// sequences = append(sequences, common.RgenPair{Name: hdbSeq.SeqName, Value: fmt.Sprintf("%v", hdbSeq)}) //Value: p.Value})
-						// hdbSeq = hdbSeqTyp{}
 						col.fStart = start
 					}
 
@@ -756,6 +749,8 @@ func (hf *HDBFlavor) ExistsTable(tn string) bool {
 
 	n := 0
 	etQuery := fmt.Sprintf("SELECT COUNT(*) FROM Sys.Tables WHERE TABLE_NAME = '%s';", strings.ToUpper(tn))
+	hf.QsLog(etQuery)
+
 	hf.db.QueryRow(etQuery).Scan(&n)
 	if n > 0 {
 		return true
@@ -768,6 +763,8 @@ func (hf *HDBFlavor) ExistsTable(tn string) bool {
 func (hf *HDBFlavor) ExistsIndex(tn string, in string) bool {
 
 	n := 0
+	hf.QsLog("SELECT COUNT(*) FROM sys.indexes WHERE index_name=? AND table_name = ?;", strings.ToUpper(in), strings.ToUpper(tn))
+
 	hf.db.QueryRow("SELECT COUNT(*) FROM sys.indexes WHERE index_name=? AND table_name = ?;", strings.ToUpper(in), strings.ToUpper(tn)).Scan(&n)
 	if n > 0 {
 		return true
@@ -795,6 +792,9 @@ func (hf *HDBFlavor) ExistsColumn(tn string, cn string) bool {
 	n := 0
 	tn = strings.ToUpper(tn)
 	if hf.ExistsTable(tn) {
+
+		hf.QsLog("SELECT COUNT(*) FROM Sys.Table_Columns WHERE table_name = ? AND column_name = ?;", tn, strings.ToUpper(cn))
+
 		// hf.db.QueryRow("SELECT COUNT(*) FROM Sys.Table_Columns WHERE Schema_Name = ? AND table_name = ? AND column_name = ?;", tn, cn).Scan(&n)
 		hf.db.QueryRow("SELECT COUNT(*) FROM Sys.Table_Columns WHERE table_name = ? AND column_name = ?;", tn, strings.ToUpper(cn)).Scan(&n)
 		if n > 0 {
@@ -840,6 +840,8 @@ func (hf *HDBFlavor) getSequenceName(name string) (seqName string, err error) {
 
 	// identify the column_id associated with the sequence
 	seqQuery := fmt.Sprintf("SELECT column_id FROM table_columns WHERE table_name = '%s' and column_name = '%s';", tn, fn)
+	hf.QsLog(seqQuery)
+
 	err = hf.db.QueryRowx(seqQuery).Scan(&colID)
 	if err != nil {
 		return "", err
@@ -852,6 +854,8 @@ func (hf *HDBFlavor) getSequenceName(name string) (seqName string, err error) {
 	// identify the requested sequence's name
 	seqSearchVal := fmt.Sprintf("%%%v%%", colID) // % escapes %
 	seqNameQuery := fmt.Sprintf("SELECT sequence_name FROM Sys.Sequences WHERE SEQUENCE_NAME LIKE '%s'", seqSearchVal)
+	hf.QsLog(seqNameQuery)
+
 	err = hf.db.QueryRow(seqNameQuery).Scan(&seqName)
 	if err != nil {
 		return "", err
@@ -866,6 +870,8 @@ func (hf *HDBFlavor) ExistsSequence(sn string) bool {
 	// search for sequence by name
 	seqCount := 0
 	seqNameQuery := fmt.Sprintf("SELECT COUNT(*) FROM Sys.Sequences WHERE SEQUENCE_NAME = '%s'", sn)
+	hf.QsLog(seqNameQuery)
+
 	err := hf.db.QueryRow(seqNameQuery).Scan(&seqCount)
 	if err != nil {
 		panic(err)
@@ -891,9 +897,7 @@ func (hf *HDBFlavor) CreateSequence(sn string, start int) {
 
 	// build the sequence creation DDL
 	crtSequence := fmt.Sprintf("CREATE SEQUENCE %s START WITH %d INCREMENT BY 1;", sn, start)
-	if hf.IsLog() {
-		fmt.Println(crtSequence)
-	}
+	hf.QsLog(crtSequence)
 
 	// attempt to create the sequence on the db
 	_, err := hf.db.Exec(crtSequence)
@@ -907,9 +911,7 @@ func (hf *HDBFlavor) DropSequence(sn string) error {
 
 	// build the sequence creation DDL
 	dropSequence := fmt.Sprintf("DROP SEQUENCE %s;", sn)
-	if hf.IsLog() {
-		fmt.Println(dropSequence)
-	}
+	hf.QsLog(dropSequence)
 
 	// attempt to drop the sequence from the db
 	_, err := hf.db.Exec(dropSequence)
@@ -927,9 +929,8 @@ func (hf *HDBFlavor) GetNextSequenceValue(name string) (int, error) {
 
 	var nextVal int
 	nextQuery := fmt.Sprintf("SELECT %s.NEXTVAL FROM dummy;", name)
-	if hf.IsLog() {
-		fmt.Println(nextQuery)
-	}
+	hf.QsLog(nextQuery)
+
 	err := hf.db.QueryRow(nextQuery).Scan(&nextVal)
 	if err != nil {
 		return 0, err
@@ -992,7 +993,7 @@ func (hf *HDBFlavor) Create(ent interface{}) error {
 
 	// build the hdb insert query
 	insQuery := fmt.Sprintf("INSERT INTO %s %s VALUES %s;", info.tn, insFlds, insVals)
-	fmt.Println(insQuery)
+	hf.QsLog(insQuery)
 
 	// clear the source data - deals with non-persistet columns
 	e := reflect.ValueOf(info.ent).Elem()
@@ -1005,6 +1006,8 @@ func (hf *HDBFlavor) Create(ent interface{}) error {
 	}
 
 	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s = %v;", info.tn, info.incKeyName, incKey)
+	hf.QsLog(selQuery)
+
 	err = hf.db.QueryRowx(selQuery).StructScan(info.ent) //.MapScan(info.resultMap) // SliceScan
 	if err != nil {
 		return err
@@ -1050,7 +1053,7 @@ func (hf *HDBFlavor) Update(ent interface{}) error {
 	colList = strings.TrimSuffix(colList, ", ")
 
 	updQuery := fmt.Sprintf("UPDATE %s SET %s WHERE %s;", info.tn, colList, keyList)
-	fmt.Println(updQuery)
+	hf.QsLog(updQuery)
 
 	// clear the source data - deals with non-persistet columns
 	e := reflect.ValueOf(info.ent).Elem()
@@ -1064,6 +1067,8 @@ func (hf *HDBFlavor) Update(ent interface{}) error {
 
 	// read the updated row
 	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %v;", info.tn, keyList)
+	hf.QsLog(selQuery)
+
 	err = hf.db.QueryRowx(selQuery).StructScan(info.ent) //.MapScan(info.resultMap) // SliceScan
 	if err != nil {
 		return err

@@ -80,6 +80,7 @@ func (pf *PostgresFlavor) CreateTables(i ...interface{}) error {
 
 		// build the create table schema and return all of the table info
 		tc := pf.buildTablSchema(tn, i[t])
+		pf.QsLog(tc.tblSchema)
 
 		// create the table on the db
 		pf.db.MustExec(tc.tblSchema)
@@ -491,9 +492,6 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 				alterSchema = fmt.Sprintf("%s %s", alterSchema, c)
 			}
 			alterSchema = strings.TrimSuffix(alterSchema, ",")
-			if pf.IsLog() {
-				fmt.Println(alterSchema)
-			}
 			pf.ProcessSchema(alterSchema)
 		}
 
@@ -532,6 +530,7 @@ func (pf *PostgresFlavor) DestructiveResetTables(i ...interface{}) error {
 func (pf *PostgresFlavor) ExistsTable(tn string) bool {
 
 	reqQuery := fmt.Sprintf("SELECT to_regclass('public.%s');", tn)
+	pf.QsLog(reqQuery)
 	fetch, err := pf.db.Query(reqQuery)
 	if err != nil {
 		panic(err)
@@ -559,6 +558,7 @@ func (pf *PostgresFlavor) ExistsTable(tn string) bool {
 func (pf *PostgresFlavor) ExistsColumn(tn string, cn string) bool {
 
 	n := 0
+	pf.QsLog("SELECT count(*) FROM INFORMATION_SCHEMA.columns WHERE table_name = ? AND column_name = ? AND table_schema = CURRENT_SCHEMA()", tn, cn)
 	row := pf.db.QueryRow("SELECT count(*) FROM INFORMATION_SCHEMA.columns WHERE table_name = $1 AND column_name = $2 AND table_schema = CURRENT_SCHEMA()", tn, cn)
 	if row != nil {
 		row.Scan(&n)
@@ -575,12 +575,13 @@ func (pf *PostgresFlavor) ExistsColumn(tn string, cn string) bool {
 func (pf *PostgresFlavor) ExistsIndex(tn string, in string) bool {
 
 	n := 0
-	row := pf.db.QueryRow("SELECT count(*) FROM pg_indexes WHERE tablename = $1 AND indexname = $2 AND schemaname = CURRENT_SCHEMA()", tn, in)
-	if row != nil {
-		row.Scan(&n)
-		if n > 0 {
-			return true
-		}
+	pf.QsLog("SELECT count(*) FROM pg_indexes WHERE tablename = ? AND indexname = ? AND schemaname = CURRENT_SCHEMA()", tn, in)
+	err := pf.db.QueryRow("SELECT count(*) FROM pg_indexes WHERE tablename = $1 AND indexname = $2 AND schemaname = CURRENT_SCHEMA()", tn, in).Scan(&n)
+	if err != nil {
+		return false
+	}
+	if n > 0 {
+		return true
 	}
 	return false
 }
@@ -590,9 +591,6 @@ func (pf *PostgresFlavor) ExistsIndex(tn string, in string) bool {
 func (pf *PostgresFlavor) DropIndex(tn string, in string) error {
 
 	indexSchema := fmt.Sprintf("DROP INDEX IF EXISTS %s;", in)
-	if pf.IsLog() {
-		fmt.Println(indexSchema)
-	}
 	pf.ProcessSchema(indexSchema)
 	return nil
 }
@@ -604,6 +602,8 @@ func (pf *PostgresFlavor) ExistsSequence(sn string) bool {
 	var params []interface{}
 	reqQuery := fmt.Sprintf("SELECT relname FROM pg_class WHERE relkind = 'S' AND relname::name = $1")
 	params = append(params, sn)
+	pf.QsLog(reqQuery, params...)
+
 	fetch, err := pf.db.Query(reqQuery, params...)
 	if err != nil {
 		panic(err)
@@ -625,9 +625,6 @@ func (pf *PostgresFlavor) ExistsSequence(sn string) bool {
 func (pf *PostgresFlavor) CreateSequence(sn string, start int) {
 
 	seqSchema := fmt.Sprintf("CREATE SEQUENCE %s START %d;", sn, start)
-	if pf.IsLog() {
-		fmt.Println(seqSchema)
-	}
 	pf.ProcessSchema(seqSchema)
 }
 
@@ -637,9 +634,6 @@ func (pf *PostgresFlavor) CreateSequence(sn string, start int) {
 func (pf *PostgresFlavor) AlterSequenceStart(sn string, start int) error {
 
 	seqSchema := fmt.Sprintf("ALTER SEQUENCE IF EXISTS %s RESTART WITH %d;", sn, start)
-	if pf.IsLog() {
-		fmt.Println(seqSchema)
-	}
 	pf.ProcessSchema(seqSchema)
 	return nil
 }
@@ -655,6 +649,7 @@ func (pf *PostgresFlavor) GetNextSequenceValue(name string) (int, error) {
 	pKeyQuery := fmt.Sprintf("SELECT c.column_name, c.ordinal_position FROM information_schema.key_column_usage AS c LEFT JOIN information_schema.table_constraints AS t ON t.constraint_name = c.constraint_name WHERE t.table_name = '%s' AND t.constraint_type = 'PRIMARY KEY';", name)
 	var keyColumn string
 	var keyColumnPos int
+	pf.QsLog(pKeyQuery)
 	pf.db.QueryRow(pKeyQuery).Scan(&keyColumn, &keyColumnPos)
 	if keyColumn == "" {
 		return 0, fmt.Errorf("could not identify primary-key column for table %s", name)
@@ -666,6 +661,8 @@ func (pf *PostgresFlavor) GetNextSequenceValue(name string) (int, error) {
 	if pf.ExistsSequence(seqName) {
 		seq := 0
 		seqQuery := fmt.Sprintf("SELECT nextval('%s');", seqName)
+		pf.QsLog(seqQuery)
+
 		err := pf.db.QueryRow(seqQuery).Scan(&seq)
 		if err != nil {
 			return 0, err
@@ -695,7 +692,7 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	// build the postgres insert query
 	insQuery := fmt.Sprintf("INSERT INTO %s", info.tn)
 	insQuery = fmt.Sprintf("%s %s VALUES %s RETURNING *;", insQuery, info.fList, info.vList)
-	fmt.Println(insQuery)
+	pf.QsLog(insQuery)
 
 	// clear the source data - deals with non-persistet columns
 	e := reflect.ValueOf(info.ent).Elem()
@@ -744,7 +741,7 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 
 	updQuery := fmt.Sprintf("UPDATE %s SET", info.tn)
 	updQuery = fmt.Sprintf("%s %s = %s WHERE%s", updQuery, info.fList, info.vList, keyList)
-	fmt.Println(updQuery)
+	pf.QsLog(updQuery)
 
 	// clear the source data - deals with non-persistet columns
 	e := reflect.ValueOf(info.ent).Elem()

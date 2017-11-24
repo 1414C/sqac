@@ -68,13 +68,6 @@ func (slf *SQLiteFlavor) CreateTables(i ...interface{}) error {
 
 		// determine the table name
 		tn := common.GetTableName(i[t])
-		// tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
-		// if strings.Contains(tn, ".") {
-		// 	el := strings.Split(tn, ".")
-		// 	tn = strings.ToLower(el[len(el)-1])
-		// } else {
-		// 	tn = strings.ToLower(tn)
-		// }
 		if tn == "" {
 			return fmt.Errorf("unable to determine table name in slf.CreateTables")
 		}
@@ -90,10 +83,7 @@ func (slf *SQLiteFlavor) CreateTables(i ...interface{}) error {
 
 		// get all the table parts and build the create schema
 		tc := slf.buildTablSchema(tn, i[t])
-		if slf.IsLog() {
-			fmt.Println(tc.tblSchema)
-		}
-		fmt.Println(tc.tblSchema)
+		slf.QsLog(tc.tblSchema)
 
 		// execute the create schema against the db
 		slf.db.MustExec(tc.tblSchema)
@@ -119,13 +109,6 @@ func (slf *SQLiteFlavor) AlterTables(i ...interface{}) error {
 
 		// determine the table name
 		tn := common.GetTableName(i[t])
-		// tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
-		// if strings.Contains(tn, ".") {
-		// 	el := strings.Split(tn, ".")
-		// 	tn = strings.ToLower(el[len(el)-1])
-		// } else {
-		// 	tn = strings.ToLower(tn)
-		// }
 		if tn == "" {
 			return fmt.Errorf("unable to determine table name in slf.AlterTables")
 		}
@@ -524,6 +507,7 @@ func (slf *SQLiteFlavor) ExistsTable(tn string) bool {
 
 	n := 0
 	reqQuery := fmt.Sprintf("SELECT COUNT(*) FROM sqlite_master WHERE type=\"table\" AND name=\"%s\";", tn)
+	slf.QsLog(reqQuery)
 	err := slf.db.QueryRow(reqQuery).Scan(&n)
 	if err != nil {
 		return false
@@ -551,6 +535,8 @@ func (slf *SQLiteFlavor) ExistsIndex(tn string, in string) bool {
 
 	n := 0
 	indQuery := fmt.Sprintf("SELECT COUNT(*) FROM sqlite_master WHERE \"type\" = \"index\" AND \"name\" = \"%s\";", in)
+	slf.QsLog(indQuery)
+
 	slf.db.QueryRow(indQuery).Scan(&n)
 	if n > 0 {
 		return true
@@ -571,6 +557,8 @@ func (slf *SQLiteFlavor) ExistsColumn(tn string, cn string) bool {
 		// that is stored in the sqlite_master table - not very exact.
 		sqlString := ""
 		colQuery := fmt.Sprintf("SELECT \"sql\" FROM sqlite_master WHERE \"type\" = \"table\" AND \"name\" = \"%s\"", tn)
+		slf.QsLog(colQuery)
+
 		slf.db.QueryRow(colQuery).Scan(&sqlString)
 		if sqlString == "" {
 			return false
@@ -592,6 +580,8 @@ func (slf *SQLiteFlavor) ExistsColumn(tn string, cn string) bool {
 func (slf *SQLiteFlavor) AlterSequenceStart(name string, start int) error {
 
 	asQuery := fmt.Sprintf("UPDATE sqlite_sequence SET seq = %d WHERE name = '%s';", start, name)
+	slf.QsLog(asQuery)
+
 	result, err := slf.Exec(asQuery)
 	if err == nil {
 		ra, err := result.RowsAffected()
@@ -603,6 +593,8 @@ func (slf *SQLiteFlavor) AlterSequenceStart(name string, start int) error {
 
 	err = nil
 	asQuery = fmt.Sprintf("INSERT INTO sqlite_sequence (name,seq) VALUES ('%s',%d);", name, start)
+	slf.QsLog(asQuery)
+
 	result, err = slf.Exec(asQuery)
 	if err != nil {
 		return err
@@ -626,6 +618,8 @@ func (slf *SQLiteFlavor) GetNextSequenceValue(name string) (int, error) {
 		// without using the built-in PRAGMA, we have to rely on the table creation SQL
 		// that is stored in the sqlite_master table - not very exact.
 		seqQuery := fmt.Sprintf("SELECT \"seq\" FROM sqlite_sequence WHERE \"name\" = '%s'", name)
+		slf.QsLog(seqQuery)
+
 		err := slf.db.QueryRow(seqQuery).Scan(&seq)
 		if err != nil {
 			return 0, err
@@ -667,7 +661,7 @@ func (slf *SQLiteFlavor) Create(ent interface{}) error {
 
 	// build the sqlite insert query
 	insQuery := fmt.Sprintf("INSERT OR FAIL INTO %s (%s) VALUES (%s);", info.tn, insFlds, insVals)
-	fmt.Println(insQuery)
+	slf.QsLog(insQuery)
 
 	// clear the source data - deals with non-persistet columns
 	e := reflect.ValueOf(info.ent).Elem()
@@ -685,6 +679,8 @@ func (slf *SQLiteFlavor) Create(ent interface{}) error {
 	}
 
 	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s = %d LIMIT 1;", info.tn, info.incKeyName, lastID)
+	slf.QsLog(selQuery)
+
 	err = slf.db.QueryRowx(selQuery).StructScan(info.ent) //.MapScan(info.resultMap) // SliceScan
 	if err != nil {
 		return err
@@ -731,7 +727,7 @@ func (slf *SQLiteFlavor) Update(ent interface{}) error {
 	colList = strings.TrimSuffix(colList, ", ")
 
 	updQuery := fmt.Sprintf("UPDATE OR FAIL %s SET %s WHERE %s;", info.tn, colList, keyList)
-	fmt.Println(updQuery)
+	slf.QsLog(updQuery)
 
 	// clear the source data - deals with non-persistent columns
 	e := reflect.ValueOf(info.ent).Elem()
@@ -745,6 +741,8 @@ func (slf *SQLiteFlavor) Update(ent interface{}) error {
 
 	// read the updated row
 	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s LIMIT 1;", info.tn, keyList)
+	slf.QsLog(selQuery)
+
 	err = slf.db.QueryRowx(selQuery).StructScan(info.ent) //.MapScan(info.resultMap) // SliceScan
 	if err != nil {
 		return err

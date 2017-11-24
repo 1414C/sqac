@@ -26,7 +26,8 @@ func TestMain(m *testing.M) {
 
 	// parse flags
 	dbFlag := flag.String("db", "pg", "db to connect to")
-	logFlag := flag.Bool("l", false, "activate sqac logging")
+	logFlag := flag.Bool("l", false, "activate sqac detail logging to stdout")
+	dbLogFlag := flag.Bool("dbl", false, "activate DDL/DML logging to stdout)")
 	flag.Parse()
 
 	var cs string
@@ -46,7 +47,7 @@ func TestMain(m *testing.M) {
 	default:
 		cs = ""
 	}
-	Handle = sqac.Create(*dbFlag, *logFlag, cs)
+	Handle = sqac.Create(*dbFlag, *logFlag, *dbLogFlag, cs)
 
 	// run the tests
 	code := m.Run()
@@ -497,7 +498,6 @@ func TestDropIndex(t *testing.T) {
 	// ensure table depot exists
 	err := Handle.AlterTables(Depot{})
 	if err != nil {
-		fmt.Println("GOT ERROR!")
 		t.Errorf("%s", err.Error())
 	}
 
@@ -679,8 +679,7 @@ func TestDestructiveResetTables(t *testing.T) {
 		Active     bool      `db:"active" rgen:"nullable:false;default:true"`
 	}
 
-	// determine the table names as per the
-	// table creation logic
+	// determine the table names
 	tns := make([]string, 0)
 	tn := common.GetTableName(Depot{})
 	tns = append(tns, tn)
@@ -1196,13 +1195,11 @@ func TestTimeSimple(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	fmt.Println("")
 
 	if Handle.IsLog() {
 		fmt.Printf("INSERTING: %v\n\n", depottime)
 		fmt.Printf("TEST GOT: %v\n\n", depottime)
 	}
-	fmt.Printf("TEST GOT: %v\n\n", depottime)
 
 	dt2 := DepotTime{
 		DepotNum: depottime.DepotNum,
@@ -1212,7 +1209,10 @@ func TestTimeSimple(t *testing.T) {
 	if err != nil {
 		t.Errorf("GetEntity failed with: %v", err)
 	}
-	fmt.Printf("GetEntity for key %v returned: %v\n", dt2.DepotNum, dt2)
+
+	if Handle.IsLog() {
+		fmt.Printf("GetEntity for key %v returned: %v\n", dt2.DepotNum, dt2)
+	}
 }
 
 // TestCRUDCreate
@@ -1273,7 +1273,6 @@ func TestCRUDCreate(t *testing.T) {
 		fmt.Printf("INSERTING: %v\n", depot)
 		fmt.Printf("TEST GOT: %v\n", depot)
 	}
-	fmt.Printf("TEST GOT: %v\n", depot)
 
 	// err = Handle.DropTables(DepotCreate{})
 	// if err != nil {
@@ -1334,7 +1333,6 @@ func TestCRUDUpdate(t *testing.T) {
 	if Handle.IsLog() {
 		fmt.Printf("INSERT to table %s returned: %v\n", tn, depot)
 	}
-	fmt.Printf("INSERT to table %s returned: %v\n", tn, depot)
 
 	// check that the primary-key field has a value
 	if depot.DepotNum == 0 {
@@ -1357,7 +1355,6 @@ func TestCRUDUpdate(t *testing.T) {
 	if Handle.IsLog() {
 		fmt.Printf("UPDATE to table %s returned: %v\n", tn, depot)
 	}
-	fmt.Printf("UPDATE to table %s returned: %v\n", tn, depot)
 
 	// err = Handle.DropTables(Depot{})
 	// if err != nil {
@@ -1415,7 +1412,6 @@ func TestCRUDDelete(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	fmt.Printf("INSERTED: %v\n", depot)
 
 	err = Handle.Delete(&depot)
 	if err != nil {
@@ -1473,7 +1469,6 @@ func TestCRUDGet(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	fmt.Printf("INSERTED: %v\n", depot)
 
 	// create a struct to read into and populate the keys
 	depotRead := DepotGet{
@@ -1485,8 +1480,6 @@ func TestCRUDGet(t *testing.T) {
 	if err != nil {
 		t.Errorf("%s", err.Error())
 	}
-
-	fmt.Println("GetEntity() returned:", depotRead)
 
 	// err = Handle.DropTables(Depot{})
 	// if err != nil {

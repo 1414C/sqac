@@ -67,6 +67,7 @@ func (myf *MySQLFlavor) CreateTables(i ...interface{}) error {
 
 		// build the create table schema and return all of the table info
 		tc := myf.buildTablSchema(tn, i[t])
+		myf.QsLog(tc.tblSchema)
 
 		// create the table on the db
 		myf.db.MustExec(tc.tblSchema)
@@ -411,6 +412,8 @@ func (myf *MySQLFlavor) GetNextSequenceValue(name string) (int, error) {
 	if myf.ExistsTable(name) {
 
 		seqQuery := fmt.Sprintf("SELECT `AUTO_INCREMENT` FROM  INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s';", myf.GetDBName(), name)
+		myf.QsLog(seqQuery)
+
 		err := myf.db.QueryRow(seqQuery).Scan(&seq)
 		if err != nil {
 			return 0, err
@@ -440,7 +443,7 @@ func (myf *MySQLFlavor) Create(ent interface{}) error {
 	// build the mysql insert query
 	insQuery := fmt.Sprintf("INSERT INTO %s", info.tn)
 	insQuery = fmt.Sprintf("%s %s VALUES %s;", insQuery, info.fList, info.vList)
-	fmt.Println(insQuery)
+	myf.QsLog(insQuery)
 
 	// clear the source data - deals with non-persistet columns
 	e := reflect.ValueOf(info.ent).Elem()
@@ -458,6 +461,8 @@ func (myf *MySQLFlavor) Create(ent interface{}) error {
 	}
 
 	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s = %d LIMIT 1;", info.tn, info.incKeyName, lastID)
+	myf.QsLog(selQuery)
+
 	err = myf.db.QueryRowx(selQuery).StructScan(info.ent) // .MapScan(info.resultMap) // SliceScan
 	if err != nil {
 		return err
@@ -503,7 +508,7 @@ func (myf *MySQLFlavor) Update(ent interface{}) error {
 	colList = strings.TrimSuffix(colList, ", ")
 
 	updQuery := fmt.Sprintf("UPDATE %s SET %s WHERE %s;", info.tn, colList, keyList)
-	fmt.Println(updQuery)
+	myf.QsLog(updQuery)
 
 	// clear the source data - deals with non-persistet columns
 	e := reflect.ValueOf(info.ent).Elem()
@@ -517,6 +522,8 @@ func (myf *MySQLFlavor) Update(ent interface{}) error {
 
 	// read the updated row
 	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s LIMIT 1;", info.tn, keyList)
+	myf.QsLog(selQuery)
+
 	err = myf.db.QueryRowx(selQuery).StructScan(info.ent) // .MapScan(info.resultMap) // SliceScan
 	if err != nil {
 		return err

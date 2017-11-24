@@ -35,7 +35,7 @@ func Open(flavor string, args ...interface{}) (db *sqlx.DB, err error) {
 // conforming to the sqac.PublicDB interface is passed back to the caller.  The type of
 // the underlying handle object is that of the DBFlavor corresponding to the flavor var
 // in the function definition.
-func Create(flavor string, logFlag bool, connectionString string) (handle PublicDB) {
+func Create(flavor string, logFlag bool, dbLogFlag bool, connectionString string) (handle PublicDB) {
 
 	switch flavor {
 	case "postgres":
@@ -117,12 +117,19 @@ func Create(flavor string, logFlag bool, connectionString string) (handle Public
 	default:
 
 	}
-	fmt.Printf("HANDLE: %v\n", handle)
+
 	// detailed logging?
 	if logFlag {
 		handle.Log(true)
+		fmt.Printf("HANDLE: %v\n", handle)
 	} else {
 		handle.Log(false)
+	}
+
+	if dbLogFlag {
+		handle.DBLog(true)
+	} else {
+		handle.DBLog(false)
 	}
 	return handle
 }
