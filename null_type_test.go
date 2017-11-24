@@ -9,7 +9,7 @@ import "github.com/1414C/sqac/common"
 func TestNullString(t *testing.T) {
 
 	type NString struct {
-		NSKey                   string    `db:"ns_key" rgen:"primary_key:inc"`
+		NSKey                   int       `db:"ns_key" rgen:"primary_key:inc"`
 		CreateDate              time.Time `db:"create_date" rgen:"nullable:false;default:now();"`
 		StringDflt              string    `db:"string_dflt" rgen:"nullable:false;default:dflt_value"`
 		StringDfltWithValue     string    `db:"string_dflt_with_value" rgen:"nullable:false;default:dflt_value2"`
@@ -20,6 +20,7 @@ func TestNullString(t *testing.T) {
 		NullString              *string   `db:"null_string" rgen:"nullable:true"`
 	}
 
+	// create table if requied
 	err := Handle.CreateTables(NString{})
 	if err != nil {
 		t.Errorf("%s", err.Error())
@@ -28,7 +29,7 @@ func TestNullString(t *testing.T) {
 	// determine the table name as per the table creation logic
 	tn := common.GetTableName(NString{})
 
-	// expect that table depot exists
+	// expect that table nstring exists
 	if !Handle.ExistsTable(tn) {
 		t.Errorf("table %s was not created", tn)
 	}
@@ -55,12 +56,11 @@ func TestNullString(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
+
 	if Handle.IsLog() {
 		fmt.Printf("TEST GOT: %v\n", nstring)
 	}
-	fmt.Printf("TEST GOT: %v\n", nstring)
 
-	Handle.Log(true)
 	if nstring.StringDflt != "dflt_value" {
 		t.Errorf("nstring expected %s for field 'StringDflt', got: %v", "dflt_value", nstring.StringDflt)
 	} else {
@@ -110,7 +110,6 @@ func TestNullString(t *testing.T) {
 			fmt.Printf("nstring.NullString: %v\n", nstring.NullString)
 		}
 	}
-	Handle.Log(false)
 }
 
 func TestNullInt(t *testing.T) {
@@ -127,6 +126,7 @@ func TestNullInt(t *testing.T) {
 		NullInt              *int      `db:"null_int" rgen:"nullable:true"`
 	}
 
+	// create table if requied
 	err := Handle.CreateTables(NInt{})
 	if err != nil {
 		t.Errorf("%s", err.Error())
@@ -135,7 +135,7 @@ func TestNullInt(t *testing.T) {
 	// determine the table name as per the table creation logic
 	tn := common.GetTableName(NInt{})
 
-	// expect that table depot exists
+	// expect that table nint exists
 	if !Handle.ExistsTable(tn) {
 		t.Errorf("table %s was not created", tn)
 	}
@@ -165,9 +165,7 @@ func TestNullInt(t *testing.T) {
 	if Handle.IsLog() {
 		fmt.Printf("TEST GOT: %v\n", nint)
 	}
-	fmt.Printf("TEST GOT: %v\n", nint)
 
-	Handle.Log(true)
 	if nint.IntDflt != 1111 {
 		t.Errorf("nint expected %d for field 'IntDflt', got: %v", 1111, nint.IntDflt)
 	} else {
@@ -217,7 +215,6 @@ func TestNullInt(t *testing.T) {
 			fmt.Printf("*nint.NullInt: %v\n", nint.NullInt)
 		}
 	}
-	Handle.Log(false)
 }
 
 func TestNullUint(t *testing.T) {
@@ -234,6 +231,7 @@ func TestNullUint(t *testing.T) {
 		NullUint              *uint     `db:"null_uint" rgen:"nullable:true"`
 	}
 
+	// create table if requied
 	err := Handle.CreateTables(NUint{})
 	if err != nil {
 		t.Errorf("%s", err.Error())
@@ -242,7 +240,7 @@ func TestNullUint(t *testing.T) {
 	// determine the table name as per the table creation logic
 	tn := common.GetTableName(NUint{})
 
-	// expect that table depot exists
+	// expect that table nuint exists
 	if !Handle.ExistsTable(tn) {
 		t.Errorf("table %s was not created", tn)
 	}
@@ -274,11 +272,9 @@ func TestNullUint(t *testing.T) {
 	if Handle.IsLog() {
 		fmt.Printf("TEST GOT: %v\n", nuint)
 	}
-	fmt.Printf("TEST GOT: %v\n", nuint)
 
-	Handle.Log(true)
 	if nuint.UintDflt != 1111 {
-		t.Errorf("nint expected %d for field 'UintDflt', got: %v", 1111, nuint.UintDflt)
+		t.Errorf("nuint expected %d for field 'UintDflt', got: %v", 1111, nuint.UintDflt)
 	} else {
 		if Handle.IsLog() {
 			fmt.Printf("nint.IntDflt: %v\n", nuint.UintDflt)
@@ -326,7 +322,6 @@ func TestNullUint(t *testing.T) {
 			fmt.Printf("*nuint.NullUint: %v\n", nuint.NullUint)
 		}
 	}
-	Handle.Log(false)
 }
 
 func TestNullFloat(t *testing.T) {
@@ -343,6 +338,7 @@ func TestNullFloat(t *testing.T) {
 		NullFloat              *float64  `db:"null_float" rgen:"nullable:true"`
 	}
 
+	// create table if requied
 	err := Handle.CreateTables(NFloat{})
 	if err != nil {
 		t.Errorf("%s", err.Error())
@@ -378,12 +374,11 @@ func TestNullFloat(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
+
 	if Handle.IsLog() {
 		fmt.Printf("TEST GOT: %v\n", nfloat)
 	}
-	fmt.Printf("TEST GOT: %v\n", nfloat)
 
-	Handle.Log(true)
 	if nfloat.FloatDflt != 1111.222 {
 		t.Errorf("nfloat expected %f for field 'FloatDflt', got: %v", 1111.222, nfloat.FloatDflt)
 	} else {
@@ -433,7 +428,6 @@ func TestNullFloat(t *testing.T) {
 			fmt.Printf("*nfloat.NullFloat: %v\n", nfloat.NullFloat)
 		}
 	}
-	Handle.Log(false)
 }
 
 func TestNullBool(t *testing.T) {
@@ -449,6 +443,7 @@ func TestNullBool(t *testing.T) {
 		NullBool              *bool     `db:"null_bool" rgen:"nullable:true"`
 	}
 
+	// create table if requied
 	err := Handle.CreateTables(NBool{})
 	if err != nil {
 		t.Errorf("%s", err.Error())
@@ -483,12 +478,11 @@ func TestNullBool(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
+
 	if Handle.IsLog() {
 		fmt.Printf("TEST GOT: %v\n", nbool)
 	}
-	fmt.Printf("TEST GOT: %v\n", nbool)
 
-	Handle.Log(true)
 	if nbool.BoolDfltWithValue != false {
 		t.Errorf("nbool expected %t for field 'BoolDfltWithValue', got: %v", false, nbool.BoolDfltWithValue)
 	} else {
@@ -531,5 +525,4 @@ func TestNullBool(t *testing.T) {
 			fmt.Printf("*nbool.NullBool: %v\n", nbool.NullBool)
 		}
 	}
-	Handle.Log(false)
 }

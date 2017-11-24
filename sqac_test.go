@@ -80,90 +80,6 @@ func TestGetDBName(t *testing.T) {
 	}
 }
 
-// TestTimeSimple
-//
-// Test time implementation
-func TestTimeSimple(t *testing.T) {
-
-	type DepotTime struct {
-		DepotNum            int        `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		DepotBay            int        `db:"depot_bay" rgen:"primary_key:"`
-		Region              string     `db:"region" rgen:"nullable:false;defalt:YYC"`
-		TimeColUTC          time.Time  `db:"time_col_utc" rgen:"nullable:false"`
-		TimeNowLocal        time.Time  `db:"time_now_local" rgen:"nullable:false"`
-		TimeNowUTC          time.Time  `db:"time_now_utc" rgen:"nullable:false;default:now()"`
-		TimeColNowDflt      time.Time  `db:"time_col_now_dflt" rgen:"nullable:false;default:now()"`
-		TimeColEot          time.Time  `db:"time_col_eot" rgen:"nullable:false;default:eot"`
-		TimeNull            *time.Time `db:"time_null" rgen:"nullable:true"`
-		TimeNotNull         *time.Time `db:"time_not_null" rgen:"nullable:true"`
-		TimeNullWithDefault *time.Time `db:"time_null_with_default" rgen:"nullable:true;default:eot"`
-	}
-
-	// determine the table names as per the table creation logic
-	tn := common.GetTableName(DepotTime{})
-
-	// drop table depottime if it exists
-	err := Handle.DropTables(DepotTime{})
-	if err != nil {
-		t.Errorf("%s", err.Error())
-	}
-
-	// create table depottime
-	err = Handle.CreateTables(DepotTime{})
-	if err != nil {
-		t.Errorf("%s", err.Error())
-	}
-
-	// expect that table depottime exists
-	if !Handle.ExistsTable(tn) {
-		t.Errorf("table %s does not exist", tn)
-	}
-
-	// create a new record via the CRUD Create call
-	tNotNull := new(time.Time)
-	*tNotNull = time.Now().Local()
-
-	st := Handle.TimeToFormattedString(tNotNull)
-	fmt.Println("st:", st)
-
-	tNow := time.Now().Local()
-	stNow := Handle.TimeToFormattedString(tNow)
-	fmt.Println("stNow", stNow)
-
-	var depottime = DepotTime{
-		Region:       "YYC",
-		TimeColUTC:   time.Date(1970, 01, 01, 11, 00, 00, 651387237, time.UTC), // time.Now(),
-		TimeNowLocal: time.Now().Local(),
-		TimeNowUTC:   time.Now().UTC(),
-		// TimeNull:     nil,         omission == nil
-		TimeNotNull: tNotNull,
-		// TimeNullWithDefault: nil,
-	}
-
-	err = Handle.Create(&depottime)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	fmt.Println("")
-
-	if Handle.IsLog() {
-		fmt.Printf("INSERTING: %v\n\n", depottime)
-		fmt.Printf("TEST GOT: %v\n\n", depottime)
-	}
-	fmt.Printf("TEST GOT: %v\n\n", depottime)
-	//os.Exit(0)
-
-	dt2 := DepotTime{
-		DepotNum: depottime.DepotNum,
-	}
-
-	err = Handle.GetEntity(&dt2)
-	if err != nil {
-		t.Errorf("GetEntity failed with: %v", err)
-	}
-	fmt.Printf("GetEntity for key %v returned: %v\n", dt2.DepotNum, dt2)
-}
-
 // TestExistsTableNegative
 
 // Test for non-existent table 'Footle'
@@ -176,16 +92,8 @@ func TestExistsTableNegative(t *testing.T) {
 		Description string    `db:"description" rgen:"nullable:false;default:"`
 	}
 
-	// determine the table name as per the
-	// table creation logic
+	// determine the table name as per the table creation logic
 	tn := common.GetTableName(Footle{})
-	// tn := reflect.TypeOf(Footle{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
 
 	// expect that table depot does not exist
 	if Handle.ExistsTable(tn) {
@@ -217,13 +125,6 @@ func TestCreateTableBasic(t *testing.T) {
 
 	// determine the table name as per the table creation logic
 	tn := common.GetTableName(Depot{})
-	// tn := reflect.TypeOf(Depot{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
 
 	// expect that table depot exists
 	if !Handle.ExistsTable(tn) {
@@ -252,13 +153,6 @@ func TestDropTablesBasic(t *testing.T) {
 
 	// determine the table name as per the table creation logic
 	tn := common.GetTableName(Depot{})
-	// tn := reflect.TypeOf(Depot{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
 
 	// expect that table depot has been dropped
 	if Handle.ExistsTable(tn) {
@@ -290,13 +184,6 @@ func TestCreateTableWithAlterSequence(t *testing.T) {
 
 	// determine the table name as per the  table creation logic
 	tn := common.GetTableName(Depot{})
-	// tn := reflect.TypeOf(Depot{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
 
 	// expect that table depot exists
 	if !Handle.ExistsTable(tn) {
@@ -376,13 +263,6 @@ func TestCreateTablesWithInclude(t *testing.T) {
 
 	// determine the table name as per the table creation logic
 	tn := common.GetTableName(Equipment{})
-	// tn := reflect.TypeOf(Equipment{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
 
 	// expect that table depot exists
 	if !Handle.ExistsTable(tn) {
@@ -422,13 +302,6 @@ func TestExistsIndexNegative(t *testing.T) {
 
 	// determine the table name as per the table creation logic
 	tn := common.GetTableName(Depot{})
-	// tn := reflect.TypeOf(Depot{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
 
 	// expect that table depot exists
 	if !Handle.ExistsTable(tn) {
@@ -471,13 +344,6 @@ func TestCreateSingleUniqueIndexFromModel(t *testing.T) {
 
 	// determine the table name as per the table creation logic
 	tn := common.GetTableName(Depot{})
-	// tn := reflect.TypeOf(Depot{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
 
 	// expect that table depot exists
 	if !Handle.ExistsTable(tn) {
@@ -520,13 +386,6 @@ func TestCreateSingleNonUniqueIndexFromModel(t *testing.T) {
 
 	// determine the table name as per the table creation logic
 	tn := common.GetTableName(Depot{})
-	// tn := reflect.TypeOf(Depot{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
 
 	// expect that table depot exists
 	if !Handle.ExistsTable(tn) {
@@ -569,13 +428,6 @@ func TestCreateSimpleCompositeIndex(t *testing.T) {
 
 	// determine the table name as per the table creation logic
 	tn := common.GetTableName(Depot{})
-	// tn := reflect.TypeOf(Depot{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
 
 	// expect that table depot exists
 	if !Handle.ExistsTable(tn) {
@@ -612,13 +464,6 @@ func TestExistsIndexPositive(t *testing.T) {
 
 	// determine the table name as per the table creation logic
 	tn := common.GetTableName(Depot{})
-	// tn := reflect.TypeOf(Depot{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
 
 	// expect that table depot exists
 	if !Handle.ExistsTable(tn) {
@@ -658,13 +503,6 @@ func TestDropIndex(t *testing.T) {
 
 	// determine the table name as per the table creation logic
 	tn := common.GetTableName(Depot{})
-	// tn := reflect.TypeOf(Depot{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
 
 	if !Handle.ExistsIndex(tn, "idx_depot_province_country") {
 		t.Errorf("index %s was not found on table %s", "idx_depot_province_country", tn)
@@ -710,13 +548,6 @@ func TestCreateCompositeIndexFromModel(t *testing.T) {
 
 	// determine the table name as per the table creation logic
 	tn := common.GetTableName(Depot{})
-	// tn := reflect.TypeOf(Depot{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
 
 	// expect that table depot exists
 	if !Handle.ExistsTable(tn) {
@@ -753,13 +584,6 @@ func TestExistsColumn(t *testing.T) {
 
 	// determine the table name as per the table creation logic
 	tn := common.GetTableName(Depot{})
-	// tn := reflect.TypeOf(Depot{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
 
 	// ensure table exists in db - create via alter
 	err := Handle.AlterTables(Depot{})
@@ -811,14 +635,6 @@ func TestAlterTables(t *testing.T) {
 
 	// determine the table name as per the table creation logic
 	tn := common.GetTableName(Depot{})
-
-	// reflect.TypeOf(Depot{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
 
 	if !Handle.ExistsColumn("depot", "new_column1") {
 		t.Errorf("new_column1 was expected to exist but does not ")
@@ -953,13 +769,6 @@ func TestQueryOps(t *testing.T) {
 
 	// determine the table names as per the table creation logic
 	tn := common.GetTableName(QOps{})
-	// tn := reflect.TypeOf(QOps{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
 
 	// ensure table qops exists in db
 	if !Handle.ExistsTable(tn) {
@@ -1169,13 +978,6 @@ func TestNullableValues(t *testing.T) {
 
 	// determine the table names as per the table creation logic
 	tn := common.GetTableName(Depot{})
-	// tn := reflect.TypeOf(Depot{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
 
 	// ensure table depot exists in db
 	if !Handle.ExistsTable(tn) {
@@ -1302,13 +1104,6 @@ func TestNonPersistentColumn(t *testing.T) {
 
 	// determine the table names as per the table creation logic
 	tn := common.GetTableName(Depot{})
-	// tn := reflect.TypeOf(Depot{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
 
 	// create table depot in the db
 	err = Handle.CreateTables(Depot{})
@@ -1336,6 +1131,88 @@ func TestNonPersistentColumn(t *testing.T) {
 	if err != nil {
 		t.Errorf("failed to drop table %s", tn)
 	}
+}
+
+// TestTimeSimple
+//
+// Test time implementation
+func TestTimeSimple(t *testing.T) {
+
+	type DepotTime struct {
+		DepotNum            int        `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
+		DepotBay            int        `db:"depot_bay" rgen:"primary_key:"`
+		Region              string     `db:"region" rgen:"nullable:false;defalt:YYC"`
+		TimeColUTC          time.Time  `db:"time_col_utc" rgen:"nullable:false"`
+		TimeNowLocal        time.Time  `db:"time_now_local" rgen:"nullable:false"`
+		TimeNowUTC          time.Time  `db:"time_now_utc" rgen:"nullable:false;default:now()"`
+		TimeColNowDflt      time.Time  `db:"time_col_now_dflt" rgen:"nullable:false;default:now()"`
+		TimeColEot          time.Time  `db:"time_col_eot" rgen:"nullable:false;default:eot"`
+		TimeNull            *time.Time `db:"time_null" rgen:"nullable:true"`
+		TimeNotNull         *time.Time `db:"time_not_null" rgen:"nullable:true"`
+		TimeNullWithDefault *time.Time `db:"time_null_with_default" rgen:"nullable:true;default:eot"`
+	}
+
+	// determine the table names as per the table creation logic
+	tn := common.GetTableName(DepotTime{})
+
+	// drop table depottime if it exists
+	err := Handle.DropTables(DepotTime{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// create table depottime
+	err = Handle.CreateTables(DepotTime{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table depottime exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s does not exist", tn)
+	}
+
+	// create a new record via the CRUD Create call
+	tNotNull := new(time.Time)
+	*tNotNull = time.Now().Local()
+
+	// st := Handle.TimeToFormattedString(tNotNull)
+	// fmt.Println("st:", st)
+	// tNow := time.Now().Local()
+	// stNow := Handle.TimeToFormattedString(tNow)
+	// fmt.Println("stNow", stNow)
+
+	var depottime = DepotTime{
+		Region:       "YYC",
+		TimeColUTC:   time.Date(1970, 01, 01, 11, 00, 00, 651387237, time.UTC), // time.Now(),
+		TimeNowLocal: time.Now().Local(),
+		TimeNowUTC:   time.Now().UTC(),
+		// TimeNull:     nil,         omission == nil
+		TimeNotNull: tNotNull,
+		// TimeNullWithDefault: nil,
+	}
+
+	err = Handle.Create(&depottime)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	fmt.Println("")
+
+	if Handle.IsLog() {
+		fmt.Printf("INSERTING: %v\n\n", depottime)
+		fmt.Printf("TEST GOT: %v\n\n", depottime)
+	}
+	fmt.Printf("TEST GOT: %v\n\n", depottime)
+
+	dt2 := DepotTime{
+		DepotNum: depottime.DepotNum,
+	}
+
+	err = Handle.GetEntity(&dt2)
+	if err != nil {
+		t.Errorf("GetEntity failed with: %v", err)
+	}
+	fmt.Printf("GetEntity for key %v returned: %v\n", dt2.DepotNum, dt2)
 }
 
 // TestCRUDCreate
@@ -1404,70 +1281,6 @@ func TestCRUDCreate(t *testing.T) {
 	// }
 }
 
-// TestCRUDCreateNullable
-//
-// Test CRUD Create Nullable
-func TestCRUDCreateNullable(t *testing.T) {
-
-	type DCNullable struct {
-		DepotNum    int     `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		Region      string  `db:"region" rgen:"nullable:false;default:YYC"`
-		Province    string  `db:"province" rgen:"nullable:false;default:AB"`
-		NullStrFld  *string `db:"null_str_fld" rgen:"nullable:true"`
-		NullStrFld2 *string `db:"null_str_fld2" rgen:"nullable:true"`
-	}
-
-	// alter table dcnullable if exists
-	err := Handle.AlterTables(DCNullable{})
-	if err != nil {
-		t.Errorf("%s", err.Error())
-	}
-
-	// determine the table names as per the table creation logic
-	tn := common.GetTableName(DCNullable{})
-
-	// create table dcnullable
-	err = Handle.CreateTables(DCNullable{})
-	if err != nil {
-		t.Errorf("%s", err.Error())
-	}
-
-	// expect that table depot exists
-	if !Handle.ExistsTable(tn) {
-		t.Errorf("table %s does not exist", tn)
-	}
-
-	// create a new record via the CRUD Create call
-	var nsf string
-	nsf = "test_nullable_fld"
-	var dcnullable = DCNullable{
-		Region:     "YYC",
-		NullStrFld: &nsf,
-	}
-
-	err = Handle.Create(&dcnullable)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	if Handle.IsLog() {
-		fmt.Printf("INSERTING: %v\n", dcnullable)
-		fmt.Printf("TEST GOT: %v\n", dcnullable)
-	}
-	fmt.Println("TEST GOT:", dcnullable)
-	fmt.Println("DepotNum:", dcnullable.DepotNum)
-	fmt.Println("Region:", dcnullable.Region)
-	fmt.Println("Province:", dcnullable.Province)
-	fmt.Println("NullStrFld:", *dcnullable.NullStrFld)
-	if dcnullable.NullStrFld2 == nil {
-		fmt.Println("NullStrFld2 is nil")
-	}
-
-	// err = Handle.DropTables(DepotCreate{})
-	// if err != nil {
-	// 	t.Errorf("failed to drop table %s", tn)
-	// }
-}
-
 // TestCRUDUpdate
 //
 // Test CRUD Update
@@ -1492,13 +1305,6 @@ func TestCRUDUpdate(t *testing.T) {
 
 	// determine the table names as per the table creation logic
 	tn := common.GetTableName(Depot{})
-	// tn := reflect.TypeOf(Depot{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
 
 	err := Handle.DestructiveResetTables(Depot{})
 	if err != nil {
@@ -1584,13 +1390,6 @@ func TestCRUDDelete(t *testing.T) {
 
 	// determine the table names as per the table creation logic
 	tn := common.GetTableName(DepotDelete{})
-	// tn := reflect.TypeOf(DepotDelete{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
 
 	// create table depot if it does not exist
 	err := Handle.CreateTables(DepotDelete{})
@@ -1649,13 +1448,6 @@ func TestCRUDGet(t *testing.T) {
 
 	// determine the table names as per the table creation logic
 	tn := common.GetTableName(DepotGet{})
-	// tn := reflect.TypeOf(DepotGet{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
 
 	// create table depot
 	err := Handle.CreateTables(DepotGet{})
@@ -1697,149 +1489,6 @@ func TestCRUDGet(t *testing.T) {
 	fmt.Println("GetEntity() returned:", depotRead)
 
 	// err = Handle.DropTables(Depot{})
-	// if err != nil {
-	// 	t.Errorf("failed to drop table %s", tn)
-	// }
-}
-
-// TestCRUDIntUint
-//
-// Test CRUD CreateIntUint
-func TestCRUDCreateIntUint(t *testing.T) {
-
-	type IntUint struct {
-		ID             uint   `db:"id" rgen:"primary_key:inc;start:90000000"`
-		FldOneInt      int    `db:"fld_one_int" rgen:"nullable:false;default:1"`
-		FldTwoUint     uint   `db:"fld_two_uint" rgen:"nullable:false;default:2"`
-		FldThreeString string `db:"fld_three_string" rgen:"nullable:false;default:fuddle-duddle"`
-	}
-
-	// determine the table names as per the table creation logic
-	tn := common.GetTableName(IntUint{})
-	// tn := reflect.TypeOf(IntUint{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
-
-	// create table intuint
-	err := Handle.CreateTables(IntUint{})
-	if err != nil {
-		t.Errorf("%s", err.Error())
-	}
-
-	// expect that table intuint exists
-	if !Handle.ExistsTable(tn) {
-		t.Errorf("table %s does not exist", tn)
-	}
-
-	// create a new record via the CRUD Create call
-	var intuint = IntUint{
-		FldOneInt:      40,
-		FldTwoUint:     50,
-		FldThreeString: "test_string",
-	}
-
-	err = Handle.Create(&intuint)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	if Handle.IsLog() {
-		fmt.Printf("INSERTING: %v\n", intuint)
-		fmt.Printf("TEST GOT: %v\n", intuint)
-	}
-
-	err = Handle.DropTables(IntUint{})
-	if err != nil {
-		t.Errorf("failed to drop table %s", tn)
-	}
-}
-
-// TestCRUDBool
-//
-// Test CRUD Bool
-func TestCRUDCreateBool(t *testing.T) {
-
-	type TBool struct {
-		ID         uint `db:"id" rgen:"primary_key:inc;start:90000000"`
-		FldOneBool bool `db:"fld_one_bool" rgen:"nullable:false;default:true"`
-		FldTwoBool bool `db:"fld_two_bool" rgen:"nullable:false;default:false"`
-		// FldThreeBoolN bool   `db:"fld_three_booln" rgen:"nullable:true"`
-		FldFourString string `db:"fld_four_string" rgen:"nullable:false;default:fuddle-duddle"`
-	}
-
-	// determine the table names as per the table creation logic
-	tn := common.GetTableName(TBool{})
-	// tn := reflect.TypeOf(TBool{}).String()
-	// if strings.Contains(tn, ".") {
-	// 	el := strings.Split(tn, ".")
-	// 	tn = strings.ToLower(el[len(el)-1])
-	// } else {
-	// 	tn = strings.ToLower(tn)
-	// }
-
-	// drop table tbool if exists
-	err := Handle.DropTables(TBool{})
-	if err != nil {
-		t.Errorf("%s", err.Error())
-	}
-
-	// create table tbool
-	err = Handle.CreateTables(TBool{})
-	if err != nil {
-		t.Errorf("%s", err.Error())
-	}
-
-	// expect that table tbool exists
-	if !Handle.ExistsTable(tn) {
-		t.Errorf("table %s does not exist", tn)
-	}
-
-	// create a new record via the CRUD Create call
-	var tbool = TBool{
-		FldOneBool:    false,
-		FldTwoBool:    true,
-		FldFourString: "test_string",
-	}
-
-	err = Handle.Create(&tbool)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	if Handle.IsLog() {
-		fmt.Printf("INSERTED: %v\n", tbool)
-		fmt.Printf("TEST GOT: %v\n", tbool)
-	}
-
-	// key populated?
-	if tbool.ID == 0 {
-		t.Errorf("insert into tbool did not succeed: tbool.ID == 0")
-	}
-
-	//
-	// create a struct to read into and populate the keys
-	tboolRead := TBool{
-		ID: tbool.ID,
-	}
-
-	err = Handle.GetEntity(&tboolRead)
-	if err != nil {
-		t.Errorf("%s", err.Error())
-	}
-
-	fmt.Println("GetEntity() returned:", tboolRead)
-	if tboolRead.FldOneBool != false {
-		t.Errorf("insert into tbool did not succeed: tbool.FldOneBool == %v, expected false", tboolRead.FldOneBool)
-	}
-	if tboolRead.FldTwoBool != true {
-		t.Errorf("insert into tbool did not succeed: tbool.FldTwoBool == %v, expected true", tboolRead.FldTwoBool)
-	}
-	if tboolRead.FldFourString != "test_string" {
-		t.Errorf("insert into tbool did not succeed: tbool.FldFourString == %v, expected 'test_string'", tboolRead.FldFourString)
-	}
-	// err = Handle.DropTables(TBool{})
 	// if err != nil {
 	// 	t.Errorf("failed to drop table %s", tn)
 	// }

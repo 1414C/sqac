@@ -133,7 +133,7 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 			continue
 		}
 
-		switch fd.GoType {
+		switch fd.UnderGoType { //fd.GoType {
 		case "int", "int16", "int32", "rune":
 			col.fType = "int"
 
@@ -161,7 +161,7 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 		case "string":
 			col.fType = "varchar(255)" //
 
-		case "time.Time", "*time.Time":
+		case "time.Time":
 			col.fType = "timestamp"
 
 		default:
@@ -198,12 +198,12 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 					}
 
 				case "default":
-					if fd.GoType == "string" {
+					if fd.UnderGoType == "string" {
 						col.fDefault = fmt.Sprintf("DEFAULT '%s'", p.Value)
 					} else {
 						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
 					}
-					if fd.GoType == "time.Time" && p.Value == "eot" {
+					if fd.UnderGoType == "time.Time" && p.Value == "eot" {
 						p.Value = "TIMESTAMP('2003-12-31 12:00:00')"
 						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
 					}
@@ -292,13 +292,6 @@ func (myf *MySQLFlavor) AlterTables(i ...interface{}) error {
 
 		// determine the table name
 		tn := common.GetTableName(i[t])
-		// tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
-		// if strings.Contains(tn, ".") {
-		// 	el := strings.Split(tn, ".")
-		// 	tn = strings.ToLower(el[len(el)-1])
-		// } else {
-		// 	tn = strings.ToLower(tn)
-		// }
 		if tn == "" {
 			return fmt.Errorf("unable to determine table name in myf.AlterTables")
 		}
@@ -332,7 +325,7 @@ func (myf *MySQLFlavor) AlterTables(i ...interface{}) error {
 						panic(fmt.Errorf("aborting - cannot add a primary-key (table-field %s-%s) through migration", tn, fd.FName))
 
 					case "default":
-						if fd.GoType == "string" {
+						if fd.UnderGoType == "string" {
 							colSchema = fmt.Sprintf("%s DEFAULT '%s'", colSchema, p.Value)
 						} else {
 							colSchema = fmt.Sprintf("%s DEFAULT %s", colSchema, p.Value)
@@ -467,19 +460,12 @@ func (myf *MySQLFlavor) Create(ent interface{}) error {
 		return err
 	}
 
-	// fmt.Printf("Last insert ID was %d\n", lastID)
 	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s = %d LIMIT 1;", info.tn, info.incKeyName, lastID)
-	err = myf.db.QueryRowx(selQuery).MapScan(info.resultMap) // SliceScan
+	err = myf.db.QueryRowx(selQuery).StructScan(info.ent) // .MapScan(info.resultMap) // SliceScan
 	if err != nil {
 		return err
 	}
-
-	// fill the underlying structure of the interface ptr with the
-	// fields returned from the database.
-	err = myf.FormatReturn(&info)
-	if err != nil {
-		return err
-	}
+	info.entValue = reflect.ValueOf(info.ent)
 	return nil
 }
 
@@ -530,16 +516,10 @@ func (myf *MySQLFlavor) Update(ent interface{}) error {
 
 	// read the updated row
 	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s LIMIT 1;", info.tn, keyList)
-	err = myf.db.QueryRowx(selQuery).MapScan(info.resultMap) // SliceScan
+	err = myf.db.QueryRowx(selQuery).StructScan(info.ent) // .MapScan(info.resultMap) // SliceScan
 	if err != nil {
 		return err
 	}
-
-	// fill the underlying structure of the interface ptr with the
-	// fields returned from the database.
-	err = myf.FormatReturn(&info)
-	if err != nil {
-		return err
-	}
+	info.entValue = reflect.ValueOf(info.ent)
 	return nil
 }

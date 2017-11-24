@@ -184,7 +184,7 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 					inf.fldMap[fd.FName] = "DEFAULT"
 					continue
 				}
-				if bDefault == true && fv == 0 ||
+				if bDefault == true && reflect.DeepEqual(fv, reflect.Zero(reflect.TypeOf(fv)).Interface()) ||
 					bDefault == true && bIsNull {
 					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
 					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")

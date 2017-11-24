@@ -404,13 +404,6 @@ func (pf *PostgresFlavor) DropTables(i ...interface{}) error {
 
 		// determine the table name
 		tn := common.GetTableName(i[t])
-		// tn := reflect.TypeOf(i[t]).String() // models.ProfileHeader{} for example
-		// if strings.Contains(tn, ".") {
-		// 	el := strings.Split(tn, ".")
-		// 	tn = strings.ToLower(el[len(el)-1])
-		// } else {
-		// 	tn = strings.ToLower(tn)
-		// }
 		if tn == "" {
 			return fmt.Errorf("unable to determine table name in pf.DropTables")
 		}
@@ -704,10 +697,10 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	insQuery = fmt.Sprintf("%s %s VALUES %s RETURNING *;", insQuery, info.fList, info.vList)
 	fmt.Println(insQuery)
 
-	fmt.Println("^^^^^^^info.ent:", info.ent)
-	p := reflect.ValueOf(info.ent).Elem()
-	p.Set(reflect.Zero(p.Type()))
-	fmt.Println("^^^^^^^info.ent:", info.ent)
+	// fmt.Println("^^^^^^^info.ent:", info.ent)
+	// p := reflect.ValueOf(info.ent).Elem()
+	// p.Set(reflect.Zero(p.Type()))
+	// fmt.Println("^^^^^^^info.ent:", info.ent)
 
 	// attempt the insert and read the result back into info.resultMap
 	err = pf.db.QueryRowx(insQuery).StructScan(info.ent) //.MapScan(info.resultMap) // SliceScan
@@ -715,14 +708,6 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 		return err
 	}
 	info.entValue = reflect.ValueOf(info.ent)
-	fmt.Println("info.ent:", info.ent)
-
-	// fill the underlying structure of the interface ptr with the
-	// fields returned from the database.
-	// err = pf.FormatReturn2(&info)
-	// if err != nil {
-	// 	return err
-	// }
 	return nil
 }
 
@@ -762,24 +747,12 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 	updQuery = fmt.Sprintf("%s %s = %s WHERE%s", updQuery, info.fList, info.vList, keyList)
 	fmt.Println(updQuery)
 
-	fmt.Println("^^^^^^^info.ent:", info.ent)
-	p := reflect.ValueOf(info.ent).Elem()
-	p.Set(reflect.Zero(p.Type()))
-	fmt.Println("^^^^^^^info.ent:", info.ent)
-
 	// attempt the update and read result back into resultMap
 	err = pf.db.QueryRowx(updQuery).StructScan(info.ent) //.MapScan(info.resultMap) // SliceScan
 	if err != nil {
 		return err
 	}
 	info.entValue = reflect.ValueOf(info.ent)
-
-	// // fill the underlying structure of the interface ptr with the
-	// // fields returned from the database.
-	// err = pf.FormatReturn2(&info)
-	// if err != nil {
-	// 	return err
-	// }
 	return nil
 }
 
