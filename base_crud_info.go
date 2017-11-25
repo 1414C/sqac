@@ -292,6 +292,18 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 					i := bf.BoolToDBBool(fvr.Bool())
 					inf.vList = fmt.Sprintf("%s%d, ", inf.vList, *i)
 					inf.fldMap[fd.FName] = fmt.Sprintf("%d", *i)
+				case "mssql":
+					switch fvr.Bool() {
+					case true:
+						inf.vList = fmt.Sprintf("%s%d, ", inf.vList, 1)
+						inf.fldMap[fd.FName] = fmt.Sprintf("%d", 1)
+					case false:
+						inf.vList = fmt.Sprintf("%s%d, ", inf.vList, 0)
+						inf.fldMap[fd.FName] = fmt.Sprintf("%d", 0)
+					default:
+
+					}
+
 				default:
 					inf.vList = fmt.Sprintf("%s%t, ", inf.vList, fvr.Bool())
 					inf.fldMap[fd.FName] = fmt.Sprintf("%t", fvr.Bool())
