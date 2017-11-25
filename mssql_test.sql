@@ -14,7 +14,9 @@ CREATE TABLE dbo.depot
   create_date DATETIME2 NOT NULL DEFAULT GETDATE(),
   region [NVARCHAR](50) NOT NULL DEFAULT 'YYC',
   province [NVARCHAR](50) NOT NULL DEFAULT 'AB',
-  country [NVARCHAR](50) NOT NULL DEFAULT 'CA'
+  country [NVARCHAR](50) NOT NULL DEFAULT 'CA',
+  float32_example NUMERIC(12,6) NOT NULL DEFAULT 22.333,
+  float64_example NUMERIC(12,6) NOT NULL DEFAULT 323523.335,
 );
 GO
 
@@ -130,8 +132,8 @@ CREATE TABLE dbo.equipment
   u_int32_example INT NOT NULL DEFAULT 888888,
   u_int16_example SMALLINT NOT NULL DEFAULT 777777,
   u_int8_example TINYINT NOT NULL DEFAULT 127,
-  float32_example NUMERIC NOT NULL DEFAULT 22.333,
-  float64_example NUMERIC NOT NULL DEFAULT 323523.335,
+  float32_example NUMERIC(12,10) NOT NULL DEFAULT 22.333,
+  float64_example NUMERIC(12,10) NOT NULL DEFAULT 323523.335,
   bool_example BIT NOT NULL DEFAULT 0,
   bool_null_example BIT,
   rune_example TINYINT,
@@ -182,8 +184,10 @@ INNER JOIN information_schema.columns col
     ON col.table_name = tbl.table_name
     AND col.table_schema = tbl.table_schema
 
-WHERE tbl.table_type = 'base table' and tbl.table_name like '%equipment%'
+WHERE tbl.table_type = 'base table' and tbl.table_name like '%eqipment%'
 GO
+
+SELECT * FROM dbo.equipment;
 
 ALTER TABLE depot ADD active bit NOT NULL DEFAULT 1
 

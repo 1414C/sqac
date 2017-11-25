@@ -245,7 +245,7 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 			col.fType = "tinyint"
 
 		case "float32", "float64":
-			col.fType = "numeric" // default precision is 18
+			col.fType = "numeric(11,7)" // default precision is 18
 
 		case "bool":
 			col.fType = "bit"
@@ -575,6 +575,7 @@ func (msf *MSSQLFlavor) Create(ent interface{}) error {
 
 	// build the mssql insert query
 	insQuery := fmt.Sprintf("INSERT INTO %s %s VALUES %s;", info.tn, insFlds, insVals)
+	fmt.Println(insQuery)
 
 	// clear the source data - deals with non-persistet columns
 	e := reflect.ValueOf(info.ent).Elem()
