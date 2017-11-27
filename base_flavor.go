@@ -213,14 +213,16 @@ func (bf *BaseFlavor) QsLog(queryString string, qParams ...interface{}) {
 			switch v.(type) {
 			case string:
 				rVal := ""
-				if bf.GetDBName() == "sqlite3" {
+				if bf.GetDBDriverName() == "sqlite3" {
 					rVal = "\"" + v.(string) + "\""
 				} else {
 					rVal = "'" + v.(string) + "'"
 				}
 				queryString = strings.Replace(queryString, "?", rVal, 1)
 			default:
-				queryString = strings.Replace(queryString, "?", v.(string), 1)
+				queryString = strings.Replace(queryString, "?", "%v", 1)
+				queryString = fmt.Sprintf(reflect.ValueOf(queryString).String(), v)
+				// queryString = strings.Replace(queryString, "?", v.(string), 1)
 			}
 		}
 		fmt.Println(queryString)
