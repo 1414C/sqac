@@ -326,6 +326,11 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 						col.fNullable = "NOT NULL"
 					}
 
+				case "constraint":
+					if p.Value == "unique" {
+						col.fUniqueConstraint = "UNIQUE"
+					}
+
 				case "index":
 					switch p.Value {
 					case "non-unique":
@@ -369,6 +374,9 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 		}
 		if col.fDefault != "" {
 			tableSchema = tableSchema + " " + col.fDefault
+		}
+		if col.fUniqueConstraint != "" {
+			tableSchema = tableSchema + " " + col.fUniqueConstraint
 		}
 		tableSchema = tableSchema + ", "
 	}

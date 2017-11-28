@@ -55,11 +55,14 @@ $ go test -v -db hdb sqac_test.go
 
 ```
 
-- [ ]Complete sql/sqlx query/exec wrapper tests
-- [ ]Autoincrement fields should be designated as rgen:"primary_key:inc"
+- [x]Support unique constraint on single-fields
+- [ ]Support unique constraines on grouped fields(?)
+- [ ]Other constraints(?)
+- [x]Complete sql/sqlx query/exec wrapper tests
+- [x]Autoincrement fields should be designated as rgen:"primary_key:inc"
 - [ ]SQLite stores timestamps as UTC, so clients would need to convert back to the local timezone on a read.
 - [ ]Consider saving all time as UTC
 - [ ]Consider converting all time reads as Local
-- [ ]This is not perfect, as hand-written SQL will not pass the requests through the CrudInfo conversions.  Problem.
+- [x]This is not perfect, as hand-written SQL will not pass the requests through the CrudInfo conversions.
 - [ ]HDB ExistsTable should include SCHEMA field in selection?
-- [ ]Really consider what to do with nullable fields
+- [x]Really consider what to do with nullable fields

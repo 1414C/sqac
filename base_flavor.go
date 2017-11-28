@@ -21,13 +21,14 @@ type IndexInfo struct {
 // ColComponents is used to capture the field properties from rgen: tags
 // during table creation and table alteration activities.
 type ColComponents struct {
-	fName       string
-	fType       string
-	fPrimaryKey string
-	fAutoInc    bool // not used for Postgres
-	fStart      int  // only used for HDB
-	fDefault    string
-	fNullable   string
+	fName             string
+	fType             string
+	fPrimaryKey       string
+	fAutoInc          bool // not used for Postgres
+	fStart            int  // only used for HDB
+	fDefault          string
+	fUniqueConstraint string
+	fNullable         string
 }
 
 // TblComponents is used as a collector structure for internal table
