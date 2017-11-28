@@ -633,6 +633,11 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 						col.fNullable = "NOT NULL"
 					}
 
+				case "constraint":
+					if p.Value == "unique" {
+						col.fUniqueConstraint = "UNIQUE"
+					}
+
 				case "index":
 					switch p.Value {
 					case "non-unique":
@@ -685,6 +690,9 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 		}
 		if col.fDefault != "" {
 			tableSchema = tableSchema + " " + col.fDefault
+		}
+		if col.fUniqueConstraint != "" {
+			tableSchema = tableSchema + " " + col.fUniqueConstraint
 		}
 		tableSchema = tableSchema + ", "
 	}

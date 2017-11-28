@@ -202,6 +202,11 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
 					}
 
+				case "constraint":
+					if p.Value == "unique" {
+						col.fUniqueConstraint = "UNIQUE"
+					}
+
 				case "nullable":
 					if p.Value == "false" {
 						col.fNullable = "NOT NULL"
@@ -246,6 +251,9 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 		}
 		if col.fDefault != "" {
 			tableSchema = tableSchema + " " + col.fDefault
+		}
+		if col.fUniqueConstraint != "" {
+			tableSchema = tableSchema + " " + col.fUniqueConstraint
 		}
 		tableSchema = tableSchema + ", "
 	}

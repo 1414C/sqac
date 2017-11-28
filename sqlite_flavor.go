@@ -376,6 +376,11 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 						col.fNullable = "NOT NULL"
 					}
 
+				case "constraint":
+					if p.Value == "unique" {
+						col.fUniqueConstraint = "UNIQUE"
+					}
+
 				case "index":
 					switch p.Value {
 					case "non-unique":
@@ -427,6 +432,9 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 		}
 		if col.fDefault != "" {
 			tableSchema = tableSchema + " " + col.fDefault
+		}
+		if col.fUniqueConstraint != "" {
+			tableSchema = tableSchema + " " + col.fUniqueConstraint
 		}
 		tableSchema = tableSchema + ", "
 	}

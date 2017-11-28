@@ -277,6 +277,51 @@ func TestCreateTablesWithInclude(t *testing.T) {
 	}
 }
 
+// TestCreateUniqueColumnConstraintFromModel
+//
+// Create table depot via CreateTables(i ...interface{})
+// Create a single-field non-unique index based on model
+// attributes.
+func TestCreateUniqueColumnConstraintFromModel(t *testing.T) {
+
+	type DepotConstraint struct {
+		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
+		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();index:non-unique"`
+		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
+		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
+		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
+		LotID      uint      `db:"lot_id" rgen:"nullable:false;constraint:unique"`
+	}
+
+	err := Handle.DropTables(DepotConstraint{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	err = Handle.CreateTables(DepotConstraint{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// determine the table name as per the table creation logic
+	tn := common.GetTableName(DepotConstraint{})
+
+	// expect that table depot exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s was not created", tn)
+	}
+
+	// if !Handle.ExistsIndex(tn, "idx_depot_create_date") {
+	// 	t.Errorf("expected unique index idx_depot_create_date - got: ")
+	// }
+
+	// drop the depotconstraint table
+	// err = Handle.DropTables(DepotConstraint{})
+	// if err != nil {
+	// 	t.Errorf("%s", err.Error())
+	// }
+}
+
 // TestExistsIndexNegative
 //
 // Check to see if index:

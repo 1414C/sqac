@@ -181,6 +181,11 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 						col.fNullable = "NOT NULL"
 					}
 
+				case "constraint":
+					if p.Value == "unique" {
+						col.fUniqueConstraint = "UNIQUE"
+					}
+
 				case "index":
 					switch p.Value {
 					case "non-unique":
@@ -215,6 +220,11 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 
 				case "default":
 					col.fDefault = fmt.Sprintf("DEFAULT '%s'", p.Value)
+
+				case "constraint":
+					if p.Value == "unique" {
+						col.fUniqueConstraint = "UNIQUE"
+					}
 
 				case "index":
 
@@ -251,6 +261,11 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 
 				case "default":
 					col.fDefault = fmt.Sprintf("DEFAULT '%s'", p.Value)
+
+				case "constraint":
+					if p.Value == "unique" {
+						col.fUniqueConstraint = "UNIQUE"
+					}
 
 				case "index":
 					switch p.Value {
@@ -366,6 +381,9 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 		}
 		if col.fDefault != "" {
 			tableSchema = tableSchema + " " + col.fDefault
+		}
+		if col.fUniqueConstraint != "" {
+			tableSchema = tableSchema + " " + col.fUniqueConstraint
 		}
 		tableSchema = tableSchema + ", "
 	}
