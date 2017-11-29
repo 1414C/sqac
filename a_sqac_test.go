@@ -1470,21 +1470,21 @@ func TestCRUDDelete(t *testing.T) {
 func TestCRUDGet(t *testing.T) {
 
 	type DepotGet struct {
-		DepotNum            int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		DepotBay            int       `db:"depot_bay" rgen:"primary_key:"`
-		CreateDate          time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
-		Region              string    `db:"region" rgen:"nullable:false;default:YYC"`
-		Province            string    `db:"province" rgen:"nullable:false;default:AB"`
-		Country             string    `db:"country" rgen:"nullable:true;default:CA"`
-		NewColumn1          string    `db:"new_column1" rgen:"nullable:false"`
-		NewColumn2          int64     `db:"new_column2" rgen:"nullable:false"`
-		NewColumn3          float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
-		IntDefaultZero      int       `db:"int_default_zero" rgen:"nullable:false;default:0"`
-		IntDefault42        int       `db:"int_default42" rgen:"nullable:false;default:42"`
-		FldOne              int       `db:"fld_one" rgen:"nullable:false;default:0;index:idx_depotget_fld_one_fld_two"`
-		FldTwo              int       `db:"fld_two" rgen:"nullable:false;default:0;index:idx_depotget_fld_one_fld_two"`
-		IntZeroValNoDefault int       `db:"int_zero_val_no_default" rgen:"nullable:false"`
-		NonPersistentColumn string    `db:"non_persistent_column" rgen:"-"`
+		DepotNum            int       `json:"depot_num" db:"depot_num" rgen:"primary_key:inc;start:90000000"`
+		DepotBay            int       `json:"depot_bay" db:"depot_bay" rgen:"primary_key:"`
+		CreateDate          time.Time `json:"create_date" db:"create_date" rgen:"nullable:false;default:now();index:unique"`
+		Region              string    `json:"region" db:"region" rgen:"nullable:false;default:YYC"`
+		Province            string    `json:"province" db:"province" rgen:"nullable:false;default:AB"`
+		Country             string    `json:"country" db:"country" rgen:"nullable:true;default:CA"`
+		NewColumn1          string    `json:"new_column1" db:"new_column1" rgen:"nullable:false"`
+		NewColumn2          int64     `json:"new_column2" db:"new_column2" rgen:"nullable:false"`
+		NewColumn3          float64   `json:"new_column3" db:"new_column3" rgen:"nullable:false;default:0.0"`
+		IntDefaultZero      int       `json:"int_default_zero" db:"int_default_zero" rgen:"nullable:false;default:0"`
+		IntDefault42        int       `json:"int_default42" db:"int_default42" rgen:"nullable:false;default:42"`
+		FldOne              int       `json:"fld_one" db:"fld_one" rgen:"nullable:false;default:0;index:idx_depotget_fld_one_fld_two"`
+		FldTwo              int       `json:"fld_two" db:"fld_two" rgen:"nullable:false;default:0;index:idx_depotget_fld_one_fld_two"`
+		IntZeroValNoDefault int       `json:"int_zero_val_no_default" db:"int_zero_val_no_default" rgen:"nullable:false"`
+		NonPersistentColumn string    `json:"non_persistent_column" db:"non_persistent_column" rgen:"-"`
 	}
 
 	// determine the table names as per the table creation logic
@@ -1522,6 +1522,85 @@ func TestCRUDGet(t *testing.T) {
 	}
 
 	err = Handle.GetEntity(&depotRead)
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	if depotRead.Region != "YYC" {
+		t.Errorf("depotRead.Region error!")
+	}
+	// err = Handle.DropTables(Depot{})
+	// if err != nil {
+	// 	t.Errorf("failed to drop table %s", tn)
+	// }
+}
+
+// TestCRUDGetEntities
+//
+// Test CRUD Get
+func TestCRUDGetEntities(t *testing.T) {
+
+	type DepotGetEntities struct {
+		DepotNum            int       `json:"depot_num" db:"depot_num" rgen:"primary_key:inc;start:90000000"`
+		DepotBay            int       `json:"depot_bay" db:"depot_bay" rgen:"primary_key:"`
+		CreateDate          time.Time `json:"create_date" db:"create_date" rgen:"nullable:false;default:now();index:unique"`
+		Region              string    `json:"region" db:"region" rgen:"nullable:false;default:YYC"`
+		Province            string    `json:"province" db:"province" rgen:"nullable:false;default:AB"`
+		Country             string    `json:"country" db:"country" rgen:"nullable:true;default:CA"`
+		NewColumn1          string    `json:"new_column1" db:"new_column1" rgen:"nullable:false"`
+		NewColumn2          int64     `json:"new_column2" db:"new_column2" rgen:"nullable:false"`
+		NewColumn3          float64   `json:"new_column3" db:"new_column3" rgen:"nullable:false;default:0.0"`
+		IntDefaultZero      int       `json:"int_default_zero" db:"int_default_zero" rgen:"nullable:false;default:0"`
+		IntDefault42        int       `json:"int_default42" db:"int_default42" rgen:"nullable:false;default:42"`
+		IntZeroValNoDefault int       `json:"int_zero_val_no_default" db:"int_zero_val_no_default" rgen:"nullable:false"`
+		NonPersistentColumn string    `json:"non_persistent_column" db:"non_persistent_column" rgen:"-"`
+	}
+
+	// determine the table names as per the table creation logic
+	tn := common.GetTableName(DepotGetEntities{})
+
+	// create table depotgetentities
+	err := Handle.CreateTables(DepotGetEntities{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table depotget exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s does not exist", tn)
+	}
+
+	// create a new record via the CRUD Create call
+	var depotgetentities = DepotGetEntities{
+		Region:              "YYC",
+		NewColumn1:          "string_value",
+		NewColumn2:          9999,
+		NewColumn3:          45.33,
+		NonPersistentColumn: "0123456789abcdef",
+	}
+
+	err = Handle.Create(&depotgetentities)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	depotgetentities2 := DepotGetEntities{
+		Region:              "YVR",
+		NewColumn1:          "vancouver",
+		NewColumn2:          8888,
+		NewColumn3:          46423.22,
+		NonPersistentColumn: "don't save me",
+	}
+
+	err = Handle.Create(&depotgetentities2)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	// create a slice to read into
+	depotRead := []DepotGetEntities{}
+
+	err = Handle.GetEntities(depotRead)
 	if err != nil {
 		t.Errorf("%s", err.Error())
 	}
