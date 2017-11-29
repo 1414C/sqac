@@ -165,9 +165,9 @@ type PublicDB interface {
 	// CRUD ops :(
 	Create(ent interface{}) error
 	Update(ent interface{}) error
-	Delete(ent interface{}) error    // (id uint) error
-	GetEntity(ent interface{}) error // pass ptr to type containing key information
-	GetEntities() []interface{}
+	Delete(ent interface{}) error       // (id uint) error
+	GetEntity(ent interface{}) error    // pass ptr to type containing key information
+	GetEntities(ents interface{}) error // tn == tableName
 }
 
 // ensure consistency of interface implementation
@@ -799,7 +799,7 @@ func (bf *BaseFlavor) Delete(ent interface{}) error { // (id uint) error
 
 // GetEntity - get an existing entity from the db using the primary
 // key definition.  The entire key should be provided, although
-// providing a partial key will not geneate an (obvious) error.
+// providing a partial key will not generate an (obvious) error.
 func (bf *BaseFlavor) GetEntity(ent interface{}) error {
 
 	var info CrudInfo
@@ -832,7 +832,7 @@ func (bf *BaseFlavor) GetEntity(ent interface{}) error {
 		selQuery = fmt.Sprintf("%s WHERE%s;", selQuery, keyList)
 		bf.QsLog(selQuery)
 
-		// attempt the delete and read result back into resultMap
+		// attempt read the entity row
 		err := bf.db.QueryRowx(selQuery).StructScan(info.ent) //.MapScan(info.resultMap) // SliceScan
 		if err != nil {
 			return err
@@ -840,5 +840,75 @@ func (bf *BaseFlavor) GetEntity(ent interface{}) error {
 		info.entValue = reflect.ValueOf(info.ent)
 		return nil
 	}
+	return nil
+}
+
+// GetEntities - this is one way to do it, but reflection feels like a mistake
+// in the CRUD code.  consider an alternative approach whereby a CRUD interface
+// is declared using the model.<ent> as the basis.
+//
+// type CRUDEnt{} interface
+//
+//  Create(h *sqac.Handle)
+//  Read()
+//  Update()
+//  Delete()
+//  GetEntities()
+//
+//  Each model would have a corresponding interface implementation,
+//  based on its own data.  The interface object would be passed from
+//  the application side into the CRUD part of the ORM.  The ORM would
+//  then provide a sqac.Handle that would be used inside the interface
+//  implementation to perform the required CRUD task.  It follows that
+//  the data for the Create, Read, Update, Delete would need to be set
+//  inside the interface object prior to its being passed to the ORM.
+//  The interface object would be passed by reference, allowing the
+//  results to be 'passed' back to the caller without any fuss or
+//  delay.
+func (bf *BaseFlavor) GetEntities(ents interface{}) error {
+
+	entTypeElem := reflect.TypeOf(ents).Elem()
+	fmt.Println("entTypeElem:", entTypeElem)
+
+	testVar := reflect.New(entTypeElem)
+
+	sliceType := reflect.SliceOf(testVar.Type())
+	emptySlice := reflect.MakeSlice(sliceType, 1, 1)
+	// Full(emptySlice.Interface().([]entTypeElem))
+
+	// fmt.Println("testVar:", testVar)
+	// fmt.Println("typeOf testVar:", reflect.TypeOf(testVar))
+	// fmt.Println("Type NumFields:", testVar.Elem().NumField())
+
+	// fmt.Println("DepotNum:", testVar.Elem().FieldByName("DepotNum"))
+	// for i := 0; i < testVar.Elem().NumField(); i++ {
+	// 	fmt.Println(testVar.Elem().Field(i))
+	// }
+
+	tn := common.GetTableName(ents)
+
+	selQuery := fmt.Sprintf("SELECT * FROM %s;", tn)
+	bf.QsLog(selQuery)
+
+	// read the rows
+	rows, err := bf.db.Queryx(selQuery)
+	if err != nil {
+		log.Printf("GetEntities for table &s returned error: %v\n", err.Error())
+		return err
+	}
+
+	// iterate over the rows collection and put the results
+	// into the ents interface (slice)
+	for rows.Next() {
+		err = rows.StructScan(testVar.Interface())
+		if err != nil {
+			fmt.Println("scan error:", err)
+		}
+		fmt.Println(testVar)
+		emptySlice = reflect.Append(emptySlice, reflect.ValueOf(testVar.Elem()))
+		// ents = append(ents, testVar)
+		// ents = reflect.Append(ents.([]reflect.TypeOf(ents).Elem()), testVar)
+	}
+	ents = emptySlice
 	return nil
 }

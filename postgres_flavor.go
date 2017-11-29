@@ -773,11 +773,3 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 	info.entValue = reflect.ValueOf(info.ent)
 	return nil
 }
-
-// GetEntities retrieves all entities of the requested type
-// from the database.  the returned list is unfiltered and
-// not pageable for now.
-func (pf *PostgresFlavor) GetEntities() []interface{} {
-
-	return nil
-}
