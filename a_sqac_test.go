@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
-	"unsafe"
 
 	"github.com/1414C/sqac"
 	"github.com/1414C/sqac/common"
@@ -69,7 +69,9 @@ func (dget *DepotGetEntitiesTab) Exec(sqh sqac.PublicDB) error {
 		}
 		dget.ents = append(dget.ents, ent)
 	}
-	fmt.Println("ENTS:", dget.ents)
+	if sqh.IsLog() {
+		fmt.Println("DepotGetEntitiesTab.Exec() got:", dget.ents)
+	}
 	return nil
 }
 
@@ -1599,8 +1601,14 @@ func TestCRUDGetEntities(t *testing.T) {
 	// determine the table names as per the table creation logic
 	tn := common.GetTableName(DepotGetEntities2{})
 
+	// drop table depotgetentities
+	err := Handle.DropTables(DepotGetEntities2{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
 	// create table depotgetentities
-	err := Handle.CreateTables(DepotGetEntities2{})
+	err = Handle.CreateTables(DepotGetEntities2{})
 	if err != nil {
 		t.Errorf("%s", err.Error())
 	}
@@ -1639,19 +1647,27 @@ func TestCRUDGetEntities(t *testing.T) {
 
 	// create a slice to read into
 	depotRead := []DepotGetEntities2{}
-	Handle.GetEntities(depotRead)
 
-	fmt.Println("depotRead:", depotRead)
-	for _, v := range depotRead {
-		fmt.Println("THIS IS THE RESULT:", v)
+	result, err := Handle.GetEntities(depotRead)
+	if err != nil {
+		t.Errorf(err.Error())
 	}
 
-	// fmt.Println("GetEntities:", depotRead)
+	if Handle.IsLog() {
+		fmt.Println("DEPOTREAD:", depotRead)
+	}
 
-	// err = Handle.DropTables(Depot{})
-	// if err != nil {
-	// 	t.Errorf("failed to drop table %s", tn)
-	// }
+	depotReadResult := reflect.ValueOf(result)
+	for i := 0; i < depotReadResult.Len(); i++ {
+		if Handle.IsLog() {
+			fmt.Printf("index[%d]: %v\n", i, depotReadResult.Index(i))
+		}
+		depotRead = append(depotRead, depotReadResult.Index(i).Interface().(DepotGetEntities2))
+	}
+
+	if len(depotRead) == 0 {
+		t.Errorf("failed to read any entities from test table DepotGetEntities2")
+	}
 }
 
 // TestCRUDGetEntities2
@@ -1705,78 +1721,68 @@ func TestCRUDGetEntities2(t *testing.T) {
 
 	Handle.GetEntities2(&depotRead)
 
-	fmt.Println("depotRead:", depotRead)
-	for _, v := range depotRead.ents {
-		fmt.Println(v)
+	if Handle.IsLog() {
+		fmt.Println("depotRead:", depotRead)
+		for _, v := range depotRead.ents {
+			fmt.Println(v)
+		}
 	}
 
-	// fmt.Println("GetEntities:", depotRead)
+	if len(depotRead.ents) == 0 {
+		t.Errorf("failed to read any entities from test table DepotGetEntities2")
+	}
 
-	// err = Handle.DropTables(Depot{})
-	// if err != nil {
-	// 	t.Errorf("failed to drop table %s", tn)
-	// }
 }
 
-// TestCRUDGetEntitiesUnsafe
-//
-// Test CRUD Get
-func TestCRUDGetEntitiesUnsafe(t *testing.T) {
+// // TestCRUDGetEntities3
+// //
+// // Test CRUD Get
+// func TestCRUDGetEntities3(t *testing.T) {
 
-	// create table depotgetentities
-	err := Handle.CreateTables(DepotGetEntities2{})
-	if err != nil {
-		t.Errorf("%s", err.Error())
-	}
+// 	// determine the table names as per the table creation logic
+// 	tn := common.GetTableName(DepotGetEntities2{})
 
-	// create a new record via the CRUD Create call
-	var depotgetentities = DepotGetEntities2{
-		Region:              "YYC",
-		NewColumn1:          "string_value",
-		NewColumn2:          9999,
-		NewColumn3:          45.33,
-		NonPersistentColumn: "0123456789abcdef",
-	}
+// 	// create table depotgetentities
+// 	err := Handle.CreateTables(DepotGetEntities2{})
+// 	if err != nil {
+// 		t.Errorf("%s", err.Error())
+// 	}
 
-	err = Handle.Create(&depotgetentities)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
+// 	// expect that table depotgetentities2 exists
+// 	if !Handle.ExistsTable(tn) {
+// 		t.Errorf("table %s does not exist", tn)
+// 	}
 
-	depotgetentities2 := DepotGetEntities2{
-		Region:              "YVR",
-		NewColumn1:          "vancouver",
-		NewColumn2:          8888,
-		NewColumn3:          46423.22,
-		NonPersistentColumn: "don't save me",
-	}
+// 	// create a new record via the CRUD Create call
+// 	var depotgetentities = DepotGetEntities2{
+// 		Region:              "YYC",
+// 		NewColumn1:          "string_value",
+// 		NewColumn2:          9999,
+// 		NewColumn3:          45.33,
+// 		NonPersistentColumn: "0123456789abcdef",
+// 	}
 
-	err = Handle.Create(&depotgetentities2)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
+// 	err = Handle.Create(&depotgetentities)
+// 	if err != nil {
+// 		t.Errorf(err.Error())
+// 	}
 
-	// create a slice to read the addresses into
-	depAddrs := make([]unsafe.Pointer, 0, 0)
-	Handle.GetEntitiesUnsafe(&DepotGetEntities2{}, &depAddrs)
+// 	depotgetentities2 := DepotGetEntities2{
+// 		Region:              "YVR",
+// 		NewColumn1:          "vancouver",
+// 		NewColumn2:          8888,
+// 		NewColumn3:          46423.22,
+// 		NonPersistentColumn: "don't save me",
+// 	}
 
-	for _, v := range depAddrs {
-		fmt.Println("v:", v)
-	}
+// 	err = Handle.Create(&depotgetentities2)
+// 	if err != nil {
+// 		t.Errorf(err.Error())
+// 	}
 
-	// create a slice to read into
-	depotRead := make([]DepotGetEntities2, 0, 0)
+// 	// create a slice to read into
+// 	depotRead := []DepotGetEntities2{}
 
-	fmt.Println("depotRead:", depotRead)
-	for _, v := range depAddrs {
-		// depotRead = append(depotRead, (*DepotGetEntities2)(unsafe.Pointer(uintptr(v))))
-		fmt.Println("V::", (*DepotGetEntities2)(v))
-	}
-
-	// fmt.Println("GetEntities:", depotRead)
-
-	// err = Handle.DropTables(Depot{})
-	// if err != nil {
-	// 	t.Errorf("failed to drop table %s", tn)
-	// }
-}
+// 	Handle.GetEntities3(&depotRead)
+// 	fmt.Println("DEPOTREAD:", depotRead)
+// }
