@@ -4,8 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 	"reflect"
 	"strings"
+	"unsafe"
 
 	"github.com/1414C/sqac/common"
 	"github.com/jmoiron/sqlx"
@@ -169,6 +171,7 @@ type PublicDB interface {
 	GetEntity(ent interface{}) error    // pass ptr to type containing key information
 	GetEntities(ents interface{}) error // tn == tableName
 	GetEntities2(ge GetEnt) error
+	GetEntitiesUnsafe(ent interface{}, entaddrs *[]unsafe.Pointer) error
 }
 
 // ensure consistency of interface implementation
@@ -931,7 +934,16 @@ func (bf *BaseFlavor) GetEntities(ents interface{}) error {
 	// 	// entsValue.Index(i).Set(emptySlice.Index(i))
 	// 	entsv.Index(i).Set(reflect.ValueOf(emptySlice.Index(i)))
 	// }
-	ents = entsv
+	fmt.Println("")
+	fmt.Println("")
+
+	retTable := make([]interface{}, c, c)
+	for i, v := range entsv.Interface().(reflect.TypeOf(entsv)) {
+		retTable[i] = v
+	}
+
+	fmt.Println(retTable)
+	os.Exit(233)
 	return nil
 }
 
@@ -946,4 +958,58 @@ func (bf *BaseFlavor) GetEntities2(ge GetEnt) error {
 	}
 	fmt.Println("ge:", ge)
 	return nil
+}
+
+// GetEntitiesUnsafe is the fastest way to retrieve all
+// entities for an entity-type.  Pass a pointer to the
+// entity type and a pointer to a slice of unsafe pointers.
+// the unsafe.Pointer slice will be populated with the
+// address of each retrieved entity, thereby allowing
+// the caller to retrieve the value being pointed at.
+// This is pretty safe, as it is a read-operations only,
+// the caller will know which type to cast the value to.
+func (bf *BaseFlavor) GetEntitiesUnsafe(ent interface{}, entaddrs *[]unsafe.Pointer) error {
+
+	// tn := common.GetTableName(ent)
+	// fmt.Println("type-of ent:", reflect.TypeOf(ent))
+
+	// selQuery := fmt.Sprintf("SELECT * FROM %s;", tn)
+	// bf.QsLog(selQuery)
+
+	// // read the rows
+	// rows, err := bf.db.Queryx(selQuery)
+	// if err != nil {
+	// 	log.Printf("GetEntities for table &s returned error: %v\n", err.Error())
+	// 	return err
+	// }
+
+	// // for rows.Next() {
+	// // 	// e := reflect.New(reflect.TypeOf(ent))
+	// // 	err = rows.StructScan(ent)
+	// // 	if err != nil {
+	// // 		fmt.Printf("error reading rows: %v\n", err)
+	// // 		return err
+	// // 	}
+	// // 	*entaddrs = append(*entaddrs, unsafe.Pointer(&ent))
+	// // }
+	// // fmt.Println("entaddrs:", *entaddrs)
+	// // return nil
+
+	// // entTypeElem := reflect.TypeOf(ents).Elem()
+	// // testVar := reflect.New(entTypeElem)
+	// // fmt.Println("entTypeElem:", entTypeElem)
+
+	// for rows.Next() {
+	// 	e := reflect.New(reflect.TypeOf(ent).Elem())
+	// 	err = rows.StructScan(e.Interface())
+	// 	if err != nil {
+	// 		fmt.Printf("error reading rows: %v\n", err)
+	// 		return err
+	// 	}
+	// 	*entaddrs = append(*entaddrs, unsafe.Pointer(&e))
+	// }
+	// fmt.Println("entaddrs:", *entaddrs)
+
+	return nil
+
 }

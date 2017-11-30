@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"unsafe"
 
 	"github.com/1414C/sqac"
 	"github.com/1414C/sqac/common"
@@ -1707,6 +1708,69 @@ func TestCRUDGetEntities2(t *testing.T) {
 	fmt.Println("depotRead:", depotRead)
 	for _, v := range depotRead.ents {
 		fmt.Println(v)
+	}
+
+	// fmt.Println("GetEntities:", depotRead)
+
+	// err = Handle.DropTables(Depot{})
+	// if err != nil {
+	// 	t.Errorf("failed to drop table %s", tn)
+	// }
+}
+
+// TestCRUDGetEntitiesUnsafe
+//
+// Test CRUD Get
+func TestCRUDGetEntitiesUnsafe(t *testing.T) {
+
+	// create table depotgetentities
+	err := Handle.CreateTables(DepotGetEntities2{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// create a new record via the CRUD Create call
+	var depotgetentities = DepotGetEntities2{
+		Region:              "YYC",
+		NewColumn1:          "string_value",
+		NewColumn2:          9999,
+		NewColumn3:          45.33,
+		NonPersistentColumn: "0123456789abcdef",
+	}
+
+	err = Handle.Create(&depotgetentities)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	depotgetentities2 := DepotGetEntities2{
+		Region:              "YVR",
+		NewColumn1:          "vancouver",
+		NewColumn2:          8888,
+		NewColumn3:          46423.22,
+		NonPersistentColumn: "don't save me",
+	}
+
+	err = Handle.Create(&depotgetentities2)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	// create a slice to read the addresses into
+	depAddrs := make([]unsafe.Pointer, 0, 0)
+	Handle.GetEntitiesUnsafe(&DepotGetEntities2{}, &depAddrs)
+
+	for _, v := range depAddrs {
+		fmt.Println("v:", v)
+	}
+
+	// create a slice to read into
+	depotRead := make([]DepotGetEntities2, 0, 0)
+
+	fmt.Println("depotRead:", depotRead)
+	for _, v := range depAddrs {
+		// depotRead = append(depotRead, (*DepotGetEntities2)(unsafe.Pointer(uintptr(v))))
+		fmt.Println("V::", (*DepotGetEntities2)(v))
 	}
 
 	// fmt.Println("GetEntities:", depotRead)
