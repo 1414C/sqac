@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 	"testing"
@@ -22,6 +23,60 @@ var (
 	Handle sqac.PublicDB
 )
 
+//============================================================================================================================
+// GetEntities test artifacts - generics would obviate the need for this sort of coding...
+//============================================================================================================================
+type DepotGetEntities2 struct {
+	DepotNum            int       `json:"depot_num" db:"depot_num" rgen:"primary_key:inc;start:90000000"`
+	DepotBay            int       `json:"depot_bay" db:"depot_bay" rgen:"primary_key:"`
+	CreateDate          time.Time `json:"create_date" db:"create_date" rgen:"nullable:false;default:now();index:unique"`
+	Region              string    `json:"region" db:"region" rgen:"nullable:false;default:YYC"`
+	Province            string    `json:"province" db:"province" rgen:"nullable:false;default:AB"`
+	Country             string    `json:"country" db:"country" rgen:"nullable:true;default:CA"`
+	NewColumn1          string    `json:"new_column1" db:"new_column1" rgen:"nullable:false"`
+	NewColumn2          int64     `json:"new_column2" db:"new_column2" rgen:"nullable:false"`
+	NewColumn3          float64   `json:"new_column3" db:"new_column3" rgen:"nullable:false;default:0.0"`
+	IntDefaultZero      int       `json:"int_default_zero" db:"int_default_zero" rgen:"nullable:false;default:0"`
+	IntDefault42        int       `json:"int_default42" db:"int_default42" rgen:"nullable:false;default:42"`
+	IntZeroValNoDefault int       `json:"int_zero_val_no_default" db:"int_zero_val_no_default" rgen:"nullable:false"`
+	NonPersistentColumn string    `json:"non_persistent_column" db:"non_persistent_column" rgen:"-"`
+}
+
+type DepotGetEntitiesTab struct {
+	ents []DepotGetEntities2
+	sqac.GetEnt
+}
+
+// Implement the sqac.GetEnt{} interface for DepotGetEntities2
+func (dget *DepotGetEntitiesTab) Exec(sqh sqac.PublicDB) error {
+
+	selQuery := "SELECT * FROM depotgetentities2;"
+
+	// read the table rows
+	rows, err := sqh.ExecuteQueryx(selQuery)
+	if err != nil {
+		log.Printf("GetEntities for table depotgetentities2 returned error: %v\n", err.Error())
+		return err
+	}
+
+	for rows.Next() {
+		var ent DepotGetEntities2
+		err = rows.StructScan(&ent)
+		if err != nil {
+			fmt.Printf("error reading rows: %v\n", err)
+			return err
+		}
+		dget.ents = append(dget.ents, ent)
+	}
+	fmt.Println("ENTS:", dget.ents)
+	return nil
+}
+
+//============================================================================================================================
+// GetEntities test artifacts end
+//============================================================================================================================
+
+// TestMain - the go test entry point
 func TestMain(m *testing.M) {
 
 	// parse flags
@@ -1535,43 +1590,27 @@ func TestCRUDGet(t *testing.T) {
 	// }
 }
 
-// TestCRUDGetEntities
+// TestCRUDGetEntities2
 //
 // Test CRUD Get
-func TestCRUDGetEntities(t *testing.T) {
-
-	type DepotGetEntities struct {
-		DepotNum            int       `json:"depot_num" db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		DepotBay            int       `json:"depot_bay" db:"depot_bay" rgen:"primary_key:"`
-		CreateDate          time.Time `json:"create_date" db:"create_date" rgen:"nullable:false;default:now();index:unique"`
-		Region              string    `json:"region" db:"region" rgen:"nullable:false;default:YYC"`
-		Province            string    `json:"province" db:"province" rgen:"nullable:false;default:AB"`
-		Country             string    `json:"country" db:"country" rgen:"nullable:true;default:CA"`
-		NewColumn1          string    `json:"new_column1" db:"new_column1" rgen:"nullable:false"`
-		NewColumn2          int64     `json:"new_column2" db:"new_column2" rgen:"nullable:false"`
-		NewColumn3          float64   `json:"new_column3" db:"new_column3" rgen:"nullable:false;default:0.0"`
-		IntDefaultZero      int       `json:"int_default_zero" db:"int_default_zero" rgen:"nullable:false;default:0"`
-		IntDefault42        int       `json:"int_default42" db:"int_default42" rgen:"nullable:false;default:42"`
-		IntZeroValNoDefault int       `json:"int_zero_val_no_default" db:"int_zero_val_no_default" rgen:"nullable:false"`
-		NonPersistentColumn string    `json:"non_persistent_column" db:"non_persistent_column" rgen:"-"`
-	}
+func TestCRUDGetEntities2(t *testing.T) {
 
 	// determine the table names as per the table creation logic
-	tn := common.GetTableName(DepotGetEntities{})
+	tn := common.GetTableName(DepotGetEntities2{})
 
 	// create table depotgetentities
-	err := Handle.CreateTables(DepotGetEntities{})
+	err := Handle.CreateTables(DepotGetEntities2{})
 	if err != nil {
 		t.Errorf("%s", err.Error())
 	}
 
-	// expect that table depotget exists
+	// expect that table depotgetentities2 exists
 	if !Handle.ExistsTable(tn) {
 		t.Errorf("table %s does not exist", tn)
 	}
 
 	// create a new record via the CRUD Create call
-	var depotgetentities = DepotGetEntities{
+	var depotgetentities = DepotGetEntities2{
 		Region:              "YYC",
 		NewColumn1:          "string_value",
 		NewColumn2:          9999,
@@ -1584,7 +1623,7 @@ func TestCRUDGetEntities(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	depotgetentities2 := DepotGetEntities{
+	depotgetentities2 := DepotGetEntities2{
 		Region:              "YVR",
 		NewColumn1:          "vancouver",
 		NewColumn2:          8888,
@@ -1598,12 +1637,16 @@ func TestCRUDGetEntities(t *testing.T) {
 	}
 
 	// create a slice to read into
-	depotRead := []DepotGetEntities{}
+	depotRead := DepotGetEntitiesTab{}
 
-	err = Handle.GetEntities(depotRead)
-	if err != nil {
-		t.Errorf("%s", err.Error())
+	Handle.GetEntities2(&depotRead)
+
+	fmt.Println("depotRead:", depotRead)
+	for _, v := range depotRead.ents {
+		fmt.Println(v)
 	}
+
+	// fmt.Println("GetEntities:", depotRead)
 
 	// err = Handle.DropTables(Depot{})
 	// if err != nil {
