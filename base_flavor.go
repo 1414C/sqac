@@ -168,6 +168,7 @@ type PublicDB interface {
 	Delete(ent interface{}) error       // (id uint) error
 	GetEntity(ent interface{}) error    // pass ptr to type containing key information
 	GetEntities(ents interface{}) error // tn == tableName
+	GetEntities2(ge GetEnt) error
 }
 
 // ensure consistency of interface implementation
@@ -864,7 +865,8 @@ func (bf *BaseFlavor) GetEntity(ent interface{}) error {
 //  inside the interface object prior to its being passed to the ORM.
 //  The interface object would be passed by reference, allowing the
 //  results to be 'passed' back to the caller without any fuss or
-//  delay.
+//  delay.  Advatage - no reflection.  Disadvantage - kind of puts it
+//  on the counsumer.
 func (bf *BaseFlavor) GetEntities(ents interface{}) error {
 
 	entTypeElem := reflect.TypeOf(ents).Elem()
@@ -872,8 +874,9 @@ func (bf *BaseFlavor) GetEntities(ents interface{}) error {
 
 	testVar := reflect.New(entTypeElem)
 
-	sliceType := reflect.SliceOf(testVar.Type())
-	emptySlice := reflect.MakeSlice(sliceType, 1, 1)
+	// sliceType := reflect.SliceOf(testVar.Type())
+	// emptySlice := reflect.MakeSlice(sliceType, 1, 1)
+
 	// Full(emptySlice.Interface().([]entTypeElem))
 
 	// fmt.Println("testVar:", testVar)
@@ -899,16 +902,48 @@ func (bf *BaseFlavor) GetEntities(ents interface{}) error {
 
 	// iterate over the rows collection and put the results
 	// into the ents interface (slice)
+	c := 0
+	entsv := reflect.ValueOf(ents)
 	for rows.Next() {
+		c++
 		err = rows.StructScan(testVar.Interface())
 		if err != nil {
 			fmt.Println("scan error:", err)
 		}
 		fmt.Println(testVar)
-		emptySlice = reflect.Append(emptySlice, reflect.ValueOf(testVar.Elem()))
+		entsv = reflect.Append(entsv, testVar.Elem())
+		// emptySlice = reflect.Append(emptySlice, reflect.ValueOf(testVar.Interface()))
 		// ents = append(ents, testVar)
 		// ents = reflect.Append(ents.([]reflect.TypeOf(ents).Elem()), testVar)
 	}
-	ents = emptySlice
+
+	// fmt.Printf("EMPTY SLICE: %+v\n", emptySlice)
+	// fmt.Printf("EMPTY SLICE INDEX 2: %v\n", emptySlice.Index(2))
+	// var responseSlice []interface{} = make([]interface{}, 40)
+
+	// entsv := reflect.ValueOf(ents)
+	fmt.Println("entsv:", entsv)
+	// entsv = entsv.Slice(0, c)
+
+	// for i := 0; i < c; i++ {
+	// 	fmt.Printf("i: %d, c: %d\n", i, c)
+	// 	responseSlice = append(responseSlice, emptySlice.Index(i))
+	// 	// entsValue.Index(i).Set(emptySlice.Index(i))
+	// 	entsv.Index(i).Set(reflect.ValueOf(emptySlice.Index(i)))
+	// }
+	ents = entsv
+	return nil
+}
+
+// GetEntities2 attempts to retrieve all entities based
+// on the internal implementation of GetEnt.  GetEnt
+// exposes a single method to execute the request.
+func (bf *BaseFlavor) GetEntities2(ge GetEnt) error {
+
+	err := ge.Exec(bf)
+	if err != nil {
+		return err
+	}
+	fmt.Println("ge:", ge)
 	return nil
 }
