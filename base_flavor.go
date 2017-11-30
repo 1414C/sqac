@@ -165,11 +165,11 @@ type PublicDB interface {
 	// CRUD ops :(
 	Create(ent interface{}) error
 	Update(ent interface{}) error
-	Delete(ent interface{}) error                      // (id uint) error
-	GetEntity(ent interface{}) error                   // pass ptr to type containing key information
-	GetEntities(ents interface{}) (interface{}, error) // tn == tableName
+	Delete(ent interface{}) error    // (id uint) error
+	GetEntity(ent interface{}) error // pass ptr to type containing key information
+	GetEntities(ents interface{}) (interface{}, error)
 	GetEntities2(ge GetEnt) error
-	GetEntities3(ents interface{})
+	// GetEntities3(ents interface{})
 }
 
 // ensure consistency of interface implementation
