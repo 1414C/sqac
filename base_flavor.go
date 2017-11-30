@@ -914,7 +914,7 @@ func (bf *BaseFlavor) GetEntities(ents interface{}) (interface{}, error) {
 // on the internal implementation of GetEnt.  GetEnt
 // exposes a single method (Exec) to execute the request.
 // All this because go can only go so far with meta-type
-// programming.
+// programming.  GetEntities2 is used in the rgen program.
 func (bf *BaseFlavor) GetEntities2(ge GetEnt) error {
 
 	// Exec() should contain whatever SQL related code

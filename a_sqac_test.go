@@ -1716,10 +1716,15 @@ func TestCRUDGetEntities2(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	// create a slice to read into
+	// create an implementation of the DepotGetEntitiesTab struct.
+	// this struct contains a slice for the query results, as well as
+	// an implementation of the sqac.GetEnt{} interface.
 	depotRead := DepotGetEntitiesTab{}
 
-	Handle.GetEntities2(&depotRead)
+	err = Handle.GetEntities2(&depotRead)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 
 	if Handle.IsLog() {
 		fmt.Println("depotRead:", depotRead)
