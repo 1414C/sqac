@@ -4,10 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
 	"reflect"
 	"strings"
-	"unsafe"
 
 	"github.com/1414C/sqac/common"
 	"github.com/jmoiron/sqlx"
@@ -167,11 +165,11 @@ type PublicDB interface {
 	// CRUD ops :(
 	Create(ent interface{}) error
 	Update(ent interface{}) error
-	Delete(ent interface{}) error       // (id uint) error
-	GetEntity(ent interface{}) error    // pass ptr to type containing key information
-	GetEntities(ents interface{}) error // tn == tableName
+	Delete(ent interface{}) error                      // (id uint) error
+	GetEntity(ent interface{}) error                   // pass ptr to type containing key information
+	GetEntities(ents interface{}) (interface{}, error) // tn == tableName
 	GetEntities2(ge GetEnt) error
-	GetEntitiesUnsafe(ent interface{}, entaddrs *[]unsafe.Pointer) error
+	GetEntities3(ents interface{})
 }
 
 // ensure consistency of interface implementation
@@ -868,29 +866,20 @@ func (bf *BaseFlavor) GetEntity(ent interface{}) error {
 //  inside the interface object prior to its being passed to the ORM.
 //  The interface object would be passed by reference, allowing the
 //  results to be 'passed' back to the caller without any fuss or
-//  delay.  Advatage - no reflection.  Disadvantage - kind of puts it
-//  on the counsumer.
-func (bf *BaseFlavor) GetEntities(ents interface{}) error {
+//  delay.  Advantage - no reflection.  Disadvantage - it seems rather
+//  messy, as the extraction of the retrieved data would likely be
+//  though the struct or slice of structs the interface is implemented
+//  on.
+func (bf *BaseFlavor) GetEntities(ents interface{}) (interface{}, error) {
 
+	// get the underlying data type of the interface{}
 	entTypeElem := reflect.TypeOf(ents).Elem()
-	fmt.Println("entTypeElem:", entTypeElem)
+	// fmt.Println("entTypeElem:", entTypeElem)
 
+	// create a struct from the type
 	testVar := reflect.New(entTypeElem)
 
-	// sliceType := reflect.SliceOf(testVar.Type())
-	// emptySlice := reflect.MakeSlice(sliceType, 1, 1)
-
-	// Full(emptySlice.Interface().([]entTypeElem))
-
-	// fmt.Println("testVar:", testVar)
-	// fmt.Println("typeOf testVar:", reflect.TypeOf(testVar))
-	// fmt.Println("Type NumFields:", testVar.Elem().NumField())
-
-	// fmt.Println("DepotNum:", testVar.Elem().FieldByName("DepotNum"))
-	// for i := 0; i < testVar.Elem().NumField(); i++ {
-	// 	fmt.Println(testVar.Elem().Field(i))
-	// }
-
+	// determine the db table name
 	tn := common.GetTableName(ents)
 
 	selQuery := fmt.Sprintf("SELECT * FROM %s;", tn)
@@ -900,116 +889,88 @@ func (bf *BaseFlavor) GetEntities(ents interface{}) error {
 	rows, err := bf.db.Queryx(selQuery)
 	if err != nil {
 		log.Printf("GetEntities for table &s returned error: %v\n", err.Error())
-		return err
+		return nil, err
 	}
 
 	// iterate over the rows collection and put the results
 	// into the ents interface (slice)
-	c := 0
 	entsv := reflect.ValueOf(ents)
 	for rows.Next() {
-		c++
 		err = rows.StructScan(testVar.Interface())
 		if err != nil {
 			fmt.Println("scan error:", err)
+			return nil, err
 		}
-		fmt.Println(testVar)
+		// fmt.Println(testVar)
 		entsv = reflect.Append(entsv, testVar.Elem())
-		// emptySlice = reflect.Append(emptySlice, reflect.ValueOf(testVar.Interface()))
-		// ents = append(ents, testVar)
-		// ents = reflect.Append(ents.([]reflect.TypeOf(ents).Elem()), testVar)
 	}
 
-	// fmt.Printf("EMPTY SLICE: %+v\n", emptySlice)
-	// fmt.Printf("EMPTY SLICE INDEX 2: %v\n", emptySlice.Index(2))
-	// var responseSlice []interface{} = make([]interface{}, 40)
-
-	// entsv := reflect.ValueOf(ents)
-	fmt.Println("entsv:", entsv)
-	// entsv = entsv.Slice(0, c)
-
-	// for i := 0; i < c; i++ {
-	// 	fmt.Printf("i: %d, c: %d\n", i, c)
-	// 	responseSlice = append(responseSlice, emptySlice.Index(i))
-	// 	// entsValue.Index(i).Set(emptySlice.Index(i))
-	// 	entsv.Index(i).Set(reflect.ValueOf(emptySlice.Index(i)))
-	// }
-	fmt.Println("")
-	fmt.Println("")
-
-	retTable := make([]interface{}, c, c)
-	for i, v := range entsv.Interface().(reflect.TypeOf(entsv)) {
-		retTable[i] = v
-	}
-
-	fmt.Println(retTable)
-	os.Exit(233)
-	return nil
+	ents = entsv.Interface()
+	// fmt.Println("ents:", ents)
+	return entsv.Interface(), nil
 }
 
 // GetEntities2 attempts to retrieve all entities based
 // on the internal implementation of GetEnt.  GetEnt
-// exposes a single method to execute the request.
+// exposes a single method (Exec) to execute the request.
+// All this because go can only go so far with meta-type
+// programming.
 func (bf *BaseFlavor) GetEntities2(ge GetEnt) error {
 
+	// Exec() should contain whatever SQL related code
+	// is required to satisfy GetEntities2 for the underlying
+	// model.<struc> or model.[]<struct> type.
 	err := ge.Exec(bf)
 	if err != nil {
 		return err
 	}
-	fmt.Println("ge:", ge)
+	if bf.IsLog() {
+		fmt.Println("bf.GetEntities2 following Exec() contained: ", ge)
+	}
 	return nil
 }
 
-// GetEntitiesUnsafe is the fastest way to retrieve all
-// entities for an entity-type.  Pass a pointer to the
-// entity type and a pointer to a slice of unsafe pointers.
-// the unsafe.Pointer slice will be populated with the
-// address of each retrieved entity, thereby allowing
-// the caller to retrieve the value being pointed at.
-// This is pretty safe, as it is a read-operations only,
-// the caller will know which type to cast the value to.
-func (bf *BaseFlavor) GetEntitiesUnsafe(ent interface{}, entaddrs *[]unsafe.Pointer) error {
+// GetEntities3 is experimental
+func (bf *BaseFlavor) GetEntities3(ents interface{}) {
 
-	// tn := common.GetTableName(ent)
-	// fmt.Println("type-of ent:", reflect.TypeOf(ent))
+	// get the underlying data type of the interface{}
+	sliceTypeElem := reflect.TypeOf(ents).Elem()
+	// fmt.Println("entTypeElem:", entTypeElem)
 
-	// selQuery := fmt.Sprintf("SELECT * FROM %s;", tn)
-	// bf.QsLog(selQuery)
+	t := reflect.Indirect(reflect.ValueOf(ents)).Type().Elem()
+	fmt.Println("t:", t)
 
-	// // read the rows
-	// rows, err := bf.db.Queryx(selQuery)
-	// if err != nil {
-	// 	log.Printf("GetEntities for table &s returned error: %v\n", err.Error())
-	// 	return err
-	// }
+	// create a struct from the type
+	testVar := reflect.New(t)
 
-	// // for rows.Next() {
-	// // 	// e := reflect.New(reflect.TypeOf(ent))
-	// // 	err = rows.StructScan(ent)
-	// // 	if err != nil {
-	// // 		fmt.Printf("error reading rows: %v\n", err)
-	// // 		return err
-	// // 	}
-	// // 	*entaddrs = append(*entaddrs, unsafe.Pointer(&ent))
-	// // }
-	// // fmt.Println("entaddrs:", *entaddrs)
-	// // return nil
+	// determine the db table name
+	tn := common.GetTableName(ents)
 
-	// // entTypeElem := reflect.TypeOf(ents).Elem()
-	// // testVar := reflect.New(entTypeElem)
-	// // fmt.Println("entTypeElem:", entTypeElem)
+	selQuery := fmt.Sprintf("SELECT * FROM %s;", tn)
+	bf.QsLog(selQuery)
 
-	// for rows.Next() {
-	// 	e := reflect.New(reflect.TypeOf(ent).Elem())
-	// 	err = rows.StructScan(e.Interface())
-	// 	if err != nil {
-	// 		fmt.Printf("error reading rows: %v\n", err)
-	// 		return err
-	// 	}
-	// 	*entaddrs = append(*entaddrs, unsafe.Pointer(&e))
-	// }
-	// fmt.Println("entaddrs:", *entaddrs)
+	// read the rows
+	rows, err := bf.db.Queryx(selQuery)
+	if err != nil {
+		log.Printf("GetEntities for table &s returned error: %v\n", err.Error())
+		// return err
+	}
 
-	return nil
+	slice := reflect.MakeSlice(sliceTypeElem, 0, 0)
+	for rows.Next() {
+		err = rows.StructScan(testVar.Interface())
+		if err != nil {
+			fmt.Println("scan error:", err)
+		}
 
+		fmt.Println(testVar)
+		slice = reflect.Append(slice, testVar.Elem())
+	}
+
+	fmt.Println("slice:", slice)
+	// entsv := reflect.ValueOf(ents)
+	// fmt.Println("entsv:", entsv)
+	// *ents.(*interface{}) = slice.Interface() // reflect.ValueOf(slice)
+	// *ents = slice
+	fmt.Println("ents:", ents)
 }
