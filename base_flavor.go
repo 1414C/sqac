@@ -169,7 +169,8 @@ type PublicDB interface {
 	GetEntity(ent interface{}) error // pass ptr to type containing key information
 	GetEntities(ents interface{}) (interface{}, error)
 	GetEntities2(ge GetEnt) error
-	// GetEntities3(ents interface{})
+	GetEntities3(ents interface{})
+	GetEntities4(ents interface{})
 }
 
 // ensure consistency of interface implementation
@@ -930,18 +931,18 @@ func (bf *BaseFlavor) GetEntities2(ge GetEnt) error {
 	return nil
 }
 
-// GetEntities3 is experimental
-func (bf *BaseFlavor) GetEntities3(ents interface{}) {
+// GetEntities4 is experimental
+func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 
-	// get the underlying data type of the interface{}
+	// get the underlying data type of the interface{} ([]StructEtc)
 	sliceTypeElem := reflect.TypeOf(ents).Elem()
-	// fmt.Println("entTypeElem:", entTypeElem)
 
+	// get the underlying (struct?) type of the slice
 	t := reflect.Indirect(reflect.ValueOf(ents)).Type().Elem()
 	fmt.Println("t:", t)
 
 	// create a struct from the type
-	testVar := reflect.New(t)
+	dstRow := reflect.New(t)
 
 	// determine the db table name
 	tn := common.GetTableName(ents)
@@ -956,21 +957,37 @@ func (bf *BaseFlavor) GetEntities3(ents interface{}) {
 		// return err
 	}
 
+	results := indirect(reflect.ValueOf(ents))
+	resultType := results.Type().Elem()
+	results.Set(reflect.MakeSlice(results.Type(), 0, 0))
+
+	if resultType.Kind() == reflect.Ptr {
+		//isPtr = true
+		resultType = resultType.Elem()
+	}
+
 	slice := reflect.MakeSlice(sliceTypeElem, 0, 0)
 	for rows.Next() {
-		err = rows.StructScan(testVar.Interface())
+		err = rows.StructScan(dstRow.Interface())
 		if err != nil {
 			fmt.Println("scan error:", err)
 		}
 
-		fmt.Println(testVar)
-		slice = reflect.Append(slice, testVar.Elem())
+		fmt.Println(dstRow)
+		slice = reflect.Append(slice, dstRow.Elem())
+		results.Set(reflect.Append(results, dstRow.Elem()))
 	}
 
 	fmt.Println("slice:", slice)
-	// entsv := reflect.ValueOf(ents)
-	// fmt.Println("entsv:", entsv)
-	// *ents.(*interface{}) = slice.Interface() // reflect.ValueOf(slice)
-	// *ents = slice
+	fmt.Println("")
+	fmt.Println("results:", results)
 	fmt.Println("ents:", ents)
+}
+
+// this is where it happens
+func indirect(reflectValue reflect.Value) reflect.Value {
+	for reflectValue.Kind() == reflect.Ptr {
+		reflectValue = reflectValue.Elem()
+	}
+	return reflectValue
 }
