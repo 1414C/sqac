@@ -1788,6 +1788,59 @@ func TestCRUDGetEntities2(t *testing.T) {
 // 	// create a slice to read into
 // 	depotRead := []DepotGetEntities2{}
 
-// 	Handle.GetEntities3(&depotRead)
+// 	Handle.GetEntities3(depotRead)
 // 	fmt.Println("DEPOTREAD:", depotRead)
 // }
+
+// TestCRUDGetEntities4
+//
+// Test CRUD Get
+func TestCRUDGetEntities4(t *testing.T) {
+
+	// determine the table names as per the table creation logic
+	tn := common.GetTableName(DepotGetEntities2{})
+
+	// create table depotgetentities
+	err := Handle.CreateTables(DepotGetEntities2{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table depotgetentities2 exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s does not exist", tn)
+	}
+
+	// create a new record via the CRUD Create call
+	var depotgetentities = DepotGetEntities2{
+		Region:              "YYC",
+		NewColumn1:          "string_value",
+		NewColumn2:          9999,
+		NewColumn3:          45.33,
+		NonPersistentColumn: "0123456789abcdef",
+	}
+
+	err = Handle.Create(&depotgetentities)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	depotgetentities2 := DepotGetEntities2{
+		Region:              "YVR",
+		NewColumn1:          "vancouver",
+		NewColumn2:          8888,
+		NewColumn3:          46423.22,
+		NonPersistentColumn: "don't save me",
+	}
+
+	err = Handle.Create(&depotgetentities2)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	// create a slice to read into
+	depotRead := []DepotGetEntities2{}
+
+	Handle.GetEntities4(&depotRead)
+	fmt.Println("DEPOTREAD:", depotRead)
+}
