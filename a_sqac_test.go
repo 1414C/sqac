@@ -28,19 +28,19 @@ var (
 // GetEntities test artifacts - generics would obviate the need for this sort of coding...
 //============================================================================================================================
 type DepotGetEntities2 struct {
-	DepotNum            int       `json:"depot_num" db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-	DepotBay            int       `json:"depot_bay" db:"depot_bay" rgen:"primary_key:"`
-	CreateDate          time.Time `json:"create_date" db:"create_date" rgen:"nullable:false;default:now();index:unique"`
-	Region              string    `json:"region" db:"region" rgen:"nullable:false;default:YYC"`
-	Province            string    `json:"province" db:"province" rgen:"nullable:false;default:AB"`
-	Country             string    `json:"country" db:"country" rgen:"nullable:true;default:CA"`
-	NewColumn1          string    `json:"new_column1" db:"new_column1" rgen:"nullable:false"`
-	NewColumn2          int64     `json:"new_column2" db:"new_column2" rgen:"nullable:false"`
-	NewColumn3          float64   `json:"new_column3" db:"new_column3" rgen:"nullable:false;default:0.0"`
-	IntDefaultZero      int       `json:"int_default_zero" db:"int_default_zero" rgen:"nullable:false;default:0"`
-	IntDefault42        int       `json:"int_default42" db:"int_default42" rgen:"nullable:false;default:42"`
-	IntZeroValNoDefault int       `json:"int_zero_val_no_default" db:"int_zero_val_no_default" rgen:"nullable:false"`
-	NonPersistentColumn string    `json:"non_persistent_column" db:"non_persistent_column" rgen:"-"`
+	DepotNum            int       `json:"depot_num" db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+	DepotBay            int       `json:"depot_bay" db:"depot_bay" sqac:"primary_key:"`
+	CreateDate          time.Time `json:"create_date" db:"create_date" sqac:"nullable:false;default:now();index:nonUnique"`
+	Region              string    `json:"region" db:"region" sqac:"nullable:false;default:YYC"`
+	Province            string    `json:"province" db:"province" sqac:"nullable:false;default:AB"`
+	Country             string    `json:"country" db:"country" sqac:"nullable:true;default:CA"`
+	NewColumn1          string    `json:"new_column1" db:"new_column1" sqac:"nullable:false"`
+	NewColumn2          int64     `json:"new_column2" db:"new_column2" sqac:"nullable:false"`
+	NewColumn3          float64   `json:"new_column3" db:"new_column3" sqac:"nullable:false;default:0.0"`
+	IntDefaultZero      int       `json:"int_default_zero" db:"int_default_zero" sqac:"nullable:false;default:0"`
+	IntDefault42        int       `json:"int_default42" db:"int_default42" sqac:"nullable:false;default:42"`
+	IntZeroValNoDefault int       `json:"int_zero_val_no_default" db:"int_zero_val_no_default" sqac:"nullable:false"`
+	NonPersistentColumn string    `json:"non_persistent_column" db:"non_persistent_column" sqac:"-"`
 }
 
 type DepotGetEntitiesTab struct {
@@ -146,9 +146,9 @@ func TestGetDBName(t *testing.T) {
 func TestExistsTableNegative(t *testing.T) {
 
 	type Footle struct {
-		KeyNum      int       `db:"key_num" rgen:"primary_key:inc"`
-		CreateDate  time.Time `db:"create_date" rgen:"nullable:false;default:now();"`
-		Description string    `db:"description" rgen:"nullable:false;default:"`
+		KeyNum      int       `db:"key_num" sqac:"primary_key:inc"`
+		CreateDate  time.Time `db:"create_date" sqac:"nullable:false;default:now();"`
+		Description string    `db:"description" sqac:"nullable:false;default:"`
 	}
 
 	// determine the table name as per the table creation logic
@@ -170,11 +170,11 @@ func TestExistsTableNegative(t *testing.T) {
 func TestCreateTableBasic(t *testing.T) {
 
 	type Depot struct {
-		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc"`
-		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();"`
-		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
-		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
-		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
+		DepotNum   int       `db:"depot_num" sqac:"primary_key:inc"`
+		CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now();"`
+		Region     string    `db:"region" sqac:"nullable:false;default:YYC"`
+		Province   string    `db:"province" sqac:"nullable:false;default:AB"`
+		Country    string    `db:"country" sqac:"nullable:false;default:CA"`
 	}
 
 	err := Handle.CreateTables(Depot{})
@@ -198,11 +198,11 @@ func TestCreateTableBasic(t *testing.T) {
 func TestDropTablesBasic(t *testing.T) {
 
 	type Depot struct {
-		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc"`
-		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();"`
-		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
-		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
-		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
+		DepotNum   int       `db:"depot_num" sqac:"primary_key:inc"`
+		CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now();"`
+		Region     string    `db:"region" sqac:"nullable:false;default:YYC"`
+		Province   string    `db:"province" sqac:"nullable:false;default:AB"`
+		Country    string    `db:"country" sqac:"nullable:false;default:CA"`
 	}
 
 	err := Handle.DropTables(Depot{})
@@ -229,11 +229,11 @@ func TestDropTablesBasic(t *testing.T) {
 func TestCreateTableWithAlterSequence(t *testing.T) {
 
 	type Depot struct {
-		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now()"`
-		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
-		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
-		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
+		DepotNum   int       `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+		CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now()"`
+		Region     string    `db:"region" sqac:"nullable:false;default:YYC"`
+		Province   string    `db:"province" sqac:"nullable:false;default:AB"`
+		Country    string    `db:"country" sqac:"nullable:false;default:CA"`
 	}
 
 	err := Handle.CreateTables(Depot{})
@@ -283,35 +283,35 @@ func TestCreateTableWithAlterSequence(t *testing.T) {
 func TestCreateTablesWithInclude(t *testing.T) {
 
 	// type Triplet struct {
-	// 	TripOne   string `db:"trip_one" rgen:"nullable:false"`
-	// 	TripTwo   int64  `db:"trip_two" rgen:"nullable:false;default:0"`
-	// 	Tripthree string `db:"trip_three" rgen:"nullable:false"`
+	// 	TripOne   string `db:"trip_one" sqac:"nullable:false"`
+	// 	TripTwo   int64  `db:"trip_two" sqac:"nullable:false;default:0"`
+	// 	Tripthree string `db:"trip_three" sqac:"nullable:false"`
 	// }
 
 	// type Equipment struct {
-	// 	EquipmentNum   int64     `db:"equipment_num" rgen:"primary_key:inc;start:55550000"`
-	// 	ValidFrom      time.Time `db:"valid_from" rgen:"primary_key;nullable:false;default:now()"`
-	// 	ValidTo        time.Time `db:"valid_to" rgen:"primary_key;nullable:false;default:make_timestamptz(9999, 12, 31, 23, 59, 59.9)"`
-	// 	CreatedAt      time.Time `db:"created_at" rgen:"nullable:false;default:now()"`
-	// 	InspectionAt   time.Time `db:"inspeaction_at" rgen:"nullable:true"`
-	// 	MaterialNum    int       `db:"material_num" rgen:"index:idx_material_num_serial_num"`
-	// 	Description    string    `db:"description" rgen:"rgen:nullable:false"`
-	// 	SerialNum      string    `db:"serial_num" rgen:"index:idx_material_num_serial_num"`
-	// 	IntExample     int       `db:"int_example" rgen:"nullable:false;default:0"`
-	// 	Int64Example   int64     `db:"int64_example" rgen:"nullable:false;default:0"`
-	// 	Int32Example   int32     `db:"int32_example" rgen:"nullable:false;default:0"`
-	// 	Int16Example   int16     `db:"int16_example" rgen:"nullable:false;default:0"`
-	// 	Int8Example    int8      `db:"int8_example" rgen:"nullable:false;default:0"`
-	// 	UIntExample    uint      `db:"uint_example" rgen:"nullable:false;default:0"`
-	// 	UInt64Example  uint64    `db:"uint64_example" rgen:"nullable:false;default:0"`
-	// 	UInt32Example  uint32    `db:"uint32_example" rgen:"nullable:false;default:0"`
-	// 	UInt16Example  uint16    `db:"uint16_example" rgen:"nullable:false;default:0"`
-	// 	UInt8Example   uint8     `db:"uint8_example" rgen:"nullable:false;default:0"`
-	// 	Float32Example float32   `db:"float32_example" rgen:"nullable:false;default:0.0"`
-	// 	Float64Example float64   `db:"float64_example" rgen:"nullable:false;default:0.0"`
-	// 	BoolExample    bool      `db:"bool_example" rgen:"nullable:false;default:false"`
-	// 	RuneExample    rune      `db:"rune_example" rgen:"nullable:true"`
-	// 	ByteExample    byte      `db:"byte_example" rgen:"nullable:true"`
+	// 	EquipmentNum   int64     `db:"equipment_num" sqac:"primary_key:inc;start:55550000"`
+	// 	ValidFrom      time.Time `db:"valid_from" sqac:"primary_key;nullable:false;default:now()"`
+	// 	ValidTo        time.Time `db:"valid_to" sqac:"primary_key;nullable:false;default:make_timestamptz(9999, 12, 31, 23, 59, 59.9)"`
+	// 	CreatedAt      time.Time `db:"created_at" sqac:"nullable:false;default:now()"`
+	// 	InspectionAt   time.Time `db:"inspeaction_at" sqac:"nullable:true"`
+	// 	MaterialNum    int       `db:"material_num" sqac:"index:idx_material_num_serial_num"`
+	// 	Description    string    `db:"description" sqac:"sqac:nullable:false"`
+	// 	SerialNum      string    `db:"serial_num" sqac:"index:idx_material_num_serial_num"`
+	// 	IntExample     int       `db:"int_example" sqac:"nullable:false;default:0"`
+	// 	Int64Example   int64     `db:"int64_example" sqac:"nullable:false;default:0"`
+	// 	Int32Example   int32     `db:"int32_example" sqac:"nullable:false;default:0"`
+	// 	Int16Example   int16     `db:"int16_example" sqac:"nullable:false;default:0"`
+	// 	Int8Example    int8      `db:"int8_example" sqac:"nullable:false;default:0"`
+	// 	UIntExample    uint      `db:"uint_example" sqac:"nullable:false;default:0"`
+	// 	UInt64Example  uint64    `db:"uint64_example" sqac:"nullable:false;default:0"`
+	// 	UInt32Example  uint32    `db:"uint32_example" sqac:"nullable:false;default:0"`
+	// 	UInt16Example  uint16    `db:"uint16_example" sqac:"nullable:false;default:0"`
+	// 	UInt8Example   uint8     `db:"uint8_example" sqac:"nullable:false;default:0"`
+	// 	Float32Example float32   `db:"float32_example" sqac:"nullable:false;default:0.0"`
+	// 	Float64Example float64   `db:"float64_example" sqac:"nullable:false;default:0.0"`
+	// 	BoolExample    bool      `db:"bool_example" sqac:"nullable:false;default:false"`
+	// 	RuneExample    rune      `db:"rune_example" sqac:"nullable:true"`
+	// 	ByteExample    byte      `db:"byte_example" sqac:"nullable:true"`
 	// 	Triplet
 	// }
 
@@ -343,12 +343,12 @@ func TestCreateTablesWithInclude(t *testing.T) {
 func TestCreateUniqueColumnConstraintFromModel(t *testing.T) {
 
 	type DepotConstraint struct {
-		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();index:non-unique"`
-		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
-		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
-		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
-		LotID      uint      `db:"lot_id" rgen:"nullable:false;constraint:unique"`
+		DepotNum   int       `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+		CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now();index:non-unique"`
+		Region     string    `db:"region" sqac:"nullable:false;default:YYC"`
+		Province   string    `db:"province" sqac:"nullable:false;default:AB"`
+		Country    string    `db:"country" sqac:"nullable:false;default:CA"`
+		LotID      uint      `db:"lot_id" sqac:"nullable:false;constraint:unique"`
 	}
 
 	err := Handle.DropTables(DepotConstraint{})
@@ -388,14 +388,14 @@ func TestCreateUniqueColumnConstraintFromModel(t *testing.T) {
 func TestExistsIndexNegative(t *testing.T) {
 
 	type Depot struct {
-		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now()"`
-		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
-		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
-		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
-		NewColumn1 string    `db:"new_column1" rgen:"nullable:false"`
-		NewColumn2 int64     `db:"new_column2" rgen:"nullable:false;default:0"`
-		NewColumn3 float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
+		DepotNum   int       `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+		CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now()"`
+		Region     string    `db:"region" sqac:"nullable:false;default:YYC"`
+		Province   string    `db:"province" sqac:"nullable:false;default:AB"`
+		Country    string    `db:"country" sqac:"nullable:false;default:CA"`
+		NewColumn1 string    `db:"new_column1" sqac:"nullable:false"`
+		NewColumn2 int64     `db:"new_column2" sqac:"nullable:false;default:0"`
+		NewColumn3 float64   `db:"new_column3" sqac:"nullable:false;default:0.0"`
 	}
 
 	// ensure that table depot exists
@@ -431,14 +431,14 @@ func TestExistsIndexNegative(t *testing.T) {
 func TestCreateSingleUniqueIndexFromModel(t *testing.T) {
 
 	type Depot struct {
-		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
-		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
-		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
-		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
-		NewColumn1 string    `db:"new_column1" rgen:"nullable:false"`
-		NewColumn2 int64     `db:"new_column2" rgen:"nullable:false;default:0"`
-		NewColumn3 float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
+		DepotNum   int       `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+		CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now();index:unique"`
+		Region     string    `db:"region" sqac:"nullable:false;default:YYC"`
+		Province   string    `db:"province" sqac:"nullable:false;default:AB"`
+		Country    string    `db:"country" sqac:"nullable:false;default:CA"`
+		NewColumn1 string    `db:"new_column1" sqac:"nullable:false"`
+		NewColumn2 int64     `db:"new_column2" sqac:"nullable:false;default:0"`
+		NewColumn3 float64   `db:"new_column3" sqac:"nullable:false;default:0.0"`
 	}
 
 	err := Handle.CreateTables(Depot{})
@@ -473,14 +473,14 @@ func TestCreateSingleUniqueIndexFromModel(t *testing.T) {
 func TestCreateSingleNonUniqueIndexFromModel(t *testing.T) {
 
 	type Depot struct {
-		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();index:non-unique"`
-		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
-		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
-		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
-		NewColumn1 string    `db:"new_column1" rgen:"nullable:false"`
-		NewColumn2 int64     `db:"new_column2" rgen:"nullable:false;default:0"`
-		NewColumn3 float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
+		DepotNum   int       `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+		CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now();index:non-unique"`
+		Region     string    `db:"region" sqac:"nullable:false;default:YYC"`
+		Province   string    `db:"province" sqac:"nullable:false;default:AB"`
+		Country    string    `db:"country" sqac:"nullable:false;default:CA"`
+		NewColumn1 string    `db:"new_column1" sqac:"nullable:false"`
+		NewColumn2 int64     `db:"new_column2" sqac:"nullable:false;default:0"`
+		NewColumn3 float64   `db:"new_column3" sqac:"nullable:false;default:0.0"`
 	}
 
 	err := Handle.CreateTables(Depot{})
@@ -515,14 +515,14 @@ func TestCreateSingleNonUniqueIndexFromModel(t *testing.T) {
 func TestCreateSimpleCompositeIndex(t *testing.T) {
 
 	type Depot struct {
-		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now()"`
-		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
-		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
-		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
-		NewColumn1 string    `db:"new_column1" rgen:"nullable:false"`
-		NewColumn2 int64     `db:"new_column2" rgen:"nullable:false;default:0"`
-		NewColumn3 float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
+		DepotNum   int       `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+		CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now()"`
+		Region     string    `db:"region" sqac:"nullable:false;default:YYC"`
+		Province   string    `db:"province" sqac:"nullable:false;default:AB"`
+		Country    string    `db:"country" sqac:"nullable:false;default:CA"`
+		NewColumn1 string    `db:"new_column1" sqac:"nullable:false"`
+		NewColumn2 int64     `db:"new_column2" sqac:"nullable:false;default:0"`
+		NewColumn3 float64   `db:"new_column3" sqac:"nullable:false;default:0.0"`
 	}
 
 	err := Handle.CreateTables(Depot{})
@@ -556,14 +556,14 @@ func TestCreateSimpleCompositeIndex(t *testing.T) {
 func TestExistsIndexPositive(t *testing.T) {
 
 	type Depot struct {
-		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
-		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
-		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
-		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
-		NewColumn1 string    `db:"new_column1" rgen:"nullable:false"`
-		NewColumn2 int64     `db:"new_column2" rgen:"nullable:false;default:0"`
-		NewColumn3 float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
+		DepotNum   int       `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+		CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now();index:unique"`
+		Region     string    `db:"region" sqac:"nullable:false;default:YYC"`
+		Province   string    `db:"province" sqac:"nullable:false;default:AB"`
+		Country    string    `db:"country" sqac:"nullable:false;default:CA"`
+		NewColumn1 string    `db:"new_column1" sqac:"nullable:false"`
+		NewColumn2 int64     `db:"new_column2" sqac:"nullable:false;default:0"`
+		NewColumn3 float64   `db:"new_column3" sqac:"nullable:false;default:0.0"`
 	}
 
 	// determine the table name as per the table creation logic
@@ -588,14 +588,14 @@ func TestExistsIndexPositive(t *testing.T) {
 func TestDropIndex(t *testing.T) {
 
 	type Depot struct {
-		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
-		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
-		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
-		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
-		NewColumn1 string    `db:"new_column1" rgen:"nullable:false"`
-		NewColumn2 int64     `db:"new_column2" rgen:"nullable:false;default:0"`
-		NewColumn3 float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
+		DepotNum   int       `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+		CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now();index:unique"`
+		Region     string    `db:"region" sqac:"nullable:false;default:YYC"`
+		Province   string    `db:"province" sqac:"nullable:false;default:AB"`
+		Country    string    `db:"country" sqac:"nullable:false;default:CA"`
+		NewColumn1 string    `db:"new_column1" sqac:"nullable:false"`
+		NewColumn2 int64     `db:"new_column2" sqac:"nullable:false;default:0"`
+		NewColumn3 float64   `db:"new_column3" sqac:"nullable:false;default:0.0"`
 	}
 
 	// ensure table depot exists
@@ -634,14 +634,14 @@ func TestDropIndex(t *testing.T) {
 func TestCreateCompositeIndexFromModel(t *testing.T) {
 
 	type Depot struct {
-		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now()"`
-		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
-		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
-		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
-		NewColumn1 string    `db:"new_column1" rgen:"nullable:false;index:idx_depot_new_column1_new_column2"`
-		NewColumn2 int64     `db:"new_column2" rgen:"nullable:false;default:0;index:idx_depot_new_column1_new_column2"`
-		NewColumn3 float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
+		DepotNum   int       `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+		CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now()"`
+		Region     string    `db:"region" sqac:"nullable:false;default:YYC"`
+		Province   string    `db:"province" sqac:"nullable:false;default:AB"`
+		Country    string    `db:"country" sqac:"nullable:false;default:CA"`
+		NewColumn1 string    `db:"new_column1" sqac:"nullable:false;index:idx_depot_new_column1_new_column2"`
+		NewColumn2 int64     `db:"new_column2" sqac:"nullable:false;default:0;index:idx_depot_new_column1_new_column2"`
+		NewColumn3 float64   `db:"new_column3" sqac:"nullable:false;default:0.0"`
 	}
 
 	err := Handle.CreateTables(Depot{})
@@ -678,11 +678,11 @@ func TestCreateCompositeIndexFromModel(t *testing.T) {
 func TestExistsColumn(t *testing.T) {
 
 	type Depot struct {
-		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
-		Region     string    `db:"region" rgen:"nullable:false;default:YYC;index:non-unique"`
-		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
-		Country    string    `db:"country" rgen:"nullable:true;default:CA"`
+		DepotNum   int       `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+		CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now();index:unique"`
+		Region     string    `db:"region" sqac:"nullable:false;default:YYC;index:non-unique"`
+		Province   string    `db:"province" sqac:"nullable:false;default:AB"`
+		Country    string    `db:"country" sqac:"nullable:true;default:CA"`
 	}
 
 	// determine the table name as per the table creation logic
@@ -714,21 +714,21 @@ func TestExistsColumn(t *testing.T) {
 //
 // Alter table depot via AlterTables(i ...interface{})
 // Add three columns:
-//  - NewColumn1 string    `db:"new_column1" rgen:"nullable:false"`
-//	- NewColumn2 int64     `db:"new_column2" rgen:"nullable:false;default:0"`
-//  - NewColumn3 float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
+//  - NewColumn1 string    `db:"new_column1" sqac:"nullable:false"`
+//	- NewColumn2 int64     `db:"new_column2" sqac:"nullable:false;default:0"`
+//  - NewColumn3 float64   `db:"new_column3" sqac:"nullable:false;default:0.0"`
 //
 func TestAlterTables(t *testing.T) {
 
 	type Depot struct {
-		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
-		Region     string    `db:"region" rgen:"nullable:false;default:YYC;index:non-unique"`
-		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
-		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
-		NewColumn1 string    `db:"new_column1" rgen:"nullable:false;default:nc1_default;index:non-unique"`
-		NewColumn2 int64     `db:"new_column2" rgen:"nullable:false;default:0;index:idx_new_column2_new_column3"`
-		NewColumn3 float64   `db:"new_column3" rgen:"nullable:false;default:0.0;index:idx_new_column2_new_column3"`
+		DepotNum   int       `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+		CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now();index:unique"`
+		Region     string    `db:"region" sqac:"nullable:false;default:YYC;index:non-unique"`
+		Province   string    `db:"province" sqac:"nullable:false;default:AB"`
+		Country    string    `db:"country" sqac:"nullable:false;default:CA"`
+		NewColumn1 string    `db:"new_column1" sqac:"nullable:false;default:nc1_default;index:non-unique"`
+		NewColumn2 int64     `db:"new_column2" sqac:"nullable:false;default:0;index:idx_new_column2_new_column3"`
+		NewColumn3 float64   `db:"new_column3" sqac:"nullable:false;default:0.0;index:idx_new_column2_new_column3"`
 	}
 
 	err := Handle.AlterTables(Depot{})
@@ -774,12 +774,12 @@ func TestAlterTables(t *testing.T) {
 func TestDestructiveResetTables(t *testing.T) {
 
 	type Depot struct {
-		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
-		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
-		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
-		Country    string    `db:"country" rgen:"nullable:false;default:CA"`
-		Active     bool      `db:"active" rgen:"nullable:false;default:true"`
+		DepotNum   int       `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+		CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now();index:unique"`
+		Region     string    `db:"region" sqac:"nullable:false;default:YYC"`
+		Province   string    `db:"province" sqac:"nullable:false;default:AB"`
+		Country    string    `db:"country" sqac:"nullable:false;default:CA"`
+		Active     bool      `db:"active" sqac:"nullable:false;default:true"`
 	}
 
 	// determine the table names
@@ -858,9 +858,9 @@ func TestDestructiveResetTables(t *testing.T) {
 func TestQueryOps(t *testing.T) {
 
 	type QOps struct {
-		OpNum       int       `db:"op_num" rgen:"primary_key:inc;start:70000000"`
-		CreateDate  time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
-		Description string    `db:"description" rgen:"nullable:false;default:initial"`
+		OpNum       int       `db:"op_num" sqac:"primary_key:inc;start:70000000"`
+		CreateDate  time.Time `db:"create_date" sqac:"nullable:false;default:now();index:unique"`
+		Description string    `db:"description" sqac:"nullable:false;default:initial"`
 	}
 
 	// create table qops
@@ -1060,16 +1060,16 @@ func TestQueryOps(t *testing.T) {
 func TestNullableValues(t *testing.T) {
 
 	type Depot struct {
-		DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
-		Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
-		MemOnly    string    `db:"mem_only" rgen:"-"`
-		Province   string    `db:"province" rgen:"nullable:false;default:AB"`
-		Country    string    `db:"country" rgen:"nullable:true;"`    // nullable
-		NewColumn1 string    `db:"new_column1" rgen:"nullable:true"` // nullable
-		NewColumn2 int64     `db:"new_column2" rgen:"nullable:true"` // nullable
-		NewColumn3 float64   `db:"new_column3" rgen:"nullable:true"` // nullable
-		Active     bool      `db:"active" rgen:"nullable:true"`      // nullable
+		DepotNum   int       `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+		CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now();index:unique"`
+		Region     string    `db:"region" sqac:"nullable:false;default:YYC"`
+		MemOnly    string    `db:"mem_only" sqac:"-"`
+		Province   string    `db:"province" sqac:"nullable:false;default:AB"`
+		Country    string    `db:"country" sqac:"nullable:true;"`    // nullable
+		NewColumn1 string    `db:"new_column1" sqac:"nullable:true"` // nullable
+		NewColumn2 int64     `db:"new_column2" sqac:"nullable:true"` // nullable
+		NewColumn3 float64   `db:"new_column3" sqac:"nullable:true"` // nullable
+		Active     bool      `db:"active" sqac:"nullable:true"`      // nullable
 	}
 
 	// create table depot
@@ -1121,16 +1121,16 @@ func TestNullableValues(t *testing.T) {
 	// illustrate different ways of handling the db-nulls. A parallel
 	// Depot struct is defined:
 	type DepotN struct {
-		DepotNum   int             `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		CreateDate time.Time       `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
-		Region     string          `db:"region" rgen:"nullable:false;default:YYC"`
-		MemOnly    string          `db:"mem_only" rgen:"-"`
-		Province   string          `db:"province" rgen:"nullable:false;default:AB"`
-		Country    sql.NullString  `db:"country" rgen:"nullable:true;"`
-		NewColumn1 *string         `db:"new_column1" rgen:"nullable:true"`
-		NewColumn2 sql.NullInt64   `db:"new_column2" rgen:"nullable:true"`
-		NewColumn3 sql.NullFloat64 `db:"new_column3" rgen:"nullable:true"`
-		Active     sql.NullBool    `db:"active" rgen:"nullable:true"`
+		DepotNum   int             `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+		CreateDate time.Time       `db:"create_date" sqac:"nullable:false;default:now();index:unique"`
+		Region     string          `db:"region" sqac:"nullable:false;default:YYC"`
+		MemOnly    string          `db:"mem_only" sqac:"-"`
+		Province   string          `db:"province" sqac:"nullable:false;default:AB"`
+		Country    sql.NullString  `db:"country" sqac:"nullable:true;"`
+		NewColumn1 *string         `db:"new_column1" sqac:"nullable:true"`
+		NewColumn2 sql.NullInt64   `db:"new_column2" sqac:"nullable:true"`
+		NewColumn3 sql.NullFloat64 `db:"new_column3" sqac:"nullable:true"`
+		Active     sql.NullBool    `db:"active" sqac:"nullable:true"`
 	}
 
 	// read records from db-table depot into a DepotN struct
@@ -1183,19 +1183,19 @@ func TestNullableValues(t *testing.T) {
 // TestNonPersistentColumn
 //
 // Test the non-persistent column support, indicated
-// in the RgenTags by Name == "-" and Value = "".
+// in the SqacTags by Name == "-" and Value = "".
 func TestNonPersistentColumn(t *testing.T) {
 
 	type Depot struct {
-		DepotNum            int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		CreateDate          time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
-		Region              string    `db:"region" rgen:"nullable:false;default:YYC"`
-		Province            string    `db:"province" rgen:"nullable:false;default:AB"`
-		Country             string    `db:"country" rgen:"nullable:true;default:CA"`
-		NewColumn1          string    `db:"new_column1" rgen:"nullable:false"`
-		NewColumn2          int64     `db:"new_column2" rgen:"nullable:false"`
-		NewColumn3          float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
-		NonPersistentColumn string    `db:"non_persistent_column" rgen:"-"`
+		DepotNum            int       `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+		CreateDate          time.Time `db:"create_date" sqac:"nullable:false;default:now();index:unique"`
+		Region              string    `db:"region" sqac:"nullable:false;default:YYC"`
+		Province            string    `db:"province" sqac:"nullable:false;default:AB"`
+		Country             string    `db:"country" sqac:"nullable:true;default:CA"`
+		NewColumn1          string    `db:"new_column1" sqac:"nullable:false"`
+		NewColumn2          int64     `db:"new_column2" sqac:"nullable:false"`
+		NewColumn3          float64   `db:"new_column3" sqac:"nullable:false;default:0.0"`
+		NonPersistentColumn string    `db:"non_persistent_column" sqac:"-"`
 	}
 
 	// drop table depot
@@ -1241,17 +1241,17 @@ func TestNonPersistentColumn(t *testing.T) {
 func TestTimeSimple(t *testing.T) {
 
 	type DepotTime struct {
-		DepotNum            int        `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		DepotBay            int        `db:"depot_bay" rgen:"primary_key:"`
-		Region              string     `db:"region" rgen:"nullable:false;defalt:YYC"`
-		TimeColUTC          time.Time  `db:"time_col_utc" rgen:"nullable:false"`
-		TimeNowLocal        time.Time  `db:"time_now_local" rgen:"nullable:false"`
-		TimeNowUTC          time.Time  `db:"time_now_utc" rgen:"nullable:false;default:now()"`
-		TimeColNowDflt      time.Time  `db:"time_col_now_dflt" rgen:"nullable:false;default:now()"`
-		TimeColEot          time.Time  `db:"time_col_eot" rgen:"nullable:false;default:eot"`
-		TimeNull            *time.Time `db:"time_null" rgen:"nullable:true"`
-		TimeNotNull         *time.Time `db:"time_not_null" rgen:"nullable:true"`
-		TimeNullWithDefault *time.Time `db:"time_null_with_default" rgen:"nullable:true;default:eot"`
+		DepotNum            int        `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+		DepotBay            int        `db:"depot_bay" sqac:"primary_key:"`
+		Region              string     `db:"region" sqac:"nullable:false;defalt:YYC"`
+		TimeColUTC          time.Time  `db:"time_col_utc" sqac:"nullable:false"`
+		TimeNowLocal        time.Time  `db:"time_now_local" sqac:"nullable:false"`
+		TimeNowUTC          time.Time  `db:"time_now_utc" sqac:"nullable:false;default:now()"`
+		TimeColNowDflt      time.Time  `db:"time_col_now_dflt" sqac:"nullable:false;default:now()"`
+		TimeColEot          time.Time  `db:"time_col_eot" sqac:"nullable:false;default:eot"`
+		TimeNull            *time.Time `db:"time_null" sqac:"nullable:true"`
+		TimeNotNull         *time.Time `db:"time_not_null" sqac:"nullable:true"`
+		TimeNullWithDefault *time.Time `db:"time_null_with_default" sqac:"nullable:true;default:eot"`
 	}
 
 	// determine the table names as per the table creation logic
@@ -1324,24 +1324,24 @@ func TestTimeSimple(t *testing.T) {
 func TestCRUDCreate(t *testing.T) {
 
 	type DepotCreate struct {
-		DepotNum            int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		DepotBay            int       `db:"depot_bay" rgen:"primary_key:"`
-		CreateDate          time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
-		Region              string    `db:"region" rgen:"nullable:false;default:YYC"`
-		Province            string    `db:"province" rgen:"nullable:false;default:AB"`
-		Country             string    `db:"country" rgen:"nullable:true;default:CA"`
-		NewColumn1          string    `db:"new_column1" rgen:"nullable:false"`
-		NewColumn2          int64     `db:"new_column2" rgen:"nullable:false"`
-		NewColumn3          float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
-		IntDefaultZero      int       `db:"int_default_zero" rgen:"nullable:false;default:0"`
-		IntDefault42        int       `db:"int_default42" rgen:"nullable:false;default:42"`
-		FldOne              int       `db:"fld_one" rgen:"nullable:false;default:0;index:idx_depotcreate_fld_one_fld_two"`
-		FldTwo              int       `db:"fld_two" rgen:"nullable:false;default:0;index:idx_depotcreate_fld_one_fld_two"`
-		TimeCol             time.Time `db:"time_col" rgen:"nullable:false"`
-		TimeColNow          time.Time `db:"time_col_now" rgen:"nullable:false;default:now()"`
-		TimeColEot          time.Time `db:"time_col_eot" rgen:"nullable:false;default:eot"`
-		IntZeroValNoDefault int       `db:"int_zero_val_no_default" rgen:"nullable:false"`
-		NonPersistentColumn string    `db:"non_persistent_column" rgen:"-"`
+		DepotNum            int       `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+		DepotBay            int       `db:"depot_bay" sqac:"primary_key:"`
+		CreateDate          time.Time `db:"create_date" sqac:"nullable:false;default:now();index:unique"`
+		Region              string    `db:"region" sqac:"nullable:false;default:YYC"`
+		Province            string    `db:"province" sqac:"nullable:false;default:AB"`
+		Country             string    `db:"country" sqac:"nullable:true;default:CA"`
+		NewColumn1          string    `db:"new_column1" sqac:"nullable:false"`
+		NewColumn2          int64     `db:"new_column2" sqac:"nullable:false"`
+		NewColumn3          float64   `db:"new_column3" sqac:"nullable:false;default:0.0"`
+		IntDefaultZero      int       `db:"int_default_zero" sqac:"nullable:false;default:0"`
+		IntDefault42        int       `db:"int_default42" sqac:"nullable:false;default:42"`
+		FldOne              int       `db:"fld_one" sqac:"nullable:false;default:0;index:idx_depotcreate_fld_one_fld_two"`
+		FldTwo              int       `db:"fld_two" sqac:"nullable:false;default:0;index:idx_depotcreate_fld_one_fld_two"`
+		TimeCol             time.Time `db:"time_col" sqac:"nullable:false"`
+		TimeColNow          time.Time `db:"time_col_now" sqac:"nullable:false;default:now()"`
+		TimeColEot          time.Time `db:"time_col_eot" sqac:"nullable:false;default:eot"`
+		IntZeroValNoDefault int       `db:"int_zero_val_no_default" sqac:"nullable:false"`
+		NonPersistentColumn string    `db:"non_persistent_column" sqac:"-"`
 	}
 
 	// determine the table names as per the table creation logic
@@ -1389,20 +1389,20 @@ func TestCRUDCreate(t *testing.T) {
 func TestCRUDUpdate(t *testing.T) {
 
 	type Depot struct {
-		DepotNum             int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		DepotBay             int       `db:"depot_bay" rgen:"primary_key:"`
-		TestKeyDate          time.Time `db:"test_key_date" rgen:"primary_key:;default:now()"`
-		CreateDate           time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
-		Region               string    `db:"region" rgen:"nullable:false;default:YYC"`
-		Province             string    `db:"province" rgen:"nullable:false;default:AB"`
-		Country              string    `db:"country" rgen:"nullable:true;default:CA"`
-		NewColumn1           string    `db:"new_column1" rgen:"nullable:false"`
-		NewColumn2           int64     `db:"new_column2" rgen:"nullable:false"`
-		NewColumn3           float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
-		FldOne               int       `db:"fld_one" rgen:"nullable:false;default:0;index:idx_depot_fld_one_fld_two"`
-		FldTwo               int       `db:"fld_two" rgen:"nullable:false;default:0;index:idx_depot_fld_one_fld_two"`
-		NonPersistentColumn  string    `db:"non_persistent_column" rgen:"-"`
-		NonPersistentColumn2 string    `db:"non_persistent_column" rgen:"-"`
+		DepotNum             int       `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+		DepotBay             int       `db:"depot_bay" sqac:"primary_key:"`
+		TestKeyDate          time.Time `db:"test_key_date" sqac:"primary_key:;default:now()"`
+		CreateDate           time.Time `db:"create_date" sqac:"nullable:false;default:now();index:unique"`
+		Region               string    `db:"region" sqac:"nullable:false;default:YYC"`
+		Province             string    `db:"province" sqac:"nullable:false;default:AB"`
+		Country              string    `db:"country" sqac:"nullable:true;default:CA"`
+		NewColumn1           string    `db:"new_column1" sqac:"nullable:false"`
+		NewColumn2           int64     `db:"new_column2" sqac:"nullable:false"`
+		NewColumn3           float64   `db:"new_column3" sqac:"nullable:false;default:0.0"`
+		FldOne               int       `db:"fld_one" sqac:"nullable:false;default:0;index:idx_depot_fld_one_fld_two"`
+		FldTwo               int       `db:"fld_two" sqac:"nullable:false;default:0;index:idx_depot_fld_one_fld_two"`
+		NonPersistentColumn  string    `db:"non_persistent_column" sqac:"-"`
+		NonPersistentColumn2 string    `db:"non_persistent_column" sqac:"-"`
 	}
 
 	// determine the table names as per the table creation logic
@@ -1471,21 +1471,21 @@ func TestCRUDUpdate(t *testing.T) {
 func TestCRUDDelete(t *testing.T) {
 
 	type DepotDelete struct {
-		DepotNum            int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		DepotBay            int       `db:"depot_bay" rgen:"primary_key:"`
-		CreateDate          time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
-		Region              string    `db:"region" rgen:"nullable:false;default:YYC"`
-		Province            string    `db:"province" rgen:"nullable:false;default:AB"`
-		Country             string    `db:"country" rgen:"nullable:true;default:CA"`
-		NewColumn1          string    `db:"new_column1" rgen:"nullable:false"`
-		NewColumn2          int64     `db:"new_column2" rgen:"nullable:false"`
-		NewColumn3          float64   `db:"new_column3" rgen:"nullable:false;default:0.0"`
-		IntDefaultZero      int       `db:"int_default_zero" rgen:"nullable:false;default:0"`
-		IntDefault42        int       `db:"int_default42" rgen:"nullable:false;default:42"`
-		IntZeroValNoDefault int       `db:"int_zero_val_no_default" rgen:"nullable:false"`
-		FldOne              int       `db:"fld_one" rgen:"nullable:false;default:0;index:idx_depotdelete_fld_one_fld_two"`
-		FldTwo              int       `db:"fld_two" rgen:"nullable:false;default:0;index:idx_depotdelete_fld_one_fld_two"`
-		NonPersistentColumn string    `db:"non_persistent_column" rgen:"-"`
+		DepotNum            int       `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+		DepotBay            int       `db:"depot_bay" sqac:"primary_key:"`
+		CreateDate          time.Time `db:"create_date" sqac:"nullable:false;default:now();index:unique"`
+		Region              string    `db:"region" sqac:"nullable:false;default:YYC"`
+		Province            string    `db:"province" sqac:"nullable:false;default:AB"`
+		Country             string    `db:"country" sqac:"nullable:true;default:CA"`
+		NewColumn1          string    `db:"new_column1" sqac:"nullable:false"`
+		NewColumn2          int64     `db:"new_column2" sqac:"nullable:false"`
+		NewColumn3          float64   `db:"new_column3" sqac:"nullable:false;default:0.0"`
+		IntDefaultZero      int       `db:"int_default_zero" sqac:"nullable:false;default:0"`
+		IntDefault42        int       `db:"int_default42" sqac:"nullable:false;default:42"`
+		IntZeroValNoDefault int       `db:"int_zero_val_no_default" sqac:"nullable:false"`
+		FldOne              int       `db:"fld_one" sqac:"nullable:false;default:0;index:idx_depotdelete_fld_one_fld_two"`
+		FldTwo              int       `db:"fld_two" sqac:"nullable:false;default:0;index:idx_depotdelete_fld_one_fld_two"`
+		NonPersistentColumn string    `db:"non_persistent_column" sqac:"-"`
 	}
 
 	// determine the table names as per the table creation logic
@@ -1528,21 +1528,21 @@ func TestCRUDDelete(t *testing.T) {
 func TestCRUDGet(t *testing.T) {
 
 	type DepotGet struct {
-		DepotNum            int       `json:"depot_num" db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-		DepotBay            int       `json:"depot_bay" db:"depot_bay" rgen:"primary_key:"`
-		CreateDate          time.Time `json:"create_date" db:"create_date" rgen:"nullable:false;default:now();index:unique"`
-		Region              string    `json:"region" db:"region" rgen:"nullable:false;default:YYC"`
-		Province            string    `json:"province" db:"province" rgen:"nullable:false;default:AB"`
-		Country             string    `json:"country" db:"country" rgen:"nullable:true;default:CA"`
-		NewColumn1          string    `json:"new_column1" db:"new_column1" rgen:"nullable:false"`
-		NewColumn2          int64     `json:"new_column2" db:"new_column2" rgen:"nullable:false"`
-		NewColumn3          float64   `json:"new_column3" db:"new_column3" rgen:"nullable:false;default:0.0"`
-		IntDefaultZero      int       `json:"int_default_zero" db:"int_default_zero" rgen:"nullable:false;default:0"`
-		IntDefault42        int       `json:"int_default42" db:"int_default42" rgen:"nullable:false;default:42"`
-		FldOne              int       `json:"fld_one" db:"fld_one" rgen:"nullable:false;default:0;index:idx_depotget_fld_one_fld_two"`
-		FldTwo              int       `json:"fld_two" db:"fld_two" rgen:"nullable:false;default:0;index:idx_depotget_fld_one_fld_two"`
-		IntZeroValNoDefault int       `json:"int_zero_val_no_default" db:"int_zero_val_no_default" rgen:"nullable:false"`
-		NonPersistentColumn string    `json:"non_persistent_column" db:"non_persistent_column" rgen:"-"`
+		DepotNum            int       `json:"depot_num" db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+		DepotBay            int       `json:"depot_bay" db:"depot_bay" sqac:"primary_key:"`
+		CreateDate          time.Time `json:"create_date" db:"create_date" sqac:"nullable:false;default:now();index:unique"`
+		Region              string    `json:"region" db:"region" sqac:"nullable:false;default:YYC"`
+		Province            string    `json:"province" db:"province" sqac:"nullable:false;default:AB"`
+		Country             string    `json:"country" db:"country" sqac:"nullable:true;default:CA"`
+		NewColumn1          string    `json:"new_column1" db:"new_column1" sqac:"nullable:false"`
+		NewColumn2          int64     `json:"new_column2" db:"new_column2" sqac:"nullable:false"`
+		NewColumn3          float64   `json:"new_column3" db:"new_column3" sqac:"nullable:false;default:0.0"`
+		IntDefaultZero      int       `json:"int_default_zero" db:"int_default_zero" sqac:"nullable:false;default:0"`
+		IntDefault42        int       `json:"int_default42" db:"int_default42" sqac:"nullable:false;default:42"`
+		FldOne              int       `json:"fld_one" db:"fld_one" sqac:"nullable:false;default:0;index:idx_depotget_fld_one_fld_two"`
+		FldTwo              int       `json:"fld_two" db:"fld_two" sqac:"nullable:false;default:0;index:idx_depotget_fld_one_fld_two"`
+		IntZeroValNoDefault int       `json:"int_zero_val_no_default" db:"int_zero_val_no_default" sqac:"nullable:false"`
+		NonPersistentColumn string    `json:"non_persistent_column" db:"non_persistent_column" sqac:"-"`
 	}
 
 	// determine the table names as per the table creation logic
@@ -1678,8 +1678,14 @@ func TestCRUDGetEntities2(t *testing.T) {
 	// determine the table names as per the table creation logic
 	tn := common.GetTableName(DepotGetEntities2{})
 
+	// drop table depotgetentities2
+	err := Handle.DropTables(DepotGetEntities2{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
 	// create table depotgetentities
-	err := Handle.CreateTables(DepotGetEntities2{})
+	err = Handle.CreateTables(DepotGetEntities2{})
 	if err != nil {
 		t.Errorf("%s", err.Error())
 	}
@@ -1739,59 +1745,6 @@ func TestCRUDGetEntities2(t *testing.T) {
 
 }
 
-// // TestCRUDGetEntities3
-// //
-// // Test CRUD Get
-// func TestCRUDGetEntities3(t *testing.T) {
-
-// 	// determine the table names as per the table creation logic
-// 	tn := common.GetTableName(DepotGetEntities2{})
-
-// 	// create table depotgetentities
-// 	err := Handle.CreateTables(DepotGetEntities2{})
-// 	if err != nil {
-// 		t.Errorf("%s", err.Error())
-// 	}
-
-// 	// expect that table depotgetentities2 exists
-// 	if !Handle.ExistsTable(tn) {
-// 		t.Errorf("table %s does not exist", tn)
-// 	}
-
-// 	// create a new record via the CRUD Create call
-// 	var depotgetentities = DepotGetEntities2{
-// 		Region:              "YYC",
-// 		NewColumn1:          "string_value",
-// 		NewColumn2:          9999,
-// 		NewColumn3:          45.33,
-// 		NonPersistentColumn: "0123456789abcdef",
-// 	}
-
-// 	err = Handle.Create(&depotgetentities)
-// 	if err != nil {
-// 		t.Errorf(err.Error())
-// 	}
-
-// 	depotgetentities2 := DepotGetEntities2{
-// 		Region:              "YVR",
-// 		NewColumn1:          "vancouver",
-// 		NewColumn2:          8888,
-// 		NewColumn3:          46423.22,
-// 		NonPersistentColumn: "don't save me",
-// 	}
-
-// 	err = Handle.Create(&depotgetentities2)
-// 	if err != nil {
-// 		t.Errorf(err.Error())
-// 	}
-
-// 	// create a slice to read into
-// 	depotRead := []DepotGetEntities2{}
-
-// 	Handle.GetEntities3(depotRead)
-// 	fmt.Println("DEPOTREAD:", depotRead)
-// }
-
 // TestCRUDGetEntities4
 //
 // Test CRUD Get
@@ -1800,8 +1753,14 @@ func TestCRUDGetEntities4(t *testing.T) {
 	// determine the table names as per the table creation logic
 	tn := common.GetTableName(DepotGetEntities2{})
 
+	// drop table depotgetentities
+	err := Handle.DropTables(DepotGetEntities2{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
 	// create table depotgetentities
-	err := Handle.CreateTables(DepotGetEntities2{})
+	err = Handle.CreateTables(DepotGetEntities2{})
 	if err != nil {
 		t.Errorf("%s", err.Error())
 	}

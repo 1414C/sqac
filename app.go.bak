@@ -66,32 +66,32 @@ func main() {
 			var pg dbgen.PostgresFlavor
 
 			type Location struct {
-				Substation int    `db:"substation" rgen:"nullable:false;default:123"`
-				Region     string `db:"region" rgen:"nullable:false;index:non-unique;default:YYC"`
-				Province   string `db:"province" rgen:"nullable:false;default:AB"`
-				Country    string `db:"country" rgen:"nullable:false;default:Canada"`
-				Apples     int    `db:"apples" rgen:"index:idx_apples_oranges"`
-				Oranges    int    `db:"oranges" rgen:"index:idx_apples_oranges;index:idx_oranges_peaches"`
-				Peaches    int    `db:"peaches" rgen:"index:idx_oranges_peaches"`
-				Pears      int    `db:"pears" rgen:"nullable:false;default:0;index:idx_pears_bananas"`
-				Bananas    int    `db:"bananas" rgen:"nullable:false;default:4;index:idx_pears_bananas;index:idx_bananas_grapes"`
-				Grapes     int64  `db:"grapes" rgen:"nullable:false;default:1000000000;index:idx_bananas_grapes"`
+				Substation int    `db:"substation" sqac:"nullable:false;default:123"`
+				Region     string `db:"region" sqac:"nullable:false;index:non-unique;default:YYC"`
+				Province   string `db:"province" sqac:"nullable:false;default:AB"`
+				Country    string `db:"country" sqac:"nullable:false;default:Canada"`
+				Apples     int    `db:"apples" sqac:"index:idx_apples_oranges"`
+				Oranges    int    `db:"oranges" sqac:"index:idx_apples_oranges;index:idx_oranges_peaches"`
+				Peaches    int    `db:"peaches" sqac:"index:idx_oranges_peaches"`
+				Pears      int    `db:"pears" sqac:"nullable:false;default:0;index:idx_pears_bananas"`
+				Bananas    int    `db:"bananas" sqac:"nullable:false;default:4;index:idx_pears_bananas;index:idx_bananas_grapes"`
+				Grapes     int64  `db:"grapes" sqac:"nullable:false;default:1000000000;index:idx_bananas_grapes"`
 			}
 			type Transformer struct {
-				DeviceNum   int       `db:"device_num" rgen:"primary_key:inc;start:60000000"`
-				NodeNum     int       `db:"node_num" rgen:"primary_key:inc;start:50"`
-				MaterialNum int       `db:"material_num" rgen:"primary_key: "`
-				CreateDate  time.Time `db:"create_date" rgen:"nullable:false;default:now()"`
-				Ratio       int       `db:"ratio" rgen:"nullable:false;default:5"`
-				Weight      int       `db:"decimals" rgen:"nullable:false;default:5"`
+				DeviceNum   int       `db:"device_num" sqac:"primary_key:inc;start:60000000"`
+				NodeNum     int       `db:"node_num" sqac:"primary_key:inc;start:50"`
+				MaterialNum int       `db:"material_num" sqac:"primary_key: "`
+				CreateDate  time.Time `db:"create_date" sqac:"nullable:false;default:now()"`
+				Ratio       int       `db:"ratio" sqac:"nullable:false;default:5"`
+				Weight      int       `db:"decimals" sqac:"nullable:false;default:5"`
 				Location
 			}
 			type Depot struct {
-				DepotNum   int       `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-				CreateDate time.Time `db:"create_date" rgen:"nullable:false;default:now();index:unique"`
-				Region     string    `db:"region" rgen:"nullable:false;default:YYC"`
-				Province   string    `db:"province" rgen:"nullable:false;default:AB"`
-				Country    string    `db:"country" rgen:"nullable:true;"`
+				DepotNum   int       `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+				CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now();index:unique"`
+				Region     string    `db:"region" sqac:"nullable:false;default:YYC"`
+				Province   string    `db:"province" sqac:"nullable:false;default:AB"`
+				Country    string    `db:"country" sqac:"nullable:true;"`
 			}
 			pg.DB = db
 			pg.Log = false
@@ -137,24 +137,24 @@ func main() {
 			var pg dbgen.PostgresFlavor
 
 			type Location struct {
-				Substation int    `db:"substation" rgen:"nullable:false;default:123"`
-				Region     string `db:"region" rgen:"nullable:false;default:YYC"`
-				Province   string `db:"province" rgen:"nullable:false;default:AB"`
-				Country    string `db:"country" rgen:"nullable:false;default:Canada"`
+				Substation int    `db:"substation" sqac:"nullable:false;default:123"`
+				Region     string `db:"region" sqac:"nullable:false;default:YYC"`
+				Province   string `db:"province" sqac:"nullable:false;default:AB"`
+				Country    string `db:"country" sqac:"nullable:false;default:Canada"`
 			}
 			type Transformer struct {
-				DeviceNum   int64 `db:"device_num" rgen:"primary_key:inc;start:60000000"`
-				NodeNum     int   `db:"node_num" rgen:"primary_key:inc;start:50"`
-				MaterialNum int   `db:"material_num" rgen:"primary_key: "`
-				Ratio       int   `db:"ratio" rgen:"nullable:false;default:5"`
-				Weight      int   `db:"decimals" rgen:"nullable:false;default:5"`
+				DeviceNum   int64 `db:"device_num" sqac:"primary_key:inc;start:60000000"`
+				NodeNum     int   `db:"node_num" sqac:"primary_key:inc;start:50"`
+				MaterialNum int   `db:"material_num" sqac:"primary_key: "`
+				Ratio       int   `db:"ratio" sqac:"nullable:false;default:5"`
+				Weight      int   `db:"decimals" sqac:"nullable:false;default:5"`
 				Location
 			}
 			type Depot struct {
-				DepotNum int    `db:"depot_num" rgen:"primary_key:inc;start:90000000"`
-				Region   string `db:"region" rgen:"nullable:false;default:YYC"`
-				Province string `db:"province" rgen:"nullable:false;default:AB"`
-				Country  string `db:"country" rgen:"nullable:false;default:Canada"`
+				DepotNum int    `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+				Region   string `db:"region" sqac:"nullable:false;default:YYC"`
+				Province string `db:"province" sqac:"nullable:false;default:AB"`
+				Country  string `db:"country" sqac:"nullable:false;default:Canada"`
 			}
 			pg.DB = db
 			pg.DropTables(Transformer{}, Depot{})

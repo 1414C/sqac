@@ -59,7 +59,7 @@ $ go test -v -db hdb sqac_test.go
 - [ ]Support unique constraines on grouped fields(?)
 - [ ]Other constraints(?)
 - [x]Complete sql/sqlx query/exec wrapper tests
-- [x]Autoincrement fields should be designated as rgen:"primary_key:inc"
+- [x]Autoincrement fields should be designated as sqac:"primary_key:inc"
 - [ ]SQLite stores timestamps as UTC, so clients would need to convert back to the local timezone on a read.
 - [ ]Consider saving all time as UTC
 - [ ]Consider converting all time reads as Local

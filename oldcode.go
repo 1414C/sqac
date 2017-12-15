@@ -71,7 +71,7 @@ func (pf *PostgresFlavor) CreateBak(ent interface{}) error {
 		fmt.Println("value of data in struct for insertion:", v)
 	}
 
-	// what to do with rgen tags
+	// what to do with sqac tags
 	// primary key:inc - do not fill
 	// primary key:""  - do nothing
 	// default - DEFAULT keyword for field
@@ -103,7 +103,7 @@ func (pf *PostgresFlavor) CreateBak(ent interface{}) error {
 		bNullable := false
 
 		// set the field attribute indicators
-		for _, t := range fd.RgenPairs {
+		for _, t := range fd.SqacPairs {
 			switch t.Name {
 			case "primary_key":
 				if t.Value == "inc" {
@@ -285,7 +285,7 @@ func (pf *PostgresFlavor) CreateBak(ent interface{}) error {
 		// db field value from the resultMap.
 		if fv.CanSet() {
 			bBlankField := false
-			np, _ := stype.Field(i).Tag.Lookup("rgen")
+			np, _ := stype.Field(i).Tag.Lookup("sqac")
 			if strings.Contains(np, "-") {
 				bBlankField = true
 			}
@@ -413,7 +413,7 @@ func (pf *PostgresFlavor) UpdateBak(ent interface{}) error {
 		fmt.Println("value of data in struct for update:", v)
 	}
 
-	// what to do with rgen tags
+	// what to do with sqac tags
 	// primary key:inc - do not fill - add to keyList
 	// primary key:""  - do not fill - add to keyList
 	// default - DEFAULT keyword for field
@@ -433,7 +433,7 @@ func (pf *PostgresFlavor) UpdateBak(ent interface{}) error {
 		bNullable := false
 
 		// set the field attribute indicators
-		for _, t := range fd.RgenPairs {
+		for _, t := range fd.SqacPairs {
 			switch t.Name {
 			case "primary_key":
 				if t.Value == "inc" {
@@ -611,7 +611,7 @@ func (pf *PostgresFlavor) UpdateBak(ent interface{}) error {
 		// db field value from the resultMap.
 		if fv.CanSet() {
 			bBlankField := false
-			np, _ := stype.Field(i).Tag.Lookup("rgen")
+			np, _ := stype.Field(i).Tag.Lookup("sqac")
 			if strings.Contains(np, "-") {
 				bBlankField = true
 			}
