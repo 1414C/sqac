@@ -97,12 +97,12 @@ func (pf *PostgresFlavor) CreateTables(i ...interface{}) error {
 
 // buildTableSchema builds a CREATE TABLE schema for the Postgres DB, and
 // returns it to the caller, along with the components determined from
-// the db and rgen struct-tags.  this method is used in CreateTables
+// the db and sqac struct-tags.  this method is used in CreateTables
 // and AlterTables methods.
 func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 
 	pKeys := ""
-	var sequences []common.RgenPair
+	var sequences []common.SqacPair
 	indexes := make(map[string]IndexInfo)
 	tableSchema := fmt.Sprintf("CREATE TABLE %s (", tn)
 
@@ -145,9 +145,9 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 				col.fType = "integer"
 			}
 
-			// read rgen tag pairs and apply
+			// read sqac tag pairs and apply
 			seqName := ""
-			for _, p := range fd.RgenPairs {
+			for _, p := range fd.SqacPairs {
 
 				switch p.Name {
 				case "primary_key":
@@ -170,7 +170,7 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 					}
 					if seqName == "" && start > 0 {
 						seqName = tn + "_" + fd.FName + "_seq"
-						sequences = append(sequences, common.RgenPair{Name: seqName, Value: p.Value})
+						sequences = append(sequences, common.SqacPair{Name: seqName, Value: p.Value})
 					}
 
 				case "default":
@@ -207,7 +207,7 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 		case "string":
 			col.fType = "text"
 
-			for _, p := range fd.RgenPairs {
+			for _, p := range fd.SqacPairs {
 				switch p.Name {
 				case "primary_key":
 					col.fPrimaryKey = "PRIMARY KEY"
@@ -248,7 +248,7 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 		case "float32", "float64":
 			col.fType = "numeric"
 
-			for _, p := range fd.RgenPairs {
+			for _, p := range fd.SqacPairs {
 				switch p.Name {
 				case "primary_key":
 					col.fPrimaryKey = "PRIMARY KEY"
@@ -288,7 +288,7 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 		case "bool":
 			col.fType = "boolean"
 
-			for _, p := range fd.RgenPairs {
+			for _, p := range fd.SqacPairs {
 				switch p.Name {
 				case "primary_key":
 					pKeys = pKeys + fd.FName + ","
@@ -322,7 +322,7 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 		case "time.Time":
 			col.fType = "timestamp with time zone"
 
-			for _, p := range fd.RgenPairs {
+			for _, p := range fd.SqacPairs {
 				switch p.Name {
 				case "primary_key":
 					col.fPrimaryKey = "PRIMARY KEY"
@@ -357,7 +357,7 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 		// not supported default value, use as a primary key, use as an index.
 		case "*time.Time":
 			col.fType = "timestamp with time zone"
-			for _, p := range fd.RgenPairs {
+			for _, p := range fd.SqacPairs {
 				switch p.Name {
 				case "default":
 					if p.Value != "eot" {
@@ -478,7 +478,7 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 			if !pf.ExistsColumn(tn, fd.FName) && fd.NoDB == false {
 
 				colSchema := fmt.Sprintf("ADD COLUMN %s %s", fd.FName, fd.FType)
-				for _, p := range fd.RgenPairs {
+				for _, p := range fd.SqacPairs {
 					switch p.Name {
 					case "primary_key":
 						// abort - adding primary key

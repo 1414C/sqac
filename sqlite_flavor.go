@@ -135,7 +135,7 @@ func (slf *SQLiteFlavor) AlterTables(i ...interface{}) error {
 			if !slf.ExistsColumn(tn, fd.FName) && fd.NoDB == false {
 
 				colSchema := fmt.Sprintf("ALTER TABLE %s ADD COLUMN %s %s", tn, fd.FName, fd.FType)
-				for _, p := range fd.RgenPairs {
+				for _, p := range fd.SqacPairs {
 					switch p.Name {
 					case "primary_key":
 						// abort - adding primary key
@@ -184,13 +184,13 @@ func (slf *SQLiteFlavor) AlterTables(i ...interface{}) error {
 
 // buildTableSchema builds a CREATE TABLE schema for the SQLite DB
 // and returns it to the caller, along with the components determined from
-// the db and rgen struct-tags.  this method is used in CreateTables
+// the db and sqac struct-tags.  this method is used in CreateTables
 // and AlterTables methods.
 func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 
 	qt := slf.GetDBQuote()
 	pKeys := ""
-	var sequences []common.RgenPair
+	var sequences []common.SqacPair
 	indexes := make(map[string]IndexInfo)
 	tableSchema := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s%s%s (", qt, tn, qt)
 
@@ -301,12 +301,12 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 		}
 		fldef[idx].FType = col.fType
 
-		// read rgen tag pairs and apply
+		// read sqac tag pairs and apply
 		seqName := ""
 
 		if !strings.Contains(fd.GoType, "*time.Time") {
 
-			for _, p := range fd.RgenPairs {
+			for _, p := range fd.SqacPairs {
 
 				switch p.Name {
 				case "primary_key":
@@ -337,7 +337,7 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 					}
 					if seqName == "" && start > 0 {
 						seqName = tn
-						sequences = append(sequences, common.RgenPair{Name: seqName, Value: p.Value})
+						sequences = append(sequences, common.SqacPair{Name: seqName, Value: p.Value})
 					}
 
 				case "default":
@@ -398,7 +398,7 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 				}
 			}
 		} else { // *time.Time only supports default directive
-			for _, p := range fd.RgenPairs {
+			for _, p := range fd.SqacPairs {
 				if p.Name == "default" {
 					switch p.Value {
 					case "now()":

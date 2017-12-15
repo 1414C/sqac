@@ -76,7 +76,7 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 		fmt.Println("value of data in struct for insertion:", inf.entValue)
 	}
 
-	// what to do with rgen tags
+	// what to do with sqac tags
 	// primary key:inc - do not fill
 	// primary key:""  - do nothing
 	// default - DEFAULT keyword for field
@@ -110,7 +110,7 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 		bIsNull := false
 
 		// set the field attribute indicators
-		for _, t := range fd.RgenPairs {
+		for _, t := range fd.SqacPairs {
 			switch t.Name {
 			case "primary_key":
 				if t.Value == "inc" {

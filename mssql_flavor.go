@@ -40,11 +40,11 @@ type MSSQLFlavor struct {
 }
 
 // things to deal with:
-// rgen:"primary_key:inc;start:55550000"
-// rgen:"nullable:false"
-// rgen:"default:0"
-// rgen:"index:idx_material_num_serial_num
-// rgen:"index:unique/non-unique"
+// sqac:"primary_key:inc;start:55550000"
+// sqac:"nullable:false"
+// sqac:"default:0"
+// sqac:"index:idx_material_num_serial_num
+// sqac:"index:unique/non-unique"
 // timestamp syntax and functions
 // - pg now() equivalent
 // - pg make_timestamptz(9999, 12, 31, 23, 59, 59.9) equivalent
@@ -128,7 +128,7 @@ func (msf *MSSQLFlavor) AlterTables(i ...interface{}) error {
 			if !msf.ExistsColumn(tn, fd.FName) && fd.NoDB == false {
 
 				colSchema := fmt.Sprintf("%s%s%s %s", qt, fd.FName, qt, fd.FType)
-				for _, p := range fd.RgenPairs {
+				for _, p := range fd.SqacPairs {
 					switch p.Name {
 					case "primary_key":
 						// abort - adding primary key
@@ -190,13 +190,13 @@ func (msf *MSSQLFlavor) AlterTables(i ...interface{}) error {
 
 // buildTableSchema builds a CREATE TABLE schema for the MSSQL DB
 // and returns it to the caller, along with the components determined from
-// the db and rgen struct-tags.  this method is used in CreateTables
+// the db and sqac struct-tags.  this method is used in CreateTables
 // and AlterTables methods.
 func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 
 	qt := msf.GetDBQuote()
 	pKeys := ""
-	var sequences []common.RgenPair
+	var sequences []common.SqacPair
 	indexes := make(map[string]IndexInfo)
 	tableSchema := fmt.Sprintf("CREATE TABLE %s%s%s (", qt, tn, qt)
 
@@ -262,11 +262,11 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 		}
 		fldef[idx].FType = col.fType
 
-		// read rgen tag pairs and apply
+		// read sqac tag pairs and apply
 		seqName := ""
 		if !strings.Contains(fd.GoType, "*time.Time") {
 
-			for _, p := range fd.RgenPairs {
+			for _, p := range fd.SqacPairs {
 
 				switch p.Name {
 				case "primary_key":
@@ -285,7 +285,7 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 					}
 					if seqName == "" && start > 0 {
 						seqName = tn
-						sequences = append(sequences, common.RgenPair{Name: seqName, Value: p.Value})
+						sequences = append(sequences, common.SqacPair{Name: seqName, Value: p.Value})
 					}
 
 				case "default":
@@ -348,7 +348,7 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 				}
 			}
 		} else { // *time.Time only supports default directive
-			for _, p := range fd.RgenPairs {
+			for _, p := range fd.SqacPairs {
 				if p.Name == "default" {
 					switch p.Value {
 					case "now()":

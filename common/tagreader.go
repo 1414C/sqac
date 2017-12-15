@@ -8,8 +8,8 @@ import (
 	"github.com/1414C/sqlxtest/dbgen/common"
 )
 
-// RgenPair holds name-value-pairs for db field attributes
-type RgenPair struct {
+// SqacPair holds name-value-pairs for db field attributes
+type SqacPair struct {
 	Name  string
 	Value string
 }
@@ -22,10 +22,10 @@ type FieldDef struct {
 	GoType      string
 	UnderGoType string // underlying go-type (strip *)
 	NoDB        bool
-	RgenPairs   []RgenPair
+	SqacPairs   []SqacPair
 }
 
-// TagReader reads the `db:`, `rgen:` and (maybe)`sql:` tags and returns
+// TagReader reads the `db:`, `sqac:` and (maybe)`sql:` tags and returns
 // an array of type FieldDef.
 func TagReader(i interface{}, t reflect.Type) (fd []FieldDef, err error) {
 
@@ -60,11 +60,11 @@ func TagReader(i interface{}, t reflect.Type) (fd []FieldDef, err error) {
 
 			// get the reflection.Type of the field:
 			// for example: exp.Location
-			// and then get the db: and rgen: tags
+			// and then get the db: and sqac: tags
 			ftr := t.Field(i).Type
 			// for z := 0; z < ftr.NumField(); z++ {
 			// 	fmt.Println("db:", ftr.Field(z).Tag.Get("db"))
-			// 	fmt.Println("rgen:", ftr.Field(z).Tag.Get("rgen"))
+			// 	fmt.Println("sqac:", ftr.Field(z).Tag.Get("sqac"))
 			// }
 
 			// recursively call the TagReader(interface{}, reflect.Type)
@@ -77,7 +77,7 @@ func TagReader(i interface{}, t reflect.Type) (fd []FieldDef, err error) {
 		}
 
 		var fldDef FieldDef
-		fldDef.RgenPairs = nil
+		fldDef.SqacPairs = nil
 
 		// fldDef.FName should be the same as: t.Field(i).Tag.Get("db")
 		// based on the common use of the CamelToSnake function in the
@@ -89,32 +89,32 @@ func TagReader(i interface{}, t reflect.Type) (fd []FieldDef, err error) {
 		fldDef.UnderGoType = ftu // underlying type of pointer
 
 		// get the other field-level db attributes
-		rgenTag := t.Field(i).Tag.Get("rgen")
-		if rgenTag != "" {
-			rgenTags := strings.Split(rgenTag, ";")
-			for k := range rgenTags {
-				rgenVars := strings.Split(rgenTags[k], ":")
-				switch len(rgenVars) {
+		sqacTag := t.Field(i).Tag.Get("sqac")
+		if sqacTag != "" {
+			sqacTags := strings.Split(sqacTag, ";")
+			for k := range sqacTags {
+				sqacVars := strings.Split(sqacTags[k], ":")
+				switch len(sqacVars) {
 				case 2:
-					p := RgenPair{
-						Name:  rgenVars[0],
-						Value: rgenVars[1],
+					p := SqacPair{
+						Name:  sqacVars[0],
+						Value: sqacVars[1],
 					}
-					fldDef.RgenPairs = append(fldDef.RgenPairs, p)
+					fldDef.SqacPairs = append(fldDef.SqacPairs, p)
 					fldDef.NoDB = false
-					rgenVars = nil
+					sqacVars = nil
 				case 1:
-					if rgenVars[0] == "-" {
+					if sqacVars[0] == "-" {
 						fldDef.NoDB = true
 					}
 				}
-				// if len(rgenVars) == 2 {
-				// 	p := RgenPair{
-				// 		Name:  rgenVars[0],
-				// 		Value: rgenVars[1],
+				// if len(sqacVars) == 2 {
+				// 	p := SqacPair{
+				// 		Name:  sqacVars[0],
+				// 		Value: sqacVars[1],
 				// 	}
-				// 	fldDef.RgenPairs = append(fldDef.RgenPairs, p)
-				// 	rgenVars = nil
+				// 	fldDef.SqacPairs = append(fldDef.SqacPairs, p)
+				// 	sqacVars = nil
 				// } else {
 
 				// }

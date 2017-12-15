@@ -11,14 +11,14 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// IndexInfo contains index definitions as read from the rgen:"index" tags
+// IndexInfo contains index definitions as read from the sqac:"index" tags
 type IndexInfo struct {
 	TableName   string
 	Unique      bool
 	IndexFields []string
 }
 
-// ColComponents is used to capture the field properties from rgen: tags
+// ColComponents is used to capture the field properties from sqac: tags
 // during table creation and table alteration activities.
 type ColComponents struct {
 	fName             string
@@ -36,7 +36,7 @@ type ColComponents struct {
 type TblComponents struct {
 	tblSchema string
 	flDef     []common.FieldDef
-	seq       []common.RgenPair
+	seq       []common.SqacPair
 	ind       map[string]IndexInfo
 	pk        string
 	err       error
@@ -61,7 +61,7 @@ func (tc *TblComponents) Log() {
 	fmt.Println()
 	for _, v := range tc.flDef {
 		fmt.Printf("FIELD DEF: fname:%s, ftype:%s, gotype:%s ,nodb:%v\n", v.FName, v.FType, v.GoType, v.NoDB)
-		for _, p := range v.RgenPairs {
+		for _, p := range v.SqacPairs {
 			fmt.Printf("FIELD PROPERTY: %s, %v\n", p.Name, p.Value)
 		}
 		fmt.Println("------")
@@ -111,7 +111,7 @@ type PublicDB interface {
 
 	GetRelations(tn string) []string
 
-	// i=db/rgen tagged go struct-type
+	// i=db/sqac tagged go struct-type
 	CreateTables(i ...interface{}) error
 	DropTables(i ...interface{}) error
 	AlterTables(i ...interface{}) error
@@ -169,7 +169,6 @@ type PublicDB interface {
 	GetEntity(ent interface{}) error // pass ptr to type containing key information
 	GetEntities(ents interface{}) (interface{}, error)
 	GetEntities2(ge GetEnt) error
-	GetEntities3(ents interface{})
 	GetEntities4(ents interface{})
 }
 
@@ -915,7 +914,7 @@ func (bf *BaseFlavor) GetEntities(ents interface{}) (interface{}, error) {
 // on the internal implementation of GetEnt.  GetEnt
 // exposes a single method (Exec) to execute the request.
 // All this because go can only go so far with meta-type
-// programming.  GetEntities2 is used in the rgen program.
+// programming.  GetEntities2 is used in the sqac program.
 func (bf *BaseFlavor) GetEntities2(ge GetEnt) error {
 
 	// Exec() should contain whatever SQL related code

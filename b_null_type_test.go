@@ -9,15 +9,15 @@ import "github.com/1414C/sqac/common"
 func TestNullString(t *testing.T) {
 
 	type NString struct {
-		NSKey                   int       `db:"ns_key" rgen:"primary_key:inc"`
-		CreateDate              time.Time `db:"create_date" rgen:"nullable:false;default:now();"`
-		StringDflt              string    `db:"string_dflt" rgen:"nullable:false;default:dflt_value"`
-		StringDfltWithValue     string    `db:"string_dflt_with_value" rgen:"nullable:false;default:dflt_value2"`
-		StringWithValue         string    `db:"string_with_value" rgen:"nullable:false"`
-		NullStringDflt          *string   `db:"null_string_dflt" rgen:"nullable:true;default:dflt_value_for_nullable"`
-		NullStringDfltWithValue *string   `db:"null_string_dflt_with_value" rgen:"nullable:true;default:dflt_value_for_nullable2"`
-		NullStringWithValue     *string   `db:"null_string_with_value" rgen:"nullable:true"`
-		NullString              *string   `db:"null_string" rgen:"nullable:true"`
+		NSKey                   int       `db:"ns_key" sqac:"primary_key:inc"`
+		CreateDate              time.Time `db:"create_date" sqac:"nullable:false;default:now();"`
+		StringDflt              string    `db:"string_dflt" sqac:"nullable:false;default:dflt_value"`
+		StringDfltWithValue     string    `db:"string_dflt_with_value" sqac:"nullable:false;default:dflt_value2"`
+		StringWithValue         string    `db:"string_with_value" sqac:"nullable:false"`
+		NullStringDflt          *string   `db:"null_string_dflt" sqac:"nullable:true;default:dflt_value_for_nullable"`
+		NullStringDfltWithValue *string   `db:"null_string_dflt_with_value" sqac:"nullable:true;default:dflt_value_for_nullable2"`
+		NullStringWithValue     *string   `db:"null_string_with_value" sqac:"nullable:true"`
+		NullString              *string   `db:"null_string" sqac:"nullable:true"`
 	}
 
 	// create table if requied
@@ -115,15 +115,15 @@ func TestNullString(t *testing.T) {
 func TestNullInt(t *testing.T) {
 
 	type NInt struct {
-		NIKey                int       `db:"ni_key" rgen:"primary_key:inc"`
-		CreateDate           time.Time `db:"create_date" rgen:"nullable:false;default:now();"`
-		IntDflt              int       `db:"int_dflt" rgen:"nullable:false;default:1111"`
-		IntDfltWithValue     int       `db:"int_dflt_with_value" rgen:"nullable:false;default:2222"`
-		IntWithValue         int       `db:"int_with_value" rgen:"nullable:false"`
-		NullIntDflt          *int      `db:"null_int_dflt" rgen:"nullable:true;default:5555"`
-		NullIntDfltWithValue *int      `db:"null_int_dflt_with_value" rgen:"nullable:true;default:6666"`
-		NullIntWithValue     *int      `db:"null_int_with_value" rgen:"nullable:true"`
-		NullInt              *int      `db:"null_int" rgen:"nullable:true"`
+		NIKey                int       `db:"ni_key" sqac:"primary_key:inc"`
+		CreateDate           time.Time `db:"create_date" sqac:"nullable:false;default:now();"`
+		IntDflt              int       `db:"int_dflt" sqac:"nullable:false;default:1111"`
+		IntDfltWithValue     int       `db:"int_dflt_with_value" sqac:"nullable:false;default:2222"`
+		IntWithValue         int       `db:"int_with_value" sqac:"nullable:false"`
+		NullIntDflt          *int      `db:"null_int_dflt" sqac:"nullable:true;default:5555"`
+		NullIntDfltWithValue *int      `db:"null_int_dflt_with_value" sqac:"nullable:true;default:6666"`
+		NullIntWithValue     *int      `db:"null_int_with_value" sqac:"nullable:true"`
+		NullInt              *int      `db:"null_int" sqac:"nullable:true"`
 	}
 
 	// create table if requied
@@ -220,15 +220,15 @@ func TestNullInt(t *testing.T) {
 func TestNullUint(t *testing.T) {
 
 	type NUint struct {
-		NIKey                 uint      `db:"ni_key" rgen:"primary_key:inc"`
-		CreateDate            time.Time `db:"create_date" rgen:"nullable:false;default:now();"`
-		UintDflt              uint      `db:"uint_dflt" rgen:"nullable:false;default:1111"`
-		UintDfltWithValue     uint      `db:"uint_dflt_with_value" rgen:"nullable:false;default:2222"`
-		UintWithValue         uint      `db:"uint_with_value" rgen:"nullable:false"`
-		NullUintDflt          *uint     `db:"null_uint_dflt" rgen:"nullable:true;default:5555"`
-		NullUintDfltWithValue *uint     `db:"null_uint_dflt_with_value" rgen:"nullable:true;default:6666"`
-		NullUintWithValue     *uint     `db:"null_uint_with_value" rgen:"nullable:true"`
-		NullUint              *uint     `db:"null_uint" rgen:"nullable:true"`
+		NIKey                 uint      `db:"ni_key" sqac:"primary_key:inc"`
+		CreateDate            time.Time `db:"create_date" sqac:"nullable:false;default:now();"`
+		UintDflt              uint      `db:"uint_dflt" sqac:"nullable:false;default:1111"`
+		UintDfltWithValue     uint      `db:"uint_dflt_with_value" sqac:"nullable:false;default:2222"`
+		UintWithValue         uint      `db:"uint_with_value" sqac:"nullable:false"`
+		NullUintDflt          *uint     `db:"null_uint_dflt" sqac:"nullable:true;default:5555"`
+		NullUintDfltWithValue *uint     `db:"null_uint_dflt_with_value" sqac:"nullable:true;default:6666"`
+		NullUintWithValue     *uint     `db:"null_uint_with_value" sqac:"nullable:true"`
+		NullUint              *uint     `db:"null_uint" sqac:"nullable:true"`
 	}
 
 	// create table if requied
@@ -327,15 +327,15 @@ func TestNullUint(t *testing.T) {
 func TestNullFloat(t *testing.T) {
 
 	type NFloat struct {
-		NIKey                  int       `db:"ni_key" rgen:"primary_key:inc"`
-		CreateDate             time.Time `db:"create_date" rgen:"nullable:false;default:now();"`
-		FloatDflt              float64   `db:"float_dflt" rgen:"nullable:false;default:1111.222"`
-		FloatDfltWithValue     float64   `db:"float_dflt_with_value" rgen:"nullable:false;default:3333.444"`
-		FloatWithValue         float64   `db:"float_with_value" rgen:"nullable:false"`
-		NullFloatDflt          *float64  `db:"null_float_dflt" rgen:"nullable:true;default:6666.777"`
-		NullFloatDfltWithValue *float64  `db:"null_float_dflt_with_value" rgen:"nullable:true;default:8888.999"`
-		NullFloatWithValue     *float64  `db:"null_float_with_value" rgen:"nullable:true"`
-		NullFloat              *float64  `db:"null_float" rgen:"nullable:true"`
+		NIKey                  int       `db:"ni_key" sqac:"primary_key:inc"`
+		CreateDate             time.Time `db:"create_date" sqac:"nullable:false;default:now();"`
+		FloatDflt              float64   `db:"float_dflt" sqac:"nullable:false;default:1111.222"`
+		FloatDfltWithValue     float64   `db:"float_dflt_with_value" sqac:"nullable:false;default:3333.444"`
+		FloatWithValue         float64   `db:"float_with_value" sqac:"nullable:false"`
+		NullFloatDflt          *float64  `db:"null_float_dflt" sqac:"nullable:true;default:6666.777"`
+		NullFloatDfltWithValue *float64  `db:"null_float_dflt_with_value" sqac:"nullable:true;default:8888.999"`
+		NullFloatWithValue     *float64  `db:"null_float_with_value" sqac:"nullable:true"`
+		NullFloat              *float64  `db:"null_float" sqac:"nullable:true"`
 	}
 
 	// create table if requied
@@ -433,14 +433,14 @@ func TestNullFloat(t *testing.T) {
 func TestNullBool(t *testing.T) {
 
 	type NBool struct {
-		NIKey                 int       `db:"ni_key" rgen:"primary_key:inc"`
-		CreateDate            time.Time `db:"create_date" rgen:"nullable:false;default:now();"`
-		BoolDfltWithValue     bool      `db:"bool_dflt_with_value" rgen:"nullable:false;default:true"`
-		BoolWithValue         bool      `db:"bool_with_value" rgen:"nullable:false"`
-		NullBoolDflt          *bool     `db:"null_bool_dflt" rgen:"nullable:true;default:true"`
-		NullBoolDfltWithValue *bool     `db:"null_bool_dflt_with_value" rgen:"nullable:true;default:true"`
-		NullBoolWithValue     *bool     `db:"null_bool_with_value" rgen:"nullable:true"`
-		NullBool              *bool     `db:"null_bool" rgen:"nullable:true"`
+		NIKey                 int       `db:"ni_key" sqac:"primary_key:inc"`
+		CreateDate            time.Time `db:"create_date" sqac:"nullable:false;default:now();"`
+		BoolDfltWithValue     bool      `db:"bool_dflt_with_value" sqac:"nullable:false;default:true"`
+		BoolWithValue         bool      `db:"bool_with_value" sqac:"nullable:false"`
+		NullBoolDflt          *bool     `db:"null_bool_dflt" sqac:"nullable:true;default:true"`
+		NullBoolDfltWithValue *bool     `db:"null_bool_dflt_with_value" sqac:"nullable:true;default:true"`
+		NullBoolWithValue     *bool     `db:"null_bool_with_value" sqac:"nullable:true"`
+		NullBool              *bool     `db:"null_bool" sqac:"nullable:true"`
 	}
 
 	// create table if requied
