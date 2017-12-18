@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-
-	"github.com/1414C/sqlxtest/dbgen/common"
+	// "github.com/1414C/sqlxtest/dbgen/common"
 )
 
 // SqacPair holds name-value-pairs for db field attributes
@@ -83,7 +82,7 @@ func TagReader(i interface{}, t reflect.Type) (fd []FieldDef, err error) {
 		// based on the common use of the CamelToSnake function in the
 		// go struct generation (tag `db:"field_name"`).  The function
 		// is used here to make that point.
-		fldDef.FName = common.CamelToSnake(t.Field(i).Name)
+		fldDef.FName = CamelToSnake(t.Field(i).Name)
 		fldDef.GoName = t.Field(i).Name
 		fldDef.GoType = fts      // go-type here
 		fldDef.UnderGoType = ftu // underlying type of pointer
