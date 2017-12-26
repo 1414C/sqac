@@ -293,7 +293,7 @@ func TestCreateTablesWithInclude(t *testing.T) {
 	// 	ValidFrom      time.Time `db:"valid_from" sqac:"primary_key;nullable:false;default:now()"`
 	// 	ValidTo        time.Time `db:"valid_to" sqac:"primary_key;nullable:false;default:make_timestamptz(9999, 12, 31, 23, 59, 59.9)"`
 	// 	CreatedAt      time.Time `db:"created_at" sqac:"nullable:false;default:now()"`
-	// 	InspectionAt   time.Time `db:"inspeaction_at" sqac:"nullable:true"`
+	// 	InspectionAt   time.Time `db:"inspection_at" sqac:"nullable:true"`
 	// 	MaterialNum    int       `db:"material_num" sqac:"index:idx_material_num_serial_num"`
 	// 	Description    string    `db:"description" sqac:"sqac:nullable:false"`
 	// 	SerialNum      string    `db:"serial_num" sqac:"index:idx_material_num_serial_num"`
