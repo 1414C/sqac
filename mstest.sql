@@ -17,5 +17,8 @@ GO
 --DROP TABLE nfloat;
 
 --SELECT * FROM nfloat;
-INSERT INTO nbool ( bool_with_value,  null_bool_dflt_with_value,  null_bool_with_value,  null_bool,  bool_dflt_with_value) VALUES ( false,  false,  false,  NULL,  false);
+--INSERT INTO nbool ( bool_with_value,  null_bool_dflt_with_value,  null_bool_with_value,  null_bool,  bool_dflt_with_value) VALUES ( false,  false,  false,  NULL,  false);
+--GO
+
+SELECT * FROM auth;
 GO
