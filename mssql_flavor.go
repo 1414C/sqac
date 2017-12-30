@@ -245,7 +245,7 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 			col.fType = "tinyint"
 
 		case "float32", "float64":
-			col.fType = "numeric(11,7)" // default precision is 18
+			col.fType = "numeric(38,7)" // default precision is 18
 
 		case "bool":
 			col.fType = "bit"

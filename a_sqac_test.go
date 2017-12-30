@@ -1713,7 +1713,7 @@ func TestCRUDGetEntities2(t *testing.T) {
 		Region:              "YVR",
 		NewColumn1:          "vancouver",
 		NewColumn2:          8888,
-		NewColumn3:          4642.22,
+		NewColumn3:          46488887772.22,
 		NonPersistentColumn: "don't save me",
 	}
 
@@ -1788,7 +1788,7 @@ func TestCRUDGetEntities4(t *testing.T) {
 		Region:              "YVR",
 		NewColumn1:          "vancouver",
 		NewColumn2:          8888,
-		NewColumn3:          4643.22,
+		NewColumn3:          464773.22,
 		NonPersistentColumn: "don't save me",
 	}
 
