@@ -775,10 +775,10 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 }
 
 // GetEntitiesWithCommands is the experimental replacement for all get-set ops
-func (pf *PostgresFlavor) GetEntitiesWithCommands(ents interface{}, cmdMap map[string]interface{}) (interface{}, uint64, error) {
+func (pf *PostgresFlavor) GetEntitiesWithCommands(ents interface{}, cmdMap map[string]interface{}) (interface{}, error) {
 
 	fmt.Println()
 	fmt.Println("GetEntitiesWithCommands received cmdMap:", cmdMap)
 	fmt.Println()
-	return nil, 0, nil
+	return nil, nil
 }
