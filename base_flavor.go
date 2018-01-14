@@ -170,6 +170,7 @@ type PublicDB interface {
 	GetEntities(ents interface{}) (interface{}, error)
 	GetEntities2(ge GetEnt) error
 	GetEntities4(ents interface{})
+	GetEntitiesWithCommands(ents interface{}, cmdMap map[string]interface{}) (interface{}, error)
 }
 
 // ensure consistency of interface implementation
@@ -981,6 +982,13 @@ func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 	fmt.Println("")
 	fmt.Println("results:", results)
 	fmt.Println("ents:", ents)
+}
+
+// GetEntitiesWithCommands is the new and improved get for lists of entities.  Each
+// DB needs an implementation due to differnces in OFFSET / LIMIT / TOP support.
+func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, cmdMap map[string]interface{}) (interface{}, error) {
+
+	return nil, nil
 }
 
 // this is where it happens
