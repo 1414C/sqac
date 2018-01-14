@@ -2,6 +2,7 @@ package sqac
 
 import (
 	"fmt"
+	"log"
 	"reflect"
 	"strconv"
 	"strings"
@@ -780,5 +781,41 @@ func (pf *PostgresFlavor) GetEntitiesWithCommands(ents interface{}, cmdMap map[s
 	fmt.Println()
 	fmt.Println("GetEntitiesWithCommands received cmdMap:", cmdMap)
 	fmt.Println()
-	return nil, nil
+
+	// get the underlying data type of the interface{}
+	entTypeElem := reflect.TypeOf(ents).Elem()
+	// fmt.Println("entTypeElem:", entTypeElem)
+
+	// create a struct from the type
+	testVar := reflect.New(entTypeElem)
+
+	// determine the db table name
+	tn := common.GetTableName(ents)
+
+	selQuery := fmt.Sprintf("SELECT * FROM %s;", tn)
+	pf.QsLog(selQuery)
+
+	// read the rows
+	rows, err := pf.db.Queryx(selQuery)
+	if err != nil {
+		log.Printf("GetEntities for table &s returned error: %v\n", err.Error())
+		return nil, err
+	}
+
+	// iterate over the rows collection and put the results
+	// into the ents interface (slice)
+	entsv := reflect.ValueOf(ents)
+	for rows.Next() {
+		err = rows.StructScan(testVar.Interface())
+		if err != nil {
+			fmt.Println("scan error:", err)
+			return nil, err
+		}
+		// fmt.Println(testVar)
+		entsv = reflect.Append(entsv, testVar.Elem())
+	}
+
+	ents = entsv.Interface()
+	// fmt.Println("ents:", ents)
+	return entsv.Interface(), nil
 }
