@@ -782,6 +782,8 @@ func (pf *PostgresFlavor) GetEntitiesWithCommands(ents interface{}, cmdMap map[s
 	fmt.Println("GetEntitiesWithCommands received cmdMap:", cmdMap)
 	fmt.Println()
 
+	var count uint64
+
 	// get the underlying data type of the interface{}
 	entTypeElem := reflect.TypeOf(ents).Elem()
 	// fmt.Println("entTypeElem:", entTypeElem)
@@ -792,7 +794,66 @@ func (pf *PostgresFlavor) GetEntitiesWithCommands(ents interface{}, cmdMap map[s
 	// determine the db table name
 	tn := common.GetTableName(ents)
 
-	selQuery := fmt.Sprintf("SELECT * FROM %s;", tn)
+	// received a $count command?  this supercedes all, as it should not
+	// be mixed with any other $<commands>.
+	_, ok := cmdMap["count"]
+	if ok {
+		selQuery := fmt.Sprintf("SELECT COUNT(*) FROM %s;", tn)
+		pf.QsLog(selQuery)
+		row := pf.db.QueryRow(selQuery)
+		err := row.Scan(&count)
+		if err != nil {
+			log.Fatal(err)
+		}
+		return count, nil
+	}
+
+	var obString string
+	var limitString string
+	var offsetString string
+	var adString string
+
+	// received $orderby command?
+	obField, ok := cmdMap["orderby"]
+	if ok {
+		obString = fmt.Sprintf(" ORDER BY %s", obField.(string))
+	}
+
+	// received $asc command?
+	_, ok = cmdMap["asc"]
+	if ok {
+		adString = " ASC"
+	}
+
+	// received $desc command?
+	_, ok = cmdMap["desc"]
+	if ok {
+		adString = " DESC"
+	}
+
+	// received $limit command?
+	limField, ok := cmdMap["limit"]
+	if ok {
+		limitString = fmt.Sprintf(" LIMIT %v", limField)
+	}
+
+	// received $offset command?
+	offField, ok := cmdMap["offset"]
+	if ok {
+		offsetString = fmt.Sprintf(" OFFSET %v", offField)
+	}
+
+	// -- SELECT COUNT(*) FROM library;
+	// -- SELECT * FROM library;
+	// -- SELECT * FROM library LIMIT 2;
+	// -- SELECT * FROM library OFFSET 2;
+	// -- SELECT * FROM library LIMIT 2 OFFSET 1;
+	// -- SELECT * FROM library ORDER BY ID DESC;
+	// -- SELECT * FROM library ORDER BY ID ASC;
+	// -- SELECT * FROM library ORDER BY name ASC;
+	// -- SELECT * FROM library ORDER BY ID ASC LIMIT 2 OFFSET 2;
+
+	selQuery := fmt.Sprintf("SELECT * FROM %s%s%s%s%s;", tn, obString, adString, limitString, offsetString)
 	pf.QsLog(selQuery)
 
 	// read the rows
