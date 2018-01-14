@@ -541,10 +541,10 @@ func (myf *MySQLFlavor) Update(ent interface{}) error {
 }
 
 // GetEntitiesWithCommands is the experimental replacement for all get-set ops
-func (myf *MySQLFlavor) GetEntitiesWithCommands(ents interface{}, cmdMap map[string]interface{}) (interface{}, error) {
+func (myf *MySQLFlavor) GetEntitiesWithCommands(ents interface{}, cmdMap map[string]interface{}) (interface{}, uint64, error) {
 
 	fmt.Println()
 	fmt.Println("GetEntitiesWithCommands received cmdMap:", cmdMap)
 	fmt.Println()
-	return nil, nil
+	return nil, 0, nil
 }
