@@ -853,6 +853,11 @@ func (pf *PostgresFlavor) GetEntitiesWithCommands(ents interface{}, cmdMap map[s
 	// -- SELECT * FROM library ORDER BY name ASC;
 	// -- SELECT * FROM library ORDER BY ID ASC LIMIT 2 OFFSET 2;
 
+	// if $asc or $desc were specifed with no $orderby, default to order by id
+	if obString == "" && adString != "" {
+		obString = " ORDER BY id"
+	}
+
 	selQuery := fmt.Sprintf("SELECT * FROM %s%s%s%s%s;", tn, obString, adString, limitString, offsetString)
 	pf.QsLog(selQuery)
 
