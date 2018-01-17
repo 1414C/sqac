@@ -2,6 +2,7 @@ package sqac
 
 import (
 	"fmt"
+	"github.com/jmoiron/sqlx"
 	"log"
 	"reflect"
 	"strconv"
@@ -38,6 +39,10 @@ type PostgresFlavor struct {
 	// CreateSequence(sn string, start string) error
 	// DropSequence(sn string) error
 	// ExistsSequence(sn string) bool
+}
+
+func init() {
+	fmt.Println("Postgres init is running")
 }
 
 // GetDBName returns the name of the currently connected db
@@ -776,13 +781,18 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 }
 
 // GetEntitiesWithCommands is the experimental replacement for all get-set ops
-func (pf *PostgresFlavor) GetEntitiesWithCommands(ents interface{}, cmdMap map[string]interface{}) (interface{}, error) {
+func (pf *PostgresFlavor) GetEntitiesWithCommands(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (interface{}, error) {
 
 	fmt.Println()
+	fmt.Println("GetEntitiesWithCommands received params:", params)
 	fmt.Println("GetEntitiesWithCommands received cmdMap:", cmdMap)
 	fmt.Println()
 
+	var err error
 	var count uint64
+	var row *sqlx.Row
+	paramString := ""
+	selQuery := ""
 
 	// get the underlying data type of the interface{}
 	entTypeElem := reflect.TypeOf(ents).Elem()
@@ -794,20 +804,39 @@ func (pf *PostgresFlavor) GetEntitiesWithCommands(ents interface{}, cmdMap map[s
 	// determine the db table name
 	tn := common.GetTableName(ents)
 
+	// are there any parameters to include in the query?
+	var pv []interface{}
+	if params != nil && len(params) > 0 {
+		paramString = " WHERE"
+		for i := range params {
+			paramString = fmt.Sprintf("%s %s %s ? %s", paramString, common.CamelToSnake(params[i].FieldName), params[i].Operand, params[i].NextOperator)
+			pv = append(pv, params[i].ParamValue)
+		}
+	}
+	fmt.Println("constructed paramString:", paramString)
+
 	// received a $count command?  this supercedes all, as it should not
 	// be mixed with any other $<commands>.
 	_, ok := cmdMap["count"]
 	if ok {
-		selQuery := fmt.Sprintf("SELECT COUNT(*) FROM %s;", tn)
-		pf.QsLog(selQuery)
-		row := pf.db.QueryRow(selQuery)
-		err := row.Scan(&count)
+		if paramString == "" {
+			selQuery = fmt.Sprintf("SELECT COUNT(*) FROM %s;", tn)
+			pf.QsLog(selQuery)
+			row = pf.ExecuteQueryRowx(selQuery)
+		} else {
+			selQuery = fmt.Sprintf("SELECT COUNT(*) FROM %s%s;", tn, paramString)
+			pf.QsLog(selQuery)
+			row = pf.ExecuteQueryRowx(selQuery, pv...)
+		}
+
+		err = row.Scan(&count)
 		if err != nil {
 			log.Fatal(err)
 		}
 		return count, nil
 	}
 
+	// no $count command - build query
 	var obString string
 	var limitString string
 	var offsetString string
@@ -858,11 +887,17 @@ func (pf *PostgresFlavor) GetEntitiesWithCommands(ents interface{}, cmdMap map[s
 		obString = " ORDER BY id"
 	}
 
-	selQuery := fmt.Sprintf("SELECT * FROM %s%s%s%s%s;", tn, obString, adString, limitString, offsetString)
+	selQuery = fmt.Sprintf("SELECT * FROM %s%s", tn, paramString)
+	selQuery = pf.db.Rebind(selQuery)
+	fmt.Println("rebound selQuery:", selQuery)
+
+	selQuery = fmt.Sprintf("%s%s%s%s%s;", selQuery, obString, adString, limitString, offsetString)
+	fmt.Println("selQuery fully constructed:", selQuery)
 	pf.QsLog(selQuery)
 
 	// read the rows
-	rows, err := pf.db.Queryx(selQuery)
+	fmt.Println("pv...", pv)
+	rows, err := pf.db.Queryx(selQuery, pv...)
 	if err != nil {
 		log.Printf("GetEntities for table &s returned error: %v\n", err.Error())
 		return nil, err
