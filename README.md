@@ -13,6 +13,9 @@ sqac is a simple overlay to provide a common interface to attached mssql, mysql,
 - generic CRUD entity operations
 
 * Testing
+* update tests for GetEntitiesWithCommands
+* implement GetEntitiesWithCommands for all DB flavors
+* examine the $desc orderby when limit / offset is used in postgres with selection parameter (weirdness)
 
 ```bash
 
