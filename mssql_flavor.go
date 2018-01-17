@@ -671,7 +671,7 @@ func (msf *MSSQLFlavor) Update(ent interface{}) error {
 }
 
 // GetEntitiesWithCommands is the experimental replacement for all get-set ops
-func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, cmdMap map[string]interface{}) (interface{}, error) {
+func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (interface{}, error) {
 
 	fmt.Println()
 	fmt.Println("GetEntitiesWithCommands received cmdMap:", cmdMap)
