@@ -2,6 +2,8 @@ package sqac
 
 import (
 	"fmt"
+	"github.com/jmoiron/sqlx"
+	"log"
 	"reflect"
 	"strconv"
 	"strings"
@@ -89,7 +91,7 @@ func (slf *SQLiteFlavor) CreateTables(i ...interface{}) error {
 		slf.db.MustExec(tc.tblSchema)
 		for _, sq := range tc.seq {
 			start, _ := strconv.Atoi(sq.Value)
-			slf.AlterSequenceStart(sq.Name, start)
+			slf.AlterSequenceStart(sq.Name, start-1)
 		}
 		for k, in := range tc.ind {
 			slf.CreateIndex(k, in)
@@ -632,7 +634,7 @@ func (slf *SQLiteFlavor) GetNextSequenceValue(name string) (int, error) {
 		if err != nil {
 			return 0, err
 		}
-		return seq, nil
+		return seq + 1, nil
 	}
 	return seq, nil
 }
@@ -763,7 +765,144 @@ func (slf *SQLiteFlavor) Update(ent interface{}) error {
 func (slf *SQLiteFlavor) GetEntitiesWithCommands(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (interface{}, error) {
 
 	fmt.Println()
+	fmt.Println("GetEntitiesWithCommands received params:", params)
 	fmt.Println("GetEntitiesWithCommands received cmdMap:", cmdMap)
 	fmt.Println()
-	return nil, nil
+
+	var err error
+	var count uint64
+	var row *sqlx.Row
+	paramString := ""
+	selQuery := ""
+
+	// get the underlying data type of the interface{}
+	entTypeElem := reflect.TypeOf(ents).Elem()
+	// fmt.Println("entTypeElem:", entTypeElem)
+
+	// create a struct from the type
+	testVar := reflect.New(entTypeElem)
+
+	// determine the db table name
+	tn := common.GetTableName(ents)
+
+	// are there any parameters to include in the query?
+	var pv []interface{}
+	if params != nil && len(params) > 0 {
+		paramString = " WHERE"
+		for i := range params {
+			paramString = fmt.Sprintf("%s %s %s ? %s", paramString, common.CamelToSnake(params[i].FieldName), params[i].Operand, params[i].NextOperator)
+			pv = append(pv, params[i].ParamValue)
+		}
+	}
+	fmt.Println("constructed paramString:", paramString)
+
+	// received a $count command?  this supercedes all, as it should not
+	// be mixed with any other $<commands>.
+	_, ok := cmdMap["count"]
+	if ok {
+		if paramString == "" {
+			selQuery = fmt.Sprintf("SELECT COUNT(*) FROM %s;", tn)
+			slf.QsLog(selQuery)
+			row = slf.ExecuteQueryRowx(selQuery)
+		} else {
+			selQuery = fmt.Sprintf("SELECT COUNT(*) FROM %s%s;", tn, paramString)
+			slf.QsLog(selQuery)
+			row = slf.ExecuteQueryRowx(selQuery, pv...)
+		}
+
+		err = row.Scan(&count)
+		if err != nil {
+			log.Fatal(err)
+		}
+		return count, nil
+	}
+
+	// no $count command - build query
+	var obString string
+	var limitString string
+	var offsetString string
+	var adString string
+
+	// received $orderby command?
+	obField, ok := cmdMap["orderby"]
+	if ok {
+		obString = fmt.Sprintf(" ORDER BY %s", obField.(string))
+	}
+
+	// received $asc command?
+	_, ok = cmdMap["asc"]
+	if ok {
+		adString = " ASC"
+	}
+
+	// received $desc command?
+	_, ok = cmdMap["desc"]
+	if ok {
+		adString = " DESC"
+	}
+
+	// received $limit command?
+	limField, ok := cmdMap["limit"]
+	if ok {
+		limitString = fmt.Sprintf(" LIMIT %v", limField)
+	}
+
+	// received $offset command?
+	offField, ok := cmdMap["offset"]
+	if ok {
+		offsetString = fmt.Sprintf(" OFFSET %v", offField)
+
+		// SQLite requires a limit if offset is requested. -1 is open-ended limit.
+		if limitString == "" {
+			limitString = " LIMIT -1"
+		}
+	}
+
+	// -- SELECT COUNT(*) FROM equipment;
+	// -- SELECT * FROM equipment;
+	// -- SELECT * FROM equipment LIMIT 2;
+	// -- SELECT * FROM equipment LIMIT -1 OFFSET 2;
+	// -- SELECT * FROM equipment LIMIT 2 OFFSET 1;
+	// -- SELECT * FROM equipment ORDER BY equipment_num DESC;
+	// -- SELECT * FROM equipment ORDER BY equipment_num ASC;
+	// -- SELECT * FROM equipment ORDER BY equipment_num ASC LIMIT -1 OFFSET 2;
+
+	// if $asc or $desc were specifed with no $orderby, default to order by id
+	if obString == "" && adString != "" {
+		obString = " ORDER BY id"
+	}
+
+	selQuery = fmt.Sprintf("SELECT * FROM %s%s", tn, paramString)
+	selQuery = slf.db.Rebind(selQuery)
+	fmt.Println("rebound selQuery:", selQuery)
+
+	selQuery = fmt.Sprintf("%s%s%s%s%s;", selQuery, obString, adString, limitString, offsetString)
+	fmt.Println("selQuery fully constructed:", selQuery)
+	slf.QsLog(selQuery)
+
+	// read the rows
+	fmt.Println("pv...", pv)
+	rows, err := slf.db.Queryx(selQuery, pv...)
+	if err != nil {
+		log.Printf("GetEntities for table &s returned error: %v\n", err.Error())
+		return nil, err
+	}
+	defer rows.Close()
+
+	// iterate over the rows collection and put the results
+	// into the ents interface (slice)
+	entsv := reflect.ValueOf(ents)
+	for rows.Next() {
+		err = rows.StructScan(testVar.Interface())
+		if err != nil {
+			fmt.Println("scan error:", err)
+			return nil, err
+		}
+		// fmt.Println(testVar)
+		entsv = reflect.Append(entsv, testVar.Elem())
+	}
+
+	ents = entsv.Interface()
+	// fmt.Println("ents:", ents)
+	return entsv.Interface(), nil
 }

@@ -55,7 +55,7 @@ type Equipment struct {
 type GetCmdTest struct {
 	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
 	FldOneInt           int       `db:"fld_one_int" json:"fld_one_int" sqac:"nullable:false;default:0"`
-	TimeNow             time.Time `db:"time_now" json:"time_now" sqac:"nullable:false;default:now();index:unique"`
+	TimeNow             time.Time `db:"time_now" json:"time_now" sqac:"nullable:false;default:now();index:nonUnique"`
 	FldTwoString        string    `db:"fld_two_string" json:"fld_two_string" sqac:"nullable:false;default:YYC"`
 	FldThreeFloat       float64   `db:"fld_three_float" json:"fld_three_float" sqac:"nullable:false;default:0.0"`
 	FldFourBool         bool      `db:"fld_four_bool" json:"fld_four_bool"  sqac:"nullable:false;default:false"`
