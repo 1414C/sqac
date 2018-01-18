@@ -1801,82 +1801,208 @@ func TestCRUDGetEntities4(t *testing.T) {
 	depotRead := []DepotGetEntities2{}
 
 	Handle.GetEntities4(&depotRead)
-	fmt.Println("DEPOTREAD:", depotRead)
+	// fmt.Println("DEPOTREAD:", depotRead)
 }
 
-// TestCRUDGetEntities
+// TestCRUDGetEntitiesWithCommandsTestOne
 //
-// Test CRUD Get
-func TestCRUDGetEntitiesWithCommands(t *testing.T) {
+// Test CRUD GetSet
+// call with no parameters and no commands
+func TestCRUDGetEntitiesWithCommandsTestOne(t *testing.T) {
 
-	// // determine the table names as per the table creation logic
-	// tn := common.GetTableName(DepotGetEntities2{})
+	type GetCmdTest struct {
+		ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
+		FldOneInt           int       `db:"fld_one_int" json:"fld_one_int" sqac:"nullable:false;default:0"`
+		TimeNow             time.Time `db:"time_now" json:"time_now" sqac:"nullable:false;default:now();index:unique"`
+		FldTwoString        string    `db:"fld_two_string" json:"fld_two_string" sqac:"nullable:false;default:YYC"`
+		FldThreeFloat       float64   `db:"fld_three_float" json:"fld_three_float" sqac:"nullable:false;default:0.0"`
+		FldFourBool         bool      `db:"fld_four_bool" json:"fld_four_bool"  sqac:"nullable:false;default:false"`
+		NonPersistentColumn string    `db:"non_persistent_column" sqac:"-"`
+		FldFiveString       *string   `db:"fld_five_string" json:"fld_five_string" sqac:"nullable:true"`
+		FldSixFloat         *float64  `db:"fld_six_float" json:"fld_six_float" sqac:"nullable:true"`
+		FldSevenBool        *bool     `db:"fld_seven_bool" json:"fld_seven_bool" sqac:"nullable:true"`
+	}
 
-	// // drop table depotgetentities
-	// err := Handle.DropTables(DepotGetEntities2{})
-	// if err != nil {
-	// 	t.Errorf("%s", err.Error())
-	// }
+	// determine the table names as per the table creation logic
+	tn := common.GetTableName(GetCmdTest{})
 
-	// // create table depotgetentities
-	// err = Handle.CreateTables(DepotGetEntities2{})
-	// if err != nil {
-	// 	t.Errorf("%s", err.Error())
-	// }
+	// drop table getcmdtest
+	err := Handle.DropTables(GetCmdTest{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
 
-	// // expect that table depotgetentities2 exists
-	// if !Handle.ExistsTable(tn) {
-	// 	t.Errorf("table %s does not exist", tn)
-	// }
+	// create table getcmdtest
+	err = Handle.CreateTables(GetCmdTest{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
 
-	// // create a new record via the CRUD Create call
-	// var depotgetentities = DepotGetEntities2{
-	// 	Region:              "YYC",
-	// 	NewColumn1:          "string_value",
-	// 	NewColumn2:          9999,
-	// 	NewColumn3:          45.33,
-	// 	NonPersistentColumn: "0123456789abcdef",
-	// }
+	// expect that table getcmdtest exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s does not exist", tn)
+	}
 
-	// err = Handle.Create(&depotgetentities)
-	// if err != nil {
-	// 	t.Errorf(err.Error())
-	// }
+	// create
 
-	// depotgetentities2 := DepotGetEntities2{
-	// 	Region:              "YVR",
-	// 	NewColumn1:          "vancouver",
-	// 	NewColumn2:          8888,
-	// 	NewColumn3:          4642.22,
-	// 	NonPersistentColumn: "don't save me",
-	// }
+	// create new records via the CRUD Create call
+	for i := 0; i < 8; i++ {
 
-	// err = Handle.Create(&depotgetentities2)
-	// if err != nil {
-	// 	t.Errorf(err.Error())
-	// }
+		rec := GetCmdTest{
+			FldOneInt:     i,
+			FldTwoString:  "string",
+			FldThreeFloat: (float64(i) * 2.356),
+			FldFourBool:   true,
+		}
 
-	// // create a slice to read into
-	// depotRead := []DepotGetEntities2{}
+		if i%2 == 0 {
+			f5 := "string_value"
+			rec.FldFiveString = &f5
+			f6 := (float64(i) * 4.8783)
+			rec.FldSixFloat = &f6
+			f7 := false
+			rec.FldSevenBool = &f7
+		}
 
-	// result, err := Handle.GetEntities(depotRead)
-	// if err != nil {
-	// 	t.Errorf(err.Error())
-	// }
+		// create a record
+		err = Handle.Create(&rec)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+	}
 
-	// if Handle.IsLog() {
-	// 	fmt.Println("DEPOTREAD:", depotRead)
-	// }
+	// create a slice to read into
+	recRead := []GetCmdTest{}
 
-	// depotReadResult := reflect.ValueOf(result)
-	// for i := 0; i < depotReadResult.Len(); i++ {
-	// 	if Handle.IsLog() {
-	// 		fmt.Printf("index[%d]: %v\n", i, depotReadResult.Index(i))
-	// 	}
-	// 	depotRead = append(depotRead, depotReadResult.Index(i).Interface().(DepotGetEntities2))
-	// }
+	// call with no parameters and no commands
+	result, err := Handle.GetEntitiesWithCommands(recRead, nil, nil)
+	switch result.(type) {
+	case []GetCmdTest:
+		recRead = result.([]GetCmdTest)
+		if len(recRead) != 8 {
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsTestOne: expected 8 records, got: %v", len(recRead))
+		}
+	case uint64:
+		// valid result, but a fail in this case
+	case int64:
+		// possible result, but a fail in this case
+	default:
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsTestOne")
+	}
 
-	// if len(depotRead) == 0 {
-	// 	t.Errorf("failed to read any entities from test table DepotGetEntities2")
-	// }
+	// drop table getcmdtest
+	err = Handle.DropTables(GetCmdTest{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+}
+
+// TestCRUDGetEntitiesWithCommandsTestTwo
+//
+// Test CRUD GetSet
+// call with single parameter (id = 4) and no commands
+func TestCRUDGetEntitiesWithCommandsTestTwo(t *testing.T) {
+
+	type GetCmdTest struct {
+		ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
+		FldOneInt           int       `db:"fld_one_int" json:"fld_one_int" sqac:"nullable:false;default:0"`
+		TimeNow             time.Time `db:"time_now" json:"time_now" sqac:"nullable:false;default:now();index:unique"`
+		FldTwoString        string    `db:"fld_two_string" json:"fld_two_string" sqac:"nullable:false;default:YYC"`
+		FldThreeFloat       float64   `db:"fld_three_float" json:"fld_three_float" sqac:"nullable:false;default:0.0"`
+		FldFourBool         bool      `db:"fld_four_bool" json:"fld_four_bool"  sqac:"nullable:false;default:false"`
+		NonPersistentColumn string    `db:"non_persistent_column" sqac:"-"`
+		FldFiveString       *string   `db:"fld_five_string" json:"fld_five_string" sqac:"nullable:true"`
+		FldSixFloat         *float64  `db:"fld_six_float" json:"fld_six_float" sqac:"nullable:true"`
+		FldSevenBool        *bool     `db:"fld_seven_bool" json:"fld_seven_bool" sqac:"nullable:true"`
+	}
+
+	// determine the table names as per the table creation logic
+	tn := common.GetTableName(GetCmdTest{})
+
+	// drop table getcmdtest
+	err := Handle.DropTables(GetCmdTest{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// create table getcmdtest
+	err = Handle.CreateTables(GetCmdTest{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table getcmdtest exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s does not exist", tn)
+	}
+
+	// create
+
+	// create new records via the CRUD Create call
+	for i := 0; i < 8; i++ {
+
+		rec := GetCmdTest{
+			FldOneInt:     i,
+			FldTwoString:  "string",
+			FldThreeFloat: (float64(i) * 2.356),
+			FldFourBool:   true,
+		}
+
+		if i%2 == 0 {
+			f5 := "string_value"
+			rec.FldFiveString = &f5
+			f6 := (float64(i) * 4.8783)
+			rec.FldSixFloat = &f6
+			f7 := false
+			rec.FldSevenBool = &f7
+		}
+
+		// create a record
+		err = Handle.Create(&rec)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+	}
+
+	// create a slice to read into
+	recRead := []GetCmdTest{}
+
+	p := common.GetParam{
+		FieldName:    "id",
+		Operand:      "=",
+		ParamValue:   90000004,
+		NextOperator: "",
+	}
+
+	pa := []common.GetParam{}
+	pa = append(pa, p)
+
+	// call with no parameters and no commands
+	result, err := Handle.GetEntitiesWithCommands(recRead, pa, nil)
+	switch result.(type) {
+	case []GetCmdTest:
+		recRead = result.([]GetCmdTest)
+		if len(recRead) != 1 {
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsTestTwo: expected 1 records, got: %v", len(recRead))
+		}
+		if len(recRead) > 0 {
+			if recRead[0].ID != 90000004 {
+				t.Errorf("error: TestCRUDGetEntitiesWithCommandsTestTwo: expected 1 record with key ID ==90000004, got: %v", recRead[0].ID)
+			}
+		} else {
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsTestTwo: expected 1 records, got: %v", len(recRead))
+		}
+	case uint64:
+		// valid result, but a fail in this case
+	case int64:
+		// possible result, but a fail in this case
+	default:
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsTestTwo")
+	}
+
+	// drop table getcmdtest
+	err = Handle.DropTables(GetCmdTest{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
 }

@@ -939,7 +939,7 @@ func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 
 	// get the underlying (struct?) type of the slice
 	t := reflect.Indirect(reflect.ValueOf(ents)).Type().Elem()
-	fmt.Println("t:", t)
+	// fmt.Println("t:", t)
 
 	// create a struct from the type
 	dstRow := reflect.New(t)
@@ -973,15 +973,15 @@ func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 			fmt.Println("scan error:", err)
 		}
 
-		fmt.Println(dstRow)
+		// fmt.Println(dstRow)
 		slice = reflect.Append(slice, dstRow.Elem())
 		results.Set(reflect.Append(results, dstRow.Elem()))
 	}
 
-	fmt.Println("slice:", slice)
-	fmt.Println("")
-	fmt.Println("results:", results)
-	fmt.Println("ents:", ents)
+	// fmt.Println("slice:", slice)
+	// fmt.Println("")
+	// fmt.Println("results:", results)
+	// fmt.Println("ents:", ents)
 }
 
 // GetEntitiesWithCommands is the new and improved get for lists of entities.  Each
