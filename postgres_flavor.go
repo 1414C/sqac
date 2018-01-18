@@ -555,14 +555,15 @@ func (pf *PostgresFlavor) ExistsTable(tn string) bool {
 
 	reqQuery := fmt.Sprintf("SELECT to_regclass('public.%s');", tn)
 	pf.QsLog(reqQuery)
-	fetch, err := pf.db.Query(reqQuery)
+	rows, err := pf.db.Query(reqQuery)
 	if err != nil {
 		panic(err)
 	}
+	defer rows.Close()
 
 	var s string
-	for fetch.Next() {
-		err = fetch.Scan(&s)
+	for rows.Next() {
+		err = rows.Scan(&s)
 		if err != nil {
 			return false
 		}
@@ -902,6 +903,7 @@ func (pf *PostgresFlavor) GetEntitiesWithCommands(ents interface{}, params []com
 		log.Printf("GetEntities for table &s returned error: %v\n", err.Error())
 		return nil, err
 	}
+	defer rows.Close()
 
 	// iterate over the rows collection and put the results
 	// into the ents interface (slice)

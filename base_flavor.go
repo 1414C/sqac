@@ -618,7 +618,6 @@ func (bf *BaseFlavor) ExecuteQuery(queryString string, qParams ...interface{}) (
 		bf.QsLog(queryString)
 		rows, err = bf.db.Query(queryString)
 	}
-	defer rows.Close()
 	return rows, err
 }
 
@@ -893,6 +892,7 @@ func (bf *BaseFlavor) GetEntities(ents interface{}) (interface{}, error) {
 		log.Printf("GetEntities for table &s returned error: %v\n", err.Error())
 		return nil, err
 	}
+	defer rows.Close()
 
 	// iterate over the rows collection and put the results
 	// into the ents interface (slice)
@@ -957,6 +957,7 @@ func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 		log.Printf("GetEntities for table &s returned error: %v\n", err.Error())
 		// return err
 	}
+	defer rows.Close()
 
 	results := indirect(reflect.ValueOf(ents))
 	resultType := results.Type().Elem()

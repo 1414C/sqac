@@ -51,3 +51,16 @@ type Equipment struct {
 	DoNotCreate    string    `db:"do_not_create" sqac:"-"`
 	Triplet
 }
+
+type GetCmdTest struct {
+	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
+	FldOneInt           int       `db:"fld_one_int" json:"fld_one_int" sqac:"nullable:false;default:0"`
+	TimeNow             time.Time `db:"time_now" json:"time_now" sqac:"nullable:false;default:now();index:unique"`
+	FldTwoString        string    `db:"fld_two_string" json:"fld_two_string" sqac:"nullable:false;default:YYC"`
+	FldThreeFloat       float64   `db:"fld_three_float" json:"fld_three_float" sqac:"nullable:false;default:0.0"`
+	FldFourBool         bool      `db:"fld_four_bool" json:"fld_four_bool"  sqac:"nullable:false;default:false"`
+	NonPersistentColumn string    `db:"non_persistent_column" sqac:"-"`
+	FldFiveString       *string   `db:"fld_five_string" json:"fld_five_string" sqac:"nullable:true"`
+	FldSixFloat         *float64  `db:"fld_six_float" json:"fld_six_float" sqac:"nullable:true"`
+	FldSevenBool        *bool     `db:"fld_seven_bool" json:"fld_seven_bool" sqac:"nullable:true"`
+}
