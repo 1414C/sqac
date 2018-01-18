@@ -59,6 +59,7 @@ func (dget *DepotGetEntitiesTab) Exec(sqh sqac.PublicDB) error {
 		log.Printf("GetEntities for table depotgetentities2 returned error: %v\n", err.Error())
 		return err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var ent DepotGetEntities2
