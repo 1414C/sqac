@@ -819,6 +819,280 @@ func TestCRUDGetEntitiesWithCommandsTestOffset(t *testing.T) {
 	}
 }
 
+// TestCRUDGetEntitiesWithCommandsTestOffsetDesc
+//
+// Test CRUD GetSet
+// call with command /$offset=2$desc
+func TestCRUDGetEntitiesWithCommandsTestOffsetDesc(t *testing.T) {
+
+	// type GetCmdTest struct {
+	// 	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
+	// 	FldOneInt           int       `db:"fld_one_int" json:"fld_one_int" sqac:"nullable:false;default:0"`
+	// 	TimeNow             time.Time `db:"time_now" json:"time_now" sqac:"nullable:false;default:now();index:unique"`
+	// 	FldTwoString        string    `db:"fld_two_string" json:"fld_two_string" sqac:"nullable:false;default:YYC"`
+	// 	FldThreeFloat       float64   `db:"fld_three_float" json:"fld_three_float" sqac:"nullable:false;default:0.0"`
+	// 	FldFourBool         bool      `db:"fld_four_bool" json:"fld_four_bool"  sqac:"nullable:false;default:false"`
+	// 	NonPersistentColumn string    `db:"non_persistent_column" sqac:"-"`
+	// 	FldFiveString       *string   `db:"fld_five_string" json:"fld_five_string" sqac:"nullable:true"`
+	// 	FldSixFloat         *float64  `db:"fld_six_float" json:"fld_six_float" sqac:"nullable:true"`
+	// 	FldSevenBool        *bool     `db:"fld_seven_bool" json:"fld_seven_bool" sqac:"nullable:true"`
+	// }
+
+	// determine the table names as per the table creation logic
+	tn := common.GetTableName(GetCmdTest{})
+
+	// drop table getcmdtest
+	err := Handle.DropTables(GetCmdTest{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// create table getcmdtest
+	err = Handle.CreateTables(GetCmdTest{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table getcmdtest exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s does not exist", tn)
+	}
+
+	// create the test records
+	createGetCmdTestRecs(t)
+
+	// // set a parameter for id
+	// p := common.GetParam{
+	// 	FieldName:    "fld_two_string",
+	// 	Operand:      "=",
+	// 	ParamValue:   "Record Two",
+	// 	NextOperator: "",
+	// }
+
+	// pa := []common.GetParam{}
+	// pa = append(pa, p)
+
+	// set an offset of 2
+	cmdMap := make(map[string]interface{})
+	cmdMap["offset"] = 2
+	cmdMap["desc"] = nil
+
+	// create a slice to read into
+	recRead := []GetCmdTest{}
+
+	// call with no parameters and no commands
+	result, err := Handle.GetEntitiesWithCommands(recRead, nil, cmdMap)
+	switch result.(type) {
+	case []GetCmdTest:
+		recRead = result.([]GetCmdTest)
+		if len(recRead) != 6 {
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsTestOffsetDesc: expected 6 records, got: %v", len(recRead))
+		}
+		if len(recRead) > 0 {
+			if recRead[0].ID != 90000005 {
+				t.Errorf("error: TestCRUDGetEntitiesWithCommandsTestOffsetDesc: expected result[0] record with key ID == 90000005, got: %v", recRead[0].ID)
+			}
+		} else {
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsTestOffsetDesc: expected 6 records, got: %v", len(recRead))
+		}
+	case uint64:
+		// valid result, but a fail in this case
+	case int64:
+		// possible result, but a fail in this case
+	default:
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsTestOffsetDesc")
+	}
+
+	// drop table getcmdtest
+	err = Handle.DropTables(GetCmdTest{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+}
+
+// TestCRUDGetEntitiesWithCommandsTestOffset
+//
+// Test CRUD GetSet
+// call with command /$offset=2$desc
+func TestCRUDGetEntitiesWithCommandsTestOffsetLimit(t *testing.T) {
+
+	// type GetCmdTest struct {
+	// 	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
+	// 	FldOneInt           int       `db:"fld_one_int" json:"fld_one_int" sqac:"nullable:false;default:0"`
+	// 	TimeNow             time.Time `db:"time_now" json:"time_now" sqac:"nullable:false;default:now();index:unique"`
+	// 	FldTwoString        string    `db:"fld_two_string" json:"fld_two_string" sqac:"nullable:false;default:YYC"`
+	// 	FldThreeFloat       float64   `db:"fld_three_float" json:"fld_three_float" sqac:"nullable:false;default:0.0"`
+	// 	FldFourBool         bool      `db:"fld_four_bool" json:"fld_four_bool"  sqac:"nullable:false;default:false"`
+	// 	NonPersistentColumn string    `db:"non_persistent_column" sqac:"-"`
+	// 	FldFiveString       *string   `db:"fld_five_string" json:"fld_five_string" sqac:"nullable:true"`
+	// 	FldSixFloat         *float64  `db:"fld_six_float" json:"fld_six_float" sqac:"nullable:true"`
+	// 	FldSevenBool        *bool     `db:"fld_seven_bool" json:"fld_seven_bool" sqac:"nullable:true"`
+	// }
+
+	// determine the table names as per the table creation logic
+	tn := common.GetTableName(GetCmdTest{})
+
+	// drop table getcmdtest
+	err := Handle.DropTables(GetCmdTest{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// create table getcmdtest
+	err = Handle.CreateTables(GetCmdTest{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table getcmdtest exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s does not exist", tn)
+	}
+
+	// create the test records
+	createGetCmdTestRecs(t)
+
+	// // set a parameter for id
+	// p := common.GetParam{
+	// 	FieldName:    "fld_two_string",
+	// 	Operand:      "=",
+	// 	ParamValue:   "Record Two",
+	// 	NextOperator: "",
+	// }
+
+	// pa := []common.GetParam{}
+	// pa = append(pa, p)
+
+	// set an offset of 2
+	cmdMap := make(map[string]interface{})
+	cmdMap["offset"] = 2
+	cmdMap["limit"] = 4
+
+	// create a slice to read into
+	recRead := []GetCmdTest{}
+
+	// call with no parameters and no commands
+	result, err := Handle.GetEntitiesWithCommands(recRead, nil, cmdMap)
+	switch result.(type) {
+	case []GetCmdTest:
+		recRead = result.([]GetCmdTest)
+		if len(recRead) != 4 {
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsTestOffsetLimit: expected 4 records, got: %v", len(recRead))
+		}
+		if len(recRead) > 0 {
+			if recRead[0].ID != 90000002 {
+				t.Errorf("error: TestCRUDGetEntitiesWithCommandsTestOffsetLimit: expected result[0] record with key ID == 90000002, got: %v", recRead[0].ID)
+			}
+		} else {
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsTestOffsetLimit: expected 4 records, got: %v", len(recRead))
+		}
+	case uint64:
+		// valid result, but a fail in this case
+	case int64:
+		// possible result, but a fail in this case
+	default:
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsTestOffsetLimit")
+	}
+
+	// drop table getcmdtest
+	err = Handle.DropTables(GetCmdTest{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+}
+
+// TestCRUDGetEntitiesWithCommandsTestOffsetLimitDesc
+//
+// Test CRUD GetSet
+// call with command /$offset=2$limit=4$desc
+func TestCRUDGetEntitiesWithCommandsTestOffsetLimitDesc(t *testing.T) {
+
+	// type GetCmdTest struct {
+	// 	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
+	// 	FldOneInt           int       `db:"fld_one_int" json:"fld_one_int" sqac:"nullable:false;default:0"`
+	// 	TimeNow             time.Time `db:"time_now" json:"time_now" sqac:"nullable:false;default:now();index:unique"`
+	// 	FldTwoString        string    `db:"fld_two_string" json:"fld_two_string" sqac:"nullable:false;default:YYC"`
+	// 	FldThreeFloat       float64   `db:"fld_three_float" json:"fld_three_float" sqac:"nullable:false;default:0.0"`
+	// 	FldFourBool         bool      `db:"fld_four_bool" json:"fld_four_bool"  sqac:"nullable:false;default:false"`
+	// 	NonPersistentColumn string    `db:"non_persistent_column" sqac:"-"`
+	// 	FldFiveString       *string   `db:"fld_five_string" json:"fld_five_string" sqac:"nullable:true"`
+	// 	FldSixFloat         *float64  `db:"fld_six_float" json:"fld_six_float" sqac:"nullable:true"`
+	// 	FldSevenBool        *bool     `db:"fld_seven_bool" json:"fld_seven_bool" sqac:"nullable:true"`
+	// }
+
+	// determine the table names as per the table creation logic
+	tn := common.GetTableName(GetCmdTest{})
+
+	// drop table getcmdtest
+	err := Handle.DropTables(GetCmdTest{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// create table getcmdtest
+	err = Handle.CreateTables(GetCmdTest{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table getcmdtest exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s does not exist", tn)
+	}
+
+	// create the test records
+	createGetCmdTestRecs(t)
+
+	// // set a parameter for id
+	// p := common.GetParam{
+	// 	FieldName:    "fld_two_string",
+	// 	Operand:      "=",
+	// 	ParamValue:   "Record Two",
+	// 	NextOperator: "",
+	// }
+
+	// pa := []common.GetParam{}
+	// pa = append(pa, p)
+
+	// set an offset of 2, limit of 4, order by id descending
+	cmdMap := make(map[string]interface{})
+	cmdMap["offset"] = 2
+	cmdMap["limit"] = 4
+	cmdMap["desc"] = nil
+
+	// create a slice to read into
+	recRead := []GetCmdTest{}
+
+	// call with no parameters and no commands
+	result, err := Handle.GetEntitiesWithCommands(recRead, nil, cmdMap)
+	switch result.(type) {
+	case []GetCmdTest:
+		recRead = result.([]GetCmdTest)
+		if len(recRead) != 4 {
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsTestOffsetLimitDesc: expected 4 records, got: %v", len(recRead))
+		}
+		if len(recRead) > 0 {
+			if recRead[0].ID != 90000005 {
+				t.Errorf("error: TestCRUDGetEntitiesWithCommandsTestOffsetLimitDesc: expected result[0] record with key ID == 90000005, got: %v", recRead[0].ID)
+			}
+		} else {
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsTestOffsetLimitDesc: expected 4 records, got: %v", len(recRead))
+		}
+	case uint64:
+		// valid result, but a fail in this case
+	case int64:
+		// possible result, but a fail in this case
+	default:
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsTestOffsetLimitDesc")
+	}
+
+	// drop table getcmdtest
+	err = Handle.DropTables(GetCmdTest{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+}
+
 func createGetCmdTestRecs(t *testing.T) {
 	// create new records via the CRUD Create call
 	rec := GetCmdTest{
