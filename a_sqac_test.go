@@ -1936,8 +1936,6 @@ func TestCRUDGetEntitiesWithCommandsTestTwo(t *testing.T) {
 		t.Errorf("table %s does not exist", tn)
 	}
 
-	// create
-
 	// create new records via the CRUD Create call
 	for i := 0; i < 8; i++ {
 

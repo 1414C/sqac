@@ -618,6 +618,7 @@ func (bf *BaseFlavor) ExecuteQuery(queryString string, qParams ...interface{}) (
 		bf.QsLog(queryString)
 		rows, err = bf.db.Query(queryString)
 	}
+	defer rows.Close()
 	return rows, err
 }
 
