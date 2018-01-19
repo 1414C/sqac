@@ -68,7 +68,8 @@ func Create(flavor string, logFlag bool, dbLogFlag bool, connectionString string
 	case "sqlite":
 		sqh := new(SQLiteFlavor)
 		handle = sqh
-		db, err := Open("sqlite3", "testdb.sqlite")
+		// db, err := Open("sqlite3", "testdb.sqlite")
+		db, err := Open("sqlite3", connectionString)
 		if err != nil {
 			log.Fatalf("%s\n", err.Error())
 			panic(err)
