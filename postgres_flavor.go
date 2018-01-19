@@ -2,8 +2,6 @@ package sqac
 
 import (
 	"fmt"
-	"github.com/jmoiron/sqlx"
-	"log"
 	"reflect"
 	"strconv"
 	"strings"
@@ -629,14 +627,15 @@ func (pf *PostgresFlavor) ExistsSequence(sn string) bool {
 	params = append(params, sn)
 	pf.QsLog(reqQuery, params...)
 
-	fetch, err := pf.db.Query(reqQuery, params...)
+	rows, err := pf.db.Query(reqQuery, params...)
 	if err != nil {
 		panic(err)
 	}
+	defer rows.Close()
 
 	var s string
-	for fetch.Next() {
-		err = fetch.Scan(&s)
+	for rows.Next() {
+		err = rows.Scan(&s)
 		if err != nil {
 			return false
 		}
@@ -781,144 +780,144 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 	return nil
 }
 
-// GetEntitiesWithCommands is the experimental replacement for all get-set ops
-func (pf *PostgresFlavor) GetEntitiesWithCommands(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (interface{}, error) {
+// // GetEntitiesWithCommands is the experimental replacement for all get-set ops
+//func (pf *PostgresFlavor) GetEntitiesWithCommands(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (interface{}, error) {
 
-	fmt.Println()
-	fmt.Println("GetEntitiesWithCommands received params:", params)
-	fmt.Println("GetEntitiesWithCommands received cmdMap:", cmdMap)
-	fmt.Println()
+// 	fmt.Println()
+// 	fmt.Println("GetEntitiesWithCommands received params:", params)
+// 	fmt.Println("GetEntitiesWithCommands received cmdMap:", cmdMap)
+// 	fmt.Println()
 
-	var err error
-	var count uint64
-	var row *sqlx.Row
-	paramString := ""
-	selQuery := ""
+// 	var err error
+// 	var count uint64
+// 	var row *sqlx.Row
+// 	paramString := ""
+// 	selQuery := ""
 
-	// get the underlying data type of the interface{}
-	entTypeElem := reflect.TypeOf(ents).Elem()
-	// fmt.Println("entTypeElem:", entTypeElem)
+// 	// get the underlying data type of the interface{}
+// 	entTypeElem := reflect.TypeOf(ents).Elem()
+// 	// fmt.Println("entTypeElem:", entTypeElem)
 
-	// create a struct from the type
-	testVar := reflect.New(entTypeElem)
+// 	// create a struct from the type
+// 	testVar := reflect.New(entTypeElem)
 
-	// determine the db table name
-	tn := common.GetTableName(ents)
+// 	// determine the db table name
+// 	tn := common.GetTableName(ents)
 
-	// are there any parameters to include in the query?
-	var pv []interface{}
-	if params != nil && len(params) > 0 {
-		paramString = " WHERE"
-		for i := range params {
-			paramString = fmt.Sprintf("%s %s %s ? %s", paramString, common.CamelToSnake(params[i].FieldName), params[i].Operand, params[i].NextOperator)
-			pv = append(pv, params[i].ParamValue)
-		}
-	}
-	fmt.Println("constructed paramString:", paramString)
+// 	// are there any parameters to include in the query?
+// 	var pv []interface{}
+// 	if params != nil && len(params) > 0 {
+// 		paramString = " WHERE"
+// 		for i := range params {
+// 			paramString = fmt.Sprintf("%s %s %s ? %s", paramString, common.CamelToSnake(params[i].FieldName), params[i].Operand, params[i].NextOperator)
+// 			pv = append(pv, params[i].ParamValue)
+// 		}
+// 	}
+// 	fmt.Println("constructed paramString:", paramString)
 
-	// received a $count command?  this supercedes all, as it should not
-	// be mixed with any other $<commands>.
-	_, ok := cmdMap["count"]
-	if ok {
-		if paramString == "" {
-			selQuery = fmt.Sprintf("SELECT COUNT(*) FROM %s;", tn)
-			pf.QsLog(selQuery)
-			row = pf.ExecuteQueryRowx(selQuery)
-		} else {
-			selQuery = fmt.Sprintf("SELECT COUNT(*) FROM %s%s;", tn, paramString)
-			pf.QsLog(selQuery)
-			row = pf.ExecuteQueryRowx(selQuery, pv...)
-		}
+// 	// received a $count command?  this supercedes all, as it should not
+// 	// be mixed with any other $<commands>.
+// 	_, ok := cmdMap["count"]
+// 	if ok {
+// 		if paramString == "" {
+// 			selQuery = fmt.Sprintf("SELECT COUNT(*) FROM %s;", tn)
+// 			pf.QsLog(selQuery)
+// 			row = pf.ExecuteQueryRowx(selQuery)
+// 		} else {
+// 			selQuery = fmt.Sprintf("SELECT COUNT(*) FROM %s%s;", tn, paramString)
+// 			pf.QsLog(selQuery)
+// 			row = pf.ExecuteQueryRowx(selQuery, pv...)
+// 		}
 
-		err = row.Scan(&count)
-		if err != nil {
-			log.Fatal(err)
-		}
-		return count, nil
-	}
+// 		err = row.Scan(&count)
+// 		if err != nil {
+// 			log.Fatal(err)
+// 		}
+// 		return count, nil
+// 	}
 
-	// no $count command - build query
-	var obString string
-	var limitString string
-	var offsetString string
-	var adString string
+// 	// no $count command - build query
+// 	var obString string
+// 	var limitString string
+// 	var offsetString string
+// 	var adString string
 
-	// received $orderby command?
-	obField, ok := cmdMap["orderby"]
-	if ok {
-		obString = fmt.Sprintf(" ORDER BY %s", obField.(string))
-	}
+// 	// received $orderby command?
+// 	obField, ok := cmdMap["orderby"]
+// 	if ok {
+// 		obString = fmt.Sprintf(" ORDER BY %s", obField.(string))
+// 	}
 
-	// received $asc command?
-	_, ok = cmdMap["asc"]
-	if ok {
-		adString = " ASC"
-	}
+// 	// received $asc command?
+// 	_, ok = cmdMap["asc"]
+// 	if ok {
+// 		adString = " ASC"
+// 	}
 
-	// received $desc command?
-	_, ok = cmdMap["desc"]
-	if ok {
-		adString = " DESC"
-	}
+// 	// received $desc command?
+// 	_, ok = cmdMap["desc"]
+// 	if ok {
+// 		adString = " DESC"
+// 	}
 
-	// received $limit command?
-	limField, ok := cmdMap["limit"]
-	if ok {
-		limitString = fmt.Sprintf(" LIMIT %v", limField)
-	}
+// 	// received $limit command?
+// 	limField, ok := cmdMap["limit"]
+// 	if ok {
+// 		limitString = fmt.Sprintf(" LIMIT %v", limField)
+// 	}
 
-	// received $offset command?
-	offField, ok := cmdMap["offset"]
-	if ok {
-		offsetString = fmt.Sprintf(" OFFSET %v", offField)
-	}
+// 	// received $offset command?
+// 	offField, ok := cmdMap["offset"]
+// 	if ok {
+// 		offsetString = fmt.Sprintf(" OFFSET %v", offField)
+// 	}
 
-	// -- SELECT COUNT(*) FROM library;
-	// -- SELECT * FROM library;
-	// -- SELECT * FROM library LIMIT 2;
-	// -- SELECT * FROM library OFFSET 2;
-	// -- SELECT * FROM library LIMIT 2 OFFSET 1;
-	// -- SELECT * FROM library ORDER BY ID DESC;
-	// -- SELECT * FROM library ORDER BY ID ASC;
-	// -- SELECT * FROM library ORDER BY name ASC;
-	// -- SELECT * FROM library ORDER BY ID ASC LIMIT 2 OFFSET 2;
+// 	// -- SELECT COUNT(*) FROM library;
+// 	// -- SELECT * FROM library;
+// 	// -- SELECT * FROM library LIMIT 2;
+// 	// -- SELECT * FROM library OFFSET 2;
+// 	// -- SELECT * FROM library LIMIT 2 OFFSET 1;
+// 	// -- SELECT * FROM library ORDER BY ID DESC;
+// 	// -- SELECT * FROM library ORDER BY ID ASC;
+// 	// -- SELECT * FROM library ORDER BY name ASC;
+// 	// -- SELECT * FROM library ORDER BY ID ASC LIMIT 2 OFFSET 2;
 
-	// if $asc or $desc were specifed with no $orderby, default to order by id
-	if obString == "" && adString != "" {
-		obString = " ORDER BY id"
-	}
+// 	// if $asc or $desc were specifed with no $orderby, default to order by id
+// 	if obString == "" && adString != "" {
+// 		obString = " ORDER BY id"
+// 	}
 
-	selQuery = fmt.Sprintf("SELECT * FROM %s%s", tn, paramString)
-	selQuery = pf.db.Rebind(selQuery)
-	fmt.Println("rebound selQuery:", selQuery)
+// 	selQuery = fmt.Sprintf("SELECT * FROM %s%s", tn, paramString)
+// 	selQuery = pf.db.Rebind(selQuery)
+// 	fmt.Println("rebound selQuery:", selQuery)
 
-	selQuery = fmt.Sprintf("%s%s%s%s%s;", selQuery, obString, adString, limitString, offsetString)
-	fmt.Println("selQuery fully constructed:", selQuery)
-	pf.QsLog(selQuery)
+// 	selQuery = fmt.Sprintf("%s%s%s%s%s;", selQuery, obString, adString, limitString, offsetString)
+// 	fmt.Println("selQuery fully constructed:", selQuery)
+// 	pf.QsLog(selQuery)
 
-	// read the rows
-	fmt.Println("pv...", pv)
-	rows, err := pf.db.Queryx(selQuery, pv...)
-	if err != nil {
-		log.Printf("GetEntities for table &s returned error: %v\n", err.Error())
-		return nil, err
-	}
-	defer rows.Close()
+// 	// read the rows
+// 	fmt.Println("pv...", pv)
+// 	rows, err := pf.db.Queryx(selQuery, pv...)
+// 	if err != nil {
+// 		log.Printf("GetEntities for table &s returned error: %v\n", err.Error())
+// 		return nil, err
+// 	}
+// 	defer rows.Close()
 
-	// iterate over the rows collection and put the results
-	// into the ents interface (slice)
-	entsv := reflect.ValueOf(ents)
-	for rows.Next() {
-		err = rows.StructScan(testVar.Interface())
-		if err != nil {
-			fmt.Println("scan error:", err)
-			return nil, err
-		}
-		// fmt.Println(testVar)
-		entsv = reflect.Append(entsv, testVar.Elem())
-	}
+// 	// iterate over the rows collection and put the results
+// 	// into the ents interface (slice)
+// 	entsv := reflect.ValueOf(ents)
+// 	for rows.Next() {
+// 		err = rows.StructScan(testVar.Interface())
+// 		if err != nil {
+// 			fmt.Println("scan error:", err)
+// 			return nil, err
+// 		}
+// 		// fmt.Println(testVar)
+// 		entsv = reflect.Append(entsv, testVar.Elem())
+// 	}
 
-	ents = entsv.Interface()
-	// fmt.Println("ents:", ents)
-	return entsv.Interface(), nil
-}
+// 	ents = entsv.Interface()
+// 	// fmt.Println("ents:", ents)
+// 	return entsv.Interface(), nil
+// }

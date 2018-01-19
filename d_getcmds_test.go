@@ -1,8 +1,10 @@
 package sqac_test
 
 import (
-	"github.com/1414C/sqac/common"
+	"fmt"
 	"testing"
+
+	"github.com/1414C/sqac/common"
 )
 
 // TestCRUDGetEntitiesWithCommandsOpenSelect
@@ -178,6 +180,11 @@ func TestCRUDGetEntitiesWithCommandsSelectUint(t *testing.T) {
 
 	// call with no parameters and no commands
 	result, err := Handle.GetEntitiesWithCommands(recRead, pa, nil)
+	if err != nil {
+		fmt.Println()
+		fmt.Println(err)
+		fmt.Println()
+	}
 	switch result.(type) {
 	case []GetCmdTest:
 		recRead = result.([]GetCmdTest)
