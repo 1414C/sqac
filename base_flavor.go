@@ -1093,11 +1093,10 @@ func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []common.
 				limitString = " LIMIT 99999999999999999999"
 			}
 		case "mssql":
+			// handled in mssql_flavor
 
 		default:
-			fmt.Println()
-			fmt.Println("DRIVER NAME:", bf.GetDBDriverName())
-			fmt.Println()
+
 		}
 		offsetString = fmt.Sprintf(" OFFSET %v", offField)
 	}

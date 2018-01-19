@@ -1,6 +1,6 @@
 # sqac
 
-sqac is a simple overlay to provide a common interface to attached mssql, mysql, postgres, sqlite or SAP Hana databases.
+sqac is a simple overlay to provide a common interface to attached mssql, mysql, postgres, sqlite or SAP Hana database.
 
 - create tables, supporting default, nullable, start, primary-key, index tags
 - drop tables
@@ -11,11 +11,14 @@ sqac is a simple overlay to provide a common interface to attached mssql, mysql,
 - set sequence, auto-increment or identity nextval
 - Standard go sql, jmoirons sqlx db access
 - generic CRUD entity operations
+- set commands (/$count /$orderby=<field_name> $limit=n; $offset=n; ($asc|$desc))
 
-* Testing
-* update tests for GetEntitiesWithCommands
-* implement GetEntitiesWithCommands for all DB flavors
+* Testing / TODO
 * examine the $desc orderby when limit / offset is used in postgres with selection parameter (weirdness)
+* change from timestamp with TZ to timestamp and ensure timestamps are in UTC before submitting to the db
+* examine view support
+* remove debugging output
+* remove extraneaous getSet-type methods
 
 ```bash
 
