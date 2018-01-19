@@ -782,6 +782,10 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []commo
 		obString = " ORDER BY id"
 	}
 
+	if offsetString != "" && obString == "" {
+		obString = " ORDER BY id"
+	}
+
 	if limitString != "" && offsetString == "" {
 		selQuery = fmt.Sprintf("SELECT %v * FROM %s%s", limitString, tn, paramString)
 	} else {
