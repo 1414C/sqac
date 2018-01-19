@@ -751,16 +751,20 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []commo
 		adString = " DESC"
 	}
 
-	// received $limit command?
-	limField, ok := cmdMap["limit"]
-	if ok {
-		limitString = fmt.Sprintf(" (TOP %v)", limField)
-	}
-
 	// received $offset command?
 	offField, ok := cmdMap["offset"]
 	if ok {
-		offsetString = fmt.Sprintf(" OFFSET %v", offField)
+		offsetString = fmt.Sprintf(" OFFSET %v ROWS", offField)
+	}
+
+	// received $limit command?
+	limField, ok := cmdMap["limit"]
+	if ok {
+		if offsetString != "" {
+			limitString = fmt.Sprintf(" FETCH NEXT %v ROWS ONLY", limField)
+		} else {
+			limitString = fmt.Sprintf("TOP(%v)", limField)
+		}
 	}
 
 	// -- SELECT COUNT(*) FROM library;
@@ -778,11 +782,21 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []commo
 		obString = " ORDER BY id"
 	}
 
-	selQuery = fmt.Sprintf("SELECT * FROM %s%s", tn, paramString)
+	if limitString != "" && offsetString == "" {
+		selQuery = fmt.Sprintf("SELECT %v * FROM %s%s", limitString, tn, paramString)
+	} else {
+		selQuery = fmt.Sprintf("SELECT * FROM %s%s", tn, paramString)
+	}
 	selQuery = msf.db.Rebind(selQuery)
 	fmt.Println("rebound selQuery:", selQuery)
 
-	selQuery = fmt.Sprintf("%s%s%s%s%s;", selQuery, obString, adString, limitString, offsetString)
+	// use SELECT (TOP n) * ...
+	if limitString != "" && offsetString == "" {
+		selQuery = fmt.Sprintf("%s%s%s;", selQuery, obString, adString)
+	} else {
+		selQuery = fmt.Sprintf("%s%s%s%s%s;", selQuery, obString, adString, offsetString, limitString)
+	}
+	// selQuery = fmt.Sprintf("%s%s%s%s%s;", selQuery, obString, adString, offsetString, limitString)
 	fmt.Println("selQuery fully constructed:", selQuery)
 	msf.QsLog(selQuery)
 
