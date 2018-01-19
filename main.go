@@ -18,6 +18,10 @@ type Sqac struct {
 	Hndl PublicDB
 }
 
+func init() {
+	fmt.Println("package sqac init is running")
+}
+
 // Open a sqlx connection to the specified database
 func Open(flavor string, args ...interface{}) (db *sqlx.DB, err error) {
 

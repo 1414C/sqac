@@ -39,10 +39,6 @@ type PostgresFlavor struct {
 	// ExistsSequence(sn string) bool
 }
 
-func init() {
-	fmt.Println("Postgres init is running")
-}
-
 // GetDBName returns the name of the currently connected db
 func (pf *PostgresFlavor) GetDBName() (dbName string) {
 

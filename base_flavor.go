@@ -1088,6 +1088,10 @@ func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []common.
 			if limitString == "" {
 				limitString = " LIMIT 18446744073709551615"
 			}
+		case "hdb":
+			if limitString == "" {
+				limitString = " LIMIT 99999999999999999999"
+			}
 		case "mssql":
 
 		default:
