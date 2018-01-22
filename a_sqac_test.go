@@ -92,7 +92,7 @@ func TestMain(m *testing.M) {
 	var cs string
 	switch *dbFlag {
 	case "postgres":
-		cs = "host=127.0.0.1 user=godev dbname=sqlx sslmode=disable password=gogogo123"
+		cs = "host=127.0.0.1 user=godev dbname=sqactst sslmode=disable password=gogogo123"
 	case "mysql":
 		cs = "stevem:gogogo123@tcp(192.168.1.50:3306)/sqlx?charset=utf8&parseTime=True&loc=Local"
 	case "sqlite":
