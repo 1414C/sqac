@@ -45,7 +45,7 @@ func Create(flavor string, logFlag bool, dbLogFlag bool, connectionString string
 	case "postgres":
 		pgh := new(PostgresFlavor)
 		handle = pgh
-		// db, err := Open("postgres", "host=127.0.0.1 user=godev dbname=sqlx sslmode=disable password=gogogo123")
+		// db, err := Open("postgres", "host=127.0.0.1 user=godev dbname=sqactst sslmode=disable password=gogogo123")
 		db, err := Open("postgres", connectionString)
 		if err != nil {
 			log.Fatalf("%s\n", err.Error())
