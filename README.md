@@ -19,6 +19,8 @@ sqac is a simple overlay to provide a common interface to attached mssql, mysql,
 * examine view support
 * remove debugging output
 * remove extraneaous getSet-type methods
+* complete foreign-key implementation
+* correct CreateTables where no primary-key is present (trailing ,_ )
 
 ```bash
 
