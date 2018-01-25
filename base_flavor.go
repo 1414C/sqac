@@ -138,6 +138,7 @@ type PublicDB interface {
 	ExistsSequence(sn string) bool
 
 	// CreateForeignKey(...) error
+	CreateForeignKey(ft, rt, ff, rf string) error
 	// BuildForeignKeyName(...) error
 	// DropForeignKey(...) error
 	// ExistsForeignKey(...) bool
@@ -550,6 +551,22 @@ func (bf *BaseFlavor) GetNextSequenceValue(name string) (int, error) {
 	return 0, fmt.Errorf("ExistsSequence has not been implemented for %s", bf.GetDBDriverName())
 }
 
+// CreateForeignKey creates a foreign key on an existing column.
+func (bf *BaseFlavor) CreateForeignKey(ft, rt, ff, rf string) error {
+
+	schema := fmt.Sprintf("ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY(%s) REFERENCES %s(%s);", ft, "fk_"+ft+"_"+rt, ff, rt, rf)
+	_, err := bf.Exec(schema)
+	if err != nil {
+		return err
+	}
+	// ALTER TABLE book
+	// ADD CONSTRAINT fk_book_library
+	// FOREIGN KEY (library_id)
+	// REFERENCES library(id);
+	// return fmt.Errorf("CreateForeignKey has not been implemented for %s", bf.GetDBDriverName())
+	return nil
+}
+
 //===============================================================================
 // SQL Schema Processing
 //===============================================================================
@@ -685,8 +702,8 @@ func (bf *BaseFlavor) Exec(queryString string, args ...interface{}) (sql.Result,
 	var err error
 
 	if args != nil {
-		queryString = bf.db.Rebind(queryString)
 		bf.QsLog(queryString, args...)
+		queryString = bf.db.Rebind(queryString)
 		result, err = bf.db.Exec(queryString, args...)
 	} else {
 		bf.QsLog(queryString)
