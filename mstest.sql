@@ -1,5 +1,5 @@
 -- Ensure that we are using the correct database
-USE sqlx;  
+USE sqlx; 
 GO  
 
 -- Create a new table called 'depot' in schema 'dbo'
@@ -20,5 +20,6 @@ GO
 --INSERT INTO nbool ( bool_with_value,  null_bool_dflt_with_value,  null_bool_with_value,  null_bool,  bool_dflt_with_value) VALUES ( false,  false,  false,  NULL,  false);
 --GO
 
-SELECT * FROM auth;
+--SELECT * FROM auth;
+SELECT * FROM information_schema.tables WHERE TABLE_TYPE='BASE TABLE';
 GO
