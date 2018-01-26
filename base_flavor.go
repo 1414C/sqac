@@ -137,8 +137,9 @@ type PublicDB interface {
 	DropSequence(sn string) error
 	ExistsSequence(sn string) bool
 
-	// CreateForeignKey(...) error
-	CreateForeignKey(ft, rt, ff, rf string) error
+	// CreateForeignKey(&Entity{}, foreignkeytable, reftable, fkfield, reffield)
+	// &Entity{} (i) is only needed for SQLite - okay to pass nil in other cases.
+	CreateForeignKey(i interface{}, ft, rt, ff, rf string) error
 	// BuildForeignKeyName(...) error
 	// DropForeignKey(...) error
 	// ExistsForeignKey(...) bool
@@ -552,7 +553,7 @@ func (bf *BaseFlavor) GetNextSequenceValue(name string) (int, error) {
 }
 
 // CreateForeignKey creates a foreign key on an existing column.
-func (bf *BaseFlavor) CreateForeignKey(ft, rt, ff, rf string) error {
+func (bf *BaseFlavor) CreateForeignKey(i interface{}, ft, rt, ff, rf string) error {
 
 	schema := fmt.Sprintf("ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY(%s) REFERENCES %s(%s);", ft, "fk_"+ft+"_"+rt, ff, rt, rf)
 	_, err := bf.Exec(schema)
@@ -718,10 +719,13 @@ func (bf *BaseFlavor) Exec(queryString string, args ...interface{}) (sql.Result,
 // the caller.  It is assumed that tList contains bound queryStrings.
 func (bf *BaseFlavor) ProcessTransaction(tList []string) error {
 
+	// begin the transaction
 	tx, err := bf.db.Begin()
 	if err != nil {
 		return err
 	}
+
+	// execute each command in the transaction set
 	for _, s := range tList {
 		_, err = tx.Exec(s, nil)
 		if err != nil {
@@ -730,6 +734,7 @@ func (bf *BaseFlavor) ProcessTransaction(tList []string) error {
 		}
 	}
 
+	// commit
 	err = tx.Commit()
 	if err != nil {
 		tx.Rollback()
@@ -1008,11 +1013,6 @@ func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 // attempt at a common version...
 func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (interface{}, error) {
 
-	fmt.Println()
-	fmt.Println("GetEntitiesWithCommands received params:", params)
-	fmt.Println("GetEntitiesWithCommands received cmdMap:", cmdMap)
-	fmt.Println()
-
 	var err error
 	var count uint64
 	var row *sqlx.Row
@@ -1038,7 +1038,7 @@ func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []common.
 			pv = append(pv, params[i].ParamValue)
 		}
 	}
-	fmt.Println("constructed paramString:", paramString)
+	// fmt.Println("constructed paramString:", paramString)
 
 	// received a $count command?  this supercedes all, as it should not
 	// be mixed with any other $<commands>.
@@ -1135,14 +1135,12 @@ func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []common.
 
 	selQuery = fmt.Sprintf("SELECT * FROM %s%s", tn, paramString)
 	selQuery = bf.db.Rebind(selQuery)
-	fmt.Println("rebound selQuery:", selQuery)
-
 	selQuery = fmt.Sprintf("%s%s%s%s%s;", selQuery, obString, adString, limitString, offsetString)
-	fmt.Println("selQuery fully constructed:", selQuery)
+	fmt.Println("selQuery:", selQuery)
 	bf.QsLog(selQuery)
 
 	// read the rows
-	fmt.Println("pv...", pv)
+	// fmt.Println("pv...", pv)
 	rows, err := bf.db.Queryx(selQuery, pv...)
 	if err != nil {
 		log.Printf("GetEntities for table &s returned error: %v\n", err.Error())

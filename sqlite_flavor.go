@@ -2,6 +2,7 @@ package sqac
 
 import (
 	"fmt"
+	"log"
 	"reflect"
 	"strconv"
 	"strings"
@@ -635,6 +636,80 @@ func (slf *SQLiteFlavor) GetNextSequenceValue(name string) (int, error) {
 		return seq + 1, nil
 	}
 	return seq, nil
+}
+
+// CreateForeignKey creates a foreign key on an existing column in the database table
+// specified by the i / ft parameter.  SQLite does not support the addition of a
+// foreign-key via ALTER TABLE, so the existing table has to be copied to a backup,
+// and a new table created (hence parameter i) with the foreign-key constraint in
+// the CREATE TABLE ... command.  Foreign-key constraints are temporarily disabled
+// on the db for the duration of the transaction processing.
+func (slf *SQLiteFlavor) CreateForeignKey(i interface{}, ft, rt, ff, rf string) error {
+
+	oldTn := ""
+	q := ""
+
+	// sql transation command buffer
+	cmds := make([]string, 0)
+
+	// confirm the table name
+	tn := common.GetTableName(i)
+	if tn == "" || tn != ft {
+		return fmt.Errorf("unable to confirm table name in slf.CreateForeignKey")
+	}
+
+	// if the table is found to exist, copy it to a temp backup table
+	if slf.ExistsTable(tn) {
+		oldTn = fmt.Sprintf("_%s_old", ft)
+		q = fmt.Sprintf("ALTER TABLE %s RENAME TO _%s_old;", ft, ft)
+		cmds = append(cmds, q)
+	}
+
+	// build the new foreign-key constraint clause
+	fkc := fmt.Sprintf(" CONSTRAINT fk_%s_%s FOREIGN KEY (%s) REFERENCES %s(%s)", ft, rt, ff, rt, rf)
+
+	// build the new table schema with foreign-key constraint
+	tc := slf.buildTablSchema(tn, i)
+	q = strings.TrimSuffix(tc.tblSchema, ");")
+	q = strings.TrimSpace(q)
+	lv := q[len(q)-1:]
+	if lv != "," {
+		q = q + ","
+	}
+	q = fmt.Sprintf("%s%s%s", q, fkc, ");")
+	cmds = append(cmds, q)
+
+	// copy the data back - note that this can happen even if there is a
+	// foreign-key violation due to the prior PRAGMA.  :)
+	if oldTn != "" {
+		q = fmt.Sprintf("INSERT INTO %s SELECT * FROM %s;", ft, oldTn)
+		cmds = append(cmds, q)
+	}
+
+	// diable foreign-key checks
+	_, err := slf.Exec("PRAGMA foreign_keys=off;")
+	if err != nil {
+		return err
+	}
+
+	// submit the transaction buffer
+	err = slf.ProcessTransaction(cmds)
+	if err != nil {
+		// attempt to reactivate foreign-key constraints
+		_, fkErr := slf.Exec("PRAGMA foreign_keys=on;")
+		if fkErr != nil {
+			log.Println("WARNING: FOREIGN KEY CONSTRAINTS ARE PRESENTLY DEACATIVATED!")
+		}
+		return err
+	}
+
+	// reactivate foreign-key constraints
+	_, err = slf.Exec("PRAGMA foreign_keys=on;")
+	if err != nil {
+		log.Println("WARNING: FOREIGN KEY CONSTRAINTS MAY PRESENTLY BE DEACATIVATED!")
+		return err
+	}
+	return nil
 }
 
 //================================================================

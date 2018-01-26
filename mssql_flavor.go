@@ -805,7 +805,7 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []commo
 	msf.QsLog(selQuery)
 
 	// read the rows
-	fmt.Println("pv...", pv)
+	// fmt.Println("pv...", pv)
 	rows, err := msf.db.Queryx(selQuery, pv...)
 	if err != nil {
 		log.Printf("GetEntities for table &s returned error: %v\n", err.Error())
