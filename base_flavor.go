@@ -137,11 +137,12 @@ type PublicDB interface {
 	DropSequence(sn string) error
 	ExistsSequence(sn string) bool
 
-	// CreateForeignKey(&Entity{}, foreignkeytable, reftable, fkfield, reffield)
+	// CreateForeignKey(Entity{}, foreignkeytable, reftable, fkfield, reffield)
 	// &Entity{} (i) is only needed for SQLite - okay to pass nil in other cases.
 	CreateForeignKey(i interface{}, ft, rt, ff, rf string) error
 	// BuildForeignKeyName(...) error
-	// DropForeignKey(...) error
+	// DropForeignKey(Entity{}, foreignkeyname [fk_ft_rt])
+	DropForeignKey(i interface{}, ft, fkn string) error
 	// ExistsForeignKey(...) bool
 
 	ProcessSchema(schema string)
@@ -552,7 +553,7 @@ func (bf *BaseFlavor) GetNextSequenceValue(name string) (int, error) {
 	return 0, fmt.Errorf("ExistsSequence has not been implemented for %s", bf.GetDBDriverName())
 }
 
-// CreateForeignKey creates a foreign key on an existing column.
+// CreateForeignKey creates a foreign-key on an existing column.
 func (bf *BaseFlavor) CreateForeignKey(i interface{}, ft, rt, ff, rf string) error {
 
 	schema := fmt.Sprintf("ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY(%s) REFERENCES %s(%s);", ft, "fk_"+ft+"_"+rt, ff, rt, rf)
@@ -566,6 +567,23 @@ func (bf *BaseFlavor) CreateForeignKey(i interface{}, ft, rt, ff, rf string) err
 	// REFERENCES library(id);
 	// return fmt.Errorf("CreateForeignKey has not been implemented for %s", bf.GetDBDriverName())
 	return nil
+}
+
+// DropForeignKey drops a foreign-key on an existing column
+func (bf *BaseFlavor) DropForeignKey(i interface{}, ft, fkn string) error {
+
+	// pg: SELECT COUNT(1) FROM information_schema.table_constraints WHERE constraint_name='user__fk__store_id' AND table_name='client';
+	// mssql: SELECT COUNT(*) FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_NAME = 'FK_Name';
+	// myslq: SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_name='user__fk__store_id' AND table_name='client';
+	// sqlite: SELECT * FROM sqlite_master WHERE tbl_name = 'product' AND sql like ('%constraint%foreign%key%warehouse_id%');
+	// pg; mssql; hdb
+	schema := fmt.Sprintf("ALTER TABLE %v DROP CONSTRAINT %v;", ft, fkn)
+	_, err := bf.Exec(schema)
+	if err != nil {
+		return err
+	}
+	return nil
+	// return fmt.Errorf("DropForeignKey has not been implemented for %s", bf.GetDBDriverName())
 }
 
 //===============================================================================
