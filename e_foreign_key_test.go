@@ -79,7 +79,12 @@ func TestForeignKeyCreate(t *testing.T) {
 	}
 
 	// add a foreign-key to table product
-	err = Handle.CreateForeignKey(pn, wn, "warehouse_id", "id")
+	switch Handle.GetDBDriverName() {
+	case "sqlite3":
+		err = Handle.CreateForeignKey(Product{}, pn, wn, "warehouse_id", "id")
+	default:
+		err = Handle.CreateForeignKey(nil, pn, wn, "warehouse_id", "id")
+	}
 	if err != nil {
 		t.Errorf("failed to create foreign-key; got: %s", err)
 	}
