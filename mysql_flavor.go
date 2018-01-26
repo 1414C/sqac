@@ -431,6 +431,19 @@ func (myf *MySQLFlavor) GetNextSequenceValue(name string) (int, error) {
 	return seq, nil
 }
 
+// DropForeignKey drops a foreign-key on an existing column
+func (myf *MySQLFlavor) DropForeignKey(i interface{}, ft, fkn string) error {
+
+	// mysql: SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_name='user__fk__store_id' AND table_name='client';
+
+	schema := fmt.Sprintf("ALTER TABLE %v DROP FOREIGN KEY %v", ft, fkn)
+	_, err := myf.Exec(schema)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 //================================================================
 // CRUD ops
 //================================================================
