@@ -661,6 +661,8 @@ func (slf *SQLiteFlavor) CreateForeignKey(i interface{}, ft, rt, ff, rf string) 
 	// if the table is found to exist, copy it to a temp backup table
 	if slf.ExistsTable(tn) {
 		oldTn = fmt.Sprintf("_%s_old", ft)
+		q = fmt.Sprintf("DROP TABLE IF EXISTS %s;", oldTn)
+		cmds = append(cmds, q)
 		q = fmt.Sprintf("ALTER TABLE %s RENAME TO _%s_old;", ft, ft)
 		cmds = append(cmds, q)
 	}
@@ -683,6 +685,10 @@ func (slf *SQLiteFlavor) CreateForeignKey(i interface{}, ft, rt, ff, rf string) 
 	// foreign-key violation due to the prior PRAGMA.  :)
 	if oldTn != "" {
 		q = fmt.Sprintf("INSERT INTO %s SELECT * FROM %s;", ft, oldTn)
+		cmds = append(cmds, q)
+
+		// drop the backup table directly
+		q = fmt.Sprintf("DROP TABLE IF EXISTS %s;", oldTn)
 		cmds = append(cmds, q)
 	}
 
