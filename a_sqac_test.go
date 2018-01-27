@@ -114,6 +114,136 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
+// TestForeignKeyCreateTwoFromModel
+//
+// Test ForeignKeyCreateTwoFromModel
+func TestForeignKeyCreateTwoFromModel(t *testing.T) {
+
+	type Warehouse struct {
+		ID       uint64 `db:"id" json:"id" sqac:"primary_key:inc;start:40000000"`
+		City     string `db:"city" json:"city" sqac:"nullable:false;default:Calgary"`
+		Quadrant string `db:"quadrant" json:"quadrant" sqac:"nullable:false;default:SE"`
+	}
+
+	type UnitOfMeasure struct {
+		Uom     string `db:"uom" json:"uom" sqac:"primary_key:"`
+		UomText string `db:"uom_text" json:"uom_text" sqac:"nullable:false"`
+	}
+
+	type Product struct {
+		ID          uint64 `db:"id" json:"id" sqac:"primary_key:inc;start:95000000"`
+		ProductName string `db:"product_name" json:"product_name" sqac:"nullable:false;default:unknown"`
+		ProductCode string `db:"product_code" json:"product_code" sqac:"nullable:false;default:0000-0000-00"`
+		UOM         string `db:"uom" json:"uom" sqac:"nullable:false;default:EA;fkey:unitofmeasure(uom)"`
+		WarehouseID uint64 `db:"warehouse_id" json:"warehouse_id" sqac:"nullable:false;fkey:warehouse(id)"`
+	}
+
+	// determine the table names as per the table creation logic
+	wn := common.GetTableName(Warehouse{})
+	un := common.GetTableName(UnitOfMeasure{})
+	pn := common.GetTableName(Product{})
+
+	// verify tables do not exist
+	err := Handle.DropTables(Product{})
+	if err != nil {
+		t.Errorf("failed to drop table %s", pn)
+	}
+
+	err = Handle.DropTables(Warehouse{})
+	if err != nil {
+		t.Errorf("failed to drop table %s", wn)
+	}
+
+	err = Handle.DropTables(UnitOfMeasure{})
+	if err != nil {
+		t.Errorf("failed to drop table %s", wn)
+	}
+
+	// create warehouse table
+	err = Handle.CreateTables(Warehouse{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table warehouse exists
+	if !Handle.ExistsTable(wn) {
+		t.Errorf("table %s does not exist", wn)
+	}
+
+	// create unitofmeasure table
+	err = Handle.CreateTables(UnitOfMeasure{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table unitofmeasre exists
+	if !Handle.ExistsTable(un) {
+		t.Errorf("table %s does not exist", wn)
+	}
+
+	// create product table with its foreign-key definitions
+	err = Handle.CreateTables(Product{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table product exists
+	if !Handle.ExistsTable(pn) {
+		t.Errorf("table %s does not exist", wn)
+	}
+
+	// check that the warehouse(id) foreign-key exists
+	kExists, err := Handle.ExistsForeignKeyByName(Product{}, "fk_product_warehouse_id")
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	if !kExists {
+		t.Errorf("foreign-key 'fk_product_warehouse_id' failed to be created via the model")
+	}
+
+	// check that the warehouse(id) foreign-key exists via fields
+	kExists, err = Handle.ExistsForeignKeyByFields(Product{}, "product", "warehouse", "warehouse_id", "id")
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	if !kExists {
+		t.Errorf("foreign-key 'fk_product_warehouse_id' failed to be created via the model")
+	}
+
+	// check that the unitofmeasure(uom) foreign-key exists
+	kExists, err = Handle.ExistsForeignKeyByName(Product{}, "fk_product_unitofmeasure_uom")
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	if !kExists {
+		t.Errorf("foreign-key 'fk_product_unitofmeasure_uom' failed to be created via the model")
+	}
+
+	// check that the unitofmeasure(uom) foreign-key exists via fields
+	kExists, err = Handle.ExistsForeignKeyByFields(Product{}, "product", "unitofmeasure", "uom", "uom")
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	if !kExists {
+		t.Errorf("foreign-key 'fk_product_unitofmeasure_uom' failed to be created via the model")
+	}
+
+	// err = Handle.DropTables(Product{})
+	// if err != nil {
+	// 	t.Errorf("failed to drop table %s", pn)
+	// }
+
+	// err = Handle.DropTables(Warehouse{})
+	// if err != nil {
+	// 	t.Errorf("failed to drop table %s", wn)
+	// }
+	os.Exit(0)
+}
+
 // TestGetDBDriverName
 //
 // Check that a driver name is returned
