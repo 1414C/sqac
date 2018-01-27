@@ -254,6 +254,9 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 						indexes = pf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)
 					}
 
+				case "fkey":
+					fKeys = pf.processFKeyTag(fKeys, tn, fd.FName, p.Value)
+
 				default:
 
 				}
@@ -294,6 +297,9 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 						indexes = pf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)
 					}
 
+				case "fkey":
+					fKeys = pf.processFKeyTag(fKeys, tn, fd.FName, p.Value)
+
 				default:
 
 				}
@@ -327,6 +333,9 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 					default:
 						indexes = pf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)
 					}
+
+				case "fkey":
+					fKeys = pf.processFKeyTag(fKeys, tn, fd.FName, p.Value)
 
 				default:
 
@@ -362,6 +371,9 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 						indexes = pf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)
 					}
 
+				case "fkey":
+					fKeys = pf.processFKeyTag(fKeys, tn, fd.FName, p.Value)
+
 				default:
 
 				}
@@ -380,6 +392,10 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 					} else {
 						col.fDefault = fmt.Sprintf("DEFAULT %s", "make_timestamptz(9999, 12, 31, 23, 59, 59.9)")
 					}
+
+				case "fkey":
+					fKeys = pf.processFKeyTag(fKeys, tn, fd.FName, p.Value)
+
 				default:
 					// do nothing with other tag directives
 				}

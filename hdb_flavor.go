@@ -336,6 +336,15 @@ func (hf *HDBFlavor) CreateTables(i ...interface{}) error {
 			hf.CreateIndex(k, in)
 		}
 	}
+
+	// create the foreign-keys if any
+	for _, v := range tc.fkey {
+		fmt.Println("fkey:", v)
+		err := hf.CreateForeignKey(nil, v.FromTable, v.RefTable, v.FromField, v.RefField)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
