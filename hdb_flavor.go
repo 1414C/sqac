@@ -958,9 +958,9 @@ func (hf *HDBFlavor) GetNextSequenceValue(name string) (int, error) {
 func (hf *HDBFlavor) ExistsForeignKeyByName(i interface{}, fkn string) (bool, error) {
 
 	var count uint64
-	tn := common.GetTableName(i)
+	tn := strings.ToUpper(common.GetTableName(i))
 
-	fkQuery := fmt.Sprintf("SELECT COUNT(*) FROM SYS.REFERENTIAL_CONSTRAINTS WHERE TABLE_NAME='%s' AND CONSTRAINT_NAME='%s';", tn, fkn)
+	fkQuery := fmt.Sprintf("SELECT COUNT(*) FROM Sys.Referential_Constraints WHERE TABLE_NAME='%s' AND CONSTRAINT_NAME='%s';", tn, strings.ToUpper(fkn))
 	hf.QsLog(fkQuery)
 
 	err := hf.Get(&count, fkQuery)
@@ -983,7 +983,7 @@ func (hf *HDBFlavor) ExistsForeignKeyByFields(i interface{}, ft, rt, ff, rf stri
 		return false, err
 	}
 
-	return hf.ExistsForeignKeyByName(i, fkn)
+	return hf.ExistsForeignKeyByName(i, strings.ToUpper(fkn))
 }
 
 //================================================================
