@@ -13,6 +13,14 @@ sqac is a simple overlay to provide a common interface to attached mssql, mysql,
 - generic CRUD entity operations
 - set commands (/$count /$orderby=<field_name> $limit=n; $offset=n; ($asc|$desc))
 
+* passing: pg, mssql, mysql
+* Fix HDB test
+* make SQLite pass all tests to-date
+* Write test for Alter Table adding a foreign-key
+* Write test for Alter Table removing a foreign-key
+* Update Alter Table for HDB, MSSQL, MySQL
+* 
+
 * Testing / TODO
 * examine the $desc orderby when limit / offset is used in postgres with selection parameter (weirdness)
 * change from timestamp with TZ to timestamp and ensure timestamps are in UTC before submitting to the db

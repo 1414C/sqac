@@ -55,6 +55,8 @@ type MSSQLFlavor struct {
 // by msf.DB.
 func (msf *MSSQLFlavor) CreateTables(i ...interface{}) error {
 
+	var tc TblComponents
+
 	for t, ent := range i {
 
 		ftr := reflect.TypeOf(ent)
@@ -78,7 +80,7 @@ func (msf *MSSQLFlavor) CreateTables(i ...interface{}) error {
 		}
 
 		// build the create table schema and return all of the table info
-		tc := msf.buildTablSchema(tn, i[t])
+		tc = msf.buildTablSchema(tn, i[t])
 		msf.QsLog(tc.tblSchema)
 
 		// create the table on the db
@@ -89,6 +91,15 @@ func (msf *MSSQLFlavor) CreateTables(i ...interface{}) error {
 		}
 		for k, in := range tc.ind {
 			msf.CreateIndex(k, in)
+		}
+
+		// create the foreign-keys if any
+		for _, v := range tc.fkey {
+			fmt.Println("fkey:", v)
+			err := msf.CreateForeignKey(nil, v.FromTable, v.RefTable, v.FromField, v.RefField)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -200,6 +211,7 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 	pKeys := ""
 	var sequences []common.SqacPair
 	indexes := make(map[string]IndexInfo)
+	fKeys := make([]FKeyInfo, 0)
 	tableSchema := fmt.Sprintf("CREATE TABLE %s%s%s (", qt, tn, qt)
 
 	// get a list of the field names, go-types and db attributes.
@@ -345,6 +357,9 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 						indexes = msf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)
 					}
 
+				case "fkey":
+					fKeys = msf.processFKeyTag(fKeys, tn, fd.FName, p.Value)
+
 				default:
 
 				}
@@ -399,6 +414,7 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 		flDef:     fldef,
 		seq:       sequences,
 		ind:       indexes,
+		fkey:      fKeys,
 		pk:        pKeys,
 		err:       err,
 	}
@@ -551,6 +567,38 @@ func (msf *MSSQLFlavor) GetNextSequenceValue(name string) (int, error) {
 		return seq, nil
 	}
 	return seq, nil
+}
+
+// ExistsForeignKeyByName checks to see if the named foreign-key exists on the
+// table corresponding to provided sqac model (i).
+func (msf *MSSQLFlavor) ExistsForeignKeyByName(i interface{}, fkn string) (bool, error) {
+
+	var count uint64
+
+	fkQuery := fmt.Sprintf("SELECT COUNT(*) FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_NAME = '%s';", fkn)
+	msf.QsLog(fkQuery)
+
+	err := msf.Get(&count, fkQuery)
+	if err != nil {
+		return false, nil
+	}
+
+	if count > 0 {
+		return true, nil
+	}
+	return false, nil
+}
+
+// ExistsForeignKeyByFields checks to see if a foreign-key exists between the named
+// tables and fields.
+func (msf *MSSQLFlavor) ExistsForeignKeyByFields(i interface{}, ft, rt, ff, rf string) (bool, error) {
+
+	fkn, err := common.GetFKeyName(i, ft, rt, ff, rf)
+	if err != nil {
+		return false, err
+	}
+
+	return msf.ExistsForeignKeyByName(i, fkn)
 }
 
 //================================================================

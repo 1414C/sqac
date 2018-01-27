@@ -646,7 +646,7 @@ func (slf *SQLiteFlavor) GetNextSequenceValue(name string) (int, error) {
 // on the db for the duration of the transaction processing.
 func (slf *SQLiteFlavor) CreateForeignKey(i interface{}, ft, rt, ff, rf string) error {
 
-	oldTn := ""
+	bakTn := ""
 	q := ""
 
 	// sql transation command buffer
@@ -660,10 +660,10 @@ func (slf *SQLiteFlavor) CreateForeignKey(i interface{}, ft, rt, ff, rf string) 
 
 	// if the table is found to exist, copy it to a temp backup table
 	if slf.ExistsTable(tn) {
-		oldTn = fmt.Sprintf("_%s_old", ft)
-		q = fmt.Sprintf("DROP TABLE IF EXISTS %s;", oldTn)
+		bakTn = fmt.Sprintf("_%s_bak", ft)
+		q = fmt.Sprintf("DROP TABLE IF EXISTS %s;", bakTn)
 		cmds = append(cmds, q)
-		q = fmt.Sprintf("ALTER TABLE %s RENAME TO _%s_old;", ft, ft)
+		q = fmt.Sprintf("ALTER TABLE %s RENAME TO _%s_bak;", ft, ft)
 		cmds = append(cmds, q)
 	}
 
@@ -683,16 +683,96 @@ func (slf *SQLiteFlavor) CreateForeignKey(i interface{}, ft, rt, ff, rf string) 
 
 	// copy the data back - note that this can happen even if there is a
 	// foreign-key violation due to the prior PRAGMA.  :)
-	if oldTn != "" {
-		q = fmt.Sprintf("INSERT INTO %s SELECT * FROM %s;", ft, oldTn)
+	if bakTn != "" {
+		q = fmt.Sprintf("INSERT INTO %s SELECT * FROM %s;", ft, bakTn)
 		cmds = append(cmds, q)
 
 		// drop the backup table directly
-		q = fmt.Sprintf("DROP TABLE IF EXISTS %s;", oldTn)
+		q = fmt.Sprintf("DROP TABLE IF EXISTS %s;", bakTn)
 		cmds = append(cmds, q)
 	}
 
-	// diable foreign-key checks
+	// disable foreign-key checks
+	_, err := slf.Exec("PRAGMA foreign_keys=off;")
+	if err != nil {
+		return err
+	}
+
+	// submit the transaction buffer
+	err = slf.ProcessTransaction(cmds)
+	if err != nil {
+		// attempt to reactivate foreign-key constraints
+		_, fkErr := slf.Exec("PRAGMA foreign_keys=on;")
+		if fkErr != nil {
+			log.Println("WARNING: FOREIGN KEY CONSTRAINTS ARE PRESENTLY DEACATIVATED!")
+		}
+		return err
+	}
+
+	// reactivate foreign-key constraints
+	_, err = slf.Exec("PRAGMA foreign_keys=on;")
+	if err != nil {
+		log.Println("WARNING: FOREIGN KEY CONSTRAINTS MAY PRESENTLY BE DEACATIVATED!")
+		return err
+	}
+	return nil
+}
+
+// DropForeignKey drops a foreign-key on an existing column.  Since SQLite does not
+// support the addition or deletion of foreign-key relationships on existing tables,
+// the existing table is copied to a backup table, the table is dropped and then
+// recreated using the sqac model information contained in (i).  It follows then,
+// that in order for a foreign-key to be dropped, it must be removed from the sqac
+// tag in the model definition.
+func (slf *SQLiteFlavor) DropForeignKey(i interface{}, ft, fkn string) error {
+
+	// pg: SELECT COUNT(1) FROM information_schema.table_constraints WHERE constraint_name='user__fk__store_id' AND table_name='client';
+	// mssql: SELECT COUNT(*) FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_NAME = 'FK_Name';
+	// myslq: SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_name='user__fk__store_id' AND table_name='client';
+	// sqlite: SELECT * FROM sqlite_master WHERE tbl_name = 'product' AND sql like ('%constraint%foreign%key%warehouse_id%');
+	// pg; mssql; hdb
+	// schema := fmt.Sprintf("ALTER TABLE %v DROP CONSTRAINT %v;", ft, fkn)
+	// _, err := bf.Exec(schema)
+	// if err != nil {
+	// 	return err
+	// }
+
+	bakTn := ""
+	q := ""
+
+	// sql transation command buffer
+	cmds := make([]string, 0)
+
+	// confirm the table name
+	tn := common.GetTableName(i)
+	if tn == "" || tn != ft {
+		return fmt.Errorf("unable to confirm table name in slf.DropForeignKey")
+	}
+
+	// if the table is found to exist, copy it to a temp backup table
+	if slf.ExistsTable(tn) {
+		bakTn = fmt.Sprintf("_%s_bak", ft)
+		q = fmt.Sprintf("DROP TABLE IF EXISTS %s;", bakTn)
+		cmds = append(cmds, q)
+		q = fmt.Sprintf("ALTER TABLE %s RENAME TO _%s_bak;", ft, ft)
+		cmds = append(cmds, q)
+	}
+
+	// build the new table schema without the foreign-key constraint (must be omitted from model)
+	tc := slf.buildTablSchema(tn, i)
+	cmds = append(cmds, tc.tblSchema)
+
+	// copy the data back
+	if bakTn != "" {
+		q = fmt.Sprintf("INSERT INTO %s SELECT * FROM %s;", ft, bakTn)
+		cmds = append(cmds, q)
+
+		// drop the backup table directly
+		q = fmt.Sprintf("DROP TABLE IF EXISTS %s;", bakTn)
+		cmds = append(cmds, q)
+	}
+
+	// disable foreign-key checks to start the transaction processing
 	_, err := slf.Exec("PRAGMA foreign_keys=off;")
 	if err != nil {
 		return err

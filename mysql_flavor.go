@@ -43,6 +43,8 @@ type MySQLFlavor struct {
 // by myf.DB.
 func (myf *MySQLFlavor) CreateTables(i ...interface{}) error {
 
+	var tc TblComponents
+
 	for t, ent := range i {
 
 		ftr := reflect.TypeOf(ent)
@@ -66,7 +68,7 @@ func (myf *MySQLFlavor) CreateTables(i ...interface{}) error {
 		}
 
 		// build the create table schema and return all of the table info
-		tc := myf.buildTablSchema(tn, i[t])
+		tc = myf.buildTablSchema(tn, i[t])
 		myf.QsLog(tc.tblSchema)
 
 		// create the table on the db
@@ -77,6 +79,14 @@ func (myf *MySQLFlavor) CreateTables(i ...interface{}) error {
 		}
 		for k, in := range tc.ind {
 			myf.CreateIndex(k, in)
+		}
+	}
+	// create the foreign-keys if any
+	for _, v := range tc.fkey {
+		fmt.Println("fkey:", v)
+		err := myf.CreateForeignKey(nil, v.FromTable, v.RefTable, v.FromField, v.RefField)
+		if err != nil {
+			return err
 		}
 	}
 	return nil
@@ -92,6 +102,7 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 	pKeys := ""
 	var sequences []common.SqacPair
 	indexes := make(map[string]IndexInfo)
+	fKeys := make([]FKeyInfo, 0)
 	tableSchema := fmt.Sprintf("CREATE TABLE %s%s%s (", qt, tn, qt)
 
 	// get a list of the field names, go-types and db attributes.
@@ -224,6 +235,9 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 						indexes = myf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)
 					}
 
+				case "fkey":
+					fKeys = myf.processFKeyTag(fKeys, tn, fd.FName, p.Value)
+
 				default:
 
 				}
@@ -274,6 +288,7 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 		flDef:     fldef,
 		seq:       sequences,
 		ind:       indexes,
+		fkey:      fKeys,
 		pk:        pKeys,
 		err:       err,
 	}
@@ -442,6 +457,39 @@ func (myf *MySQLFlavor) DropForeignKey(i interface{}, ft, fkn string) error {
 		return err
 	}
 	return nil
+}
+
+// ExistsForeignKeyByName checks to see if the named foreign-key exists on the
+// table corresponding to provided sqac model (i).
+func (myf *MySQLFlavor) ExistsForeignKeyByName(i interface{}, fkn string) (bool, error) {
+
+	var count uint64
+	tn := common.GetTableName(i)
+
+	fkQuery := fmt.Sprintf("SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_name='%s' AND table_name='%s';", fkn, tn)
+	myf.QsLog(fkQuery)
+
+	err := myf.Get(&count, fkQuery)
+	if err != nil {
+		return false, nil
+	}
+
+	if count > 0 {
+		return true, nil
+	}
+	return false, nil
+}
+
+// ExistsForeignKeyByFields checks to see if a foreign-key exists between the named
+// tables and fields.
+func (myf *MySQLFlavor) ExistsForeignKeyByFields(i interface{}, ft, rt, ff, rf string) (bool, error) {
+
+	fkn, err := common.GetFKeyName(i, ft, rt, ff, rf)
+	if err != nil {
+		return false, err
+	}
+
+	return myf.ExistsForeignKeyByName(i, fkn)
 }
 
 //================================================================
