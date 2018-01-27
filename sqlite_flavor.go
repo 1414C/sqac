@@ -756,6 +756,8 @@ func (slf *SQLiteFlavor) DropForeignKey(i interface{}, ft, fkn string) error {
 		cmds = append(cmds, q)
 		q = fmt.Sprintf("ALTER TABLE %s RENAME TO _%s_bak;", ft, ft)
 		cmds = append(cmds, q)
+		q = fmt.Sprintf("DROP TABLE IF EXISTS %s;", tn)
+		cmds = append(cmds, q)
 	}
 
 	// build the new table schema without the foreign-key constraint (must be omitted from model)
@@ -776,6 +778,11 @@ func (slf *SQLiteFlavor) DropForeignKey(i interface{}, ft, fkn string) error {
 	_, err := slf.Exec("PRAGMA foreign_keys=off;")
 	if err != nil {
 		return err
+	}
+
+	fmt.Println("sql command buffer:")
+	for _, v := range cmds {
+		fmt.Println(v)
 	}
 
 	// submit the transaction buffer
