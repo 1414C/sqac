@@ -18,6 +18,16 @@ type IndexInfo struct {
 	IndexFields []string
 }
 
+// FKeyInfo holds foreign-key defs read from the sqac:"fkey" tags
+// sqac:"fkey:ref_table(ref_field)"
+type FKeyInfo struct {
+	FromTable string
+	FromField string
+	RefTable  string
+	RefField  string
+	FKeyName  string
+}
+
 // ColComponents is used to capture the field properties from sqac: tags
 // during table creation and table alteration activities.
 type ColComponents struct {
@@ -38,6 +48,7 @@ type TblComponents struct {
 	flDef     []common.FieldDef
 	seq       []common.SqacPair
 	ind       map[string]IndexInfo
+	fkey      []FKeyInfo
 	pk        string
 	err       error
 }
@@ -143,7 +154,8 @@ type PublicDB interface {
 	// BuildForeignKeyName(...) error
 	// DropForeignKey(Entity{}, foreignkeyname [fk_ft_rt])
 	DropForeignKey(i interface{}, ft, fkn string) error
-	// ExistsForeignKey(...) bool
+	ExistsForeignKeyByName(i interface{}, fkn string) (bool, error)
+	ExistsForeignKeyByFields(i interface{}, ft, rt, ff, rf string) (bool, error)
 
 	ProcessSchema(schema string)
 	ProcessSchemaList(sList []string)
@@ -556,7 +568,7 @@ func (bf *BaseFlavor) GetNextSequenceValue(name string) (int, error) {
 // CreateForeignKey creates a foreign-key on an existing column.
 func (bf *BaseFlavor) CreateForeignKey(i interface{}, ft, rt, ff, rf string) error {
 
-	schema := fmt.Sprintf("ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY(%s) REFERENCES %s(%s);", ft, "fk_"+ft+"_"+rt, ff, rt, rf)
+	schema := fmt.Sprintf("ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY(%s) REFERENCES %s(%s);", ft, "fk_"+ft+"_"+rt+"_"+rf, ff, rt, rf)
 	_, err := bf.Exec(schema)
 	if err != nil {
 		return err
@@ -574,7 +586,7 @@ func (bf *BaseFlavor) DropForeignKey(i interface{}, ft, fkn string) error {
 
 	// pg: SELECT COUNT(1) FROM information_schema.table_constraints WHERE constraint_name='user__fk__store_id' AND table_name='client';
 	// mssql: SELECT COUNT(*) FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_NAME = 'FK_Name';
-	// myslq: SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_name='user__fk__store_id' AND table_name='client';
+	// mysql: SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_name='user__fk__store_id' AND table_name='client';
 	// sqlite: SELECT * FROM sqlite_master WHERE tbl_name = 'product' AND sql like ('%constraint%foreign%key%warehouse_id%');
 	// pg; mssql; hdb
 	schema := fmt.Sprintf("ALTER TABLE %v DROP CONSTRAINT %v;", ft, fkn)
@@ -584,6 +596,30 @@ func (bf *BaseFlavor) DropForeignKey(i interface{}, ft, fkn string) error {
 	}
 	return nil
 	// return fmt.Errorf("DropForeignKey has not been implemented for %s", bf.GetDBDriverName())
+}
+
+// ExistsForeignKeyByName checks to see if the named foreign-key exists on the
+// table corresponding to provided sqac model (i).
+func (bf *BaseFlavor) ExistsForeignKeyByName(i interface{}, fkn string) (bool, error) {
+
+	// pg: SELECT COUNT(1) FROM information_schema.table_constraints WHERE constraint_name='user__fk__store_id' AND table_name='client';
+	// mssql: SELECT COUNT(*) FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_NAME = 'FK_Name';
+	// mysql: SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_name='user__fk__store_id' AND table_name='client';
+	// sqlite: SELECT * FROM sqlite_master WHERE tbl_name = 'product' AND sql like ('%constraint%foreign%key%warehouse_id%');
+	// implemented per db
+	return false, nil
+}
+
+// ExistsForeignKeyByFields checks to see if a foreign-key exists between the named
+// tables and fields.
+func (bf *BaseFlavor) ExistsForeignKeyByFields(i interface{}, ft, rt, ff, rf string) (bool, error) {
+
+	// pg: SELECT COUNT(1) FROM information_schema.table_constraints WHERE constraint_name='user__fk__store_id' AND table_name='client';
+	// mssql: SELECT COUNT(*) FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_NAME = 'FK_Name';
+	// mysql: SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_name='user__fk__store_id' AND table_name='client';
+	// sqlite: SELECT * FROM sqlite_master WHERE tbl_name = 'product' AND sql like ('%constraint%foreign%key%warehouse_id%');
+	// implemented per db
+	return false, nil
 }
 
 //===============================================================================
@@ -759,6 +795,34 @@ func (bf *BaseFlavor) ProcessTransaction(tList []string) error {
 		return err
 	}
 	return nil
+}
+
+// processFKeyTag places the data for foreign-key creation in a slice that will be
+// added to the tc (TblComponents) struct.  Foreign-keys are always created after all
+// tables in a Create / Alter set have been processed in order to provide the greatest
+// chance that the corresponding ref-table/field exist.  Could add the constraint name
+// here...
+func (bf *BaseFlavor) processFKeyTag(fkeys []FKeyInfo, ft, ff, rv string) []FKeyInfo {
+
+	tf := strings.Split(rv, "(")
+	if len(tf) != 2 {
+		// panic for now, change this to log later TODO
+		panic(fmt.Sprintf("unable to parse foreign-key sqac tag: %v", rv))
+	}
+
+	rt := tf[0]
+	rf := tf[1]
+	rt = strings.TrimSpace(rt)
+	rf = strings.Replace(rf, ")", "", 2)
+	rf = strings.TrimSpace(rf)
+
+	fk := FKeyInfo{
+		FromTable: ft, // from-table
+		FromField: ff, // from-field
+		RefTable:  rt, // ref-table
+		RefField:  rf, // ref-field
+	}
+	return append(fkeys, fk)
 }
 
 // processIndexTag is used to create or add to an entry in the working indexes map that is

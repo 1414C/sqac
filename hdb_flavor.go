@@ -251,6 +251,8 @@ func (hf *HDBFlavor) GetDBName() (dbName string) {
 // by hf.DB.
 func (hf *HDBFlavor) CreateTables(i ...interface{}) error {
 
+	var tc TblComponents
+
 	for t, ent := range i {
 
 		ftr := reflect.TypeOf(ent)
@@ -274,7 +276,7 @@ func (hf *HDBFlavor) CreateTables(i ...interface{}) error {
 		}
 
 		// build the create table schema and return all of the table info
-		tc := hf.buildTablSchema(tn, i[t])
+		tc = hf.buildTablSchema(tn, i[t])
 		hf.QsLog(tc.tblSchema)
 
 		// create the table on the db
@@ -498,6 +500,7 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 	var hdbSeq hdbSeqTyp
 
 	indexes := make(map[string]IndexInfo)
+	fKeys := make([]FKeyInfo, 0)
 	tableSchema := fmt.Sprintf("CREATE COLUMN TABLE %s%s%s (", qt, tn, qt)
 
 	// get a list of the field names, go-types and db attributes.
@@ -650,6 +653,9 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 						indexes = hf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)
 					}
 
+				case "fkey":
+					fKeys = hf.processFKeyTag(fKeys, tn, fd.FName, p.Value)
+
 				default:
 
 				}
@@ -713,6 +719,7 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 		flDef:     fldef,
 		seq:       sequences,
 		ind:       indexes,
+		fkey:      fKeys,
 		pk:        pKeys,
 		err:       err,
 	}
@@ -944,6 +951,39 @@ func (hf *HDBFlavor) GetNextSequenceValue(name string) (int, error) {
 		return 0, err
 	}
 	return nextVal, nil
+}
+
+// ExistsForeignKeyByName checks to see if the named foreign-key exists on the
+// table corresponding to provided sqac model (i).
+func (hf *HDBFlavor) ExistsForeignKeyByName(i interface{}, fkn string) (bool, error) {
+
+	var count uint64
+	tn := common.GetTableName(i)
+
+	fkQuery := fmt.Sprintf("SELECT COUNT(*) FROM SYS.REFERENTIAL_CONSTRAINTS WHERE TABLE_NAME='%s' AND CONSTRAINT_NAME='%s';", tn, fkn)
+	hf.QsLog(fkQuery)
+
+	err := hf.Get(&count, fkQuery)
+	if err != nil {
+		return false, nil
+	}
+
+	if count > 0 {
+		return true, nil
+	}
+	return false, nil
+}
+
+// ExistsForeignKeyByFields checks to see if a foreign-key exists between the named
+// tables and fields.
+func (hf *HDBFlavor) ExistsForeignKeyByFields(i interface{}, ft, rt, ff, rf string) (bool, error) {
+
+	fkn, err := common.GetFKeyName(i, ft, rt, ff, rf)
+	if err != nil {
+		return false, err
+	}
+
+	return hf.ExistsForeignKeyByName(i, fkn)
 }
 
 //================================================================

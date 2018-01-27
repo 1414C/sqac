@@ -56,6 +56,8 @@ func (pf *PostgresFlavor) GetDBName() (dbName string) {
 // by pf.DB.
 func (pf *PostgresFlavor) CreateTables(i ...interface{}) error {
 
+	var tc TblComponents
+
 	for t, ent := range i {
 
 		ftr := reflect.TypeOf(ent)
@@ -79,7 +81,7 @@ func (pf *PostgresFlavor) CreateTables(i ...interface{}) error {
 		}
 
 		// build the create table schema and return all of the table info
-		tc := pf.buildTablSchema(tn, i[t])
+		tc = pf.buildTablSchema(tn, i[t])
 		pf.QsLog(tc.tblSchema)
 
 		// create the table on the db
@@ -90,6 +92,15 @@ func (pf *PostgresFlavor) CreateTables(i ...interface{}) error {
 		}
 		for k, in := range tc.ind {
 			pf.CreateIndex(k, in)
+		}
+	}
+
+	// create the foreign-keys if any
+	for _, v := range tc.fkey {
+		fmt.Println("fkey:", v)
+		err := pf.CreateForeignKey(nil, v.FromTable, v.RefTable, v.FromField, v.RefField)
+		if err != nil {
+			return err
 		}
 	}
 	return nil
@@ -104,6 +115,7 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 	pKeys := ""
 	var sequences []common.SqacPair
 	indexes := make(map[string]IndexInfo)
+	fKeys := make([]FKeyInfo, 0)
 	tableSchema := fmt.Sprintf("CREATE TABLE %s (", tn)
 
 	// get a list of the field names, go-types and db attributes.
@@ -197,6 +209,9 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 					default:
 						indexes = pf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)
 					}
+
+				case "fkey":
+					fKeys = pf.processFKeyTag(fKeys, tn, fd.FName, p.Value)
 
 				default:
 
@@ -403,6 +418,7 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 		flDef:     fldef,
 		seq:       sequences,
 		ind:       indexes,
+		fkey:      fKeys,
 		pk:        pKeys,
 		err:       err,
 	}
@@ -517,6 +533,21 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 		for k, v := range tc.ind {
 			if !pf.ExistsIndex(v.TableName, k) {
 				pf.CreateIndex(k, v)
+			}
+		}
+
+		// add foreign-keys if required
+		for _, v := range tc.fkey {
+			fkn, err := common.GetFKeyName(ent, v.FromTable, v.RefTable, v.FromField, v.RefField)
+			if err != nil {
+				return err
+			}
+			fkExists, _ := pf.ExistsForeignKeyByName(ent, fkn)
+			if !fkExists {
+				err = pf.CreateForeignKey(ent, v.FromTable, v.RefTable, v.FromField, v.RefField)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -690,6 +721,39 @@ func (pf *PostgresFlavor) GetNextSequenceValue(name string) (int, error) {
 		return seq, nil
 	}
 	return 0, nil
+}
+
+// ExistsForeignKeyByName checks to see if the named foreign-key exists on the
+// table corresponding to provided sqac model (i).
+func (pf *PostgresFlavor) ExistsForeignKeyByName(i interface{}, fkn string) (bool, error) {
+
+	var count uint64
+	tn := common.GetTableName(i)
+
+	fkQuery := fmt.Sprintf("SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_name='%s' AND table_name='%s';", fkn, tn)
+	pf.QsLog(fkQuery)
+
+	err := pf.Get(&count, fkQuery)
+	if err != nil {
+		return false, nil
+	}
+
+	if count > 0 {
+		return true, nil
+	}
+	return false, nil
+}
+
+// ExistsForeignKeyByFields checks to see if a foreign-key exists between the named
+// tables and fields.
+func (pf *PostgresFlavor) ExistsForeignKeyByFields(i interface{}, ft, rt, ff, rf string) (bool, error) {
+
+	fkn, err := common.GetFKeyName(i, ft, rt, ff, rf)
+	if err != nil {
+		return false, err
+	}
+
+	return pf.ExistsForeignKeyByName(i, fkn)
 }
 
 //================================================================

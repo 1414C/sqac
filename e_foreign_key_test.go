@@ -232,9 +232,324 @@ func TestForeignKeyDrop(t *testing.T) {
 	}
 
 	// drop the foreign-key for real
-	err = Handle.DropForeignKey(nil, pn, "fk_product_warehouse")
+	err = Handle.DropForeignKey(nil, pn, "fk_product_warehouse_id")
 	if err != nil {
-		t.Errorf("DropForeignKey failed for table %s foreign-key %s - got: %s", pn, "fk_product_warehouse", err)
+		t.Errorf("DropForeignKey failed for table %s foreign-key %s - got: %s", pn, "fk_product_warehouse_id", err)
+	}
+
+	err = Handle.DropTables(Product{})
+	if err != nil {
+		t.Errorf("failed to drop table %s", pn)
+	}
+
+	err = Handle.DropTables(Warehouse{})
+	if err != nil {
+		t.Errorf("failed to drop table %s", wn)
+	}
+}
+
+// TestGetForeignKeyName
+//
+// Test GetForeignKeyName
+func TestGetForeignKeyName(t *testing.T) {
+
+	type Product struct {
+		ID          uint64 `db:"id" json:"id" sqac:"primary_key:inc;start:95000000"`
+		ProductName string `db:"product_name" json:"product_name" sqac:"nullable:false;default:unknown"`
+		ProductCode string `db:"product_code" json:"product_code" sqac:"nullable:false;default:0000-0000-00"`
+		UOM         string `db:"uom" json:"uom" sqac:"nullable:false;default:EA"`
+		WarehouseID uint64 `db:"warehouse_id" json:"warehouse_id" sqac:"nullable:false"`
+	}
+
+	// construct foreign-key name (expect "fk_product_warehouse_id")
+	fkn, err := common.GetFKeyName(nil, "product", "warehouse", "warehouse_id", "id")
+	if err != nil {
+		t.Errorf("failed to construct foreign-key name using '(nil, \"product\", \"warehouse\", \"warehouse_id\", \"id\")', got: %v", err.Error())
+	}
+	if fkn != "fk_product_warehouse_id" {
+		t.Errorf("incorrect foreign-key name determined from '(nil, \"product\", \"warehouse\", \"warehouse_id\", \"id\")', got: %v", fkn)
+	}
+
+	// construct foreign-key name (expect "fk_product_warehouse_id")
+	fkn, err = common.GetFKeyName(Product{}, "", "warehouse", "warehouse_id", "id")
+	if err != nil {
+		t.Errorf("failed to construct foreign-key name using '(Product{}, \"\", \"warehouse\", \"warehouse_id\", \"id\")', got: %v", err.Error())
+	}
+	if fkn != "fk_product_warehouse_id" {
+		t.Errorf("incorrect foreign-key name determined from '(Product{}, \"\", \"warehouse\", \"warehouse_id\", \"id\")', got: %v", fkn)
+	}
+
+	// construct foreign-key name (expect "fk_product_warehouse_id")
+	fkn, err = common.GetFKeyName(Product{}, "product", "warehouse", "warehouse_id", "id")
+	if err != nil {
+		t.Errorf("failed to construct foreign-key name using '(Product{}, \"product\", \"warehouse\", \"warehouse_id\", \"id\")', got: %v", err.Error())
+	}
+	if fkn != "fk_product_warehouse_id" {
+		t.Errorf("incorrect foreign-key name determined from '(Product{}, \"product\", \"warehouse\", \"warehouse_id\", \"id\")', got: %v", fkn)
+	}
+}
+
+// TestExistsForeignKeyByName
+//
+// Test ExistsForeignKeyByName
+func TestExistsForeignKeyByName(t *testing.T) {
+
+	type Warehouse struct {
+		ID       uint64 `db:"id" json:"id" sqac:"primary_key:inc;start:40000000"`
+		City     string `db:"city" json:"city" sqac:"nullable:false;default:Calgary"`
+		Quadrant string `db:"quadrant" json:"quadrant" sqac:"nullable:false;default:SE"`
+	}
+
+	type Product struct {
+		ID          uint64 `db:"id" json:"id" sqac:"primary_key:inc;start:95000000"`
+		ProductName string `db:"product_name" json:"product_name" sqac:"nullable:false;default:unknown"`
+		ProductCode string `db:"product_code" json:"product_code" sqac:"nullable:false;default:0000-0000-00"`
+		UOM         string `db:"uom" json:"uom" sqac:"nullable:false;default:EA"`
+		WarehouseID uint64 `db:"warehouse_id" json:"warehouse_id" sqac:"nullable:false"`
+	}
+
+	// determine the table names as per the table creation logic
+	wn := common.GetTableName(Warehouse{})
+	pn := common.GetTableName(Product{})
+
+	// verify tables do not exist
+	err := Handle.DropTables(Product{})
+	if err != nil {
+		t.Errorf("failed to drop table %s", pn)
+	}
+
+	err = Handle.DropTables(Warehouse{})
+	if err != nil {
+		t.Errorf("failed to drop table %s", wn)
+	}
+
+	// create warehouse table
+	err = Handle.CreateTables(Warehouse{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table warehouse exists
+	if !Handle.ExistsTable(wn) {
+		t.Errorf("table %s does not exist", wn)
+	}
+
+	// create a new record via the CRUD Create call
+	var warehouse = Warehouse{
+		City:     "Calgary",
+		Quadrant: "SW",
+	}
+
+	err = Handle.Create(&warehouse)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	// create product table
+	err = Handle.CreateTables(Product{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table product exists
+	if !Handle.ExistsTable(pn) {
+		t.Errorf("table %s does not exist", pn)
+	}
+
+	// add a foreign-key to table product
+	switch Handle.GetDBDriverName() {
+	case "sqlite3":
+		err = Handle.CreateForeignKey(Product{}, pn, wn, "warehouse_id", "id")
+	default:
+		err = Handle.CreateForeignKey(nil, pn, wn, "warehouse_id", "id")
+	}
+	if err != nil {
+		t.Errorf("failed to create foreign-key; got: %s", err)
+	}
+
+	// construct foreign-key name (expect "fk_product_warehouse_id")
+	fkn, err := common.GetFKeyName(Product{}, "product", "warehouse", "warehouse_id", "id")
+	if err != nil {
+		t.Errorf("failed to construct foreign-key name, got: %v", err.Error())
+		return
+	}
+
+	// check that the foreign-key exists by name
+	kExists, err := Handle.ExistsForeignKeyByName(Product{}, fkn)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	if !kExists {
+		t.Errorf("foreign-key '%s' failed to be created via the model", fkn)
+	}
+
+}
+
+// TestExistsForeignKeyByFields
+//
+// Test ExistsForeignKeyByFields
+func TestExistsForeignKeyByFields(t *testing.T) {
+
+	type Warehouse struct {
+		ID       uint64 `db:"id" json:"id" sqac:"primary_key:inc;start:40000000"`
+		City     string `db:"city" json:"city" sqac:"nullable:false;default:Calgary"`
+		Quadrant string `db:"quadrant" json:"quadrant" sqac:"nullable:false;default:SE"`
+	}
+
+	type Product struct {
+		ID          uint64 `db:"id" json:"id" sqac:"primary_key:inc;start:95000000"`
+		ProductName string `db:"product_name" json:"product_name" sqac:"nullable:false;default:unknown"`
+		ProductCode string `db:"product_code" json:"product_code" sqac:"nullable:false;default:0000-0000-00"`
+		UOM         string `db:"uom" json:"uom" sqac:"nullable:false;default:EA"`
+		WarehouseID uint64 `db:"warehouse_id" json:"warehouse_id" sqac:"nullable:false"`
+	}
+
+	// determine the table names as per the table creation logic
+	wn := common.GetTableName(Warehouse{})
+	pn := common.GetTableName(Product{})
+
+	// verify tables do not exist
+	err := Handle.DropTables(Product{})
+	if err != nil {
+		t.Errorf("failed to drop table %s", pn)
+	}
+
+	err = Handle.DropTables(Warehouse{})
+	if err != nil {
+		t.Errorf("failed to drop table %s", wn)
+	}
+
+	// create warehouse table
+	err = Handle.CreateTables(Warehouse{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table warehouse exists
+	if !Handle.ExistsTable(wn) {
+		t.Errorf("table %s does not exist", wn)
+	}
+
+	// create a new record via the CRUD Create call
+	var warehouse = Warehouse{
+		City:     "Calgary",
+		Quadrant: "SW",
+	}
+
+	err = Handle.Create(&warehouse)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	// create product table
+	err = Handle.CreateTables(Product{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table product exists
+	if !Handle.ExistsTable(pn) {
+		t.Errorf("table %s does not exist", pn)
+	}
+
+	// add a foreign-key to table product
+	switch Handle.GetDBDriverName() {
+	case "sqlite3":
+		err = Handle.CreateForeignKey(Product{}, pn, wn, "warehouse_id", "id")
+	default:
+		err = Handle.CreateForeignKey(nil, pn, wn, "warehouse_id", "id")
+	}
+	if err != nil {
+		t.Errorf("failed to create foreign-key; got: %s", err)
+	}
+
+	// check that the foreign-key exists by name
+	kExists, err := Handle.ExistsForeignKeyByFields(Product{}, "product", "warehouse", "warehouse_id", "id")
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	if !kExists {
+		t.Errorf("foreign-key '%s' failed to be created via the model", "fk_product_warehouse_id")
+	}
+
+}
+
+// TestForeignKeyCreateFromModel
+//
+// Test ForeignKeyCreateFromModel
+func TestForeignKeyCreateFromModel(t *testing.T) {
+
+	type Warehouse struct {
+		ID       uint64 `db:"id" json:"id" sqac:"primary_key:inc;start:40000000"`
+		City     string `db:"city" json:"city" sqac:"nullable:false;default:Calgary"`
+		Quadrant string `db:"quadrant" json:"quadrant" sqac:"nullable:false;default:SE"`
+	}
+
+	type Product struct {
+		ID          uint64 `db:"id" json:"id" sqac:"primary_key:inc;start:95000000"`
+		ProductName string `db:"product_name" json:"product_name" sqac:"nullable:false;default:unknown"`
+		ProductCode string `db:"product_code" json:"product_code" sqac:"nullable:false;default:0000-0000-00"`
+		UOM         string `db:"uom" json:"uom" sqac:"nullable:false;default:EA"`
+		WarehouseID uint64 `db:"warehouse_id" json:"warehouse_id" sqac:"nullable:false;fkey:warehouse(id)"`
+	}
+
+	// determine the table names as per the table creation logic
+	wn := common.GetTableName(Warehouse{})
+	pn := common.GetTableName(Product{})
+
+	// verify tables do not exist
+	err := Handle.DropTables(Product{})
+	if err != nil {
+		t.Errorf("failed to drop table %s", pn)
+	}
+
+	err = Handle.DropTables(Warehouse{})
+	if err != nil {
+		t.Errorf("failed to drop table %s", wn)
+	}
+
+	// create warehouse table
+	err = Handle.CreateTables(Warehouse{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table warehouse exists
+	if !Handle.ExistsTable(wn) {
+		t.Errorf("table %s does not exist", wn)
+	}
+
+	// create product table with its foreign-key definition
+	err = Handle.CreateTables(Product{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table product exists
+	if !Handle.ExistsTable(pn) {
+		t.Errorf("table %s does not exist", wn)
+	}
+
+	// check that the foreign-key exists
+	kExists, err := Handle.ExistsForeignKeyByName(Product{}, "fk_product_warehouse_id")
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	if !kExists {
+		t.Errorf("foreign-key 'fk_product_warehouse_id' failed to be created via the model")
+	}
+
+	// check that the foreign-key exists via fields
+	kExists, err = Handle.ExistsForeignKeyByFields(Product{}, "product", "warehouse", "warehouse_id", "id")
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	if !kExists {
+		t.Errorf("foreign-key 'fk_product_warehouse_id' failed to be created via the model")
 	}
 
 	// err = Handle.DropTables(Product{})
