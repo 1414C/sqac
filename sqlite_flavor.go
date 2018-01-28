@@ -193,6 +193,7 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 	pKeys := ""
 	var sequences []common.SqacPair
 	indexes := make(map[string]IndexInfo)
+	fKeys := make([]FKeyInfo, 0)
 	tableSchema := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s%s%s (", qt, tn, qt)
 
 	// get a list of the field names, go-types and db attributes.
@@ -394,6 +395,9 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 						indexes = slf.processIndexTag(indexes, tn, fd.FName, p.Value, false, false)
 					}
 
+				case "fkey":
+					fKeys = slf.processFKeyTag(fKeys, tn, fd.FName, p.Value)
+
 				default:
 
 				}
@@ -414,6 +418,10 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 
 				if p.Name == "primary_key" {
 					pKeys = fmt.Sprintf("%s %s%s%s,", pKeys, qt, fd.FName, qt)
+				}
+
+				if p.Name == "fkey" {
+					fKeys = slf.processFKeyTag(fKeys, tn, fd.FName, p.Value)
 				}
 
 			}
@@ -446,8 +454,28 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 	}
 	if tableSchema != "" && pKeys != "" {
 		pKeys = strings.TrimSuffix(pKeys, ",")
-		tableSchema = tableSchema + fmt.Sprintf("UNIQUE(%s) );", pKeys)
+		tableSchema = tableSchema + fmt.Sprintf("UNIQUE(%s)", pKeys)
 	}
+
+	// SQLite needs the foreign-key constraints added in the CREATE TABLE schema
+	if tableSchema != "" && len(fKeys) > 0 {
+		tableSchema = strings.TrimSpace(tableSchema)
+		tableSchema = strings.TrimSuffix(tableSchema, ",")
+		for _, v := range fKeys {
+			fkn, err := common.GetFKeyName(nil, v.FromTable, v.RefTable, v.FromField, v.RefField)
+			if err != nil {
+				log.Printf("WARNING: unable to determine foreign-key-name based on %v.  SKIPPING.", v)
+				continue
+			}
+			tableSchema = fmt.Sprintf("%s CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s(%s)", tableSchema, fkn, v.FromField, v.RefTable, v.RefField)
+		}
+	}
+
+	if tableSchema != "" {
+		tableSchema = tableSchema + " );"
+	}
+
+	// fmt.Println("FINAL TABLE SCHEMA:", tableSchema)
 
 	// fill the return structure passing out the CREATE TABLE schema, and component info
 	rc := TblComponents{
@@ -644,6 +672,8 @@ func (slf *SQLiteFlavor) GetNextSequenceValue(name string) (int, error) {
 // and a new table created (hence parameter i) with the foreign-key constraint in
 // the CREATE TABLE ... command.  Foreign-key constraints are temporarily disabled
 // on the db for the duration of the transaction processing.
+// THIS SHOULD NOT BE CALLED DIRECTLY.  IT IS FAR SAFER IN THE SQLITE CASE TO UPDATE
+// THE SQAC-TAGS ON THE TABLE'S MODEL.
 func (slf *SQLiteFlavor) CreateForeignKey(i interface{}, ft, rt, ff, rf string) error {
 
 	bakTn := ""
@@ -665,10 +695,18 @@ func (slf *SQLiteFlavor) CreateForeignKey(i interface{}, ft, rt, ff, rf string) 
 		cmds = append(cmds, q)
 		q = fmt.Sprintf("ALTER TABLE %s RENAME TO _%s_bak;", ft, ft)
 		cmds = append(cmds, q)
+		q = fmt.Sprintf("DROP TABLE IF EXISTS %s;", tn)
+		cmds = append(cmds, q)
+	}
+
+	// determine the new fk constraint-name
+	fkn, err := common.GetFKeyName(i, ft, rt, ff, rf)
+	if err != nil {
+		return err
 	}
 
 	// build the new foreign-key constraint clause
-	fkc := fmt.Sprintf(" CONSTRAINT fk_%s_%s FOREIGN KEY (%s) REFERENCES %s(%s)", ft, rt, ff, rt, rf)
+	fkc := fmt.Sprintf(" CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s(%s)", fkn, ff, rt, rf)
 
 	// build the new table schema with foreign-key constraint
 	tc := slf.buildTablSchema(tn, i)
@@ -693,7 +731,7 @@ func (slf *SQLiteFlavor) CreateForeignKey(i interface{}, ft, rt, ff, rf string) 
 	}
 
 	// disable foreign-key checks
-	_, err := slf.Exec("PRAGMA foreign_keys=off;")
+	_, err = slf.Exec("PRAGMA foreign_keys=off;")
 	if err != nil {
 		return err
 	}
@@ -780,10 +818,10 @@ func (slf *SQLiteFlavor) DropForeignKey(i interface{}, ft, fkn string) error {
 		return err
 	}
 
-	fmt.Println("sql command buffer:")
-	for _, v := range cmds {
-		fmt.Println(v)
-	}
+	// fmt.Println("sql command buffer:")
+	// for _, v := range cmds {
+	// 	fmt.Println(v)
+	// }
 
 	// submit the transaction buffer
 	err = slf.ProcessTransaction(cmds)
@@ -803,6 +841,39 @@ func (slf *SQLiteFlavor) DropForeignKey(i interface{}, ft, fkn string) error {
 		return err
 	}
 	return nil
+}
+
+// ExistsForeignKeyByName checks to see if the named foreign-key exists on the
+// table corresponding to provided sqac model (i).
+func (slf *SQLiteFlavor) ExistsForeignKeyByName(i interface{}, fkn string) (bool, error) {
+
+	var count uint64
+	tn := common.GetTableName(i)
+
+	fkQuery := fmt.Sprintf("SELECT COUNT(*) FROM sqlite_master WHERE tbl_name='%s' AND sql like'%%%s%%';", tn, fkn)
+	slf.QsLog(fkQuery)
+
+	err := slf.Get(&count, fkQuery)
+	if err != nil {
+		return false, nil
+	}
+
+	if count > 0 {
+		return true, nil
+	}
+	return false, nil
+}
+
+// ExistsForeignKeyByFields checks to see if a foreign-key exists between the named
+// tables and fields.
+func (slf *SQLiteFlavor) ExistsForeignKeyByFields(i interface{}, ft, rt, ff, rf string) (bool, error) {
+
+	fkn, err := common.GetFKeyName(i, ft, rt, ff, rf)
+	if err != nil {
+		return false, err
+	}
+
+	return slf.ExistsForeignKeyByName(i, fkn)
 }
 
 //================================================================

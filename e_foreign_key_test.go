@@ -226,13 +226,25 @@ func TestForeignKeyDrop(t *testing.T) {
 		t.Errorf("product record failed to create with warehouse foreign_key %v", prod.WarehouseID)
 	}
 
-	// attempt to drop a foreign-key that does not exist
-	err = Handle.DropForeignKey(Product{}, pn, "fk_fake_fk")
-	if err == nil {
-		t.Errorf("DropForeignKey erroneously indicated success in dropping non-existent fk: 'fk_fake_fk' on table %s", pn)
+	// Attempt to drop a foreign-key that does not exist.  In the SQLite case, this particular call/test
+	// would result in the dropping of foreign-key 'fk_product_warehouse_id'.  This is due to the
+	// fact that SQLite does not permit ADD/DROP's of foreign-key constraints on an existing table, and
+	// in this test, the foreign-key has not been created via the Model sqac tag (fkey:).  Recall that in
+	// order to simulate an ADD/DROP of a foreign-key on an existing SQLite table, the existing table is
+	// copied to a temp DB table, the existing table is dropped, and then recreated based on the situation.
+	// While is is possible to make calls to CreateForeignKey and DropForeignKey on a SQLite table, it is
+	// not advisable, as the ADD/DROP's will result in a table based on the Model sqac-tags + the ADD or
+	// DROP of the current foreign-key constraint.  In the case of SQLite, all foreign-key changes should
+	// be carried out via changes to the sqac-tags.
+	switch Handle.GetDBDriverName() {
+	case "sqlite3":
+		// do nothing here
+	default:
+		err = Handle.DropForeignKey(Product{}, pn, "fk_fake_fk")
+		if err == nil {
+			t.Errorf("DropForeignKey erroneously indicated success in dropping non-existent fk: 'fk_fake_fk' on table %s", pn)
+		}
 	}
-
-	os.Exit(0)
 
 	// drop the foreign-key for real
 	err = Handle.DropForeignKey(Product{}, pn, "fk_product_warehouse_id")
@@ -370,7 +382,7 @@ func TestExistsForeignKeyByName(t *testing.T) {
 		t.Errorf("failed to create foreign-key; got: %s", err)
 	}
 
-	// construct foreign-key name (expect "fk_product_warehouse_id")
+	// construct foreign-key constraint name (expect "fk_product_warehouse_id")
 	fkn, err := common.GetFKeyName(Product{}, "product", "warehouse", "warehouse_id", "id")
 	if err != nil {
 		t.Errorf("failed to construct foreign-key name, got: %v", err.Error())
@@ -386,7 +398,6 @@ func TestExistsForeignKeyByName(t *testing.T) {
 	if !kExists {
 		t.Errorf("foreign-key '%s' failed to be created via the model", fkn)
 	}
-
 }
 
 // TestExistsForeignKeyByFields
@@ -777,6 +788,8 @@ func TestForeignKeyCreateTwoDelOneFromModel(t *testing.T) {
 	if !Handle.ExistsTable(pn) {
 		t.Errorf("table %s does not exist", wn)
 	}
+
+	os.Exit(0)
 
 	// check that the warehouse(id) foreign-key exists
 	kExists, err := Handle.ExistsForeignKeyByName(Product{}, "fk_product_warehouse_id")
