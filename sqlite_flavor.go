@@ -83,7 +83,7 @@ func (slf *SQLiteFlavor) CreateTables(i ...interface{}) error {
 		}
 
 		// get all the table parts and build the create schema
-		tc := slf.buildTablSchema(tn, i[t])
+		tc := slf.buildTablSchema(tn, i[t], false)
 		slf.QsLog(tc.tblSchema)
 
 		// execute the create schema against the db
@@ -123,7 +123,7 @@ func (slf *SQLiteFlavor) AlterTables(i ...interface{}) error {
 		}
 
 		// build the altered table schema and get its components
-		tc := slf.buildTablSchema(tn, i[t])
+		tc := slf.buildTablSchema(tn, i[t], true)
 
 		// go through the latest version of the model and check each
 		// field against its definition in the database.
@@ -179,6 +179,26 @@ func (slf *SQLiteFlavor) AlterTables(i ...interface{}) error {
 				slf.CreateIndex(k, v)
 			}
 		}
+
+		// add foreign-keys if required - this is quite intensive, as the table
+		// will go through copy, drop, recreate, reload cycle for each foreign-
+		// key.  it would be possible to react only to the first 'new' foreign-
+		// key in the list, as the entire model will be processed during an
+		// ADD CONSTRAINT ... FOREIGN KEY ... ...(..) operation.
+		for _, v := range tc.fkey {
+			fkn, err := common.GetFKeyName(ent, v.FromTable, v.RefTable, v.FromField, v.RefField)
+			if err != nil {
+				return err
+			}
+			fkExists, _ := slf.ExistsForeignKeyByName(ent, fkn)
+			if !fkExists {
+				err = slf.CreateForeignKey(ent, v.FromTable, v.RefTable, v.FromField, v.RefField)
+				if err != nil {
+					fmt.Println(err)
+					return err
+				}
+			}
+		}
 	}
 	return nil
 }
@@ -187,7 +207,7 @@ func (slf *SQLiteFlavor) AlterTables(i ...interface{}) error {
 // and returns it to the caller, along with the components determined from
 // the db and sqac struct-tags.  this method is used in CreateTables
 // and AlterTables methods.
-func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
+func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}, isAlter bool) TblComponents {
 
 	qt := slf.GetDBQuote()
 	pKeys := ""
@@ -457,25 +477,35 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 		tableSchema = tableSchema + fmt.Sprintf("UNIQUE(%s)", pKeys)
 	}
 
-	// SQLite needs the foreign-key constraints added in the CREATE TABLE schema
-	if tableSchema != "" && len(fKeys) > 0 {
-		tableSchema = strings.TrimSpace(tableSchema)
-		tableSchema = strings.TrimSuffix(tableSchema, ",")
-		for _, v := range fKeys {
-			fkn, err := common.GetFKeyName(nil, v.FromTable, v.RefTable, v.FromField, v.RefField)
-			if err != nil {
-				log.Printf("WARNING: unable to determine foreign-key-name based on %v.  SKIPPING.", v)
-				continue
+	// SQLite needs the foreign-key constraints added in the CREATE TABLE schema when
+	// building the schema for a CreateTables call.  In an AlterTables call, it is not
+	// possible to add a new foreign-key to a SQLite table, so the foreign-key constraints
+	// are left out of the schema altogether.  Existing foreign-keys should stay in-place
+	// and a list of foreign-keys to add is exported for use with the copy, drop, recreate,
+	// reload process used to add/drop foreign-keys in SQLite.
+	if !isAlter {
+		if tableSchema != "" && len(fKeys) > 0 {
+			tableSchema = strings.TrimSpace(tableSchema)
+			lv := tableSchema[len(tableSchema)-1:]
+			if lv != "," {
+				tableSchema = tableSchema + ","
 			}
-			tableSchema = fmt.Sprintf("%s CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s(%s)", tableSchema, fkn, v.FromField, v.RefTable, v.RefField)
+
+			for _, v := range fKeys {
+				fkn, err := common.GetFKeyName(nil, v.FromTable, v.RefTable, v.FromField, v.RefField)
+				if err != nil {
+					log.Printf("WARNING: unable to determine foreign-key-name based on %v.  SKIPPING.", v)
+					continue
+				}
+				tableSchema = fmt.Sprintf("%s CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s(%s),", tableSchema, fkn, v.FromField, v.RefTable, v.RefField)
+			}
 		}
 	}
 
 	if tableSchema != "" {
-		tableSchema = tableSchema + " );"
+		tableSchema = strings.TrimSuffix(tableSchema, ",")
+		tableSchema = tableSchema + ");"
 	}
-
-	// fmt.Println("FINAL TABLE SCHEMA:", tableSchema)
 
 	// fill the return structure passing out the CREATE TABLE schema, and component info
 	rc := TblComponents{
@@ -485,6 +515,10 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}) TblComponen
 		ind:       indexes,
 		pk:        pKeys,
 		err:       err,
+	}
+
+	if isAlter && len(fKeys) > 0 {
+		rc.fkey = fKeys
 	}
 
 	if slf.log {
@@ -709,7 +743,7 @@ func (slf *SQLiteFlavor) CreateForeignKey(i interface{}, ft, rt, ff, rf string) 
 	fkc := fmt.Sprintf(" CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s(%s)", fkn, ff, rt, rf)
 
 	// build the new table schema with foreign-key constraint
-	tc := slf.buildTablSchema(tn, i)
+	tc := slf.buildTablSchema(tn, i, false)
 	q = strings.TrimSuffix(tc.tblSchema, ");")
 	q = strings.TrimSpace(q)
 	lv := q[len(q)-1:]
@@ -799,7 +833,7 @@ func (slf *SQLiteFlavor) DropForeignKey(i interface{}, ft, fkn string) error {
 	}
 
 	// build the new table schema without the foreign-key constraint (must be omitted from model)
-	tc := slf.buildTablSchema(tn, i)
+	tc := slf.buildTablSchema(tn, i, false)
 	cmds = append(cmds, tc.tblSchema)
 
 	// copy the data back
@@ -817,11 +851,6 @@ func (slf *SQLiteFlavor) DropForeignKey(i interface{}, ft, fkn string) error {
 	if err != nil {
 		return err
 	}
-
-	// fmt.Println("sql command buffer:")
-	// for _, v := range cmds {
-	// 	fmt.Println(v)
-	// }
 
 	// submit the transaction buffer
 	err = slf.ProcessTransaction(cmds)

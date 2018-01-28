@@ -97,7 +97,6 @@ func (pf *PostgresFlavor) CreateTables(i ...interface{}) error {
 
 	// create the foreign-keys if any
 	for _, v := range tc.fkey {
-		fmt.Println("fkey:", v)
 		err := pf.CreateForeignKey(nil, v.FromTable, v.RefTable, v.FromField, v.RefField)
 		if err != nil {
 			return err
@@ -562,6 +561,7 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 			if !fkExists {
 				err = pf.CreateForeignKey(ent, v.FromTable, v.RefTable, v.FromField, v.RefField)
 				if err != nil {
+					fmt.Println(err)
 					return err
 				}
 			}

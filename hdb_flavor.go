@@ -339,7 +339,6 @@ func (hf *HDBFlavor) CreateTables(i ...interface{}) error {
 
 	// create the foreign-keys if any
 	for _, v := range tc.fkey {
-		fmt.Println("fkey:", v)
 		err := hf.CreateForeignKey(nil, v.FromTable, v.RefTable, v.FromField, v.RefField)
 		if err != nil {
 			return err
@@ -491,6 +490,22 @@ func (hf *HDBFlavor) AlterTables(i ...interface{}) error {
 		for k, v := range tc.ind {
 			if !hf.ExistsIndex(v.TableName, k) {
 				hf.CreateIndex(k, v)
+			}
+		}
+
+		// add foreign-keys if required
+		for _, v := range tc.fkey {
+			fkn, err := common.GetFKeyName(ent, v.FromTable, v.RefTable, v.FromField, v.RefField)
+			if err != nil {
+				return err
+			}
+			fkExists, _ := hf.ExistsForeignKeyByName(ent, fkn)
+			if !fkExists {
+				err = hf.CreateForeignKey(ent, v.FromTable, v.RefTable, v.FromField, v.RefField)
+				if err != nil {
+					fmt.Println(err)
+					return err
+				}
 			}
 		}
 	}

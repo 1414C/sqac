@@ -95,7 +95,6 @@ func (msf *MSSQLFlavor) CreateTables(i ...interface{}) error {
 
 		// create the foreign-keys if any
 		for _, v := range tc.fkey {
-			fmt.Println("fkey:", v)
 			err := msf.CreateForeignKey(nil, v.FromTable, v.RefTable, v.FromField, v.RefField)
 			if err != nil {
 				return err
@@ -195,6 +194,22 @@ func (msf *MSSQLFlavor) AlterTables(i ...interface{}) error {
 		for k, v := range tc.ind {
 			if !msf.ExistsIndex(v.TableName, k) {
 				msf.CreateIndex(k, v)
+			}
+		}
+
+		// add foreign-keys if required
+		for _, v := range tc.fkey {
+			fkn, err := common.GetFKeyName(ent, v.FromTable, v.RefTable, v.FromField, v.RefField)
+			if err != nil {
+				return err
+			}
+			fkExists, _ := msf.ExistsForeignKeyByName(ent, fkn)
+			if !fkExists {
+				err = msf.CreateForeignKey(ent, v.FromTable, v.RefTable, v.FromField, v.RefField)
+				if err != nil {
+					fmt.Println(err)
+					return err
+				}
 			}
 		}
 	}

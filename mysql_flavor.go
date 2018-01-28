@@ -83,7 +83,6 @@ func (myf *MySQLFlavor) CreateTables(i ...interface{}) error {
 	}
 	// create the foreign-keys if any
 	for _, v := range tc.fkey {
-		fmt.Println("fkey:", v)
 		err := myf.CreateForeignKey(nil, v.FromTable, v.RefTable, v.FromField, v.RefField)
 		if err != nil {
 			return err
@@ -375,6 +374,22 @@ func (myf *MySQLFlavor) AlterTables(i ...interface{}) error {
 		for k, v := range tc.ind {
 			if !myf.ExistsIndex(v.TableName, k) {
 				myf.CreateIndex(k, v)
+			}
+		}
+
+		// add foreign-keys if required
+		for _, v := range tc.fkey {
+			fkn, err := common.GetFKeyName(ent, v.FromTable, v.RefTable, v.FromField, v.RefField)
+			if err != nil {
+				return err
+			}
+			fkExists, _ := myf.ExistsForeignKeyByName(ent, fkn)
+			if !fkExists {
+				err = myf.CreateForeignKey(ent, v.FromTable, v.RefTable, v.FromField, v.RefField)
+				if err != nil {
+					fmt.Println(err)
+					return err
+				}
 			}
 		}
 	}
