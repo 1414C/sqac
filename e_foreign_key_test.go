@@ -1,7 +1,7 @@
 package sqac_test
 
 import (
-	"os"
+	"fmt"
 	"testing"
 
 	"github.com/1414C/sqac/common"
@@ -789,8 +789,6 @@ func TestForeignKeyCreateTwoDelOneFromModel(t *testing.T) {
 		t.Errorf("table %s does not exist", wn)
 	}
 
-	os.Exit(0)
-
 	// check that the warehouse(id) foreign-key exists
 	kExists, err := Handle.ExistsForeignKeyByName(Product{}, "fk_product_warehouse_id")
 	if err != nil {
@@ -831,23 +829,219 @@ func TestForeignKeyCreateTwoDelOneFromModel(t *testing.T) {
 		t.Errorf("foreign-key 'fk_product_unitofmeasure_uom' failed to be created via the model")
 	}
 
-	// drop "fk_product_unitofmeasure_uom" on table product
-	err = Handle.DropForeignKey(Product{}, "product", "fk_product_unitofmeasure_uom")
-	if err != nil {
-		t.Errorf("failed to drop foreign-key 'fk_product_unitofmeasure_uom', got: %s", err.Error())
+	// SQLite does not handle ADD/DROP's of foreign-key constraints on existing tables.
+	// This results in the need to jump copy, drop, recreate and populate a table for every
+	// foreign-key change.  As such, the concept of this test is flawed in the context of
+	// SQLite, as the recreate step will simply recreate the dropped foreign-key.  The
+	// foreign-key would be recreated due to its continued presence in the Product{}
+	// model.  The test will proceed for all other db's, and a subsequent test-step
+	// (TestForeignKeyDelFromModel) will remove foreign-key
+	// "fk_product_unitofmeasure_uom" from the model, thereby effectively dropping it
+	// from the db.
+	if Handle.GetDBDriverName() != "sqlite3" {
+
+		// drop "fk_product_unitofmeasure_uom" on table product
+		err = Handle.DropForeignKey(Product{}, "product", "fk_product_unitofmeasure_uom")
+		if err != nil {
+			t.Errorf("failed to drop foreign-key 'fk_product_unitofmeasure_uom', got: %s", err.Error())
+		}
+
+		// check that the unitofmeasure(uom) foreign-key has been dropped
+		kExists, err = Handle.ExistsForeignKeyByName(Product{}, "fk_product_unitofmeasure_uom")
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
+		if kExists {
+			t.Errorf("foreign-key 'fk_product_unitofmeasure_uom' failed to be dropped via direct call")
+		}
+
+		err = Handle.DropTables(Product{})
+		if err != nil {
+			t.Errorf("failed to drop table %s", pn)
+		}
+
+		err = Handle.DropTables(Warehouse{})
+		if err != nil {
+			t.Errorf("failed to drop table %s", wn)
+		}
+
+		err = Handle.DropTables(UnitOfMeasure{})
+		if err != nil {
+			t.Errorf("failed to drop table %s", un)
+		}
+	}
+}
+
+// TestForeignKeyDelFromModel
+//
+// Test TestForeignKeyDelFromModel
+func TestForeignKeyDelFromModel(t *testing.T) {
+
+	type Warehouse struct {
+		ID       uint64 `db:"id" json:"id" sqac:"primary_key:inc;start:40000000"`
+		City     string `db:"city" json:"city" sqac:"nullable:false;default:Calgary"`
+		Quadrant string `db:"quadrant" json:"quadrant" sqac:"nullable:false;default:SE"`
 	}
 
-	// check that the unitofmeasure(uom) foreign-key has been dropped
-	kExists, err = Handle.ExistsForeignKeyByName(Product{}, "fk_product_unitofmeasure_uom")
-	if err != nil {
-		t.Errorf(err.Error())
+	type UnitOfMeasure struct {
+		Uom     string `db:"uom" json:"uom" sqac:"primary_key:"`
+		UomText string `db:"uom_text" json:"uom_text" sqac:"nullable:false"`
 	}
 
-	if kExists {
-		t.Errorf("foreign-key 'fk_product_unitofmeasure_uom' failed to be dropped via direct call")
+	type Product struct {
+		ID          uint64 `db:"id" json:"id" sqac:"primary_key:inc;start:95000000"`
+		ProductName string `db:"product_name" json:"product_name" sqac:"nullable:false;default:unknown"`
+		ProductCode string `db:"product_code" json:"product_code" sqac:"nullable:false;default:0000-0000-00"`
+		UOM         string `db:"uom" json:"uom" sqac:"nullable:false;default:EA"`
+		WarehouseID uint64 `db:"warehouse_id" json:"warehouse_id" sqac:"nullable:false;fkey:warehouse(id)"`
 	}
 
-	err = Handle.DropTables(Product{})
+	// SQLite does not handle ADD/DROP's of foreign-key constraints on existing tables.
+	// This results in the need to jump copy, drop, recreate and populate a table for every
+	// foreign-key change.  As such, the concept of this test is flawed in the context of
+	// SQLite, as the recreate step will simply recreate the dropped foreign-key.  The
+	// foreign-key would be recreated due to its continued presence in the Product{}
+	// model.  The test will proceed for all other db's, and a subsequent test-step
+	// (TestForeignKeySQLiteDelFromModel) will remove foreign-key
+	// "fk_product_unitofmeasure_uom" from the model, thereby effectively dropping it
+	// from the db.
+	if Handle.GetDBDriverName() == "sqlite3" {
+
+		// determine the table names as per the table creation logic
+		wn := common.GetTableName(Warehouse{})
+		un := common.GetTableName(UnitOfMeasure{})
+		pn := common.GetTableName(Product{})
+
+		// expect that table warehouse exists
+		if !Handle.ExistsTable(wn) {
+			t.Errorf("table %s does not exist", wn)
+		}
+
+		// expect that table unitofmeasure exists
+		if !Handle.ExistsTable(un) {
+			t.Errorf("table %s does not exist", wn)
+		}
+
+		// expect that table product exists
+		if !Handle.ExistsTable(pn) {
+			t.Errorf("table %s does not exist", wn)
+		}
+
+		// check that the warehouse(id) foreign-key exists
+		kExists, err := Handle.ExistsForeignKeyByName(Product{}, "fk_product_warehouse_id")
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
+		if !kExists {
+			t.Errorf("foreign-key 'fk_product_warehouse_id' failed to be created via the model")
+		}
+
+		// check that the warehouse(id) foreign-key exists via fields
+		kExists, err = Handle.ExistsForeignKeyByFields(Product{}, "product", "warehouse", "warehouse_id", "id")
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
+		if !kExists {
+			t.Errorf("foreign-key 'fk_product_warehouse_id' failed to be created via the model")
+		}
+
+		// check that the unitofmeasure(uom) foreign-key exists
+		kExists, err = Handle.ExistsForeignKeyByName(Product{}, "fk_product_unitofmeasure_uom")
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
+		if !kExists {
+			t.Errorf("foreign-key 'fk_product_unitofmeasure_uom' failed to be created via the model")
+		}
+
+		// check that the unitofmeasure(uom) foreign-key exists via fields
+		kExists, err = Handle.ExistsForeignKeyByFields(Product{}, "product", "unitofmeasure", "uom", "uom")
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
+		if !kExists {
+			t.Errorf("foreign-key 'fk_product_unitofmeasure_uom' failed to be created via the model")
+		}
+
+		// drop "fk_product_unitofmeasure_uom" on table product.  It really doesn't matter
+		// which foreign-key is specified here, as the SQLite implementation of DropForeignKey
+		// simply copies, drops, recreates and reloads the table based on the current version
+		// of the Product{} model.  This is not great, as it works in a different manner than
+		// the other DB's...
+		err = Handle.DropForeignKey(Product{}, "product", "fk_product_unitofmeasure_uom")
+		if err != nil {
+			t.Errorf("failed to drop foreign-key 'fk_product_unitofmeasure_uom', got: %s", err.Error())
+		}
+
+		// check that the unitofmeasure(uom) foreign-key has been dropped
+		kExists, err = Handle.ExistsForeignKeyByName(Product{}, "fk_product_unitofmeasure_uom")
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
+		if kExists {
+			t.Errorf("foreign-key 'fk_product_unitofmeasure_uom' failed to be dropped via direct call")
+		}
+
+		// check that the warehouse(id) foreign-key still exists
+		kExists, err = Handle.ExistsForeignKeyByFields(Product{}, "product", "warehouse", "warehouse_id", "id")
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
+		err = Handle.DropTables(Product{})
+		if err != nil {
+			t.Errorf("failed to drop table %s", pn)
+		}
+
+		err = Handle.DropTables(Warehouse{})
+		if err != nil {
+			t.Errorf("failed to drop table %s", wn)
+		}
+
+		err = Handle.DropTables(UnitOfMeasure{})
+		if err != nil {
+			t.Errorf("failed to drop table %s", un)
+		}
+	}
+}
+
+// TestForeignKeyCreateViaAlterTable
+//
+// Test ForeignKeyCreateViaAlterTable
+func TestForeignKeyCreateViaAlterTable(t *testing.T) {
+
+	type Warehouse struct {
+		ID       uint64 `db:"id" json:"id" sqac:"primary_key:inc;start:40000000"`
+		City     string `db:"city" json:"city" sqac:"nullable:false;default:Calgary"`
+		Quadrant string `db:"quadrant" json:"quadrant" sqac:"nullable:false;default:SE"`
+	}
+
+	type UnitOfMeasure struct {
+		Uom     string `db:"uom" json:"uom" sqac:"primary_key:"`
+		UomText string `db:"uom_text" json:"uom_text" sqac:"nullable:false"`
+	}
+
+	type Product struct {
+		ID          uint64 `db:"id" json:"id" sqac:"primary_key:inc;start:95000000"`
+		ProductName string `db:"product_name" json:"product_name" sqac:"nullable:false;default:unknown"`
+		ProductCode string `db:"product_code" json:"product_code" sqac:"nullable:false;default:0000-0000-00"`
+		UOM         string `db:"uom" json:"uom" sqac:"nullable:false;default:EA"`
+		WarehouseID uint64 `db:"warehouse_id" json:"warehouse_id" sqac:"nullable:false;fkey:warehouse(id)"`
+	}
+
+	// determine the table names as per the table creation logic
+	wn := common.GetTableName(Warehouse{})
+	pn := common.GetTableName(Product{})
+	un := common.GetTableName(UnitOfMeasure{})
+
+	// verify tables do not exist
+	err := Handle.DropTables(Product{})
 	if err != nil {
 		t.Errorf("failed to drop table %s", pn)
 	}
@@ -861,4 +1055,93 @@ func TestForeignKeyCreateTwoDelOneFromModel(t *testing.T) {
 	if err != nil {
 		t.Errorf("failed to drop table %s", un)
 	}
+
+	// create warehouse table
+	err = Handle.CreateTables(Warehouse{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table warehouse exists
+	if !Handle.ExistsTable(wn) {
+		t.Errorf("table %s does not exist", wn)
+	}
+
+	// create product table with its foreign-key definition
+	err = Handle.CreateTables(Product{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table product exists
+	if !Handle.ExistsTable(pn) {
+		t.Errorf("table %s does not exist", wn)
+	}
+
+	// create unitofmeasure table
+	err = Handle.CreateTables(UnitOfMeasure{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table unitofmeasure exists
+	if !Handle.ExistsTable(un) {
+		t.Errorf("table %s does not exist", wn)
+	}
+
+	// check that the original foreign-key exists
+	kExists, err := Handle.ExistsForeignKeyByName(Product{}, "fk_product_warehouse_id")
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	if !kExists {
+		t.Errorf("foreign-key 'fk_product_warehouse_id' failed to be created via the model")
+	}
+
+	// execAlterTable permits the use of an updated Product{} model via declaration
+	// locally in the closure body.  Here a new foreign-key will be added on the UOM
+	// field, referencing unitofmeasure(uom).
+	execAlterTable := func() error {
+
+		type Product struct {
+			ID          uint64 `db:"id" json:"id" sqac:"primary_key:inc;start:95000000"`
+			ProductName string `db:"product_name" json:"product_name" sqac:"nullable:false;default:unknown"`
+			ProductCode string `db:"product_code" json:"product_code" sqac:"nullable:false;default:0000-0000-00"`
+			UOM         string `db:"uom" json:"uom" sqac:"nullable:false;default:EA;fkey:unitofmeasure(uom)"`
+			WarehouseID uint64 `db:"warehouse_id" json:"warehouse_id" sqac:"nullable:false;fkey:warehouse(id)"`
+		}
+
+		// add a foreign-key to table prodict based on addition of UOM sqac-tag fkey:unitofmeasure(uom)
+		err := Handle.AlterTables(Product{})
+		if err != nil {
+			return err
+		}
+
+		// check that the foreign-key exists
+		kExists, err := Handle.ExistsForeignKeyByName(Product{}, "fk_product_unitofmeasure_uom")
+		if err != nil {
+			return err
+		}
+
+		if !kExists {
+			return fmt.Errorf("foreign-key 'fk_product_unitofmeasure_uom' failed to be created via AlterTable()")
+		}
+		return nil
+	}
+
+	err = execAlterTable()
+	if err != nil {
+		t.Errorf("execAlterTable got: %v", err.Error())
+	}
+
+	// err = Handle.DropTables(Product{})
+	// if err != nil {
+	// 	t.Errorf("failed to drop table %s", pn)
+	// }
+
+	// err = Handle.DropTables(Warehouse{})
+	// if err != nil {
+	// 	t.Errorf("failed to drop table %s", wn)
+	// }
 }
