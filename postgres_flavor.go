@@ -487,6 +487,13 @@ func (pf *PostgresFlavor) DropTables(i ...interface{}) error {
 // by pf.DB.
 func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 
+	type ForeignKeyBuffer struct {
+		ent    interface{}
+		fkinfo FKeyInfo
+	}
+
+	fkBuffer := make([]ForeignKeyBuffer, 0)
+
 	for t, ent := range i {
 
 		// ftr := reflect.TypeOf(ent)
@@ -561,18 +568,52 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 		}
 
 		// add foreign-keys if required
+		// for _, v := range tc.fkey {
+		// 	fkn, err := common.GetFKeyName(ent, v.FromTable, v.RefTable, v.FromField, v.RefField)
+		// 	if err != nil {
+		// 		return err
+		// 	}
+		// 	fkExists, _ := pf.ExistsForeignKeyByName(ent, fkn)
+		// 	if !fkExists {
+		// 		err = pf.CreateForeignKey(ent, v.FromTable, v.RefTable, v.FromField, v.RefField)
+		// 		if err != nil {
+		// 			fmt.Println(err)
+		// 			return err
+		// 		}
+		// 	}
+		// }
+
+		// new part - build a list of foreign-keys to potentially create
 		for _, v := range tc.fkey {
-			fkn, err := common.GetFKeyName(ent, v.FromTable, v.RefTable, v.FromField, v.RefField)
-			if err != nil {
-				return err
+			fkb := ForeignKeyBuffer{
+				ent:    ent,
+				fkinfo: v,
 			}
-			fkExists, _ := pf.ExistsForeignKeyByName(ent, fkn)
-			if !fkExists {
-				err = pf.CreateForeignKey(ent, v.FromTable, v.RefTable, v.FromField, v.RefField)
-				if err != nil {
-					fmt.Println(err)
-					return err
-				}
+			fkBuffer = append(fkBuffer, fkb)
+		}
+	}
+
+	// move the foreign-key creation here
+	// 1. change the current FK code starting @l563 to build a buffer with struct:
+	//  ent interface{}
+	//  []FkeyInfo
+	//
+	// 2. once the table mods have been carried out, iterate over the list of
+	// foreign-keys and attempt to create them on the db.  This should work
+	// for all db's except SQLite, where a bit of extra effort will have to
+	// be expended.
+
+	for _, v := range fkBuffer {
+		fkn, err := common.GetFKeyName(v.ent, v.fkinfo.FromTable, v.fkinfo.RefTable, v.fkinfo.FromField, v.fkinfo.RefField)
+		if err != nil {
+			return err
+		}
+		fkExists, _ := pf.ExistsForeignKeyByName(v.ent, fkn)
+		if !fkExists {
+			err = pf.CreateForeignKey(v.ent, v.fkinfo.FromTable, v.fkinfo.RefTable, v.fkinfo.FromField, v.fkinfo.RefField)
+			if err != nil {
+				fmt.Println(err)
+				return err
 			}
 		}
 	}
