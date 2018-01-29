@@ -99,7 +99,13 @@ func (pf *PostgresFlavor) CreateTables(i ...interface{}) error {
 
 	// create the foreign-keys if any
 	for _, v := range tc.fkey {
+		fmt.Println()
+		fmt.Println()
+		fmt.Println("CALLING CreateForeignKey")
+		fmt.Println()
+		fmt.Println()
 		err := pf.CreateForeignKey(nil, v.FromTable, v.RefTable, v.FromField, v.RefField)
+		fmt.Println("CreateForeignKey Got:", err)
 		if err != nil {
 			return err
 		}
