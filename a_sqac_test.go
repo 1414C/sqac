@@ -488,6 +488,12 @@ func TestExistsIndexNegative(t *testing.T) {
 		NewColumn3 float64   `db:"new_column3" sqac:"nullable:false;default:0.0"`
 	}
 
+	// drop table depot
+	// err := Handle.DropTables(Depot{})
+	// if err != nil {
+	// 	t.Errorf("%s", err.Error())
+	// }
+
 	// ensure that table depot exists
 	err := Handle.AlterTables(Depot{})
 	if err != nil {

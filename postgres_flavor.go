@@ -2,6 +2,7 @@ package sqac
 
 import (
 	"fmt"
+	"log"
 	"reflect"
 	"strconv"
 	"strings"
@@ -56,9 +57,85 @@ func (pf *PostgresFlavor) GetDBName() (dbName string) {
 // by pf.DB.
 func (pf *PostgresFlavor) CreateTables(i ...interface{}) error {
 
+	fmt.Println("i", i)
+	_, err := pf.createTables(false, i)
+	if err != nil {
+		return err
+	}
+
+	// os.Exit(0)
+
+	// var tc TblComponents
+
+	// for t, ent := range i {
+
+	// 	ftr := reflect.TypeOf(ent)
+	// 	if pf.log {
+	// 		fmt.Println("CreateTable() entity type:", ftr)
+	// 	}
+
+	// 	// determine the table name
+	// 	tn := common.GetTableName(i[t])
+	// 	if tn == "" {
+	// 		return fmt.Errorf("unable to determine table name in pf.CreateTables")
+	// 	}
+
+	// 	// if the table is found to exist, skip the creation
+	// 	// and move on to the next table in the list.
+	// 	if pf.ExistsTable(tn) {
+	// 		if pf.log {
+	// 			fmt.Printf("CreateTable - table %s exists - skipping...\n", tn)
+	// 		}
+	// 		continue
+	// 	}
+
+	// 	// build the create table schema and return all of the table info
+	// 	tc = pf.buildTablSchema(tn, i[t])
+	// 	pf.QsLog(tc.tblSchema)
+
+	// 	fmt.Println("tc.tblSchema:", tc.tblSchema)
+
+	// 	// create the table on the db
+	// 	pf.db.MustExec(tc.tblSchema)
+	// 	for _, sq := range tc.seq {
+	// 		start, _ := strconv.Atoi(sq.Value)
+	// 		pf.AlterSequenceStart(sq.Name, start)
+	// 	}
+	// 	for k, in := range tc.ind {
+	// 		pf.CreateIndex(k, in)
+	// 	}
+	// }
+
+	// // create the foreign-keys if any
+	// for _, v := range tc.fkey {
+	// 	fmt.Println()
+	// 	fmt.Println()
+	// 	fmt.Println("CALLING CreateForeignKey")
+	// 	fmt.Println()
+	// 	fmt.Println()
+	// 	err := pf.CreateForeignKey(nil, v.FromTable, v.RefTable, v.FromField, v.RefField)
+	// 	fmt.Println("CreateForeignKey Got:", err)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
+	return nil
+}
+
+// createTables creates tables on the postgres database referenced
+// by pf.DB.  This internally visible version is able to defer
+// foreign-key creation if called with calledFromAlter = true.
+func (pf *PostgresFlavor) createTables(calledFromAlter bool, i ...interface{}) ([]ForeignKeyBuffer, error) {
+
 	var tc TblComponents
 
-	for t, ent := range i {
+	fkBuffer := make([]ForeignKeyBuffer, 0)
+
+	fmt.Println("I:", i)
+	fmt.Println("reflect.TypeOf i:", reflect.TypeOf(i))
+	fmt.Println("len(i):", len(i))
+	di := i[0].([]interface{})
+	for t, ent := range di {
 
 		ftr := reflect.TypeOf(ent)
 		if pf.log {
@@ -66,9 +143,9 @@ func (pf *PostgresFlavor) CreateTables(i ...interface{}) error {
 		}
 
 		// determine the table name
-		tn := common.GetTableName(i[t])
+		tn := common.GetTableName(di[t])
 		if tn == "" {
-			return fmt.Errorf("unable to determine table name in pf.CreateTables")
+			return nil, fmt.Errorf("unable to determine table name in pf.CreateTables")
 		}
 
 		// if the table is found to exist, skip the creation
@@ -81,7 +158,7 @@ func (pf *PostgresFlavor) CreateTables(i ...interface{}) error {
 		}
 
 		// build the create table schema and return all of the table info
-		tc = pf.buildTablSchema(tn, i[t])
+		tc = pf.buildTablSchema(tn, di[t])
 		pf.QsLog(tc.tblSchema)
 
 		fmt.Println("tc.tblSchema:", tc.tblSchema)
@@ -92,25 +169,50 @@ func (pf *PostgresFlavor) CreateTables(i ...interface{}) error {
 			start, _ := strconv.Atoi(sq.Value)
 			pf.AlterSequenceStart(sq.Name, start)
 		}
+
+		// create the table indices
 		for k, in := range tc.ind {
 			pf.CreateIndex(k, in)
 		}
-	}
 
-	// create the foreign-keys if any
-	for _, v := range tc.fkey {
-		fmt.Println()
-		fmt.Println()
-		fmt.Println("CALLING CreateForeignKey")
-		fmt.Println()
-		fmt.Println()
-		err := pf.CreateForeignKey(nil, v.FromTable, v.RefTable, v.FromField, v.RefField)
-		fmt.Println("CreateForeignKey Got:", err)
-		if err != nil {
-			return err
+		// add foreign-key information to the buffer
+		for _, v := range tc.fkey {
+			fkv := ForeignKeyBuffer{
+				ent:    ent,
+				fkinfo: v,
+			}
+			fkBuffer = append(fkBuffer, fkv)
 		}
 	}
-	return nil
+
+	// create the foreign-keys if any and if flag 'calledFromAlter = false'
+	// attempt to create the foreign-key, but maybe do not hit a hard-fail
+	// if FK creation fails.  When called from within AlterTable, creation
+	// of new tables in the list is carried out first - by this method.  It
+	// is possbile that a column required by for new foreign-key has yet to
+	// be added to one of the tables pending alteration.  A soft failure
+	// for FK creation issues seems approriate here, and the data for the
+	// failed FK creation is added to the fkBuffer and passed back to the
+	// called (AlterTable), where the FK creation can be tried again
+	// following the completion of the table alterations.
+	if calledFromAlter == false {
+		for _, v := range fkBuffer {
+			fmt.Println()
+			fmt.Println()
+			fmt.Println("CALLING CreateForeignKey")
+			fmt.Println()
+			fmt.Println()
+			err := pf.CreateForeignKey(v.ent, v.fkinfo.FromTable, v.fkinfo.RefTable, v.fkinfo.FromField, v.fkinfo.RefField)
+			fmt.Println("CreateForeignKey Got:", err)
+			if err != nil {
+				log.Printf("CreateForeignKey failed.  got: %v", err)
+				return nil, err
+			}
+		}
+	} else {
+		return fkBuffer, nil // fkBuffer will always be !nil, but may be len==0
+	}
+	return nil, nil
 }
 
 // buildTableSchema builds a CREATE TABLE schema for the Postgres DB, and
@@ -487,14 +589,13 @@ func (pf *PostgresFlavor) DropTables(i ...interface{}) error {
 // by pf.DB.
 func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 
-	type ForeignKeyBuffer struct {
-		ent    interface{}
-		fkinfo FKeyInfo
-	}
-
+	var err error
 	fkBuffer := make([]ForeignKeyBuffer, 0)
+	ci := make([]interface{}, 0)
+	ai := make([]interface{}, 0)
 
-	for t, ent := range i {
+	// deal with the creation of new tables first
+	for t, _ := range i {
 
 		// ftr := reflect.TypeOf(ent)
 
@@ -508,12 +609,33 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 		// if the table does exist, examine it and perform
 		// alterations if neccessary
 		if !pf.ExistsTable(tn) {
-			pf.CreateTables(ent)
+			ci = append(ci, i[t])
+			// pf.createTables(true, i ...interface{})
 			continue
+		} else {
+			ai = append(ai, i[t])
+		}
+	}
+
+	// create the tables and take note of any returned foreign-key definitions
+	if len(ci) > 0 {
+		fkBuffer, err = pf.createTables(true, ci)
+		if err != nil {
+			return err
+		}
+	}
+
+	// alter the tables and take note of any returned foreign-key definitions
+	for t, ent := range ai {
+
+		// determine the table name
+		tn := common.GetTableName(ai[t])
+		if tn == "" {
+			return fmt.Errorf("unable to determine table name in pf.AlterTables")
 		}
 
 		// build the altered table schema and get its components
-		tc := pf.buildTablSchema(tn, i[t])
+		tc := pf.buildTablSchema(tn, ai[t])
 
 		// go through the latest version of the model and check each
 		// field against its definition in the database.
