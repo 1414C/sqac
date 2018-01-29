@@ -218,6 +218,95 @@ func TestDropTablesBasic(t *testing.T) {
 	if Handle.ExistsTable(tn) {
 		t.Errorf("table %s was not dropped", tn)
 	}
+
+	err = Handle.DropTables(Depot{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+}
+
+// TestCreateTableNonIncKey
+//
+// Create table depot via CreateTables(i ...interface{})
+// Verify table creation via ExistsTable(tn string)
+// Perform negative validation be checking for non-existant
+// 	table "abcdefg" via ExistsTable(tn string)
+//
+func TestCreateTableNonIncKey(t *testing.T) {
+
+	type Depot struct {
+		DepotNum   int       `db:"depot_num" sqac:"primary_key:"` // non-incrementing key
+		CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now();"`
+		Region     string    `db:"region" sqac:"nullable:false;default:YYC"`
+		Province   string    `db:"province" sqac:"nullable:false;default:AB"`
+		Country    string    `db:"country" sqac:"nullable:false;default:CA"`
+	}
+
+	// ensure table does not exist
+	err := Handle.DropTables(Depot{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	err = Handle.CreateTables(Depot{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// determine the table name as per the table creation logic
+	tn := common.GetTableName(Depot{})
+
+	// expect that table depot exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s was not created", tn)
+	}
+
+	err = Handle.DropTables(Depot{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+}
+
+// TestCreateTableNoKey
+//
+// Create table depot via CreateTables(i ...interface{})
+// Verify table creation via ExistsTable(tn string)
+// Perform negative validation be checking for non-existant
+// 	table "abcdefg" via ExistsTable(tn string)
+//
+func TestCreateTableNoKey(t *testing.T) {
+
+	type Depot struct {
+		DepotNum   int       `db:"depot_num" sqac:"nullable:false"` // not a key
+		CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now();"`
+		Region     string    `db:"region" sqac:"nullable:false;default:YYC"`
+		Province   string    `db:"province" sqac:"nullable:false;default:AB"`
+		Country    string    `db:"country" sqac:"nullable:false;default:CA"`
+	}
+
+	// ensure table does not exist
+	err := Handle.DropTables(Depot{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	err = Handle.CreateTables(Depot{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// determine the table name as per the table creation logic
+	tn := common.GetTableName(Depot{})
+
+	// expect that table depot exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s was not created", tn)
+	}
+
+	err = Handle.DropTables(Depot{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
 }
 
 // TestCreateTableWithAlterSequence

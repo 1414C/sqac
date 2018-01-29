@@ -84,6 +84,8 @@ func (pf *PostgresFlavor) CreateTables(i ...interface{}) error {
 		tc = pf.buildTablSchema(tn, i[t])
 		pf.QsLog(tc.tblSchema)
 
+		fmt.Println("tc.tblSchema:", tc.tblSchema)
+
 		// create the table on the db
 		pf.db.MustExec(tc.tblSchema)
 		for _, sq := range tc.seq {
@@ -419,6 +421,7 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 	}
 
 	if tableSchema != "" && pKeys == "" {
+		tableSchema = strings.TrimSpace(tableSchema)
 		tableSchema = strings.TrimSuffix(tableSchema, ",")
 		tableSchema = tableSchema + ");"
 	}

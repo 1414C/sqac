@@ -272,6 +272,7 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 	}
 
 	if tableSchema != "" && pKeys == "" {
+		tableSchema = strings.TrimSpace(tableSchema)
 		tableSchema = strings.TrimSuffix(tableSchema, ",")
 		tableSchema = tableSchema + ")"
 	}
