@@ -13,13 +13,9 @@ sqac is a simple overlay to provide a common interface to attached mssql, mysql,
 - generic CRUD entity operations
 - set commands (/$count /$orderby=<field_name> $limit=n; $offset=n; ($asc|$desc))
 
-* passing: pg, mssql, mysql
-* Fix HDB test
-* make SQLite pass all tests to-date
-* Write test for Alter Table adding a foreign-key
-* Write test for Alter Table removing a foreign-key
-* Update Alter Table for HDB, MSSQL, MySQL
-* 
+* passing: pg, mssql, mysql, hdb, sqlite
+* refactor non-indempotent SQLite Foreign-Key test to use a closure
+* consider parsing the stored create schema when adding / dropping a foreign-key on SQLite tables (== dangerous)
 
 * Testing / TODO
 * examine the $desc orderby when limit / offset is used in postgres with selection parameter (weirdness)
@@ -27,7 +23,6 @@ sqac is a simple overlay to provide a common interface to attached mssql, mysql,
 * examine view support
 * remove debugging output
 * remove extraneaous getSet-type methods
-* complete foreign-key implementation
 * correct CreateTables where no primary-key is present (trailing ,_ )
 
 ```bash

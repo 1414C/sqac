@@ -469,6 +469,7 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}, isAlter boo
 	}
 
 	if tableSchema != "" && pKeys == "" {
+		tableSchema = strings.TrimSpace(tableSchema)
 		tableSchema = strings.TrimSuffix(tableSchema, ",")
 		tableSchema = tableSchema + ")"
 	}

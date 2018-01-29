@@ -728,6 +728,7 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 	}
 
 	if tableSchema != "" && pKeys == "" {
+		tableSchema = strings.TrimSpace(tableSchema)
 		tableSchema = strings.TrimSuffix(tableSchema, ",")
 		tableSchema = tableSchema + ")"
 	}
