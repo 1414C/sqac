@@ -28,6 +28,14 @@ type FKeyInfo struct {
 	FKeyName  string
 }
 
+// ForeignKeyBuffer is used to hold deferred foreign-key information
+// pending the creation of all tables submitted in a CreateTable(...)
+// or AlterTable(...) call.
+type ForeignKeyBuffer struct {
+	ent    interface{}
+	fkinfo FKeyInfo
+}
+
 // ColComponents is used to capture the field properties from sqac: tags
 // during table creation and table alteration activities.
 type ColComponents struct {
