@@ -16,6 +16,8 @@ sqac is a simple overlay to provide a common interface to attached mssql, mysql,
 * passing: pg, mssql, mysql, hdb, sqlite
 * refactor non-indempotent SQLite Foreign-Key test to use a closure
 * consider parsing the stored create schema when adding / dropping a foreign-key on SQLite tables (== dangerous)
+* add cascade to Drops?
+* refactor foreign-key create/drop
 
 * Testing / TODO
 * examine the $desc orderby when limit / offset is used in postgres with selection parameter (weirdness)
