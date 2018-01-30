@@ -530,8 +530,6 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 	// construct create-table and alter-table buffers
 	for t := range i {
 
-		// ftr := reflect.TypeOf(ent)
-
 		// determine the table name
 		tn := common.GetTableName(i[t])
 		if tn == "" {

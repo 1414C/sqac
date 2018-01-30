@@ -366,13 +366,7 @@ func (hf *HDBFlavor) createTables(calledFromAlter bool, i ...interface{}) ([]For
 	// following the completion of the table alterations.
 	if calledFromAlter == false {
 		for _, v := range fkBuffer {
-			// fmt.Println()
-			// fmt.Println()
-			// fmt.Println("CALLING CreateForeignKey")
-			// fmt.Println()
-			// fmt.Println()
 			err := hf.CreateForeignKey(v.ent, v.fkinfo.FromTable, v.fkinfo.RefTable, v.fkinfo.FromField, v.fkinfo.RefField)
-			// fmt.Println("CreateForeignKey Got:", err)
 			if err != nil {
 				log.Printf("CreateForeignKey failed.  got: %v", err)
 				return nil, err
@@ -732,12 +726,10 @@ func (hf *HDBFlavor) AlterTables(i ...interface{}) error {
 	// construct create-table and alter-table buffers
 	for t := range i {
 
-		// ftr := reflect.TypeOf(ent)
-
 		// determine the table name
 		tn := common.GetTableName(i[t])
 		if tn == "" {
-			return fmt.Errorf("unable to determine table name in pf.AlterTables")
+			return fmt.Errorf("unable to determine table name in hf.AlterTables")
 		}
 
 		// if the table does not exist, add the Model{} definition to
@@ -763,8 +755,6 @@ func (hf *HDBFlavor) AlterTables(i ...interface{}) error {
 	// if alter-tables buffer 'ai' constains any entries, process the table
 	// deltas and take note of any new foreign-key definitions.
 	for t, ent := range ai {
-
-		// ftr := reflect.TypeOf(ent)
 
 		// determine the table name
 		tn := common.GetTableName(ai[t])
@@ -831,7 +821,6 @@ func (hf *HDBFlavor) AlterTables(i ...interface{}) error {
 			for _, c := range cols {
 				alterSchema = fmt.Sprintf("%s %s", alterSchema, c)
 			}
-
 			alterSchema = strings.TrimSuffix(alterSchema, ",") + ");"
 			hf.ProcessSchema(alterSchema)
 		}
@@ -999,7 +988,7 @@ func (hf *HDBFlavor) ExistsSequence(sn string) bool {
 
 	// search for sequence by name
 	seqCount := 0
-	seqNameQuery := fmt.Sprintf("SELECT COUNT(*) FROM Sys.Sequences WHERE SEQUENCE_NAME = '%s'", sn)
+	seqNameQuery := fmt.Sprintf("SELECT COUNT(*) FROM Sys.Sequences WHERE SEQUENCE_NAME = '%s'", strings.ToUpper(sn))
 	hf.QsLog(seqNameQuery)
 
 	err := hf.db.QueryRow(seqNameQuery).Scan(&seqCount)
@@ -1018,15 +1007,15 @@ func (hf *HDBFlavor) ExistsSequence(sn string) bool {
 func (hf *HDBFlavor) CreateSequence(sn string, start int) {
 
 	// check for and drop existing sequence if exists
-	if hf.ExistsSequence(sn) {
-		err := hf.DropSequence(sn)
+	if hf.ExistsSequence(strings.ToUpper(sn)) {
+		err := hf.DropSequence(strings.ToUpper(sn))
 		if err != nil {
 			panic(err)
 		}
 	}
 
 	// build the sequence creation DDL
-	crtSequence := fmt.Sprintf("CREATE SEQUENCE %s START WITH %d INCREMENT BY 1;", sn, start)
+	crtSequence := fmt.Sprintf("CREATE SEQUENCE %s START WITH %d INCREMENT BY 1;", strings.ToUpper(sn), start)
 	hf.QsLog(crtSequence)
 
 	// attempt to create the sequence on the db
@@ -1040,7 +1029,7 @@ func (hf *HDBFlavor) CreateSequence(sn string, start int) {
 func (hf *HDBFlavor) DropSequence(sn string) error {
 
 	// build the sequence creation DDL
-	dropSequence := fmt.Sprintf("DROP SEQUENCE %s;", sn)
+	dropSequence := fmt.Sprintf("DROP SEQUENCE %s;", strings.ToUpper(sn))
 	hf.QsLog(dropSequence)
 
 	// attempt to drop the sequence from the db
@@ -1058,7 +1047,7 @@ func (hf *HDBFlavor) DropSequence(sn string) error {
 func (hf *HDBFlavor) GetNextSequenceValue(name string) (int, error) {
 
 	var nextVal int
-	nextQuery := fmt.Sprintf("SELECT %s.NEXTVAL FROM dummy;", name)
+	nextQuery := fmt.Sprintf("SELECT %s.NEXTVAL FROM dummy;", strings.ToUpper(name))
 	hf.QsLog(nextQuery)
 
 	err := hf.db.QueryRow(nextQuery).Scan(&nextVal)
