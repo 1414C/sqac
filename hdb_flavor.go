@@ -3,6 +3,7 @@ package sqac
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"reflect"
 	"strconv"
 	"strings"
@@ -247,13 +248,18 @@ func (hf *HDBFlavor) GetDBName() (dbName string) {
 	return dbName
 }
 
-// CreateTables creates tables on the hdb database referenced
-// by hf.DB.
-func (hf *HDBFlavor) CreateTables(i ...interface{}) error {
+// createTables creates tables on the postgres database referenced
+// by hf.DB.  This internally visible version is able to defer
+// foreign-key creation if called with calledFromAlter = true.
+func (hf *HDBFlavor) createTables(calledFromAlter bool, i ...interface{}) ([]ForeignKeyBuffer, error) {
 
 	var tc TblComponents
+	fkBuffer := make([]ForeignKeyBuffer, 0)
 
-	for t, ent := range i {
+	// get the list of table Model{}s
+	di := i[0].([]interface{})
+
+	for t, ent := range di {
 
 		ftr := reflect.TypeOf(ent)
 		if hf.log {
@@ -261,9 +267,9 @@ func (hf *HDBFlavor) CreateTables(i ...interface{}) error {
 		}
 
 		// determine the table name
-		tn := common.GetTableName(i[t])
+		tn := common.GetTableName(di[t])
 		if tn == "" {
-			return fmt.Errorf("unable to determine table name in hf.CreateTables")
+			return nil, fmt.Errorf("unable to determine table name in hf.CreateTables")
 		}
 
 		// if the table is found to exist, skip the creation
@@ -276,7 +282,7 @@ func (hf *HDBFlavor) CreateTables(i ...interface{}) error {
 		}
 
 		// build the create table schema and return all of the table info
-		tc = hf.buildTablSchema(tn, i[t])
+		tc = hf.buildTablSchema(tn, di[t])
 		hf.QsLog(tc.tblSchema)
 
 		// create the table on the db
@@ -289,12 +295,12 @@ func (hf *HDBFlavor) CreateTables(i ...interface{}) error {
 			}
 			vals := strings.Split(sq.Value, " ")
 			if len(vals) != 4 {
-				return fmt.Errorf("insufficient information to create sequence %s - got %v", sq.Name, sq.Value)
+				return nil, fmt.Errorf("insufficient information to create sequence %s - got %v", sq.Name, sq.Value)
 			}
 
 			start, err := strconv.Atoi(vals[2])
 			if err != nil {
-				return fmt.Errorf("%v is not a valid start value for sequence %s", vals[2], sq.Name)
+				return nil, fmt.Errorf("%v is not a valid start value for sequence %s", vals[2], sq.Name)
 			}
 
 			seqDef := &hdbSeqTyp{
@@ -332,190 +338,55 @@ func (hf *HDBFlavor) CreateTables(i ...interface{}) error {
 			// 	panic(err)
 			// }
 		}
+
+		// create the table indices
 		for k, in := range tc.ind {
 			hf.CreateIndex(k, in)
 		}
-	}
 
-	// create the foreign-keys if any
-	for _, v := range tc.fkey {
-		err := hf.CreateForeignKey(nil, v.FromTable, v.RefTable, v.FromField, v.RefField)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (hf *HDBFlavor) createInsertSP(seqDef hdbSeqTyp, fldef []common.FieldDef) error {
-
-	type tmplDataTyp struct {
-		Header hdbSeqTyp
-		Fields []common.FieldDef
-	}
-
-	var tmplData tmplDataTyp
-	tmplData.Header = seqDef
-	tmplData.Fields = fldef
-
-	fmt.Println("seqDef:", seqDef)
-	for _, v := range fldef {
-		fmt.Println(v)
-	}
-
-	spTemplate := template.New("Entity Insert SP")
-	spTemplate, err := template.ParseFiles("templates/createInsertSP.gotmpl")
-	if err != nil {
-		return err
-	}
-
-	var buf bytes.Buffer
-
-	err = spTemplate.Execute(&buf, tmplData)
-	if err != nil {
-		return err
-	}
-
-	procDDL := buf.String()
-	fmt.Println(procDDL)
-
-	// procName := "procInsert" + seqDef.tableName
-	// procDDL := fmt.Sprintf(`CREATE PROCEDURE SMACLEOD.%s(
-	// 						  IN col_one VARCHAR(255),
-	// 						  IN col_two INTEGER,
-	// 						  OUT id	 INTEGER)
-	// 						  LANGUAGE SQLSCRIPT AS
-	// 						  BEGIN
-	//                             SELECT
-
-	// 						  END;
-
-	// 	`, procName)
-
-	// attempt to create the procedure on the db
-	_, err = hf.db.Exec(procDDL)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// AlterTables alters tables on the HDB database referenced
-// by hf.DB.
-func (hf *HDBFlavor) AlterTables(i ...interface{}) error {
-
-	for t, ent := range i {
-
-		// ftr := reflect.TypeOf(ent)
-
-		// determine the table name
-		tn := common.GetTableName(i[t])
-		if tn == "" {
-			return fmt.Errorf("unable to determine table name in hf.AlterTables")
-		}
-
-		// if the table does not exist, call CreateTables
-		// if the table does exist, examine it and perform
-		// alterations if neccessary
-		if !hf.ExistsTable(tn) {
-			hf.CreateTables(ent)
-			continue
-		}
-
-		// build the altered table schema and get its components
-		tc := hf.buildTablSchema(tn, i[t])
-
-		// go through the latest version of the model and check each
-		// field against its definition in the database.
-		qt := hf.GetDBQuote()
-		alterSchema := fmt.Sprintf("ALTER TABLE %s%s%s ADD (", qt, tn, qt)
-		var cols []string
-
-		for _, fd := range tc.flDef {
-			// new columns first
-			if !hf.ExistsColumn(tn, fd.FName) && fd.NoDB == false {
-
-				colSchema := fmt.Sprintf("%s%s%s %s", qt, fd.FName, qt, fd.FType)
-				for _, p := range fd.SqacPairs {
-					switch p.Name {
-					case "primary_key":
-						// abort - adding primary key
-						panic(fmt.Errorf("aborting - cannot add a primary-key (table-field %s-%s) through migration", tn, fd.FName))
-
-					case "default":
-						switch fd.UnderGoType {
-						case "string":
-							colSchema = fmt.Sprintf("%s DEFAULT '%s'", colSchema, p.Value)
-
-						case "bool":
-							switch p.Value {
-							case "TRUE", "true":
-								p.Value = "1"
-
-							case "FALSE", "false":
-								p.Value = "0"
-
-							default:
-								// nil
-							}
-
-						default:
-							colSchema = fmt.Sprintf("%s DEFAULT %s", colSchema, p.Value)
-						}
-
-					case "nullable":
-						if p.Value == "false" {
-							colSchema = fmt.Sprintf("%s NOT NULL", colSchema)
-						}
-
-					default:
-
-					}
-				}
-				cols = append(cols, colSchema+",")
-			}
-		}
-
-		// ALTER TABLE ADD COLUMNS...
-		if len(cols) > 0 {
-			for _, c := range cols {
-				alterSchema = fmt.Sprintf("%s %s", alterSchema, c)
-			}
-
-			alterSchema = strings.TrimSuffix(alterSchema, ",") + ");"
-			hf.ProcessSchema(alterSchema)
-		}
-
-		// add indexes if required
-		for k, v := range tc.ind {
-			if !hf.ExistsIndex(v.TableName, k) {
-				hf.CreateIndex(k, v)
-			}
-		}
-
-		// add foreign-keys if required
+		// add foreign-key information to the buffer
 		for _, v := range tc.fkey {
-			fkn, err := common.GetFKeyName(ent, v.FromTable, v.RefTable, v.FromField, v.RefField)
-			if err != nil {
-				return err
+			fkv := ForeignKeyBuffer{
+				ent:    ent,
+				fkinfo: v,
 			}
-			fkExists, _ := hf.ExistsForeignKeyByName(ent, fkn)
-			if !fkExists {
-				err = hf.CreateForeignKey(ent, v.FromTable, v.RefTable, v.FromField, v.RefField)
-				if err != nil {
-					fmt.Println(err)
-					return err
-				}
-			}
+			fkBuffer = append(fkBuffer, fkv)
 		}
 	}
-	return nil
+
+	// create the foreign-keys if any and if flag 'calledFromAlter = false'
+	// attempt to create the foreign-key, but maybe do not hit a hard-fail
+	// if FK creation fails.  When called from within AlterTable, creation
+	// of new tables in the list is carried out first - by this method.  It
+	// is possbile that a column required by for new foreign-key has yet to
+	// be added to one of the tables pending alteration.  A soft failure
+	// for FK creation issues seems approriate here, and the data for the
+	// failed FK creation is added to the fkBuffer and passed back to the
+	// called (AlterTable), where the FK creation can be tried again
+	// following the completion of the table alterations.
+	if calledFromAlter == false {
+		for _, v := range fkBuffer {
+			// fmt.Println()
+			// fmt.Println()
+			// fmt.Println("CALLING CreateForeignKey")
+			// fmt.Println()
+			// fmt.Println()
+			err := hf.CreateForeignKey(v.ent, v.fkinfo.FromTable, v.fkinfo.RefTable, v.fkinfo.FromField, v.fkinfo.RefField)
+			// fmt.Println("CreateForeignKey Got:", err)
+			if err != nil {
+				log.Printf("CreateForeignKey failed.  got: %v", err)
+				return nil, err
+			}
+		}
+	} else {
+		return fkBuffer, nil // fkBuffer will always be !nil, but may be len==0
+	}
+	return nil, nil
 }
 
-// buildTableSchema builds a CREATE TABLE schema for the HDB DB
-// and returns it to the caller, along with the components determined from
-// the db and sqac struct-tags.  this method is used in CreateTables
-// and AlterTables methods.
+// buildTableSchema builds a CREATE TABLE schema for the HDB DB and returns it
+// to the caller, along with the components determined from the db and sqac
+// struct-tags.  this method is used in CreateTables and AlterTables methods.
 func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 
 	qt := hf.GetDBQuote()
@@ -755,6 +626,72 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 	return rc
 }
 
+// CreateTables creates tables on the hdb database referenced
+// by hf.DB.
+func (hf *HDBFlavor) CreateTables(i ...interface{}) error {
+
+	// call createTables specifying that the call has not originated
+	// from within the AlterTables(...) method.
+	_, err := hf.createTables(false, i)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (hf *HDBFlavor) createInsertSP(seqDef hdbSeqTyp, fldef []common.FieldDef) error {
+
+	type tmplDataTyp struct {
+		Header hdbSeqTyp
+		Fields []common.FieldDef
+	}
+
+	var tmplData tmplDataTyp
+	tmplData.Header = seqDef
+	tmplData.Fields = fldef
+
+	fmt.Println("seqDef:", seqDef)
+	for _, v := range fldef {
+		fmt.Println(v)
+	}
+
+	spTemplate := template.New("Entity Insert SP")
+	spTemplate, err := template.ParseFiles("templates/createInsertSP.gotmpl")
+	if err != nil {
+		return err
+	}
+
+	var buf bytes.Buffer
+
+	err = spTemplate.Execute(&buf, tmplData)
+	if err != nil {
+		return err
+	}
+
+	procDDL := buf.String()
+	fmt.Println(procDDL)
+
+	// procName := "procInsert" + seqDef.tableName
+	// procDDL := fmt.Sprintf(`CREATE PROCEDURE SMACLEOD.%s(
+	// 						  IN col_one VARCHAR(255),
+	// 						  IN col_two INTEGER,
+	// 						  OUT id	 INTEGER)
+	// 						  LANGUAGE SQLSCRIPT AS
+	// 						  BEGIN
+	//                             SELECT
+
+	// 						  END;
+
+	// 	`, procName)
+
+	// attempt to create the procedure on the db
+	_, err = hf.db.Exec(procDDL)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // DropTables drops tables on the db if they exist, based on
 // the provided list of go struct definitions.
 func (hf *HDBFlavor) DropTables(i ...interface{}) error {
@@ -778,6 +715,159 @@ func (hf *HDBFlavor) DropTables(i ...interface{}) error {
 			dropSchema = dropSchema + fmt.Sprintf("DROP TABLE %s; ", strings.ToUpper(tn))
 			hf.ProcessSchema(dropSchema)
 			dropSchema = ""
+		}
+	}
+	return nil
+}
+
+// AlterTables alters tables on the HDB database referenced
+// by hf.DB.
+func (hf *HDBFlavor) AlterTables(i ...interface{}) error {
+
+	var err error
+	fkBuffer := make([]ForeignKeyBuffer, 0)
+	ci := make([]interface{}, 0)
+	ai := make([]interface{}, 0)
+
+	// construct create-table and alter-table buffers
+	for t := range i {
+
+		// ftr := reflect.TypeOf(ent)
+
+		// determine the table name
+		tn := common.GetTableName(i[t])
+		if tn == "" {
+			return fmt.Errorf("unable to determine table name in pf.AlterTables")
+		}
+
+		// if the table does not exist, add the Model{} definition to
+		// the CreateTables buffer (ci).
+		// if the table does exist, add the Model{} defintion to  the
+		// AlterTables buffer (ai).
+		if !hf.ExistsTable(tn) {
+			ci = append(ci, i[t])
+		} else {
+			ai = append(ai, i[t])
+		}
+	}
+
+	// if create-tables buffer 'ci' contains any entries, call createTables and
+	// take note of any returned foreign-key definitions.
+	if len(ci) > 0 {
+		fkBuffer, err = hf.createTables(true, ci)
+		if err != nil {
+			return err
+		}
+	}
+
+	// if alter-tables buffer 'ai' constains any entries, process the table
+	// deltas and take note of any new foreign-key definitions.
+	for t, ent := range ai {
+
+		// ftr := reflect.TypeOf(ent)
+
+		// determine the table name
+		tn := common.GetTableName(ai[t])
+		if tn == "" {
+			return fmt.Errorf("unable to determine table name in hf.AlterTables")
+		}
+
+		// build the altered table schema and get its components
+		tc := hf.buildTablSchema(tn, ai[t])
+
+		// go through the latest version of the model and check each
+		// field against its definition in the database.
+		qt := hf.GetDBQuote()
+		alterSchema := fmt.Sprintf("ALTER TABLE %s%s%s ADD (", qt, tn, qt)
+		var cols []string
+
+		for _, fd := range tc.flDef {
+			// new columns first
+			if !hf.ExistsColumn(tn, fd.FName) && fd.NoDB == false {
+
+				colSchema := fmt.Sprintf("%s%s%s %s", qt, fd.FName, qt, fd.FType)
+				for _, p := range fd.SqacPairs {
+					switch p.Name {
+					case "primary_key":
+						// abort - adding primary key
+						panic(fmt.Errorf("aborting - cannot add a primary-key (table-field %s-%s) through migration", tn, fd.FName))
+
+					case "default":
+						switch fd.UnderGoType {
+						case "string":
+							colSchema = fmt.Sprintf("%s DEFAULT '%s'", colSchema, p.Value)
+
+						case "bool":
+							switch p.Value {
+							case "TRUE", "true":
+								p.Value = "1"
+
+							case "FALSE", "false":
+								p.Value = "0"
+
+							default:
+								// nil
+							}
+
+						default:
+							colSchema = fmt.Sprintf("%s DEFAULT %s", colSchema, p.Value)
+						}
+
+					case "nullable":
+						if p.Value == "false" {
+							colSchema = fmt.Sprintf("%s NOT NULL", colSchema)
+						}
+
+					default:
+
+					}
+				}
+				cols = append(cols, colSchema+",")
+			}
+		}
+
+		// ALTER TABLE ADD COLUMNS...
+		if len(cols) > 0 {
+			for _, c := range cols {
+				alterSchema = fmt.Sprintf("%s %s", alterSchema, c)
+			}
+
+			alterSchema = strings.TrimSuffix(alterSchema, ",") + ");"
+			hf.ProcessSchema(alterSchema)
+		}
+
+		// add indexes if required
+		for k, v := range tc.ind {
+			if !hf.ExistsIndex(v.TableName, k) {
+				hf.CreateIndex(k, v)
+			}
+		}
+
+		// add to the list of foreign-keys
+		for _, v := range tc.fkey {
+			fkb := ForeignKeyBuffer{
+				ent:    ent,
+				fkinfo: v,
+			}
+			fkBuffer = append(fkBuffer, fkb)
+		}
+	}
+
+	// all table alterations and creations have been completed at this point, with the
+	// exception of the foreign-key creations.  iterate over the fkBuffer, check for
+	// the existance of each foreign-key and create those that do not yet exist.
+	for _, v := range fkBuffer {
+		fkn, err := common.GetFKeyName(v.ent, v.fkinfo.FromTable, v.fkinfo.RefTable, v.fkinfo.FromField, v.fkinfo.RefField)
+		if err != nil {
+			return err
+		}
+		fkExists, _ := hf.ExistsForeignKeyByName(v.ent, fkn)
+		if !fkExists {
+			err = hf.CreateForeignKey(v.ent, v.fkinfo.FromTable, v.fkinfo.RefTable, v.fkinfo.FromField, v.fkinfo.RefField)
+			if err != nil {
+				fmt.Println(err)
+				return err
+			}
 		}
 	}
 	return nil

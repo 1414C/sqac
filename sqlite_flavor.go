@@ -471,7 +471,6 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}, isAlter boo
 	if tableSchema != "" && pKeys == "" {
 		tableSchema = strings.TrimSpace(tableSchema)
 		tableSchema = strings.TrimSuffix(tableSchema, ",")
-		tableSchema = tableSchema + ")"
 	}
 	if tableSchema != "" && pKeys != "" {
 		pKeys = strings.TrimSuffix(pKeys, ",")
@@ -504,9 +503,12 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}, isAlter boo
 	}
 
 	if tableSchema != "" {
+		tableSchema = strings.TrimSpace(tableSchema)
 		tableSchema = strings.TrimSuffix(tableSchema, ",")
 		tableSchema = tableSchema + ");"
 	}
+
+	fmt.Println(tableSchema)
 
 	// fill the return structure passing out the CREATE TABLE schema, and component info
 	rc := TblComponents{

@@ -51,13 +51,17 @@ type MSSQLFlavor struct {
 // - pg now() equivalent
 // - pg make_timestamptz(9999, 12, 31, 23, 59, 59.9) equivalent
 
-// CreateTables creates tables on the mysql database referenced
-// by msf.DB.
-func (msf *MSSQLFlavor) CreateTables(i ...interface{}) error {
+// createTables creates tables on the postgres database referenced
+// by pf.DB.  This internally visible version is able to defer
+// foreign-key creation if called with calledFromAlter = true.
+func (msf *MSSQLFlavor) createTables(calledFromAlter bool, i ...interface{}) ([]ForeignKeyBuffer, error) {
 
 	var tc TblComponents
+	fkBuffer := make([]ForeignKeyBuffer, 0)
 
-	for t, ent := range i {
+	// get the list of table Model{}s
+	di := i[0].([]interface{})
+	for t, ent := range di {
 
 		ftr := reflect.TypeOf(ent)
 		if msf.log {
@@ -67,20 +71,20 @@ func (msf *MSSQLFlavor) CreateTables(i ...interface{}) error {
 		// determine the table name
 		tn := common.GetTableName(i[t])
 		if tn == "" {
-			return fmt.Errorf("unable to determine table name in myf.CreateTables")
+			return nil, fmt.Errorf("unable to determine table name in myf.CreateTables")
 		}
 
 		// if the table is found to exist, skip the creation
 		// and move on to the next table in the list.
 		if msf.ExistsTable(tn) {
 			if msf.log {
-				fmt.Printf("CreateTable - table %s exists - skipping...\n", tn)
+				fmt.Printf("createTable - table %s exists - skipping...\n", tn)
 			}
 			continue
 		}
 
 		// build the create table schema and return all of the table info
-		tc = msf.buildTablSchema(tn, i[t])
+		tc = msf.buildTablSchema(tn, di[t])
 		msf.QsLog(tc.tblSchema)
 
 		// create the table on the db
@@ -89,131 +93,44 @@ func (msf *MSSQLFlavor) CreateTables(i ...interface{}) error {
 			start, _ := strconv.Atoi(sq.Value)
 			msf.AlterSequenceStart(sq.Name, start)
 		}
+
+		// create the table indices
 		for k, in := range tc.ind {
 			msf.CreateIndex(k, in)
 		}
 
-		// create the foreign-keys if any
+		// add foreign-key information to the buffer
 		for _, v := range tc.fkey {
-			err := msf.CreateForeignKey(nil, v.FromTable, v.RefTable, v.FromField, v.RefField)
-			if err != nil {
-				return err
+			fkv := ForeignKeyBuffer{
+				ent:    ent,
+				fkinfo: v,
 			}
+			fkBuffer = append(fkBuffer, fkv)
 		}
 	}
-	return nil
-}
 
-// AlterTables alters tables on the MSSQL database referenced
-// by msf.DB.
-func (msf *MSSQLFlavor) AlterTables(i ...interface{}) error {
-
-	for t, ent := range i {
-
-		// ftr := reflect.TypeOf(ent)
-
-		// determine the table name
-		tn := common.GetTableName(i[t])
-		if tn == "" {
-			return fmt.Errorf("unable to determine table name in msf.AlterTables")
-		}
-
-		// if the table does not exist, call CreateTables
-		// if the table does exist, examine it and perform
-		// alterations if neccessary
-		if !msf.ExistsTable(tn) {
-			msf.CreateTables(ent)
-			continue
-		}
-
-		// build the altered table schema and get its components
-		tc := msf.buildTablSchema(tn, i[t])
-
-		// go through the latest version of the model and check each
-		// field against its definition in the database.
-		qt := msf.GetDBQuote()
-		alterSchema := fmt.Sprintf("ALTER TABLE %s%s%s ADD ", qt, tn, qt)
-		var cols []string
-
-		for _, fd := range tc.flDef {
-			// new columns first
-			if !msf.ExistsColumn(tn, fd.FName) && fd.NoDB == false {
-
-				colSchema := fmt.Sprintf("%s%s%s %s", qt, fd.FName, qt, fd.FType)
-				for _, p := range fd.SqacPairs {
-					switch p.Name {
-					case "primary_key":
-						// abort - adding primary key
-						panic(fmt.Errorf("aborting - cannot add a primary-key (table-field %s-%s) through migration", tn, fd.FName))
-
-					case "default":
-						switch fd.UnderGoType {
-						case "string":
-							colSchema = fmt.Sprintf("%s DEFAULT '%s'", colSchema, p.Value)
-
-						case "bool":
-							switch p.Value {
-							case "TRUE", "true":
-								p.Value = "1"
-
-							case "FALSE", "false":
-								p.Value = "0"
-
-							default:
-
-							}
-
-						default:
-							colSchema = fmt.Sprintf("%s DEFAULT %s", colSchema, p.Value)
-						}
-
-					case "nullable":
-						if p.Value == "false" {
-							colSchema = fmt.Sprintf("%s NOT NULL", colSchema)
-						}
-
-					default:
-
-					}
-				}
-				cols = append(cols, colSchema+",")
-			}
-		}
-
-		// ALTER TABLE ADD COLUMNS...
-		if len(cols) > 0 {
-			for _, c := range cols {
-				alterSchema = fmt.Sprintf("%s %s", alterSchema, c)
-			}
-
-			alterSchema = strings.TrimSuffix(alterSchema, ",")
-			msf.ProcessSchema(alterSchema)
-		}
-
-		// add indexes if required
-		for k, v := range tc.ind {
-			if !msf.ExistsIndex(v.TableName, k) {
-				msf.CreateIndex(k, v)
-			}
-		}
-
-		// add foreign-keys if required
-		for _, v := range tc.fkey {
-			fkn, err := common.GetFKeyName(ent, v.FromTable, v.RefTable, v.FromField, v.RefField)
+	// create the foreign-keys if any and if flag 'calledFromAlter = false'
+	// attempt to create the foreign-key, but maybe do not hit a hard-fail
+	// if FK creation fails.  When called from within AlterTable, creation
+	// of new tables in the list is carried out first - by this method.  It
+	// is possbile that a column required by for new foreign-key has yet to
+	// be added to one of the tables pending alteration.  A soft failure
+	// for FK creation issues seems approriate here, and the data for the
+	// failed FK creation is added to the fkBuffer and passed back to the
+	// called (AlterTable), where the FK creation can be tried again
+	// following the completion of the table alterations.
+	if calledFromAlter == false {
+		for _, v := range fkBuffer {
+			err := msf.CreateForeignKey(v.ent, v.fkinfo.FromTable, v.fkinfo.RefTable, v.fkinfo.FromField, v.fkinfo.RefField)
 			if err != nil {
-				return err
-			}
-			fkExists, _ := msf.ExistsForeignKeyByName(ent, fkn)
-			if !fkExists {
-				err = msf.CreateForeignKey(ent, v.FromTable, v.RefTable, v.FromField, v.RefField)
-				if err != nil {
-					fmt.Println(err)
-					return err
-				}
+				log.Printf("CreateForeignKey failed.  got: %v", err)
+				return nil, err
 			}
 		}
+	} else {
+		return fkBuffer, nil // fkBuffer will always be !nil, but may be len==0
 	}
-	return nil
+	return nil, nil
 }
 
 // buildTableSchema builds a CREATE TABLE schema for the MSSQL DB
@@ -441,6 +358,19 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 	return rc
 }
 
+// CreateTables creates tables on the mysql database referenced
+// by msf.DB.
+func (msf *MSSQLFlavor) CreateTables(i ...interface{}) error {
+
+	// call createTables specifying that the call has not originated
+	// from within the AlterTables(...) method.
+	_, err := msf.createTables(false, i)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // DropTables drops tables on the db if they exist, based on
 // the provided list of go struct definitions.
 func (msf *MSSQLFlavor) DropTables(i ...interface{}) error {
@@ -465,6 +395,163 @@ func (msf *MSSQLFlavor) DropTables(i ...interface{}) error {
 			dropSchema = dropSchema + fmt.Sprintf("DROP TABLE %s; ", tn)
 			msf.ProcessSchema(dropSchema)
 			dropSchema = ""
+		}
+	}
+	return nil
+}
+
+// AlterTables alters tables on the MSSQL database referenced
+// by msf.DB.
+func (msf *MSSQLFlavor) AlterTables(i ...interface{}) error {
+
+	var err error
+	fkBuffer := make([]ForeignKeyBuffer, 0)
+	ci := make([]interface{}, 0)
+	ai := make([]interface{}, 0)
+
+	// construct create-table and alter-table buffers
+	for t := range i {
+
+		// ftr := reflect.TypeOf(ent)
+
+		// determine the table name
+		tn := common.GetTableName(i[t])
+		if tn == "" {
+			return fmt.Errorf("unable to determine table name in pf.AlterTables")
+		}
+
+		// if the table does not exist, add the Model{} definition to
+		// the CreateTables buffer (ci).
+		// if the table does exist, add the Model{} defintion to  the
+		// AlterTables buffer (ai).
+		if !msf.ExistsTable(tn) {
+			ci = append(ci, i[t])
+		} else {
+			ai = append(ai, i[t])
+		}
+	}
+
+	// if create-tables buffer 'ci' contains any entries, call createTables and
+	// take note of any returned foreign-key definitions.
+	if len(ci) > 0 {
+		fkBuffer, err = msf.createTables(true, ci)
+		if err != nil {
+			return err
+		}
+	}
+
+	// if alter-tables buffer 'ai' constains any entries, process the table
+	// deltas and take note of any new foreign-key definitions.
+	for t, ent := range ai {
+
+		// determine the table name
+		tn := common.GetTableName(ai[t])
+		if tn == "" {
+			return fmt.Errorf("unable to determine table name in msf.AlterTables")
+		}
+
+		// if the table does not exist, call CreateTables
+		// if the table does exist, examine it and perform
+		// alterations if neccessary
+		if !msf.ExistsTable(tn) {
+			msf.CreateTables(ent)
+			continue
+		}
+
+		// build the altered table schema and get its components
+		tc := msf.buildTablSchema(tn, ai[t])
+
+		// go through the latest version of the model and check each
+		// field against its definition in the database.
+		qt := msf.GetDBQuote()
+		alterSchema := fmt.Sprintf("ALTER TABLE %s%s%s ADD ", qt, tn, qt)
+		var cols []string
+
+		for _, fd := range tc.flDef {
+			// new columns first
+			if !msf.ExistsColumn(tn, fd.FName) && fd.NoDB == false {
+
+				colSchema := fmt.Sprintf("%s%s%s %s", qt, fd.FName, qt, fd.FType)
+				for _, p := range fd.SqacPairs {
+					switch p.Name {
+					case "primary_key":
+						// abort - adding primary key
+						panic(fmt.Errorf("aborting - cannot add a primary-key (table-field %s-%s) through migration", tn, fd.FName))
+
+					case "default":
+						switch fd.UnderGoType {
+						case "string":
+							colSchema = fmt.Sprintf("%s DEFAULT '%s'", colSchema, p.Value)
+
+						case "bool":
+							switch p.Value {
+							case "TRUE", "true":
+								p.Value = "1"
+
+							case "FALSE", "false":
+								p.Value = "0"
+
+							default:
+
+							}
+
+						default:
+							colSchema = fmt.Sprintf("%s DEFAULT %s", colSchema, p.Value)
+						}
+
+					case "nullable":
+						if p.Value == "false" {
+							colSchema = fmt.Sprintf("%s NOT NULL", colSchema)
+						}
+
+					default:
+
+					}
+				}
+				cols = append(cols, colSchema+",")
+			}
+		}
+
+		// ALTER TABLE ADD COLUMNS...
+		if len(cols) > 0 {
+			for _, c := range cols {
+				alterSchema = fmt.Sprintf("%s %s", alterSchema, c)
+			}
+			alterSchema = strings.TrimSuffix(alterSchema, ",")
+			msf.ProcessSchema(alterSchema)
+		}
+
+		// add indexes if required
+		for k, v := range tc.ind {
+			if !msf.ExistsIndex(v.TableName, k) {
+				msf.CreateIndex(k, v)
+			}
+		}
+
+		// add to the list of foreign-keys
+		for _, v := range tc.fkey {
+			fkb := ForeignKeyBuffer{
+				ent:    ent,
+				fkinfo: v,
+			}
+			fkBuffer = append(fkBuffer, fkb)
+		}
+	}
+	// all table alterations and creations have been completed at this point, with the
+	// exception of the foreign-key creations.  iterate over the fkBuffer, check for
+	// the existance of each foreign-key and create those that do not yet exist.
+	for _, v := range fkBuffer {
+		fkn, err := common.GetFKeyName(v.ent, v.fkinfo.FromTable, v.fkinfo.RefTable, v.fkinfo.FromField, v.fkinfo.RefField)
+		if err != nil {
+			return err
+		}
+		fkExists, _ := msf.ExistsForeignKeyByName(v.ent, fkn)
+		if !fkExists {
+			err = msf.CreateForeignKey(v.ent, v.fkinfo.FromTable, v.fkinfo.RefTable, v.fkinfo.FromField, v.fkinfo.RefField)
+			if err != nil {
+				fmt.Println(err)
+				return err
+			}
 		}
 	}
 	return nil

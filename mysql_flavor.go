@@ -2,6 +2,7 @@ package sqac
 
 import (
 	"fmt"
+	"log"
 	"reflect"
 	"strconv"
 	"strings"
@@ -39,13 +40,17 @@ type MySQLFlavor struct {
 	// ExistsSequence(sn string) bool
 }
 
-// CreateTables creates tables on the mysql database referenced
-// by myf.DB.
-func (myf *MySQLFlavor) CreateTables(i ...interface{}) error {
+// createTables creates tables on the postgres database referenced
+// by pf.DB.  This internally visible version is able to defer
+// foreign-key creation if called with calledFromAlter = true.
+func (myf *MySQLFlavor) createTables(calledFromAlter bool, i ...interface{}) ([]ForeignKeyBuffer, error) {
 
 	var tc TblComponents
+	fkBuffer := make([]ForeignKeyBuffer, 0)
 
-	for t, ent := range i {
+	// get the list of table Model{}s
+	di := i[0].([]interface{})
+	for t, ent := range di {
 
 		ftr := reflect.TypeOf(ent)
 		if myf.log {
@@ -53,22 +58,22 @@ func (myf *MySQLFlavor) CreateTables(i ...interface{}) error {
 		}
 
 		// determine the table name
-		tn := common.GetTableName(i[t])
+		tn := common.GetTableName(di[t])
 		if tn == "" {
-			return fmt.Errorf("unable to determine table name in myf.CreateTables")
+			return nil, fmt.Errorf("unable to determine table name in myf.createTables")
 		}
 
 		// if the table is found to exist, skip the creation
 		// and move on to the next table in the list.
 		if myf.ExistsTable(tn) {
 			if myf.log {
-				fmt.Printf("CreateTable - table %s exists - skipping...\n", tn)
+				fmt.Printf("createTable - table %s exists - skipping...\n", tn)
 			}
 			continue
 		}
 
 		// build the create table schema and return all of the table info
-		tc = myf.buildTablSchema(tn, i[t])
+		tc = myf.buildTablSchema(tn, di[t])
 		myf.QsLog(tc.tblSchema)
 
 		// create the table on the db
@@ -77,18 +82,44 @@ func (myf *MySQLFlavor) CreateTables(i ...interface{}) error {
 			start, _ := strconv.Atoi(sq.Value)
 			myf.AlterSequenceStart(sq.Name, start)
 		}
+
+		// create the table indices
 		for k, in := range tc.ind {
 			myf.CreateIndex(k, in)
 		}
-	}
-	// create the foreign-keys if any
-	for _, v := range tc.fkey {
-		err := myf.CreateForeignKey(nil, v.FromTable, v.RefTable, v.FromField, v.RefField)
-		if err != nil {
-			return err
+
+		// add foreign-key information to the buffer
+		for _, v := range tc.fkey {
+			fkv := ForeignKeyBuffer{
+				ent:    ent,
+				fkinfo: v,
+			}
+			fkBuffer = append(fkBuffer, fkv)
 		}
 	}
-	return nil
+
+	// create the foreign-keys if any and if flag 'calledFromAlter = false'
+	// attempt to create the foreign-key, but maybe do not hit a hard-fail
+	// if FK creation fails.  When called from within AlterTable, creation
+	// of new tables in the list is carried out first - by this method.  It
+	// is possbile that a column required by for new foreign-key has yet to
+	// be added to one of the tables pending alteration.  A soft failure
+	// for FK creation issues seems approriate here, and the data for the
+	// failed FK creation is added to the fkBuffer and passed back to the
+	// called (AlterTable), where the FK creation can be tried again
+	// following the completion of the table alterations.
+	if calledFromAlter == false {
+		for _, v := range fkBuffer {
+			err := myf.CreateForeignKey(v.ent, v.fkinfo.FromTable, v.fkinfo.RefTable, v.fkinfo.FromField, v.fkinfo.RefField)
+			if err != nil {
+				log.Printf("CreateForeignKey failed.  got: %v", err)
+				return nil, err
+			}
+		}
+	} else {
+		return fkBuffer, nil // fkBuffer will always be !nil, but may be len==0
+	}
+	return nil, nil
 }
 
 // buildTableSchema builds a CREATE TABLE schema for the MySQL DB (MariaDB),
@@ -299,30 +330,71 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 	return rc
 }
 
+// CreateTables creates tables on the mysql database referenced
+// by myf.DB.
+func (myf *MySQLFlavor) CreateTables(i ...interface{}) error {
+
+	// call createTables specifying that the call has not originated
+	// from within the AlterTables(...) method.
+	_, err := myf.createTables(false, i)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // AlterTables alters tables on the MySQL database referenced
 // by myf.DB.
 func (myf *MySQLFlavor) AlterTables(i ...interface{}) error {
 
-	for t, ent := range i {
+	var err error
+	fkBuffer := make([]ForeignKeyBuffer, 0)
+	ci := make([]interface{}, 0)
+	ai := make([]interface{}, 0)
 
-		// ftr := reflect.TypeOf(ent)
+	// construct create-table and alter-table buffers
+	for t := range i {
 
 		// determine the table name
 		tn := common.GetTableName(i[t])
 		if tn == "" {
+			return fmt.Errorf("unable to determine table name in pf.AlterTables")
+		}
+
+		// if the table does not exist, add the Model{} definition to
+		// the CreateTables buffer (ci).
+		// if the table does exist, add the Model{} defintion to  the
+		// AlterTables buffer (ai).
+		if !myf.ExistsTable(tn) {
+			ci = append(ci, i[t])
+		} else {
+			ai = append(ai, i[t])
+		}
+	}
+
+	// if create-tables buffer 'ci' contains any entries, call createTables and
+	// take note of any returned foreign-key definitions.
+	if len(ci) > 0 {
+		fkBuffer, err = myf.createTables(true, ci)
+		if err != nil {
+			return err
+		}
+	}
+
+	// if alter-tables buffer 'ai' constains any entries, process the table
+	// deltas and take note of any new foreign-key definitions.
+	for t, ent := range ai {
+
+		// ftr := reflect.TypeOf(ent)
+
+		// determine the table name
+		tn := common.GetTableName(ai[t])
+		if tn == "" {
 			return fmt.Errorf("unable to determine table name in myf.AlterTables")
 		}
 
-		// if the table does not exist, call CreateTables
-		// if the table does exist, examine it and perform
-		// alterations if neccessary
-		if !myf.ExistsTable(tn) {
-			myf.CreateTables(ent)
-			continue
-		}
-
-		// build the altered table schema and get its components
-		tc := myf.buildTablSchema(tn, i[t])
+		// build the alter-table schema and get its components
+		tc := myf.buildTablSchema(tn, ai[t])
 
 		// go through the latest version of the model and check each
 		// field against its definition in the database.
@@ -378,19 +450,30 @@ func (myf *MySQLFlavor) AlterTables(i ...interface{}) error {
 			}
 		}
 
-		// add foreign-keys if required
+		// add to the list of foreign-keys
 		for _, v := range tc.fkey {
-			fkn, err := common.GetFKeyName(ent, v.FromTable, v.RefTable, v.FromField, v.RefField)
-			if err != nil {
-				return err
+			fkb := ForeignKeyBuffer{
+				ent:    ent,
+				fkinfo: v,
 			}
-			fkExists, _ := myf.ExistsForeignKeyByName(ent, fkn)
-			if !fkExists {
-				err = myf.CreateForeignKey(ent, v.FromTable, v.RefTable, v.FromField, v.RefField)
-				if err != nil {
-					fmt.Println(err)
-					return err
-				}
+			fkBuffer = append(fkBuffer, fkb)
+		}
+	}
+
+	// all table alterations and creations have been completed at this point, with the
+	// exception of the foreign-key creations.  iterate over the fkBuffer, check for
+	// the existance of each foreign-key and create those that do not yet exist.
+	for _, v := range fkBuffer {
+		fkn, err := common.GetFKeyName(v.ent, v.fkinfo.FromTable, v.fkinfo.RefTable, v.fkinfo.FromField, v.fkinfo.RefField)
+		if err != nil {
+			return err
+		}
+		fkExists, _ := myf.ExistsForeignKeyByName(v.ent, fkn)
+		if !fkExists {
+			err = myf.CreateForeignKey(v.ent, v.fkinfo.FromTable, v.fkinfo.RefTable, v.fkinfo.FromField, v.fkinfo.RefField)
+			if err != nil {
+				fmt.Println(err)
+				return err
 			}
 		}
 	}
