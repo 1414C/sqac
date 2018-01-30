@@ -64,7 +64,7 @@ func (slf *SQLiteFlavor) CreateTables(i ...interface{}) error {
 
 		ftr := reflect.TypeOf(ent)
 		if slf.log {
-			fmt.Println("CreateTable() entity type:", ftr)
+			log.Println("CreateTable() entity type:", ftr)
 		}
 
 		// determine the table name
@@ -167,7 +167,7 @@ func (slf *SQLiteFlavor) AlterTables(i ...interface{}) error {
 		if len(cols) > 0 {
 			for _, c := range cols {
 				if slf.IsLog() {
-					fmt.Println(c)
+					log.Println(c)
 				}
 				slf.ProcessSchema(c)
 			}
@@ -194,7 +194,7 @@ func (slf *SQLiteFlavor) AlterTables(i ...interface{}) error {
 			if !fkExists {
 				err = slf.CreateForeignKey(ent, v.FromTable, v.RefTable, v.FromField, v.RefField)
 				if err != nil {
-					fmt.Println(err)
+					log.Println(err)
 					return err
 				}
 			}
@@ -508,8 +508,6 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}, isAlter boo
 		tableSchema = tableSchema + ");"
 	}
 
-	fmt.Println(tableSchema)
-
 	// fill the return structure passing out the CREATE TABLE schema, and component info
 	rc := TblComponents{
 		tblSchema: tableSchema,
@@ -660,7 +658,7 @@ func (slf *SQLiteFlavor) AlterSequenceStart(name string, start int) error {
 	if err == nil {
 		ra, err := result.RowsAffected()
 		if err == nil && ra > 0 {
-			fmt.Println("ra==", ra)
+			log.Println("ra==", ra)
 			return nil
 		}
 	}
@@ -986,8 +984,8 @@ func (slf *SQLiteFlavor) Update(ent interface{}) error {
 
 		fType := reflect.TypeOf(s).String()
 		if slf.IsLog() {
-			fmt.Printf("key: %v, value: %v\n", k, s)
-			fmt.Println("TYPE:", fType)
+			log.Printf("key: %v, value: %v\n", k, s)
+			log.Println("TYPE:", fType)
 		}
 
 		if fType == "string" { // also applies to time.Time at this point due to .Format()

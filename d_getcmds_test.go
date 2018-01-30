@@ -2,6 +2,7 @@ package sqac_test
 
 import (
 	"fmt"
+	"log"
 	"testing"
 
 	"github.com/1414C/sqac/common"
@@ -182,7 +183,7 @@ func TestCRUDGetEntitiesWithCommandsSelectUint(t *testing.T) {
 	result, err := Handle.GetEntitiesWithCommands(recRead, pa, nil)
 	if err != nil {
 		fmt.Println()
-		fmt.Println(err)
+		log.Println("GetEntitiesWithCommands error:", err)
 		fmt.Println()
 	}
 	switch result.(type) {

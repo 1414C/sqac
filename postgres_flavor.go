@@ -67,7 +67,7 @@ func (pf *PostgresFlavor) createTables(calledFromAlter bool, i ...interface{}) (
 
 		ftr := reflect.TypeOf(ent)
 		if pf.log {
-			fmt.Println("CreateTable() entity type:", ftr)
+			log.Println("CreateTable() entity type:", ftr)
 		}
 
 		// determine the table name
@@ -643,7 +643,7 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 		if !fkExists {
 			err = pf.CreateForeignKey(v.ent, v.fkinfo.FromTable, v.fkinfo.RefTable, v.fkinfo.FromField, v.fkinfo.RefField)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				return err
 			}
 		}
@@ -906,8 +906,8 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 
 		fType := reflect.TypeOf(s).String()
 		if pf.IsLog() {
-			fmt.Printf("key: %v, value: %v\n", k, s)
-			fmt.Println("TYPE:", fType)
+			log.Printf("key: %v, value: %v\n", k, s)
+			log.Println("TYPE:", fType)
 		}
 
 		if fType == "string" {

@@ -44,7 +44,7 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 	// get the underlying Type of the interface ptr
 	inf.stype = reflect.TypeOf(inf.ent).Elem()
 	if inf.log {
-		fmt.Println("inf.stype:", inf.stype)
+		log.Println("inf.stype:", inf.stype)
 	}
 
 	// check that the interface type passed in was a struct
@@ -56,11 +56,11 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 	var err error
 	inf.flDef, err = common.TagReader(inf.ent, inf.stype)
 	if err != nil {
-		fmt.Println("error reading model definition", err)
+		log.Println("error reading model definition", err)
 		return err
 	}
 	if inf.log {
-		fmt.Println("inf.flDef:", inf.flDef)
+		log.Println("inf.flDef:", inf.flDef)
 	}
 
 	// determine the table name as per the table creation logic
@@ -73,7 +73,7 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 	// i.e. the struct holding the data for insertion
 	inf.entValue = reflect.ValueOf(inf.ent).Elem()
 	if inf.log {
-		fmt.Println("value of data in struct for insertion:", inf.entValue)
+		log.Println("value of data in struct for insertion:", inf.entValue)
 	}
 
 	// what to do with sqac tags
@@ -98,7 +98,7 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 	// iterate over the entity-struct metadata
 	for i, fd := range inf.flDef {
 		if inf.log {
-			fmt.Println(fd)
+			log.Println(fd)
 		}
 		if fd.NoDB == true {
 			continue
