@@ -504,9 +504,9 @@ func (bf *BaseFlavor) CreateIndex(in string, index IndexInfo) error {
 	}
 
 	if !index.Unique {
-		indexSchema = fmt.Sprintf("CREATE INDEX %s ON %s (%s)", in, index.TableName, fList)
+		indexSchema = fmt.Sprintf("CREATE INDEX %s ON %s (%s);", in, index.TableName, fList)
 	} else {
-		indexSchema = fmt.Sprintf("CREATE UNIQUE INDEX %s ON %s (%s)", in, index.TableName, fList)
+		indexSchema = fmt.Sprintf("CREATE UNIQUE INDEX %s ON %s (%s);", in, index.TableName, fList)
 	}
 
 	bf.ProcessSchema(indexSchema)
