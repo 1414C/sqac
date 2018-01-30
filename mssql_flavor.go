@@ -69,7 +69,7 @@ func (msf *MSSQLFlavor) createTables(calledFromAlter bool, i ...interface{}) ([]
 		}
 
 		// determine the table name
-		tn := common.GetTableName(i[t])
+		tn := common.GetTableName(di[t])
 		if tn == "" {
 			return nil, fmt.Errorf("unable to determine table name in myf.CreateTables")
 		}
