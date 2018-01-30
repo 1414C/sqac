@@ -65,29 +65,29 @@ type TblComponents struct {
 // and AlterTable operations if the main sqac logging has been activated via
 // BaseFlavor.Log(true).
 func (tc *TblComponents) Log() {
-	fmt.Println("====================================================================")
-	fmt.Println("TABLE SCHEMA:", tc.tblSchema)
-	fmt.Println()
+	log.Println("====================================================================")
+	log.Println("TABLE SCHEMA:", tc.tblSchema)
+	log.Println()
 	for _, v := range tc.seq {
-		fmt.Println("SEQUENCE:", v)
+		log.Println("SEQUENCE:", v)
 	}
 	fmt.Println()
 	for k, v := range tc.ind {
-		fmt.Printf("INDEX: k:%s	fields:%v  unique:%v tableName:%s\n", k, v.IndexFields, v.Unique, v.TableName)
+		log.Printf("INDEX: k:%s	fields:%v  unique:%v tableName:%s\n", k, v.IndexFields, v.Unique, v.TableName)
 	}
 	fmt.Println()
-	fmt.Println("PRIMARY KEYS:", tc.pk)
+	log.Println("PRIMARY KEYS:", tc.pk)
 	fmt.Println()
 	for _, v := range tc.flDef {
-		fmt.Printf("FIELD DEF: fname:%s, ftype:%s, gotype:%s ,nodb:%v\n", v.FName, v.FType, v.GoType, v.NoDB)
+		log.Printf("FIELD DEF: fname:%s, ftype:%s, gotype:%s ,nodb:%v\n", v.FName, v.FType, v.GoType, v.NoDB)
 		for _, p := range v.SqacPairs {
-			fmt.Printf("FIELD PROPERTY: %s, %v\n", p.Name, p.Value)
+			log.Printf("FIELD PROPERTY: %s, %v\n", p.Name, p.Value)
 		}
-		fmt.Println("------")
+		log.Println("------")
 	}
 	fmt.Println()
-	fmt.Println("ERROR:", tc.err)
-	fmt.Println("====================================================================")
+	log.Println("ERROR:", tc.err)
+	log.Println("====================================================================")
 }
 
 // CTick CBackTick and CDblQuote specify the quote
@@ -252,7 +252,6 @@ func (bf *BaseFlavor) QsLog(queryString string, qParams ...interface{}) {
 				// queryString = strings.Replace(queryString, "?", v.(string), 1)
 			}
 		}
-		fmt.Println(queryString)
 		return
 	}
 	log.Println(queryString)
@@ -642,7 +641,7 @@ func (bf *BaseFlavor) ProcessSchema(schema string) {
 	bf.QsLog(schema)
 	result, err := bf.db.Exec(schema)
 	if err != nil {
-		fmt.Println("err:", err)
+		log.Println("ProcessSchema err:", err)
 	}
 
 	// not all db's support rows affected, so reading it is
@@ -888,8 +887,8 @@ func (bf *BaseFlavor) Delete(ent interface{}) error { // (id uint) error
 
 		fType := reflect.TypeOf(s).String()
 		if bf.IsLog() {
-			fmt.Printf("key: %v, value: %v\n", k, s)
-			fmt.Println("TYPE:", fType)
+			log.Printf("CRUD DELETE key: %v, value: %v\n", k, s)
+			log.Println("CRUD DELETE TYPE:", fType)
 		}
 
 		if fType == "string" {
@@ -932,8 +931,8 @@ func (bf *BaseFlavor) GetEntity(ent interface{}) error {
 
 		fType := reflect.TypeOf(s).String()
 		if bf.IsLog() {
-			fmt.Printf("key: %v, value: %v\n", k, s)
-			fmt.Println("TYPE:", fType)
+			log.Printf("CRUD GET ENTITY key: %v, value: %v\n", k, s)
+			log.Println("CRUD GET ENTITY TYPE:", fType)
 		}
 
 		if fType == "string" {
@@ -1012,10 +1011,9 @@ func (bf *BaseFlavor) GetEntities(ents interface{}) (interface{}, error) {
 	for rows.Next() {
 		err = rows.StructScan(testVar.Interface())
 		if err != nil {
-			fmt.Println("scan error:", err)
+			log.Println("GetEntities scan error:", err)
 			return nil, err
 		}
-		// fmt.Println(testVar)
 		entsv = reflect.Append(entsv, testVar.Elem())
 	}
 
@@ -1039,7 +1037,7 @@ func (bf *BaseFlavor) GetEntities2(ge GetEnt) error {
 		return err
 	}
 	if bf.IsLog() {
-		fmt.Println("bf.GetEntities2 following Exec() contained: ", ge)
+		log.Println("bf.GetEntities2 following Exec() contained: ", ge)
 	}
 	return nil
 }
@@ -1076,7 +1074,6 @@ func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 	results.Set(reflect.MakeSlice(results.Type(), 0, 0))
 
 	if resultType.Kind() == reflect.Ptr {
-		//isPtr = true
 		resultType = resultType.Elem()
 	}
 
@@ -1084,10 +1081,8 @@ func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 	for rows.Next() {
 		err = rows.StructScan(dstRow.Interface())
 		if err != nil {
-			fmt.Println("scan error:", err)
+			log.Println("GetEntities4 scan error:", err)
 		}
-
-		// fmt.Println(dstRow)
 		slice = reflect.Append(slice, dstRow.Elem())
 		results.Set(reflect.Append(results, dstRow.Elem()))
 	}
@@ -1226,7 +1221,6 @@ func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []common.
 	selQuery = fmt.Sprintf("SELECT * FROM %s%s", tn, paramString)
 	selQuery = bf.db.Rebind(selQuery)
 	selQuery = fmt.Sprintf("%s%s%s%s%s;", selQuery, obString, adString, limitString, offsetString)
-	fmt.Println("selQuery:", selQuery)
 	bf.QsLog(selQuery)
 
 	// read the rows
@@ -1244,10 +1238,9 @@ func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []common.
 	for rows.Next() {
 		err = rows.StructScan(testVar.Interface())
 		if err != nil {
-			fmt.Println("scan error:", err)
+			log.Println("GetEntitiesWithCommand scan error:", err)
 			return nil, err
 		}
-		// fmt.Println(testVar)
 		entsv = reflect.Append(entsv, testVar.Elem())
 	}
 

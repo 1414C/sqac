@@ -263,7 +263,7 @@ func (hf *HDBFlavor) createTables(calledFromAlter bool, i ...interface{}) ([]For
 
 		ftr := reflect.TypeOf(ent)
 		if hf.log {
-			fmt.Println("CreateTable() entity type:", ftr)
+			log.Println("CreateTable() entity type:", ftr)
 		}
 
 		// determine the table name
@@ -644,9 +644,9 @@ func (hf *HDBFlavor) createInsertSP(seqDef hdbSeqTyp, fldef []common.FieldDef) e
 	tmplData.Header = seqDef
 	tmplData.Fields = fldef
 
-	fmt.Println("seqDef:", seqDef)
+	log.Println("createInsertSP seqDef:", seqDef)
 	for _, v := range fldef {
-		fmt.Println(v)
+		log.Println(v)
 	}
 
 	spTemplate := template.New("Entity Insert SP")
@@ -663,7 +663,9 @@ func (hf *HDBFlavor) createInsertSP(seqDef hdbSeqTyp, fldef []common.FieldDef) e
 	}
 
 	procDDL := buf.String()
-	fmt.Println(procDDL)
+	if hf.log {
+		log.Println("createInsertSP:", procDDL)
+	}
 
 	// procName := "procInsert" + seqDef.tableName
 	// procDDL := fmt.Sprintf(`CREATE PROCEDURE SMACLEOD.%s(
@@ -848,13 +850,14 @@ func (hf *HDBFlavor) AlterTables(i ...interface{}) error {
 	for _, v := range fkBuffer {
 		fkn, err := common.GetFKeyName(v.ent, v.fkinfo.FromTable, v.fkinfo.RefTable, v.fkinfo.FromField, v.fkinfo.RefField)
 		if err != nil {
+			log.Println(err)
 			return err
 		}
 		fkExists, _ := hf.ExistsForeignKeyByName(v.ent, fkn)
 		if !fkExists {
 			err = hf.CreateForeignKey(v.ent, v.fkinfo.FromTable, v.fkinfo.RefTable, v.fkinfo.FromField, v.fkinfo.RefField)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				return err
 			}
 		}
@@ -1113,7 +1116,7 @@ func (hf *HDBFlavor) Create(ent interface{}) error {
 	insVals := "("
 
 	if hf.IsLog() {
-		fmt.Println("info.incKeyName:", info.incKeyName)
+		log.Println("info.incKeyName:", info.incKeyName)
 	}
 
 	for k, v := range info.fldMap {
@@ -1186,8 +1189,8 @@ func (hf *HDBFlavor) Update(ent interface{}) error {
 
 		fType := reflect.TypeOf(s).String()
 		if hf.IsLog() {
-			fmt.Printf("key: %v, value: %v\n", k, s)
-			fmt.Println("TYPE:", fType)
+			log.Printf("CRUD UPDATE key: %v, value: %v\n", k, s)
+			log.Println("CRUD UPDATE TYPE:", fType)
 		}
 
 		if fType == "string" {

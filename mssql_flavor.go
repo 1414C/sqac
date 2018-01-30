@@ -65,7 +65,7 @@ func (msf *MSSQLFlavor) createTables(calledFromAlter bool, i ...interface{}) ([]
 
 		ftr := reflect.TypeOf(ent)
 		if msf.log {
-			fmt.Println("CreateTable() entity type:", ftr)
+			log.Println("CreateTable() entity type:", ftr)
 		}
 
 		// determine the table name
@@ -549,7 +549,7 @@ func (msf *MSSQLFlavor) AlterTables(i ...interface{}) error {
 		if !fkExists {
 			err = msf.CreateForeignKey(v.ent, v.fkinfo.FromTable, v.fkinfo.RefTable, v.fkinfo.FromField, v.fkinfo.RefField)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				return err
 			}
 		}
@@ -780,8 +780,8 @@ func (msf *MSSQLFlavor) Update(ent interface{}) error {
 
 		fType := reflect.TypeOf(s).String()
 		if msf.IsLog() {
-			fmt.Printf("key: %v, value: %v\n", k, s)
-			fmt.Println("TYPE:", fType)
+			log.Printf("key: %v, value: %v\n", k, s)
+			log.Println("TYPE:", fType)
 		}
 
 		if fType == "string" {
@@ -825,11 +825,6 @@ func (msf *MSSQLFlavor) Update(ent interface{}) error {
 // GetEntitiesWithCommands is the experimental replacement for all get-set ops
 func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (interface{}, error) {
 
-	fmt.Println()
-	fmt.Println("GetEntitiesWithCommands received params:", params)
-	fmt.Println("GetEntitiesWithCommands received cmdMap:", cmdMap)
-	fmt.Println()
-
 	var err error
 	var count uint64
 	var row *sqlx.Row
@@ -855,7 +850,9 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []commo
 			pv = append(pv, params[i].ParamValue)
 		}
 	}
-	fmt.Println("constructed paramString:", paramString)
+	if msf.log {
+		log.Println("constructed paramString:", paramString)
+	}
 
 	// received a $count command?  this supercedes all, as it should not
 	// be mixed with any other $<commands>.
@@ -943,7 +940,6 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []commo
 		selQuery = fmt.Sprintf("SELECT * FROM %s%s", tn, paramString)
 	}
 	selQuery = msf.db.Rebind(selQuery)
-	fmt.Println("rebound selQuery:", selQuery)
 
 	// use SELECT (TOP n) * ...
 	if limitString != "" && offsetString == "" {
@@ -952,7 +948,6 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []commo
 		selQuery = fmt.Sprintf("%s%s%s%s%s;", selQuery, obString, adString, offsetString, limitString)
 	}
 	// selQuery = fmt.Sprintf("%s%s%s%s%s;", selQuery, obString, adString, offsetString, limitString)
-	fmt.Println("selQuery fully constructed:", selQuery)
 	msf.QsLog(selQuery)
 
 	// read the rows
@@ -970,7 +965,7 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []commo
 	for rows.Next() {
 		err = rows.StructScan(testVar.Interface())
 		if err != nil {
-			fmt.Println("scan error:", err)
+			log.Println("scan error:", err)
 			return nil, err
 		}
 		// fmt.Println(testVar)

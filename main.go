@@ -19,7 +19,7 @@ type Sqac struct {
 }
 
 func init() {
-	fmt.Println("package sqac init is running")
+	log.Println("package sqac init is running")
 }
 
 // Open a sqlx connection to the specified database
