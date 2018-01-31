@@ -78,7 +78,7 @@ func (msf *MSSQLFlavor) createTables(calledFromAlter bool, i ...interface{}) ([]
 		// and move on to the next table in the list.
 		if msf.ExistsTable(tn) {
 			if msf.log {
-				fmt.Printf("createTable - table %s exists - skipping...\n", tn)
+				log.Printf("createTable - table %s exists - skipping...\n", tn)
 			}
 			continue
 		}
@@ -169,8 +169,6 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 		col.fPrimaryKey = ""
 		col.fDefault = ""
 		col.fNullable = ""
-
-		// https://stackoverflow.com/questions/168736/how-do-you-set-a-default-value-for-a-mysql-datetime-column
 
 		// if the field has been marked as NoDB, continue with the next field
 		if fd.NoDB == true {
@@ -389,7 +387,7 @@ func (msf *MSSQLFlavor) DropTables(i ...interface{}) error {
 		// table in the list.
 		if msf.ExistsTable(tn) {
 			if msf.log {
-				fmt.Printf("table %s exists - adding to drop schema...\n", tn)
+				log.Printf("table %s exists - adding to drop schema...\n", tn)
 			}
 			// submit 1 at a time for mysql
 			dropSchema = dropSchema + fmt.Sprintf("DROP TABLE %s; ", tn)
@@ -411,8 +409,6 @@ func (msf *MSSQLFlavor) AlterTables(i ...interface{}) error {
 
 	// construct create-table and alter-table buffers
 	for t := range i {
-
-		// ftr := reflect.TypeOf(ent)
 
 		// determine the table name
 		tn := common.GetTableName(i[t])
@@ -564,6 +560,7 @@ func (msf *MSSQLFlavor) ExistsTable(tn string) bool {
 	n := 0
 	etQuery := fmt.Sprintf("SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = '%s';", tn)
 	msf.QsLog(etQuery)
+
 	msf.db.QueryRow(etQuery).Scan(&n)
 	if n > 0 {
 		return true
@@ -574,7 +571,9 @@ func (msf *MSSQLFlavor) ExistsTable(tn string) bool {
 // GetDBName returns the name of the currently connected db
 func (msf *MSSQLFlavor) GetDBName() (dbName string) {
 
-	row := msf.db.QueryRow("SELECT DB_NAME()")
+	qs := "SELECT DB_NAME()"
+	msf.QsLog(qs)
+	row := msf.db.QueryRow(qs)
 	if row != nil {
 		err := row.Scan(&dbName)
 		if err != nil {
@@ -589,9 +588,9 @@ func (msf *MSSQLFlavor) GetDBName() (dbName string) {
 func (msf *MSSQLFlavor) ExistsIndex(tn string, in string) bool {
 
 	n := 0
-	// msf.db.QueryRow("SELECT count(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema = ? AND table_name = ? AND index_name = ?", bf.GetDBName(), tn, in).Scan(&n)
-	msf.QsLog("SELECT COUNT(*) FROM sys.indexes WHERE name=? AND object_id = OBJECT_ID(?);", in, tn)
-	msf.db.QueryRow("SELECT COUNT(*) FROM sys.indexes WHERE name=? AND object_id = OBJECT_ID(?);", in, tn).Scan(&n)
+	qs := "SELECT COUNT(*) FROM sys.indexes WHERE name=? AND object_id = OBJECT_ID(?);"
+	msf.QsLog(qs, in, tn)
+	msf.db.QueryRow(qs, in, tn).Scan(&n)
 	if n > 0 {
 		return true
 	}
@@ -617,8 +616,9 @@ func (msf *MSSQLFlavor) ExistsColumn(tn string, cn string) bool {
 
 	n := 0
 	if msf.ExistsTable(tn) {
-		msf.QsLog("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ? AND column_name = ?;", tn, cn)
-		msf.db.QueryRow("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ? AND column_name = ?;", tn, cn).Scan(&n)
+		qs := "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ? AND column_name = ?;"
+		msf.QsLog(qs, tn, cn)
+		msf.db.QueryRow(qs, tn, cn).Scan(&n)
 		if n > 0 {
 			return true
 		}
@@ -700,7 +700,6 @@ func (msf *MSSQLFlavor) ExistsForeignKeyByFields(i interface{}, ft, rt, ff, rf s
 	if err != nil {
 		return false, err
 	}
-
 	return msf.ExistsForeignKeyByName(i, fkn)
 }
 
@@ -736,8 +735,9 @@ func (msf *MSSQLFlavor) Create(ent interface{}) error {
 
 	// build the mssql insert query
 	insQuery := fmt.Sprintf("INSERT INTO %s %s VALUES %s;", info.tn, insFlds, insVals)
+	msf.QsLog(insQuery)
 
-	// clear the source data - deals with non-persistet columns
+	// clear the source data - deals with non-persistent columns
 	e := reflect.ValueOf(info.ent).Elem()
 	e.Set(reflect.Zero(e.Type()))
 
@@ -947,11 +947,9 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []commo
 	} else {
 		selQuery = fmt.Sprintf("%s%s%s%s%s;", selQuery, obString, adString, offsetString, limitString)
 	}
-	// selQuery = fmt.Sprintf("%s%s%s%s%s;", selQuery, obString, adString, offsetString, limitString)
 	msf.QsLog(selQuery)
 
 	// read the rows
-	// fmt.Println("pv...", pv)
 	rows, err := msf.db.Queryx(selQuery, pv...)
 	if err != nil {
 		log.Printf("GetEntities for table &s returned error: %v\n", err.Error())
@@ -968,11 +966,9 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []commo
 			log.Println("scan error:", err)
 			return nil, err
 		}
-		// fmt.Println(testVar)
 		entsv = reflect.Append(entsv, testVar.Elem())
 	}
 
 	ents = entsv.Interface()
-	// fmt.Println("ents:", ents)
 	return entsv.Interface(), nil
 }

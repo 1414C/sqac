@@ -71,13 +71,13 @@ func (tc *TblComponents) Log() {
 	for _, v := range tc.seq {
 		log.Println("SEQUENCE:", v)
 	}
-	fmt.Println()
+	log.Println("--")
 	for k, v := range tc.ind {
 		log.Printf("INDEX: k:%s	fields:%v  unique:%v tableName:%s\n", k, v.IndexFields, v.Unique, v.TableName)
 	}
-	fmt.Println()
+	log.Println("--")
 	log.Println("PRIMARY KEYS:", tc.pk)
-	fmt.Println()
+	log.Println("--")
 	for _, v := range tc.flDef {
 		log.Printf("FIELD DEF: fname:%s, ftype:%s, gotype:%s ,nodb:%v\n", v.FName, v.FType, v.GoType, v.NoDB)
 		for _, p := range v.SqacPairs {
@@ -85,7 +85,7 @@ func (tc *TblComponents) Log() {
 		}
 		log.Println("------")
 	}
-	fmt.Println()
+	log.Println("--")
 	log.Println("ERROR:", tc.err)
 	log.Println("====================================================================")
 }
@@ -159,12 +159,11 @@ type PublicDB interface {
 	// CreateForeignKey(Entity{}, foreignkeytable, reftable, fkfield, reffield)
 	// &Entity{} (i) is only needed for SQLite - okay to pass nil in other cases.
 	CreateForeignKey(i interface{}, ft, rt, ff, rf string) error
-	// BuildForeignKeyName(...) error
-	// DropForeignKey(Entity{}, foreignkeyname [fk_ft_rt])
 	DropForeignKey(i interface{}, ft, fkn string) error
 	ExistsForeignKeyByName(i interface{}, fkn string) (bool, error)
 	ExistsForeignKeyByFields(i interface{}, ft, rt, ff, rf string) (bool, error)
 
+	// process DDL/DML commands
 	ProcessSchema(schema string)
 	ProcessSchemaList(sList []string)
 	ProcessTransaction(tList []string) error
@@ -286,6 +285,7 @@ func (bf *BaseFlavor) GetDBName() (dbName string) {
 	if row != nil {
 		err := row.Scan(&dbName)
 		if err != nil {
+			log.Println("unable to determine DBName!")
 			panic(err)
 		}
 	}
@@ -297,8 +297,7 @@ func (bf *BaseFlavor) GetDBName() (dbName string) {
 // style of quoting table field-names in query-strings such as:
 // SELECT "f1" FROM "t1" WHERE "v1" = <some_criteria>.
 // in practice, it seems you can get away without quoting, but
-// it is a nod to backward compatibility and it standardizes on
-// an approach.
+// it is a nod to backward compatibility for existing db installs.
 // ' vs ` vs " for example
 func (bf *BaseFlavor) GetDBQuote() string {
 
@@ -423,7 +422,7 @@ func (bf *BaseFlavor) DropTables(i ...interface{}) error {
 		// table in the list.
 		if bf.ExistsTable(tn) {
 			if bf.log {
-				fmt.Printf("table %s exists - adding to drop schema...\n", tn)
+				log.Printf("table %s exists - adding to drop schema...\n", tn)
 			}
 			// submit 1 at a time for mysql
 			dropSchema = dropSchema + fmt.Sprintf("DROP TABLE %s; ", tn)
@@ -454,9 +453,12 @@ func (bf *BaseFlavor) DestructiveResetTables(i ...interface{}) error {
 // returns true if the named table is found to exist.
 func (bf *BaseFlavor) ExistsTable(tn string) bool {
 
-	//	SELECT * FROM information_schema.TABLES	WHERE table_schema = 'jsonddl' AND table_name = 'equipment';
 	n := 0
-	bf.db.QueryRow("SELECT count(*) FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = ? AND table_name = ?;", bf.GetDBName(), tn).Scan(&n)
+	qs := "SELECT count(*) FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = ? AND table_name = ?;"
+	dbName := bf.GetDBName()
+
+	bf.QsLog(qs, dbName)
+	bf.db.QueryRow(qs, dbName, tn).Scan(&n)
 	if n > 0 {
 		return true
 	}
@@ -469,10 +471,13 @@ func (bf *BaseFlavor) ExistsTable(tn string) bool {
 // or properties.
 func (bf *BaseFlavor) ExistsColumn(tn string, cn string) bool {
 
-	// SELECT COUNT(*) FROM information_schema.COLUMNS WHERE table_schema = 'jsonddl' AND table_name = 'equipment' AND column_name = 'description';
 	n := 0
+	qs := "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE table_schema = ? AND table_name = ? AND column_name = ?;"
+	dbName := bf.GetDBName()
+
 	if bf.ExistsTable(tn) {
-		bf.db.QueryRow("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE table_schema = ? AND table_name = ? AND column_name = ?;", bf.GetDBName(), tn, cn).Scan(&n)
+		bf.QsLog(qs, dbName, tn, cn)
+		bf.db.QueryRow(qs, dbName, tn, cn).Scan(&n)
 		if n > 0 {
 			return true
 		}
@@ -523,7 +528,11 @@ func (bf *BaseFlavor) DropIndex(tn string, in string) error {
 func (bf *BaseFlavor) ExistsIndex(tn string, in string) bool {
 
 	n := 0
-	bf.db.QueryRow("SELECT count(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema = ? AND table_name = ? AND index_name = ?", bf.GetDBName(), tn, in).Scan(&n)
+	qs := "SELECT count(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema = ? AND table_name = ? AND index_name = ?"
+	dbName := bf.GetDBName()
+
+	bf.QsLog(qs, dbName, tn, in)
+	bf.db.QueryRow(qs, dbName, tn, in).Scan(&n)
 	if n > 0 {
 		return true
 	}
@@ -576,57 +585,40 @@ func (bf *BaseFlavor) GetNextSequenceValue(name string) (int, error) {
 func (bf *BaseFlavor) CreateForeignKey(i interface{}, ft, rt, ff, rf string) error {
 
 	schema := fmt.Sprintf("ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY(%s) REFERENCES %s(%s);", ft, "fk_"+ft+"_"+rt+"_"+rf, ff, rt, rf)
+	bf.QsLog(schema)
+
 	_, err := bf.Exec(schema)
 	if err != nil {
 		return err
 	}
-	// ALTER TABLE book
-	// ADD CONSTRAINT fk_book_library
-	// FOREIGN KEY (library_id)
-	// REFERENCES library(id);
-	// return fmt.Errorf("CreateForeignKey has not been implemented for %s", bf.GetDBDriverName())
 	return nil
 }
 
 // DropForeignKey drops a foreign-key on an existing column
 func (bf *BaseFlavor) DropForeignKey(i interface{}, ft, fkn string) error {
 
-	// pg: SELECT COUNT(1) FROM information_schema.table_constraints WHERE constraint_name='user__fk__store_id' AND table_name='client';
-	// mssql: SELECT COUNT(*) FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_NAME = 'FK_Name';
-	// mysql: SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_name='user__fk__store_id' AND table_name='client';
-	// sqlite: SELECT * FROM sqlite_master WHERE tbl_name = 'product' AND sql like ('%constraint%foreign%key%warehouse_id%');
-	// pg; mssql; hdb
 	schema := fmt.Sprintf("ALTER TABLE %v DROP CONSTRAINT %v;", ft, fkn)
+	bf.QsLog(schema)
+
 	_, err := bf.Exec(schema)
 	if err != nil {
 		return err
 	}
 	return nil
-	// return fmt.Errorf("DropForeignKey has not been implemented for %s", bf.GetDBDriverName())
 }
 
 // ExistsForeignKeyByName checks to see if the named foreign-key exists on the
 // table corresponding to provided sqac model (i).
 func (bf *BaseFlavor) ExistsForeignKeyByName(i interface{}, fkn string) (bool, error) {
 
-	// pg: SELECT COUNT(1) FROM information_schema.table_constraints WHERE constraint_name='user__fk__store_id' AND table_name='client';
-	// mssql: SELECT COUNT(*) FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_NAME = 'FK_Name';
-	// mysql: SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_name='user__fk__store_id' AND table_name='client';
-	// sqlite: SELECT * FROM sqlite_master WHERE tbl_name = 'product' AND sql like ('%constraint%foreign%key%warehouse_id%');
-	// implemented per db
-	return false, nil
+	return false, fmt.Errorf("ExistsForeignKeyByName(...) has not been implemented for %s", bf.GetDBDriverName())
 }
 
 // ExistsForeignKeyByFields checks to see if a foreign-key exists between the named
 // tables and fields.
 func (bf *BaseFlavor) ExistsForeignKeyByFields(i interface{}, ft, rt, ff, rf string) (bool, error) {
 
-	// pg: SELECT COUNT(1) FROM information_schema.table_constraints WHERE constraint_name='user__fk__store_id' AND table_name='client';
-	// mssql: SELECT COUNT(*) FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_NAME = 'FK_Name';
-	// mysql: SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_name='user__fk__store_id' AND table_name='client';
-	// sqlite: SELECT * FROM sqlite_master WHERE tbl_name = 'product' AND sql like ('%constraint%foreign%key%warehouse_id%');
-	// implemented per db
-	return false, nil
+	return false, fmt.Errorf("ExistsForeignKeyByFields(...) has not been implemented for %s", bf.GetDBDriverName())
 }
 
 //===============================================================================
@@ -659,6 +651,7 @@ func (bf *BaseFlavor) ProcessSchema(schema string) {
 // ProcessSchemaList processes the schemas contained in sList
 // in the order in which they were provided.  Schemas are
 // executed against the connected DB.
+// DEPRECATED: USER ProcessTransactionList
 func (bf *BaseFlavor) ProcessSchemaList(sList []string) {
 
 	// bf.DB.MustExec(query string, args ...interface{})
@@ -788,6 +781,7 @@ func (bf *BaseFlavor) ProcessTransaction(tList []string) error {
 
 	// execute each command in the transaction set
 	for _, s := range tList {
+		bf.QsLog(s)
 		_, err = tx.Exec(s, nil)
 		if err != nil {
 			tx.Rollback()
@@ -813,7 +807,7 @@ func (bf *BaseFlavor) processFKeyTag(fkeys []FKeyInfo, ft, ff, rv string) []FKey
 
 	tf := strings.Split(rv, "(")
 	if len(tf) != 2 {
-		// panic for now, change this to log later TODO
+		// panic for now?
 		panic(fmt.Sprintf("unable to parse foreign-key sqac tag: %v", rv))
 	}
 
@@ -869,7 +863,7 @@ func (bf *BaseFlavor) processIndexTag(iMap map[string]IndexInfo, tableName strin
 	return iMap
 }
 
-// Delete - Delete an existing entity (single-row) on the database using the full-key
+// Delete - CRUD Delete an existing entity (single-row) on the database using the full-key
 func (bf *BaseFlavor) Delete(ent interface{}) error { // (id uint) error
 
 	var info CrudInfo
@@ -911,9 +905,9 @@ func (bf *BaseFlavor) Delete(ent interface{}) error { // (id uint) error
 	return nil
 }
 
-// GetEntity - get an existing entity from the db using the primary
-// key definition.  The entire key should be provided, although
-// providing a partial key will not generate an (obvious) error.
+// GetEntity - CRUD GetEntity gets an existing entity from the db using the primary
+// key definition.  It is expected that ID will have been populated in the body by
+// the caller.
 func (bf *BaseFlavor) GetEntity(ent interface{}) error {
 
 	var info CrudInfo
@@ -1022,11 +1016,13 @@ func (bf *BaseFlavor) GetEntities(ents interface{}) (interface{}, error) {
 	return entsv.Interface(), nil
 }
 
-// GetEntities2 attempts to retrieve all entities based
-// on the internal implementation of GetEnt.  GetEnt
-// exposes a single method (Exec) to execute the request.
-// All this because go can only go so far with meta-type
-// programming.  GetEntities2 is used in the sqac program.
+// GetEntities2 attempts to retrieve all entities based on the internal implementation of GetEnt.
+// GetEnt exposes a single method (Exec) to execute the request.  All this because go can only go
+// so far with meta-type programming in go before you get buried in reflection.
+// ge allows you to pass a sqac handle into get entities, then you can do what you need to do.
+// GetEntities2 has been replaced by GetEntitiesWithCommands, but can be used if you want a clean
+// looking API that is pretty quick (very light use of reflection).
+// That said, it is a --dirty-- way of doing things.
 func (bf *BaseFlavor) GetEntities2(ge GetEnt) error {
 
 	// Exec() should contain whatever SQL related code
@@ -1042,10 +1038,13 @@ func (bf *BaseFlavor) GetEntities2(ge GetEnt) error {
 	return nil
 }
 
-// GetEntities4 is experimental
+// GetEntities4 is experimental, and uses alot of reflection to permit the retrieval of
+// the equivalent of []interface{} where interface{} can be taken to mean Model{}.  This
+// can be used, but is not recommended, as it is a pretty slow way of doing things.
+// Use GetEntitiedByCommands instead; it is faster and has more functionality.
 func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 
-	// get the underlying data type of the interface{} ([]StructEtc)
+	// get the underlying data type of the interface{} ([]ModelEtc)
 	sliceTypeElem := reflect.TypeOf(ents).Elem()
 
 	// get the underlying (struct?) type of the slice
@@ -1093,9 +1092,10 @@ func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 	// fmt.Println("ents:", ents)
 }
 
-// GetEntitiesWithCommands is the new and improved get for lists of entities.  Each
-// DB needs an implementation due to differences in OFFSET / LIMIT / TOP support.
-// attempt at a common version...
+// GetEntitiesWithCommands is the new and improved get for lists of entities.  Each DB needs a
+// slightly different implementation due to differences in OFFSET / LIMIT / TOP support.
+// This is a mostly common version, but MySQL has its own specific implementation due to
+// some extra differences in transact-SQL.
 func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (interface{}, error) {
 
 	var err error
@@ -1123,7 +1123,6 @@ func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []common.
 			pv = append(pv, params[i].ParamValue)
 		}
 	}
-	// fmt.Println("constructed paramString:", paramString)
 
 	// received a $count command?  this supercedes all, as it should not
 	// be mixed with any other $<commands>.
@@ -1224,7 +1223,6 @@ func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []common.
 	bf.QsLog(selQuery)
 
 	// read the rows
-	// fmt.Println("pv...", pv)
 	rows, err := bf.db.Queryx(selQuery, pv...)
 	if err != nil {
 		log.Printf("GetEntities for table &s returned error: %v\n", err.Error())
@@ -1245,11 +1243,10 @@ func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []common.
 	}
 
 	ents = entsv.Interface()
-	// fmt.Println("ents:", ents)
 	return entsv.Interface(), nil
 }
 
-// this is where it happens
+// this is where it happens for GetEntities4(...)
 func indirect(reflectValue reflect.Value) reflect.Value {
 	for reflectValue.Kind() == reflect.Ptr {
 		reflectValue = reflectValue.Elem()

@@ -43,7 +43,10 @@ type PostgresFlavor struct {
 // GetDBName returns the name of the currently connected db
 func (pf *PostgresFlavor) GetDBName() (dbName string) {
 
-	row := pf.db.QueryRow("SELECT current_database();")
+	qs := "SELECT current_database();"
+	pf.QsLog(qs)
+
+	row := pf.db.QueryRow(qs)
 	if row != nil {
 		err := row.Scan(&dbName)
 		if err != nil {
@@ -80,7 +83,7 @@ func (pf *PostgresFlavor) createTables(calledFromAlter bool, i ...interface{}) (
 		// and move on to the next table in the list.
 		if pf.ExistsTable(tn) {
 			if pf.log {
-				fmt.Printf("createTable - table %s exists - skipping...\n", tn)
+				log.Printf("createTable - table %s exists - skipping...\n", tn)
 			}
 			continue
 		}
@@ -507,7 +510,7 @@ func (pf *PostgresFlavor) DropTables(i ...interface{}) error {
 		// table in the list.
 		if pf.ExistsTable(tn) {
 			if pf.log {
-				fmt.Printf("table %s exists - adding to drop schema...\n", tn)
+				log.Printf("table %s exists - adding to drop schema...\n", tn)
 			}
 			dropSchema = dropSchema + fmt.Sprintf("DROP TABLE IF EXISTS %s;", tn)
 		}
@@ -643,7 +646,6 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 		if !fkExists {
 			err = pf.CreateForeignKey(v.ent, v.fkinfo.FromTable, v.fkinfo.RefTable, v.fkinfo.FromField, v.fkinfo.RefField)
 			if err != nil {
-				log.Println(err)
 				return err
 			}
 		}
@@ -677,6 +679,7 @@ func (pf *PostgresFlavor) ExistsTable(tn string) bool {
 
 	reqQuery := fmt.Sprintf("SELECT to_regclass('public.%s');", tn)
 	pf.QsLog(reqQuery)
+
 	rows, err := pf.db.Query(reqQuery)
 	if err != nil {
 		panic(err)
@@ -798,6 +801,7 @@ func (pf *PostgresFlavor) GetNextSequenceValue(name string) (int, error) {
 	var keyColumn string
 	var keyColumnPos int
 	pf.QsLog(pKeyQuery)
+
 	pf.db.QueryRow(pKeyQuery).Scan(&keyColumn, &keyColumnPos)
 	if keyColumn == "" {
 		return 0, fmt.Errorf("could not identify primary-key column for table %s", name)
@@ -849,7 +853,6 @@ func (pf *PostgresFlavor) ExistsForeignKeyByFields(i interface{}, ft, rt, ff, rf
 	if err != nil {
 		return false, err
 	}
-
 	return pf.ExistsForeignKeyByName(i, fkn)
 }
 
@@ -875,7 +878,7 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	insQuery = fmt.Sprintf("%s %s VALUES %s RETURNING *;", insQuery, info.fList, info.vList)
 	pf.QsLog(insQuery)
 
-	// clear the source data - deals with non-persistet columns
+	// clear the source data - deals with non-persistent columns
 	e := reflect.ValueOf(info.ent).Elem()
 	e.Set(reflect.Zero(e.Type()))
 
@@ -906,8 +909,8 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 
 		fType := reflect.TypeOf(s).String()
 		if pf.IsLog() {
-			log.Printf("key: %v, value: %v\n", k, s)
-			log.Println("TYPE:", fType)
+			log.Printf("CRUD UPDATED key: %v, value: %v\n", k, s)
+			log.Println("CRUD UPDATED TYPE:", fType)
 		}
 
 		if fType == "string" {

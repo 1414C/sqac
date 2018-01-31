@@ -45,8 +45,10 @@ func (slf *SQLiteFlavor) GetDBName() (dbName string) {
 
 	dbNum := ""
 	dbMain := ""
+	qs := "PRAGMA database_list;"
+	slf.QsLog(qs)
 
-	row := slf.db.QueryRow("PRAGMA database_list;")
+	row := slf.db.QueryRow(qs)
 	if row != nil {
 		err := row.Scan(&dbNum, &dbMain, &dbName)
 		if err != nil {
@@ -77,7 +79,7 @@ func (slf *SQLiteFlavor) CreateTables(i ...interface{}) error {
 		// and move on to the next table in the list.
 		if slf.ExistsTable(tn) {
 			if slf.log {
-				fmt.Printf("CreateTable - table %s exists - skipping...\n", tn)
+				log.Printf("CreateTable - table %s exists - skipping...\n", tn)
 			}
 			continue
 		}
@@ -105,9 +107,6 @@ func (slf *SQLiteFlavor) AlterTables(i ...interface{}) error {
 
 	for t, ent := range i {
 
-		// ftr := reflect.TypeOf(ent)
-		// fmt.Println("ALTERING:", ftr)
-
 		// determine the table name
 		tn := common.GetTableName(i[t])
 		if tn == "" {
@@ -127,8 +126,6 @@ func (slf *SQLiteFlavor) AlterTables(i ...interface{}) error {
 
 		// go through the latest version of the model and check each
 		// field against its definition in the database.
-		// qt := slf.GetDBQuote()
-		// alterSchema := fmt.Sprintf("ALTER TABLE %s%s%s", qt, tn, qt)
 		var cols []string
 
 		for _, fd := range tc.flDef {
@@ -482,7 +479,7 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}, isAlter boo
 	// possible to add a new foreign-key to a SQLite table, so the foreign-key constraints
 	// are left out of the schema altogether.  Existing foreign-keys should stay in-place
 	// and a list of foreign-keys to add is exported for use with the copy, drop, recreate,
-	// reload process used to add/drop foreign-keys in SQLite.
+	// reload process used to add/drop foreign-keys.
 	if !isAlter {
 		if tableSchema != "" && len(fKeys) > 0 {
 			tableSchema = strings.TrimSpace(tableSchema)
@@ -546,7 +543,7 @@ func (slf *SQLiteFlavor) DropTables(i ...interface{}) error {
 		// table in the list.
 		if slf.ExistsTable(tn) {
 			if slf.log {
-				fmt.Printf("table %s exists - adding to drop schema...\n", tn)
+				log.Printf("table %s exists - adding to drop schema...\n", tn)
 			}
 			// submit 1 at a time for mysql
 			dropSchema = dropSchema + fmt.Sprintf("DROP TABLE IF EXISTS %s; ", tn)
@@ -793,22 +790,11 @@ func (slf *SQLiteFlavor) CreateForeignKey(i interface{}, ft, rt, ff, rf string) 
 
 // DropForeignKey drops a foreign-key on an existing column.  Since SQLite does not
 // support the addition or deletion of foreign-key relationships on existing tables,
-// the existing table is copied to a backup table, the table is dropped and then
-// recreated using the sqac model information contained in (i).  It follows then,
-// that in order for a foreign-key to be dropped, it must be removed from the sqac
-// tag in the model definition.
+// the existing table is copied to a backup table, dropped and then recreated using
+// the sqac model information contained in (i).  It follows then, that in order for
+// a foreign-key to be dropped, it must be removed from the sqac tag in the model
+// definition.
 func (slf *SQLiteFlavor) DropForeignKey(i interface{}, ft, fkn string) error {
-
-	// pg: SELECT COUNT(1) FROM information_schema.table_constraints WHERE constraint_name='user__fk__store_id' AND table_name='client';
-	// mssql: SELECT COUNT(*) FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_NAME = 'FK_Name';
-	// myslq: SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_name='user__fk__store_id' AND table_name='client';
-	// sqlite: SELECT * FROM sqlite_master WHERE tbl_name = 'product' AND sql like ('%constraint%foreign%key%warehouse_id%');
-	// pg; mssql; hdb
-	// schema := fmt.Sprintf("ALTER TABLE %v DROP CONSTRAINT %v;", ft, fkn)
-	// _, err := bf.Exec(schema)
-	// if err != nil {
-	// 	return err
-	// }
 
 	bakTn := ""
 	q := ""
@@ -848,7 +834,9 @@ func (slf *SQLiteFlavor) DropForeignKey(i interface{}, ft, fkn string) error {
 	}
 
 	// disable foreign-key checks to start the transaction processing
-	_, err := slf.Exec("PRAGMA foreign_keys=off;")
+	qs := "PRAGMA foreign_keys=off;"
+	slf.QsLog(qs)
+	_, err := slf.Exec(qs)
 	if err != nil {
 		return err
 	}
@@ -865,7 +853,9 @@ func (slf *SQLiteFlavor) DropForeignKey(i interface{}, ft, fkn string) error {
 	}
 
 	// reactivate foreign-key constraints
-	_, err = slf.Exec("PRAGMA foreign_keys=on;")
+	qs = "PRAGMA foreign_keys=on;"
+	slf.QsLog(qs)
+	_, err = slf.Exec(qs)
 	if err != nil {
 		log.Println("WARNING: FOREIGN KEY CONSTRAINTS MAY PRESENTLY BE DEACATIVATED!")
 		return err
@@ -902,7 +892,6 @@ func (slf *SQLiteFlavor) ExistsForeignKeyByFields(i interface{}, ft, rt, ff, rf 
 	if err != nil {
 		return false, err
 	}
-
 	return slf.ExistsForeignKeyByName(i, fkn)
 }
 

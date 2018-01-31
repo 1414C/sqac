@@ -67,7 +67,7 @@ func (myf *MySQLFlavor) createTables(calledFromAlter bool, i ...interface{}) ([]
 		// and move on to the next table in the list.
 		if myf.ExistsTable(tn) {
 			if myf.log {
-				fmt.Printf("createTable - table %s exists - skipping...\n", tn)
+				log.Printf("createTable - table %s exists - skipping...\n", tn)
 			}
 			continue
 		}
@@ -216,7 +216,6 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 
 					col.fPrimaryKey = "PRIMARY KEY"
 					pKeys = fmt.Sprintf("%s %s%s%s,", pKeys, qt, fd.FName, qt)
-					// pKeys = pKeys + fd.FName + ","
 
 					if p.Value == "inc" {
 						col.fAutoInc = true
@@ -385,8 +384,6 @@ func (myf *MySQLFlavor) AlterTables(i ...interface{}) error {
 	// deltas and take note of any new foreign-key definitions.
 	for t, ent := range ai {
 
-		// ftr := reflect.TypeOf(ent)
-
 		// determine the table name
 		tn := common.GetTableName(ai[t])
 		if tn == "" {
@@ -551,6 +548,8 @@ func (myf *MySQLFlavor) DropForeignKey(i interface{}, ft, fkn string) error {
 	// mysql: SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_name='user__fk__store_id' AND table_name='client';
 
 	schema := fmt.Sprintf("ALTER TABLE %v DROP FOREIGN KEY %v", ft, fkn)
+	myf.QsLog(schema)
+
 	_, err := myf.Exec(schema)
 	if err != nil {
 		return err
@@ -587,7 +586,6 @@ func (myf *MySQLFlavor) ExistsForeignKeyByFields(i interface{}, ft, rt, ff, rf s
 	if err != nil {
 		return false, err
 	}
-
 	return myf.ExistsForeignKeyByName(i, fkn)
 }
 
@@ -657,8 +655,8 @@ func (myf *MySQLFlavor) Update(ent interface{}) error {
 
 		fType := reflect.TypeOf(s).String()
 		if myf.IsLog() {
-			log.Printf("key: %v, value: %v\n", k, s)
-			log.Println("TYPE:", fType)
+			log.Printf("CRUD UPDATE key: %v, value: %v\n", k, s)
+			log.Println("CRUD UPDATED TYPE:", fType)
 		}
 
 		if fType == "string" {

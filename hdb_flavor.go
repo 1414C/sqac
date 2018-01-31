@@ -238,7 +238,9 @@ type hdbSeqTyp struct {
 // GetDBName returns the first db in the list - should only be one?
 func (hf *HDBFlavor) GetDBName() (dbName string) {
 
-	row := hf.db.QueryRow("SELECT DATABASE_NAME FROM Sys.M_Databases;")
+	qs := "SELECT DATABASE_NAME FROM Sys.M_Databases;"
+	hf.QsLog(qs)
+	row := hf.db.QueryRow(qs)
 	if row != nil {
 		err := row.Scan(&dbName)
 		if err != nil {
@@ -276,7 +278,7 @@ func (hf *HDBFlavor) createTables(calledFromAlter bool, i ...interface{}) ([]For
 		// and move on to the next table in the list.
 		if hf.ExistsTable(tn) {
 			if hf.log {
-				fmt.Printf("CreateTable - table %s exists - skipping...\n", tn)
+				log.Printf("CreateTable - table %s exists - skipping...\n", tn)
 			}
 			continue
 		}
@@ -416,8 +418,6 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 		col.fDefault = ""
 		col.fNullable = ""
 		col.fStart = 0
-
-		// https://stackoverflow.com/questions/168736/how-do-you-set-a-default-value-for-a-mysql-datetime-column
 
 		// if the field has been marked as NoDB, continue with the next field
 		if fd.NoDB == true {
@@ -706,7 +706,7 @@ func (hf *HDBFlavor) DropTables(i ...interface{}) error {
 		// table in the list.
 		if hf.ExistsTable(tn) {
 			if hf.log {
-				fmt.Printf("table %s exists - adding to drop schema...\n", tn)
+				log.Printf("table %s exists - adding to drop schema...\n", tn)
 			}
 			dropSchema = dropSchema + fmt.Sprintf("DROP TABLE %s; ", strings.ToUpper(tn))
 			hf.ProcessSchema(dropSchema)
@@ -872,7 +872,6 @@ func (hf *HDBFlavor) ExistsTable(tn string) bool {
 	n := 0
 	etQuery := fmt.Sprintf("SELECT COUNT(*) FROM Sys.Tables WHERE TABLE_NAME = '%s';", strings.ToUpper(tn))
 	hf.QsLog(etQuery)
-
 	hf.db.QueryRow(etQuery).Scan(&n)
 	if n > 0 {
 		return true
@@ -885,9 +884,9 @@ func (hf *HDBFlavor) ExistsTable(tn string) bool {
 func (hf *HDBFlavor) ExistsIndex(tn string, in string) bool {
 
 	n := 0
-	hf.QsLog("SELECT COUNT(*) FROM sys.indexes WHERE index_name=? AND table_name = ?;", strings.ToUpper(in), strings.ToUpper(tn))
-
-	hf.db.QueryRow("SELECT COUNT(*) FROM sys.indexes WHERE index_name=? AND table_name = ?;", strings.ToUpper(in), strings.ToUpper(tn)).Scan(&n)
+	qs := "SELECT COUNT(*) FROM sys.indexes WHERE index_name=? AND table_name = ?;"
+	hf.QsLog(qs, strings.ToUpper(in), strings.ToUpper(tn))
+	hf.db.QueryRow(qs, strings.ToUpper(in), strings.ToUpper(tn)).Scan(&n)
 	if n > 0 {
 		return true
 	}
@@ -914,11 +913,9 @@ func (hf *HDBFlavor) ExistsColumn(tn string, cn string) bool {
 	n := 0
 	tn = strings.ToUpper(tn)
 	if hf.ExistsTable(tn) {
-
-		hf.QsLog("SELECT COUNT(*) FROM Sys.Table_Columns WHERE table_name = ? AND column_name = ?;", tn, strings.ToUpper(cn))
-
-		// hf.db.QueryRow("SELECT COUNT(*) FROM Sys.Table_Columns WHERE Schema_Name = ? AND table_name = ? AND column_name = ?;", tn, cn).Scan(&n)
-		hf.db.QueryRow("SELECT COUNT(*) FROM Sys.Table_Columns WHERE table_name = ? AND column_name = ?;", tn, strings.ToUpper(cn)).Scan(&n)
+		qs := "SELECT COUNT(*) FROM Sys.Table_Columns WHERE table_name = ? AND column_name = ?;"
+		hf.QsLog(qs, tn, strings.ToUpper(cn))
+		hf.db.QueryRow(qs, tn, strings.ToUpper(cn)).Scan(&n)
 		if n > 0 {
 			return true
 		}
@@ -1052,7 +1049,6 @@ func (hf *HDBFlavor) GetNextSequenceValue(name string) (int, error) {
 	var nextVal int
 	nextQuery := fmt.Sprintf("SELECT %s.NEXTVAL FROM dummy;", strings.ToUpper(name))
 	hf.QsLog(nextQuery)
-
 	err := hf.db.QueryRow(nextQuery).Scan(&nextVal)
 	if err != nil {
 		return 0, err
@@ -1069,7 +1065,6 @@ func (hf *HDBFlavor) ExistsForeignKeyByName(i interface{}, fkn string) (bool, er
 
 	fkQuery := fmt.Sprintf("SELECT COUNT(*) FROM Sys.Referential_Constraints WHERE TABLE_NAME='%s' AND CONSTRAINT_NAME='%s';", tn, strings.ToUpper(fkn))
 	hf.QsLog(fkQuery)
-
 	err := hf.Get(&count, fkQuery)
 	if err != nil {
 		return false, nil
@@ -1089,7 +1084,6 @@ func (hf *HDBFlavor) ExistsForeignKeyByFields(i interface{}, ft, rt, ff, rf stri
 	if err != nil {
 		return false, err
 	}
-
 	return hf.ExistsForeignKeyByName(i, strings.ToUpper(fkn))
 }
 
@@ -1127,6 +1121,7 @@ func (hf *HDBFlavor) Create(ent interface{}) error {
 		// for now.
 		if strings.Compare(k, info.incKeyName) == 0 {
 			keyQuery := fmt.Sprintf("SELECT SEQ_%s_%s.NEXTVAL FROM DUMMY;", strings.ToUpper(info.tn), strings.ToUpper(info.incKeyName))
+			hf.QsLog(keyQuery)
 			err = hf.db.QueryRowx(keyQuery).Scan(&incKey)
 			if err != nil {
 				return err
