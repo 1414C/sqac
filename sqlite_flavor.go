@@ -660,7 +660,7 @@ func (slf *SQLiteFlavor) AlterSequenceStart(name string, start int) error {
 		}
 	}
 
-	err = nil
+	err = nil // redundant, but...
 	asQuery = fmt.Sprintf("INSERT INTO sqlite_sequence (name,seq) VALUES ('%s',%d);", name, start)
 	slf.QsLog(asQuery)
 
