@@ -2,9 +2,10 @@ package sqac
 
 import (
 	"fmt"
-	"github.com/jmoiron/sqlx/reflectx"
 	"log"
 	"strings"
+
+	"github.com/jmoiron/sqlx/reflectx"
 
 	_ "github.com/SAP/go-hdb/driver"
 	"github.com/jmoiron/sqlx"
@@ -126,7 +127,6 @@ func Create(flavor string, logFlag bool, dbLogFlag bool, connectionString string
 	// detailed logging?
 	if logFlag {
 		handle.Log(true)
-		fmt.Printf("HANDLE: %v\n", handle)
 	} else {
 		handle.Log(false)
 	}
