@@ -1,6 +1,6 @@
 # sqac
 
-sqac is a simple overlay to provide a common interface to attached mssql, mysql, postgres, sqlite or SAP Hana database.
+sqac is a simple overlay to provide a common interface to an attached mssql, mysql, postgres, sqlite or SAP Hana database.
 
 - create tables, supporting default, nullable, start, primary-key, index tags
 - drop tables
@@ -12,20 +12,18 @@ sqac is a simple overlay to provide a common interface to attached mssql, mysql,
 - Standard go sql, jmoirons sqlx db access
 - generic CRUD entity operations
 - set commands (/$count /$orderby=<field_name> $limit=n; $offset=n; ($asc|$desc))
+- comprehensive test cases
 
 * passing: pg, mssql, mysql, hdb, sqlite
 * refactor non-indempotent SQLite Foreign-Key test to use a closure
 * consider parsing the stored create schema when adding / dropping a foreign-key on SQLite tables (== dangerous)
 * add cascade to Drops?
-* refactor foreign-key create/drop
 
 * Testing / TODO
 * examine the $desc orderby when limit / offset is used in postgres with selection parameter (weirdness)
 * change from timestamp with TZ to timestamp and ensure timestamps are in UTC before submitting to the db
 * examine view support
-* remove debugging output
-* remove extraneaous getSet-type methods
-* correct CreateTables where no primary-key is present (trailing ,_ )
+* remove extraneous getSet-type methods
 
 ```bash
 
@@ -70,7 +68,6 @@ $ go test -v -db hdb sqac_test.go
 
 - [x]Support unique constraint on single-fields
 - [ ]Support unique constraines on grouped fields(?)
-- [ ]Other constraints(?)
 - [x]Complete sql/sqlx query/exec wrapper tests
 - [x]Autoincrement fields should be designated as sqac:"primary_key:inc"
 - [ ]SQLite stores timestamps as UTC, so clients would need to convert back to the local timezone on a read.
