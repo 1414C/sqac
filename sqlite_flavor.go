@@ -341,6 +341,10 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}, isAlter boo
 					// if AUTOINCREMENT is requested on an int64/uint64, downcast
 					// the db-field-type to integer.
 					if p.Value == "inc" && strings.Contains(fd.UnderGoType, "int") {
+						if col.uType != "" {
+							log.Printf("WARNING: %s auto-incrementing primary-key field %s has user-specified db_type: %s  user-type is ignored. \n", common.GetTableName(ent), col.fName, col.uType)
+							col.uType = ""
+						}
 						col.fPrimaryKey = "PRIMARY KEY"
 						if strings.Contains(fd.UnderGoType, "64") {
 							fldef[idx].FType = "integer"

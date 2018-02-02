@@ -200,6 +200,12 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 					pKeys = pKeys + fd.FName + ","
 
 					if p.Value == "inc" {
+
+						// warn that user-specified db_type type will be ignored
+						if col.uType != "" {
+							log.Printf("WARNING: %s auto-incrementing primary-key field %s has user-specified db_type: %s  user-type is ignored. \n", common.GetTableName(ent), col.fName, col.uType)
+							col.uType = ""
+						}
 						if strings.Contains(fd.UnderGoType, "64") {
 							col.fType = "bigserial"
 						} else {
@@ -216,6 +222,9 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 						seqName = tn + "_" + fd.FName + "_seq"
 						sequences = append(sequences, common.SqacPair{Name: seqName, Value: p.Value})
 					}
+
+				// case "type":
+				// 	col.uType = p.Value
 
 				case "default":
 					col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
@@ -252,6 +261,8 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 			fldef[idx].FType = col.fType
 
 		case "string":
+
+			fmt.Println("fd:", fd)
 			col.fType = "text"
 
 			for _, p := range fd.SqacPairs {
@@ -259,6 +270,9 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 				case "primary_key":
 					col.fPrimaryKey = "PRIMARY KEY"
 					pKeys = pKeys + fd.FName + ","
+
+				case "type":
+					col.uType = p.Value
 
 				case "nullable":
 					if p.Value == "false" {
@@ -438,7 +452,11 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 		}
 
 		// add the current column to the schema
-		tableSchema = tableSchema + fmt.Sprintf("%s %s", col.fName, col.fType)
+		if col.uType != "" {
+			tableSchema = tableSchema + fmt.Sprintf("%s %s", col.fName, col.uType)
+		} else {
+			tableSchema = tableSchema + fmt.Sprintf("%s %s", col.fName, col.fType)
+		}
 		if col.fNullable != "" {
 			tableSchema = tableSchema + " " + col.fNullable
 		}

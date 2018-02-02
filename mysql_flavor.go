@@ -218,6 +218,11 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 					pKeys = fmt.Sprintf("%s %s%s%s,", pKeys, qt, fd.FName, qt)
 
 					if p.Value == "inc" {
+						// warn that user-specified db_type type will be ignored
+						if col.uType != "" {
+							log.Printf("WARNING: %s auto-incrementing primary-key field %s has user-specified db_type: %s  user-type is ignored. \n", common.GetTableName(ent), col.fName, col.uType)
+							col.uType = ""
+						}
 						col.fAutoInc = true
 					}
 
@@ -285,7 +290,11 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 		fldef[idx].FType = col.fType
 
 		// add the current column to the schema
-		tableSchema = tableSchema + fmt.Sprintf("%s%s%s %s", qt, col.fName, qt, col.fType)
+		if col.uType != "" {
+			tableSchema = tableSchema + fmt.Sprintf("%s%s%s %s", qt, col.fName, qt, col.uType)
+		} else {
+			tableSchema = tableSchema + fmt.Sprintf("%s%s%s %s", qt, col.fName, qt, col.fType)
+		}
 		if col.fAutoInc == true {
 			tableSchema = tableSchema + " AUTO_INCREMENT"
 		}

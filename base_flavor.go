@@ -41,6 +41,7 @@ type ForeignKeyBuffer struct {
 type ColComponents struct {
 	fName             string
 	fType             string
+	uType             string // user-specified DB type
 	fPrimaryKey       string
 	fAutoInc          bool // not used for Postgres
 	fStart            int  // only used for HDB
