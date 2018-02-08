@@ -262,7 +262,6 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 
 		case "string":
 
-			fmt.Println("fd:", fd)
 			col.fType = "text"
 
 			for _, p := range fd.SqacPairs {

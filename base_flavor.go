@@ -881,11 +881,6 @@ func (bf *BaseFlavor) Delete(ent interface{}) error { // (id uint) error
 	for k, s := range info.keyMap {
 
 		fType := reflect.TypeOf(s).String()
-		if bf.IsLog() {
-			log.Printf("CRUD DELETE key: %v, value: %v\n", k, s)
-			log.Println("CRUD DELETE TYPE:", fType)
-		}
-
 		if fType == "string" {
 			keyList = fmt.Sprintf("%s %s = '%v' AND", keyList, k, s)
 		} else {
@@ -898,10 +893,18 @@ func (bf *BaseFlavor) Delete(ent interface{}) error { // (id uint) error
 	delQuery = fmt.Sprintf("%s WHERE%s;", delQuery, keyList)
 	bf.QsLog(delQuery)
 
-	// attempt the delete and read result back into resultMap
-	row := bf.db.QueryRowx(delQuery)
-	if row.Err() != nil {
+	result, err := bf.db.Exec(delQuery)
+	if err != nil {
+		log.Println("CRUD Delete error:", err)
+	}
+
+	ra, err := result.RowsAffected()
+	if err != nil {
 		return err
+	}
+
+	if bf.log {
+		fmt.Printf("%d rows affected.\n", ra)
 	}
 	return nil
 }
