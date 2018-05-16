@@ -71,8 +71,9 @@ $ go test -v -db hdb sqac_test.go
 - [x]Complete sql/sqlx query/exec wrapper tests
 - [x]Autoincrement fields should be designated as sqac:"primary_key:inc"
 - [ ]SQLite stores timestamps as UTC, so clients would need to convert back to the local timezone on a read.
-- [ ]Consider saving all time as UTC
+- [x]Consider saving all time as UTC
 - [ ]Consider converting all time reads as Local
 - [x]This is not perfect, as hand-written SQL will not pass the requests through the CrudInfo conversions.
 - [ ]HDB ExistsTable should include SCHEMA field in selection?
 - [x]Really consider what to do with nullable fields
+- [ ]It would be nice to replace the fmt.Sprintf(...) calls in the DDL and DML constructions with inline strconv.XXXX, as the performance seems to be 2-4x better.  oops.  In practical terms we are dealing with 10's of ns here, but under high load it could be a thing.  Consider doing this when implementing DB2 support.
