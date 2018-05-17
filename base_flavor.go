@@ -503,9 +503,9 @@ func (bf *BaseFlavor) CreateIndex(in string, index IndexInfo) error {
 		in = "idx_" + index.TableName + "_" + fList
 	} else {
 		for _, f := range index.IndexFields {
-			fList = fmt.Sprintf("%s%s,", fList, f)
+			fList = fList + f + ", "
 		}
-		fList = strings.TrimSuffix(fList, ",")
+		fList = strings.TrimSuffix(fList, ", ")
 	}
 
 	if !index.Unique {
@@ -601,7 +601,8 @@ func (bf *BaseFlavor) CreateForeignKey(i interface{}, ft, rt, ff, rf string) err
 // DropForeignKey drops a foreign-key on an existing column
 func (bf *BaseFlavor) DropForeignKey(i interface{}, ft, fkn string) error {
 
-	schema := fmt.Sprintf("ALTER TABLE %v DROP CONSTRAINT %v;", ft, fkn)
+	// schema := fmt.Sprintf("ALTER TABLE %v DROP CONSTRAINT %v;", ft, fkn)
+	schema := "ALTER TABLE " + ft + " DROP CONSTRAINT " + fkn + ";"
 	bf.QsLog(schema)
 
 	_, err := bf.Exec(schema)
@@ -846,7 +847,7 @@ func (bf *BaseFlavor) processIndexTag(iMap map[string]IndexInfo, tableName strin
 		} else {
 			fldIndex.Unique = false
 		}
-		indexName = fmt.Sprintf("%s%s_%s", indexName, tableName, fieldName)
+		indexName = indexName + tableName + "_" + fieldName
 		iMap[indexName] = fldIndex
 		return iMap
 	}
@@ -892,8 +893,7 @@ func (bf *BaseFlavor) Delete(ent interface{}) error { // (id uint) error
 	}
 
 	keyList = strings.TrimSuffix(keyList, " AND")
-	delQuery := fmt.Sprintf("DELETE FROM %s", info.tn)
-	delQuery = fmt.Sprintf("%s WHERE%s;", delQuery, keyList)
+	delQuery := "DELETE FROM " + info.tn + " WHERE " + keyList + ";"
 	bf.QsLog(delQuery)
 
 	result, err := bf.db.Exec(delQuery)
@@ -936,6 +936,7 @@ func (bf *BaseFlavor) GetEntity(ent interface{}) error {
 			log.Println("CRUD GET ENTITY TYPE:", fType)
 		}
 
+		// not worth coding the detailed cases here - use Sprintf %v
 		if fType == "string" {
 			keyList = fmt.Sprintf("%s %s = '%v' AND", keyList, k, s)
 		} else {
@@ -943,8 +944,7 @@ func (bf *BaseFlavor) GetEntity(ent interface{}) error {
 		}
 		keyList = strings.TrimSuffix(keyList, " AND")
 
-		selQuery := fmt.Sprintf("SELECT * FROM %s", info.tn)
-		selQuery = fmt.Sprintf("%s WHERE%s;", selQuery, keyList)
+		selQuery := "SELECT * FROM " + info.tn + " WHERE " + keyList + ";"
 		bf.QsLog(selQuery)
 
 		// attempt read the entity row
@@ -995,7 +995,7 @@ func (bf *BaseFlavor) GetEntities(ents interface{}) (interface{}, error) {
 	// determine the db table name
 	tn := common.GetTableName(ents)
 
-	selQuery := fmt.Sprintf("SELECT * FROM %s;", tn)
+	selQuery := "SELECT * FROM " + tn + ";"
 	bf.QsLog(selQuery)
 
 	// read the rows
@@ -1064,7 +1064,7 @@ func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 	// determine the db table name
 	tn := common.GetTableName(ents)
 
-	selQuery := fmt.Sprintf("SELECT * FROM %s;", tn)
+	selQuery := "SELECT * FROM " + tn + ";"
 	bf.QsLog(selQuery)
 
 	// read the rows
@@ -1126,7 +1126,8 @@ func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []common.
 	if params != nil && len(params) > 0 {
 		paramString = " WHERE"
 		for i := range params {
-			paramString = fmt.Sprintf("%s %s %s ? %s", paramString, common.CamelToSnake(params[i].FieldName), params[i].Operand, params[i].NextOperator)
+			//paramString = fmt.Sprintf("%s %s %s ? %s", paramString, common.CamelToSnake(params[i].FieldName), params[i].Operand, params[i].NextOperator)
+			paramString = paramString + " " + common.CamelToSnake(params[i].FieldName) + " " + params[i].Operand + " ? " + params[i].NextOperator
 			pv = append(pv, params[i].ParamValue)
 		}
 	}
@@ -1136,11 +1137,12 @@ func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []common.
 	_, ok := cmdMap["count"]
 	if ok {
 		if paramString == "" {
-			selQuery = fmt.Sprintf("SELECT COUNT(*) FROM %s;", tn)
+			selQuery = "SELECT COUNT(*) FROM " + tn + ";"
 			bf.QsLog(selQuery)
 			row = bf.ExecuteQueryRowx(selQuery)
 		} else {
-			selQuery = fmt.Sprintf("SELECT COUNT(*) FROM %s%s;", tn, paramString)
+			selQuery = "SELECT COUNT(*) FROM " + tn + paramString + ";"
+			fmt.Println("S1:", selQuery)
 			bf.QsLog(selQuery)
 			row = bf.ExecuteQueryRowx(selQuery, pv...)
 		}
@@ -1161,7 +1163,7 @@ func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []common.
 	// received $orderby command?
 	obField, ok := cmdMap["orderby"]
 	if ok {
-		obString = fmt.Sprintf(" ORDER BY %s", obField.(string))
+		obString = " ORDER BY " + obField.(string)
 	}
 
 	// received $asc command?
@@ -1224,9 +1226,9 @@ func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []common.
 		obString = " ORDER BY id"
 	}
 
-	selQuery = fmt.Sprintf("SELECT * FROM %s%s", tn, paramString)
+	selQuery = "SELECT * FROM " + tn + paramString
 	selQuery = bf.db.Rebind(selQuery)
-	selQuery = fmt.Sprintf("%s%s%s%s%s;", selQuery, obString, adString, limitString, offsetString)
+	selQuery = selQuery + obString + adString + limitString + offsetString + ";"
 	bf.QsLog(selQuery)
 
 	// read the rows

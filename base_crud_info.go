@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
@@ -145,15 +146,15 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 		case "int", "int8", "int16", "int32", "int64":
 			if inf.mode == "C" {
 				if bPkeyInc == true {
-					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+					inf.fList = inf.fList + fd.FName + ", "
+					inf.vList = inf.vList + "DEFAULT, "
 					inf.fldMap[fd.FName] = "DEFAULT"
 					continue
 				}
 				if bDefault == true && fv == 0 ||
 					bDefault == true && bIsNull {
-					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+					inf.fList = inf.fList + fd.FName + ", "
+					inf.vList = inf.vList + "DEFAULT, "
 					inf.fldMap[fd.FName] = "DEFAULT"
 					continue
 				}
@@ -165,28 +166,29 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 			}
 			// in all other cases, just use the given value making the
 			// assumption that the int-type field contains an int-type
-			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+			inf.fList = inf.fList + fd.FName + ", "
 			if !bIsNull {
-				inf.vList = fmt.Sprintf("%s%v, ", inf.vList, fvr.Int())
-				inf.fldMap[fd.FName] = fmt.Sprintf("%v", fvr.Int())
+				sv := strconv.FormatInt(fvr.Int(), 10)
+				inf.vList = inf.vList + sv + ", "
+				inf.fldMap[fd.FName] = sv
 			} else {
-				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "NULL")
-				inf.fldMap[fd.FName] = fmt.Sprintf("%s", "NULL")
+				inf.vList = inf.vList + "NULL, "
+				inf.fldMap[fd.FName] = "NULL"
 			}
 			continue
 
 		case "uint", "uint8", "uint16", "uint32", "uint64", "rune", "byte":
 			if inf.mode == "C" {
 				if bPkeyInc == true {
-					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+					inf.fList = inf.fList + fd.FName + ", "
+					inf.vList = inf.vList + "DEFAULT, "
 					inf.fldMap[fd.FName] = "DEFAULT"
 					continue
 				}
 				if bDefault == true && reflect.DeepEqual(fv, reflect.Zero(reflect.TypeOf(fv)).Interface()) ||
 					bDefault == true && bIsNull {
-					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+					inf.fList = inf.fList + fd.FName + ", "
+					inf.vList = inf.vList + "DEFAULT, "
 					inf.fldMap[fd.FName] = "DEFAULT"
 					continue
 				}
@@ -198,28 +200,29 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 			}
 			// in all other cases, just use the given value making the
 			// assumption that the uint-type field contains a uint-type
-			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+			inf.fList = inf.fList + fd.FName + ", "
 			if !bIsNull {
-				inf.vList = fmt.Sprintf("%s%d, ", inf.vList, fvr.Uint())
-				inf.fldMap[fd.FName] = fmt.Sprintf("%d", fvr.Uint())
+				sv := strconv.FormatUint(fvr.Uint(), 10)
+				inf.vList = inf.vList + sv + ", "
+				inf.fldMap[fd.FName] = sv
 			} else {
-				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "NULL")
-				inf.fldMap[fd.FName] = fmt.Sprintf("%s", "NULL")
+				inf.vList = inf.vList + "NULL, "
+				inf.fldMap[fd.FName] = "NULL"
 			}
 			continue
 
 		case "float32", "float64":
 			if inf.mode == "C" {
 				if bPkeyInc == true {
-					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+					inf.fList = inf.fList + fd.FName + ", "
+					inf.vList = inf.vList + "DEFAULT, "
 					inf.fldMap[fd.FName] = "DEFAULT"
 					continue
 				}
 				if bDefault == true && reflect.DeepEqual(fv, reflect.Zero(reflect.TypeOf(fv)).Interface()) ||
 					bDefault == true && bIsNull {
-					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+					inf.fList = inf.fList + fd.FName + ", "
+					inf.vList = inf.vList + "DEFAULT, "
 					inf.fldMap[fd.FName] = "DEFAULT"
 					continue
 				}
@@ -231,28 +234,29 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 			}
 			// in all other cases, just use the given value making the
 			// assumption that the float-type field contains a float-type
-			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+			inf.fList = inf.fList + fd.FName + ", "
 			if !bIsNull {
-				inf.vList = fmt.Sprintf("%s%v, ", inf.vList, fvr.Float())
-				inf.fldMap[fd.FName] = fmt.Sprintf("%v", fvr.Float())
+				sv := strconv.FormatFloat(fvr.Float(), 'e', -1, 64)
+				inf.vList = inf.vList + sv + ", "
+				inf.fldMap[fd.FName] = sv
 			} else {
-				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "NULL")
-				inf.fldMap[fd.FName] = fmt.Sprintf("%s", "NULL")
+				inf.vList = inf.vList + "NULL, "
+				inf.fldMap[fd.FName] = "NULL"
 			}
 			continue
 
 		case "string":
 			if inf.mode == "C" {
 				if bPkeyInc == true {
-					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+					inf.fList = inf.fList + fd.FName + ", "
+					inf.vList = inf.vList + "DEFAULT, "
 					inf.fldMap[fd.FName] = "DEFAULT"
 					continue
 				}
 				if bDefault == true && fv == "" ||
 					bDefault == true && bIsNull {
-					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+					inf.fList = inf.fList + fd.FName + ", "
+					inf.vList = inf.vList + "DEFAULT, "
 					inf.fldMap[fd.FName] = "DEFAULT"
 					continue
 				}
@@ -264,7 +268,7 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 			}
 			// in all other cases, just use the given value making the
 			// assumption that the string-type field contains a string-type
-			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+			inf.fList = inf.fList + fd.FName + ", "
 			if !bIsNull {
 				inf.vList = fmt.Sprintf("%s'%s', ", inf.vList, fvr.String())
 				inf.fldMap[fd.FName] = fmt.Sprintf("'%s'", fvr.String())
@@ -277,40 +281,42 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 		case "bool":
 			if bDefault == true && fv == "" ||
 				bDefault == true && bIsNull {
-				inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+				inf.fList = inf.fList + fd.FName + ", "
+				inf.vList = inf.vList + "DEFAULT, "
 				inf.fldMap[fd.FName] = "DEFAULT"
 				continue
 			}
 
 			// in all other cases, just use the given value making the
 			// assumption that the string-type field contains a bool-type
-			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+			inf.fList = inf.fList + fd.FName + ", "
 			if !bIsNull {
 				switch bf.GetDBDriverName() {
 				case "sqlite3":
 					i := bf.BoolToDBBool(fvr.Bool())
-					inf.vList = fmt.Sprintf("%s%d, ", inf.vList, *i)
-					inf.fldMap[fd.FName] = fmt.Sprintf("%d", *i)
+					sv := strconv.Itoa(*i)
+					inf.vList = inf.vList + sv + ", "
+					inf.fldMap[fd.FName] = sv
 				case "mssql":
 					switch fvr.Bool() {
 					case true:
-						inf.vList = fmt.Sprintf("%s%d, ", inf.vList, 1)
-						inf.fldMap[fd.FName] = fmt.Sprintf("%d", 1)
+						inf.vList = inf.vList + "1, "
+						inf.fldMap[fd.FName] = "1"
 					case false:
-						inf.vList = fmt.Sprintf("%s%d, ", inf.vList, 0)
-						inf.fldMap[fd.FName] = fmt.Sprintf("%d", 0)
+						inf.vList = inf.vList + "0, "
+						inf.fldMap[fd.FName] = "0"
 					default:
 
 					}
 
 				default:
-					inf.vList = fmt.Sprintf("%s%t, ", inf.vList, fvr.Bool())
-					inf.fldMap[fd.FName] = fmt.Sprintf("%t", fvr.Bool())
+					sv := strconv.FormatBool(fvr.Bool())
+					inf.vList = inf.vList + sv + ", "
+					inf.fldMap[fd.FName] = sv
 				}
 			} else {
-				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "NULL")
-				inf.fldMap[fd.FName] = fmt.Sprintf("%s", "NULL")
+				inf.vList = inf.vList + "NULL, "
+				inf.fldMap[fd.FName] = "NULL"
 			}
 			continue
 
@@ -318,8 +324,8 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 
 			if inf.mode == "C" {
 				if bPkeyInc == true {
-					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+					inf.fList = inf.fList + fd.FName + ", "
+					inf.vList = inf.vList + "DEFAULT, "
 					inf.keyMap[fd.FName] = "DEFAULT"
 					continue
 				}
@@ -334,8 +340,8 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 
 				if bDefault == true && bZzeroTime || // 0001-01-01 00:00:00 +0000 UTC
 					bDefault == true && bIsNull {
-					inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
-					inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "DEFAULT")
+					inf.fList = inf.fList + fd.FName + ", "
+					inf.vList = inf.vList + "DEFAULT, "
 					inf.fldMap[fd.FName] = "DEFAULT"
 					continue
 				}
@@ -348,13 +354,14 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 					continue
 				}
 			}
-			inf.fList = fmt.Sprintf("%s%s, ", inf.fList, fd.FName)
+			inf.fList = inf.fList + fd.FName + ", "
 			if !bIsNull {
-				inf.vList = fmt.Sprintf("%s'%v', ", inf.vList, bf.TimeToFormattedString(fv)) // fv.(time.Time).Format("2006-01-02 15:04:05.999999-07:00"))
-				inf.fldMap[fd.FName] = fmt.Sprintf("'%s'", bf.TimeToFormattedString(fv))     // fv.(time.Time).Format("2006-01-02 15:04:05.999999-07:00")
+				sv := bf.TimeToFormattedString(fv)
+				inf.vList = inf.vList + "'" + sv + "', "
+				inf.fldMap[fd.FName] = "'" + sv + "'"
 			} else {
-				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "NULL")
-				inf.fldMap[fd.FName] = fmt.Sprintf("%s", "NULL")
+				inf.vList = inf.vList + "NULL, "
+				inf.fldMap[fd.FName] = "NULL"
 			}
 			continue
 

@@ -24,6 +24,6 @@ func GetFKeyName(i interface{}, ft, rt, ff, rf string) (string, error) {
 		return "", fmt.Errorf("provide all required parameters for common.GetFKeyName: got ft: %s, rt: %s, ff: %s, rf: %s", ft, rt, ff, rf)
 	}
 
-	fkn := fmt.Sprintf("fk_%s_%s_%s", ft, rt, rf)
+	fkn := "fk_" + ft + "_" + rt + "_" + rf
 	return fkn, nil
 }

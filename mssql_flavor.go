@@ -144,7 +144,7 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 	var sequences []common.SqacPair
 	indexes := make(map[string]IndexInfo)
 	fKeys := make([]FKeyInfo, 0)
-	tableSchema := fmt.Sprintf("CREATE TABLE %s%s%s (", qt, tn, qt)
+	tableSchema := "CREATE TABLE " + qt + tn + qt + " ("
 
 	// get a list of the field names, go-types and db attributes.
 	// TagReader is a common function across db-flavors. For
@@ -239,9 +239,9 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 
 				case "default":
 					if fd.UnderGoType == "string" {
-						col.fDefault = fmt.Sprintf("DEFAULT '%s'", p.Value)
+						col.fDefault = "DEFAULT '" + p.Value + "'"
 					} else {
-						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
+						col.fDefault = "DEFAULT " + p.Value
 					}
 
 					if fd.UnderGoType == "time.Time" {
@@ -253,7 +253,7 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 						default:
 
 						}
-						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
+						col.fDefault = "DEFAULT " + p.Value
 					}
 
 					if fd.UnderGoType == "bool" {
@@ -267,7 +267,7 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 						default:
 
 						}
-						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
+						col.fDefault = "DEFAULT " + p.Value
 					}
 
 				case "nullable":
@@ -310,7 +310,7 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 					default:
 
 					}
-					col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
+					col.fDefault = "DEFAULT " + p.Value
 				}
 			}
 		}
@@ -318,9 +318,9 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 
 		// add the current column to the schema
 		if col.uType != "" {
-			tableSchema = tableSchema + fmt.Sprintf("%s%s%s %s", qt, col.fName, qt, col.uType)
+			tableSchema = tableSchema + qt + col.fName + qt + " " + col.uType
 		} else {
-			tableSchema = tableSchema + fmt.Sprintf("%s%s%s %s", qt, col.fName, qt, col.fType)
+			tableSchema = tableSchema + qt + col.fName + qt + " " + col.fType
 		}
 		if col.fAutoInc == true {
 			tableSchema = tableSchema + " IDENTITY(1,1)"
@@ -344,7 +344,7 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 	}
 	if tableSchema != "" && pKeys != "" {
 		pKeys = strings.TrimSuffix(pKeys, ",")
-		tableSchema = tableSchema + fmt.Sprintf("PRIMARY KEY (%s) )", pKeys)
+		tableSchema = tableSchema + "PRIMARY KEY (" + pKeys + ") )"
 	}
 	tableSchema = tableSchema + ";"
 
@@ -398,8 +398,7 @@ func (msf *MSSQLFlavor) DropTables(i ...interface{}) error {
 			if msf.log {
 				log.Printf("table %s exists - adding to drop schema...\n", tn)
 			}
-			// submit 1 at a time for mysql
-			dropSchema = dropSchema + fmt.Sprintf("DROP TABLE %s; ", tn)
+			dropSchema = dropSchema + "DROP TABLE " + tn + ";"
 			msf.ProcessSchema(dropSchema)
 			dropSchema = ""
 		}
@@ -469,14 +468,14 @@ func (msf *MSSQLFlavor) AlterTables(i ...interface{}) error {
 		// go through the latest version of the model and check each
 		// field against its definition in the database.
 		qt := msf.GetDBQuote()
-		alterSchema := fmt.Sprintf("ALTER TABLE %s%s%s ADD ", qt, tn, qt)
+		alterSchema := "ALTER TABLE " + qt + tn + qt + " ADD "
 		var cols []string
 
 		for _, fd := range tc.flDef {
 			// new columns first
 			if !msf.ExistsColumn(tn, fd.FName) && fd.NoDB == false {
 
-				colSchema := fmt.Sprintf("%s%s%s %s", qt, fd.FName, qt, fd.FType)
+				colSchema := qt + fd.FName + qt + " " + fd.FType
 				for _, p := range fd.SqacPairs {
 					switch p.Name {
 					case "primary_key":
@@ -486,7 +485,7 @@ func (msf *MSSQLFlavor) AlterTables(i ...interface{}) error {
 					case "default":
 						switch fd.UnderGoType {
 						case "string":
-							colSchema = fmt.Sprintf("%s DEFAULT '%s'", colSchema, p.Value)
+							colSchema = colSchema + " DEFAULT '" + p.Value + "'"
 
 						case "bool":
 							switch p.Value {
@@ -501,12 +500,12 @@ func (msf *MSSQLFlavor) AlterTables(i ...interface{}) error {
 							}
 
 						default:
-							colSchema = fmt.Sprintf("%s DEFAULT %s", colSchema, p.Value)
+							colSchema = colSchema + " DEFAULT " + p.Value
 						}
 
 					case "nullable":
 						if p.Value == "false" {
-							colSchema = fmt.Sprintf("%s NOT NULL", colSchema)
+							colSchema = colSchema + " NOT NULL"
 						}
 
 					default:
@@ -520,7 +519,8 @@ func (msf *MSSQLFlavor) AlterTables(i ...interface{}) error {
 		// ALTER TABLE ADD COLUMNS...
 		if len(cols) > 0 {
 			for _, c := range cols {
-				alterSchema = fmt.Sprintf("%s %s", alterSchema, c)
+				// alterSchema = fmt.Sprintf("%s %s", alterSchema, c)
+				alterSchema = alterSchema + " " + c
 			}
 			alterSchema = strings.TrimSuffix(alterSchema, ",")
 			msf.ProcessSchema(alterSchema)
@@ -567,7 +567,7 @@ func (msf *MSSQLFlavor) AlterTables(i ...interface{}) error {
 func (msf *MSSQLFlavor) ExistsTable(tn string) bool {
 
 	n := 0
-	etQuery := fmt.Sprintf("SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = '%s';", tn)
+	etQuery := "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = '" + tn + "';"
 	msf.QsLog(etQuery)
 
 	msf.db.QueryRow(etQuery).Scan(&n)
@@ -610,7 +610,7 @@ func (msf *MSSQLFlavor) ExistsIndex(tn string, in string) bool {
 func (msf *MSSQLFlavor) DropIndex(tn string, in string) error {
 
 	if msf.ExistsIndex(tn, in) {
-		indexSchema := fmt.Sprintf("DROP INDEX %s ON %s;", in, tn)
+		indexSchema := "DROP INDEX " + in + " ON " + tn + ";"
 		msf.ProcessSchema(indexSchema)
 		return nil
 	}
@@ -658,7 +658,7 @@ func (msf *MSSQLFlavor) AlterSequenceStart(name string, start int) error {
 
 	// reseed the primary key
 	// DBCC CHECKIDENT ('dbo.depot', RESEED, 50000000);
-	alterSequenceSchema := fmt.Sprintf("DBCC CHECKIDENT (%s, RESEED, %d)", name, start)
+	alterSequenceSchema := "DBCC CHECKIDENT (" + name + ", RESEED, " + strconv.Itoa(start) + ")"
 	msf.ProcessSchema(alterSequenceSchema)
 	return nil
 }
@@ -670,7 +670,8 @@ func (msf *MSSQLFlavor) GetNextSequenceValue(name string) (int, error) {
 
 	seq := 0
 	if msf.ExistsTable(name) {
-		seqQuery := fmt.Sprintf("SELECT IDENT_CURRENT( '%s' );", name)
+		// "SELECT IDENT_CURRENT( 'tableNAme' );
+		seqQuery := "SELECT IDENT_CURRENT( '" + name + "' );"
 		msf.QsLog(seqQuery)
 		err := msf.db.QueryRow(seqQuery).Scan(&seq)
 		if err != nil {
@@ -686,8 +687,7 @@ func (msf *MSSQLFlavor) GetNextSequenceValue(name string) (int, error) {
 func (msf *MSSQLFlavor) ExistsForeignKeyByName(i interface{}, fkn string) (bool, error) {
 
 	var count uint64
-
-	fkQuery := fmt.Sprintf("SELECT COUNT(*) FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_NAME = '%s';", fkn)
+	fkQuery := "SELECT COUNT(*) FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_NAME = '" + fkn + "';"
 	msf.QsLog(fkQuery)
 
 	err := msf.Get(&count, fkQuery)
@@ -736,14 +736,14 @@ func (msf *MSSQLFlavor) Create(ent interface{}) error {
 		if v == "DEFAULT" {
 			continue
 		}
-		insFlds = fmt.Sprintf("%s %s, ", insFlds, k)
+		insFlds = insFlds + k + ", "
 		insVals = fmt.Sprintf("%s %s, ", insVals, v)
 	}
 	insFlds = strings.TrimSuffix(insFlds, ", ") + ")"
 	insVals = strings.TrimSuffix(insVals, ", ") + ")"
 
 	// build the mssql insert query
-	insQuery := fmt.Sprintf("INSERT INTO %s %s VALUES %s;", info.tn, insFlds, insVals)
+	insQuery := "INSERT INTO " + info.tn + " " + insFlds + " " + "VALUES " + insVals + ";"
 	msf.QsLog(insQuery)
 
 	// clear the source data - deals with non-persistent columns
@@ -761,7 +761,8 @@ func (msf *MSSQLFlavor) Create(ent interface{}) error {
 		return err
 	}
 
-	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s = %v;", info.tn, info.incKeyName, lastID)
+	// "SELECT * FROM %s WHERE %s = %v;", info.tn, info.incKeyName, lastID
+	selQuery := "SELECT * FROM " + info.tn + " WHERE " + info.incKeyName + " = " + strconv.FormatInt(lastID, 10) + ";"
 	msf.QsLog(selQuery)
 	err = msf.db.QueryRowx(selQuery).StructScan(info.ent) //.MapScan(info.resultMap) // SliceScan
 	if err != nil {
@@ -807,7 +808,8 @@ func (msf *MSSQLFlavor) Update(ent interface{}) error {
 	}
 	colList = strings.TrimSuffix(colList, ", ")
 
-	updQuery := fmt.Sprintf("UPDATE %s SET %s WHERE %s;", info.tn, colList, keyList)
+	// "UPDATE %s SET %s WHERE %s;", info.tn, colList, keyList
+	updQuery := "UPDATE " + info.tn + " SET " + colList + " WHERE " + keyList + ";"
 	msf.QsLog(updQuery)
 
 	// clear the source data - deals with non-persistet columns
@@ -821,7 +823,7 @@ func (msf *MSSQLFlavor) Update(ent interface{}) error {
 	}
 
 	// read the updated row
-	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %v;", info.tn, keyList)
+	selQuery := "SELECT * FROM " + info.tn + " WHERE " + keyList + ";"
 	msf.QsLog(selQuery)
 	err = msf.db.QueryRowx(selQuery).StructScan(info.ent) // .MapScan(info.resultMap) // SliceScan
 	if err != nil {
@@ -855,7 +857,7 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []commo
 	if params != nil && len(params) > 0 {
 		paramString = " WHERE"
 		for i := range params {
-			paramString = fmt.Sprintf("%s %s %s ? %s", paramString, common.CamelToSnake(params[i].FieldName), params[i].Operand, params[i].NextOperator)
+			paramString = paramString + " " + common.CamelToSnake(params[i].FieldName) + " " + params[i].Operand + " ? " + params[i].NextOperator
 			pv = append(pv, params[i].ParamValue)
 		}
 	}
@@ -868,11 +870,12 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []commo
 	_, ok := cmdMap["count"]
 	if ok {
 		if paramString == "" {
-			selQuery = fmt.Sprintf("SELECT COUNT(*) FROM %s;", tn)
+			selQuery = "SELECT COUNT(*) FROM " + tn + ";"
 			msf.QsLog(selQuery)
 			row = msf.ExecuteQueryRowx(selQuery)
 		} else {
-			selQuery = fmt.Sprintf("SELECT COUNT(*) FROM %s%s;", tn, paramString)
+			// selQuery = fmt.Sprintf("SELECT COUNT(*) FROM %s%s;", tn, paramString)
+			selQuery = "SELECT COUNT(*) FROM " + tn + paramString + ";"
 			msf.QsLog(selQuery)
 			row = msf.ExecuteQueryRowx(selQuery, pv...)
 		}
@@ -893,7 +896,7 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []commo
 	// received $orderby command?
 	obField, ok := cmdMap["orderby"]
 	if ok {
-		obString = fmt.Sprintf(" ORDER BY %s", obField.(string))
+		obString = " ORDER BY " + obField.(string)
 	}
 
 	// received $asc command?
@@ -918,7 +921,8 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []commo
 	limField, ok := cmdMap["limit"]
 	if ok {
 		if offsetString != "" {
-			limitString = fmt.Sprintf(" FETCH NEXT %v ROWS ONLY", limField)
+			// (" FETCH NEXT %v ROWS ONLY", limField)
+			limitString = " FETCH NEXT " + strconv.FormatInt(reflect.ValueOf(limField).Int(), 10) + " ROWS ONLY"
 		} else {
 			limitString = fmt.Sprintf("TOP(%v)", limField)
 		}
@@ -944,17 +948,17 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []commo
 	}
 
 	if limitString != "" && offsetString == "" {
-		selQuery = fmt.Sprintf("SELECT %v * FROM %s%s", limitString, tn, paramString)
+		selQuery = "SELECT " + limitString + " * FROM " + tn + paramString
 	} else {
-		selQuery = fmt.Sprintf("SELECT * FROM %s%s", tn, paramString)
+		selQuery = "SELECT * FROM " + tn + paramString
 	}
 	selQuery = msf.db.Rebind(selQuery)
 
 	// use SELECT (TOP n) * ...
 	if limitString != "" && offsetString == "" {
-		selQuery = fmt.Sprintf("%s%s%s;", selQuery, obString, adString)
+		selQuery = selQuery + obString + adString + ";"
 	} else {
-		selQuery = fmt.Sprintf("%s%s%s%s%s;", selQuery, obString, adString, offsetString, limitString)
+		selQuery = selQuery + obString + adString + offsetString + limitString + ";"
 	}
 	msf.QsLog(selQuery)
 
