@@ -216,7 +216,7 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 				case "primary_key":
 
 					col.fPrimaryKey = "PRIMARY KEY"
-					pKeys = fmt.Sprintf("%s %s%s%s,", pKeys, qt, fd.FName, qt)
+					pKeys = pKeys + " " + qt + fd.FName + qt + ","
 
 					if p.Value == "inc" {
 						// warn that user-specified db_type type will be ignored
