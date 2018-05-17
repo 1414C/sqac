@@ -426,7 +426,7 @@ func (bf *BaseFlavor) DropTables(i ...interface{}) error {
 				log.Printf("table %s exists - adding to drop schema...\n", tn)
 			}
 			// submit 1 at a time for mysql
-			dropSchema = dropSchema + fmt.Sprintf("DROP TABLE %s; ", tn)
+			dropSchema = dropSchema + "DROP TABLE " + tn + ";"
 			bf.ProcessSchema(dropSchema)
 			dropSchema = ""
 		}
@@ -509,9 +509,11 @@ func (bf *BaseFlavor) CreateIndex(in string, index IndexInfo) error {
 	}
 
 	if !index.Unique {
-		indexSchema = fmt.Sprintf("CREATE INDEX %s ON %s (%s);", in, index.TableName, fList)
+		// indexSchema = fmt.Sprintf("CREATE INDEX %s ON %s (%s);", in, index.TableName, fList)
+		indexSchema = "CREATE INDEX " + in + " ON " + index.TableName + " (" + fList + ");"
 	} else {
-		indexSchema = fmt.Sprintf("CREATE UNIQUE INDEX %s ON %s (%s);", in, index.TableName, fList)
+		// indexSchema = fmt.Sprintf("CREATE UNIQUE INDEX %s ON %s (%s);", in, index.TableName, fList)
+		indexSchema = "CREATE UNIQUE INDEX " + in + " ON " + index.TableName + " (" + fList + ");"
 	}
 
 	bf.ProcessSchema(indexSchema)
@@ -585,7 +587,8 @@ func (bf *BaseFlavor) GetNextSequenceValue(name string) (int, error) {
 // CreateForeignKey creates a foreign-key on an existing column.
 func (bf *BaseFlavor) CreateForeignKey(i interface{}, ft, rt, ff, rf string) error {
 
-	schema := fmt.Sprintf("ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY(%s) REFERENCES %s(%s);", ft, "fk_"+ft+"_"+rt+"_"+rf, ff, rt, rf)
+	// schema := fmt.Sprintf("ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY(%s) REFERENCES %s(%s);", ft, "fk_"+ft+"_"+rt+"_"+rf, ff, rt, rf)
+	schema := "ALTER TABLE " + ft + " ADD CONSTRAINT " + "fk_" + ft + "_" + rt + "_" + rf + " FOREIGN KEY(" + ff + ")" + " REFERENCES " + rt + "(" + rf + ");"
 	bf.QsLog(schema)
 
 	_, err := bf.Exec(schema)
