@@ -106,17 +106,9 @@ func TagReader(i interface{}, t reflect.Type) (fd []FieldDef, err error) {
 					if sqacVars[0] == "-" {
 						fldDef.NoDB = true
 					}
+				default:
+					// do nothing
 				}
-				// if len(sqacVars) == 2 {
-				// 	p := SqacPair{
-				// 		Name:  sqacVars[0],
-				// 		Value: sqacVars[1],
-				// 	}
-				// 	fldDef.SqacPairs = append(fldDef.SqacPairs, p)
-				// 	sqacVars = nil
-				// } else {
-
-				// }
 			}
 		}
 		fd = append(fd, fldDef)

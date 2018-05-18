@@ -499,7 +499,6 @@ func (bf *BaseFlavor) CreateIndex(in string, index IndexInfo) error {
 
 	if len(index.IndexFields) == 1 {
 		fList = index.IndexFields[0]
-		// in = "idx_" + fList
 		in = "idx_" + index.TableName + "_" + fList
 	} else {
 		for _, f := range index.IndexFields {
@@ -808,7 +807,7 @@ func (bf *BaseFlavor) processFKeyTag(fkeys []FKeyInfo, ft, ff, rv string) []FKey
 
 	tf := strings.Split(rv, "(")
 	if len(tf) != 2 {
-		// panic for now?
+		// panic for now
 		panic(fmt.Sprintf("unable to parse foreign-key sqac tag: %v", rv))
 	}
 
@@ -1043,7 +1042,9 @@ func (bf *BaseFlavor) GetEntities2(ge GetEnt) error {
 
 // GetEntities4 is experimental, and uses alot of reflection to permit the retrieval of
 // the equivalent of []interface{} where interface{} can be taken to mean Model{}.  This
-// can be used, but is not recommended, as it is a pretty slow way of doing things.
+// can be used, but is not recommended, as it is a pretty slow way of doing things and
+// a quick internet search on []interface{} will turn up all sorts of acrimony.  Notice
+// that the method signature is still interface{}?  Not very transparent IMO.
 // Use GetEntitiedByCommands instead; it is faster and has more functionality.
 func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 
@@ -1088,7 +1089,6 @@ func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 		slice = reflect.Append(slice, dstRow.Elem())
 		results.Set(reflect.Append(results, dstRow.Elem()))
 	}
-
 	// fmt.Println("slice:", slice)
 	// fmt.Println("")
 	// fmt.Println("results:", results)
@@ -1097,7 +1097,7 @@ func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 
 // GetEntitiesWithCommands is the new and improved get for lists of entities.  Each DB needs a
 // slightly different implementation due to differences in OFFSET / LIMIT / TOP support.
-// This is a mostly common version, but MySQL has its own specific implementation due to
+// This is a mostly common version, but MSSQL has its own specific implementation due to
 // some extra differences in transact-SQL.
 func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (interface{}, error) {
 
@@ -1245,7 +1245,6 @@ func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []common.
 		}
 		entsv = reflect.Append(entsv, testVar.Elem())
 	}
-
 	ents = entsv.Interface()
 	return entsv.Interface(), nil
 }

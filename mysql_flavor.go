@@ -291,10 +291,8 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 
 		// add the current column to the schema
 		if col.uType != "" {
-			// tableSchema = tableSchema + fmt.Sprintf("%s%s%s %s", qt, col.fName, qt, col.uType)
 			tableSchema = tableSchema + qt + col.fName + qt + " " + col.uType
 		} else {
-			// tableSchema = tableSchema + fmt.Sprintf("%s%s%s %s", qt, col.fName, qt, col.fType)
 			tableSchema = tableSchema + qt + col.fName + qt + " " + col.fType
 		}
 		if col.fAutoInc == true {

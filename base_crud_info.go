@@ -270,11 +270,11 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 			// assumption that the string-type field contains a string-type
 			inf.fList = inf.fList + fd.FName + ", "
 			if !bIsNull {
-				inf.vList = fmt.Sprintf("%s'%s', ", inf.vList, fvr.String())
-				inf.fldMap[fd.FName] = fmt.Sprintf("'%s'", fvr.String())
+				inf.vList = inf.vList + "'" + fvr.String() + "', "
+				inf.fldMap[fd.FName] = "'" + fvr.String() + "'"
 			} else {
-				inf.vList = fmt.Sprintf("%s%s, ", inf.vList, "NULL")
-				inf.fldMap[fd.FName] = fmt.Sprintf("%s", "NULL")
+				inf.vList = inf.vList + "NULL, "
+				inf.fldMap[fd.FName] = "NULL"
 			}
 			continue
 
@@ -333,7 +333,6 @@ func (bf *BaseFlavor) BuildComponents(inf *CrudInfo) error {
 				// only insert with DEFAULT if a zero-value time.Time was provided or
 				// if a nil value was passed for a *time.Time
 				bZzeroTime := false
-				// if fv == reflect.Zero(reflect.TypeOf(fv)).Interface() {
 				if reflect.DeepEqual(fv, reflect.Zero(reflect.TypeOf(fv)).Interface()) {
 					bZzeroTime = true
 				}
