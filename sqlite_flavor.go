@@ -132,7 +132,7 @@ func (slf *SQLiteFlavor) AlterTables(i ...interface{}) error {
 			// new columns first
 			if !slf.ExistsColumn(tn, fd.FName) && fd.NoDB == false {
 
-				colSchema := fmt.Sprintf("ALTER TABLE %s ADD COLUMN %s %s", tn, fd.FName, fd.FType)
+				colSchema := "ALTER TABLE " + tn + " ADD COLUMN " + fd.FName + " " + fd.FType
 				for _, p := range fd.SqacPairs {
 					switch p.Name {
 					case "primary_key":
@@ -141,14 +141,14 @@ func (slf *SQLiteFlavor) AlterTables(i ...interface{}) error {
 
 					case "default":
 						if fd.UnderGoType == "string" {
-							colSchema = fmt.Sprintf("%s DEFAULT '%s'", colSchema, p.Value)
+							colSchema = colSchema + " DEFAULT '" + p.Value + "'"
 						} else {
-							colSchema = fmt.Sprintf("%s DEFAULT %s", colSchema, p.Value)
+							colSchema = colSchema + " DEFAULT " + p.Value
 						}
 
 					case "nullable":
 						if p.Value == "false" {
-							colSchema = fmt.Sprintf("%s NOT NULL", colSchema)
+							colSchema = colSchema + " DEFAULT " + p.Value
 						}
 
 					default:
@@ -211,7 +211,7 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}, isAlter boo
 	var sequences []common.SqacPair
 	indexes := make(map[string]IndexInfo)
 	fKeys := make([]FKeyInfo, 0)
-	tableSchema := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s%s%s (", qt, tn, qt)
+	tableSchema := "CREATE TABLE IF NOT EXISTS " + qt + tn + qt + " ("
 
 	// get a list of the field names, go-types and db attributes.
 	// TagReader is a common function across db-flavors. For
@@ -330,7 +330,7 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}, isAlter boo
 				switch p.Name {
 				case "primary_key":
 
-					pKeys = fmt.Sprintf("%s %s%s%s,", pKeys, qt, fd.FName, qt)
+					pKeys = pKeys + " " + qt + fd.FName + qt + ","
 
 					// int-type primary keys will autoincrement based on ROWID,
 					// but the speed increase comes with the cost of losing control
@@ -365,9 +365,9 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}, isAlter boo
 
 				case "default":
 					if fd.UnderGoType == "string" {
-						col.fDefault = fmt.Sprintf("DEFAULT '%s'", p.Value)
+						col.fDefault = "DEFAULT '" + p.Value + "'"
 					} else {
-						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
+						col.fDefault = "DEFAULT " + p.Value
 					}
 
 					if fd.UnderGoType == "bool" {
@@ -379,7 +379,7 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}, isAlter boo
 						default:
 
 						}
-						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
+						col.fDefault = "DEFAULT " + p.Value
 					}
 
 					if fd.UnderGoType == "time.Time" {
@@ -391,7 +391,7 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}, isAlter boo
 						default:
 
 						}
-						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
+						col.fDefault = "DEFAULT " + p.Value
 					}
 
 				case "nullable":
@@ -434,11 +434,11 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}, isAlter boo
 					default:
 
 					}
-					col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
+					col.fDefault = "DEFAULT " + p.Value
 				}
 
 				if p.Name == "primary_key" {
-					pKeys = fmt.Sprintf("%s %s%s%s,", pKeys, qt, fd.FName, qt)
+					pKeys = pKeys + " " + qt + fd.FName + qt + ","
 				}
 
 				if p.Name == "fkey" {
@@ -450,9 +450,9 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}, isAlter boo
 		fldef[idx].FType = col.fType
 
 		// add the current column to the schema
-		tableSchema = tableSchema + fmt.Sprintf("%s%s%s %s", qt, col.fName, qt, col.fType)
+		tableSchema = tableSchema + qt + col.fName + qt + " " + col.fType
 		if col.fPrimaryKey != "" {
-			tableSchema = tableSchema + fmt.Sprintf(" %s", col.fPrimaryKey)
+			tableSchema = tableSchema + " " + col.fPrimaryKey
 		}
 		if col.fAutoInc == true {
 			tableSchema = tableSchema + " AUTOINCREMENT"
@@ -475,7 +475,7 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}, isAlter boo
 	}
 	if tableSchema != "" && pKeys != "" {
 		pKeys = strings.TrimSuffix(pKeys, ",")
-		tableSchema = tableSchema + fmt.Sprintf("UNIQUE(%s)", pKeys)
+		tableSchema = tableSchema + "UNIQUE(" + pKeys + ")"
 	}
 
 	// SQLite needs the foreign-key constraints added in the CREATE TABLE schema when
@@ -498,7 +498,7 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}, isAlter boo
 					log.Printf("WARNING: unable to determine foreign-key-name based on %v.  SKIPPING.", v)
 					continue
 				}
-				tableSchema = fmt.Sprintf("%s CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s(%s),", tableSchema, fkn, v.FromField, v.RefTable, v.RefField)
+				tableSchema = tableSchema + " CONSTRAINT " + fkn + " FOREIGN KEY (" + v.FromField + ") REFERENCES " + v.RefTable + "(" + v.RefField + "),"
 			}
 		}
 	}
@@ -549,8 +549,7 @@ func (slf *SQLiteFlavor) DropTables(i ...interface{}) error {
 			if slf.log {
 				log.Printf("table %s exists - adding to drop schema...\n", tn)
 			}
-			// submit 1 at a time for mysql
-			dropSchema = dropSchema + fmt.Sprintf("DROP TABLE IF EXISTS %s; ", tn)
+			dropSchema = dropSchema + "DROP TABLE IF EXISTS " + tn + ";"
 			slf.ProcessSchema(dropSchema)
 			dropSchema = ""
 		}
@@ -579,7 +578,7 @@ func (slf *SQLiteFlavor) DestructiveResetTables(i ...interface{}) error {
 func (slf *SQLiteFlavor) ExistsTable(tn string) bool {
 
 	n := 0
-	reqQuery := fmt.Sprintf("SELECT COUNT(*) FROM sqlite_master WHERE type=\"table\" AND name=\"%s\";", tn)
+	reqQuery := "SELECT COUNT(*) FROM sqlite_master WHERE type=\"table\" AND name=\"" + tn + "\";"
 	slf.QsLog(reqQuery)
 	err := slf.db.QueryRow(reqQuery).Scan(&n)
 	if err != nil {
@@ -596,7 +595,7 @@ func (slf *SQLiteFlavor) ExistsTable(tn string) bool {
 // comply with the PublicDB interface definition.
 func (slf *SQLiteFlavor) DropIndex(tn string, in string) error {
 
-	indexSchema := fmt.Sprintf("DROP INDEX IF EXISTS %s;", in)
+	indexSchema := "DROP INDEX IF EXISTS " + in + ";"
 	slf.ProcessSchema(indexSchema)
 	return nil
 }
@@ -607,7 +606,7 @@ func (slf *SQLiteFlavor) DropIndex(tn string, in string) error {
 func (slf *SQLiteFlavor) ExistsIndex(tn string, in string) bool {
 
 	n := 0
-	indQuery := fmt.Sprintf("SELECT COUNT(*) FROM sqlite_master WHERE \"type\" = \"index\" AND \"name\" = \"%s\";", in)
+	indQuery := "SELECT COUNT(*) FROM sqlite_master WHERE \"type\" = \"index\" AND \"name\" = \"" + in + "\";"
 	slf.QsLog(indQuery)
 
 	slf.db.QueryRow(indQuery).Scan(&n)
@@ -627,9 +626,9 @@ func (slf *SQLiteFlavor) ExistsColumn(tn string, cn string) bool {
 
 		// colQuery := fmt.Sprintf("PRAGMA table_info(\"%s\")", tn)  // does not work - annoying
 		// without using the built-in PRAGMA, we have to rely on the table creation SQL
-		// that is stored in the sqlite_master table - not very exact.
+		// that is stored in the sqlite_master table.
 		sqlString := ""
-		colQuery := fmt.Sprintf("SELECT \"sql\" FROM sqlite_master WHERE \"type\" = \"table\" AND \"name\" = \"%s\"", tn)
+		colQuery := "SELECT \"sql\" FROM sqlite_master WHERE \"type\" = \"table\" AND \"name\" = \"" + tn + "\""
 		slf.QsLog(colQuery)
 
 		slf.db.QueryRow(colQuery).Scan(&sqlString)
@@ -652,7 +651,7 @@ func (slf *SQLiteFlavor) ExistsColumn(tn string, cn string) bool {
 // records.
 func (slf *SQLiteFlavor) AlterSequenceStart(name string, start int) error {
 
-	asQuery := fmt.Sprintf("UPDATE sqlite_sequence SET seq = %d WHERE name = '%s';", start, name)
+	asQuery := "UPDATE sqlite_sequence SET seq = " + strconv.Itoa(start) + " WHERE name = '" + name + "';"
 	slf.QsLog(asQuery)
 
 	result, err := slf.Exec(asQuery)
@@ -665,7 +664,7 @@ func (slf *SQLiteFlavor) AlterSequenceStart(name string, start int) error {
 	}
 
 	err = nil // redundant, but...
-	asQuery = fmt.Sprintf("INSERT INTO sqlite_sequence (name,seq) VALUES ('%s',%d);", name, start)
+	asQuery = "INSERT INTO sqlite_sequence (name,seq) VALUES ('" + name + "', " + strconv.Itoa(start) + ");"
 	slf.QsLog(asQuery)
 
 	result, err = slf.Exec(asQuery)
@@ -690,7 +689,7 @@ func (slf *SQLiteFlavor) GetNextSequenceValue(name string) (int, error) {
 		// colQuery := fmt.Sprintf("PRAGMA table_info(\"%s\")", tn)  // does not work - annoying
 		// without using the built-in PRAGMA, we have to rely on the table creation SQL
 		// that is stored in the sqlite_master table - not very exact.
-		seqQuery := fmt.Sprintf("SELECT \"seq\" FROM sqlite_sequence WHERE \"name\" = '%s'", name)
+		seqQuery := "SELECT \"seq\" FROM sqlite_sequence WHERE \"name\" = '" + name + "'"
 		slf.QsLog(seqQuery)
 
 		err := slf.db.QueryRow(seqQuery).Scan(&seq)
@@ -724,14 +723,14 @@ func (slf *SQLiteFlavor) CreateForeignKey(i interface{}, ft, rt, ff, rf string) 
 		return fmt.Errorf("unable to confirm table name in slf.CreateForeignKey")
 	}
 
-	// if the table is found to exist, copy it to a temp backup table
+	// if the table is found to exist, copy it to a temp backup table - Sprintf for legibility
 	if slf.ExistsTable(tn) {
 		bakTn = fmt.Sprintf("_%s_bak", ft)
-		q = fmt.Sprintf("DROP TABLE IF EXISTS %s;", bakTn)
+		q = "DROP TABLE IF EXISTS " + bakTn + ";"
 		cmds = append(cmds, q)
 		q = fmt.Sprintf("ALTER TABLE %s RENAME TO _%s_bak;", ft, ft)
 		cmds = append(cmds, q)
-		q = fmt.Sprintf("DROP TABLE IF EXISTS %s;", tn)
+		q = "DROP TABLE IF EXISTS " + tn + ";"
 		cmds = append(cmds, q)
 	}
 
@@ -758,11 +757,11 @@ func (slf *SQLiteFlavor) CreateForeignKey(i interface{}, ft, rt, ff, rf string) 
 	// copy the data back - note that this can happen even if there is a
 	// foreign-key violation due to the prior PRAGMA.  :)
 	if bakTn != "" {
-		q = fmt.Sprintf("INSERT INTO %s SELECT * FROM %s;", ft, bakTn)
+		q = "INSERT INTO " + ft + " SELECT * FROM " + bakTn + ";"
 		cmds = append(cmds, q)
 
 		// drop the backup table directly
-		q = fmt.Sprintf("DROP TABLE IF EXISTS %s;", bakTn)
+		q = "DROP TABLE IF EXISTS " + bakTn + ";"
 		cmds = append(cmds, q)
 	}
 
@@ -815,11 +814,11 @@ func (slf *SQLiteFlavor) DropForeignKey(i interface{}, ft, fkn string) error {
 	// if the table is found to exist, copy it to a temp backup table
 	if slf.ExistsTable(tn) {
 		bakTn = fmt.Sprintf("_%s_bak", ft)
-		q = fmt.Sprintf("DROP TABLE IF EXISTS %s;", bakTn)
+		q = "DROP TABLE IF EXISTS " + bakTn + ";"
 		cmds = append(cmds, q)
 		q = fmt.Sprintf("ALTER TABLE %s RENAME TO _%s_bak;", ft, ft)
 		cmds = append(cmds, q)
-		q = fmt.Sprintf("DROP TABLE IF EXISTS %s;", tn)
+		q = "DROP TABLE IF EXISTS " + tn + ";"
 		cmds = append(cmds, q)
 	}
 
@@ -829,11 +828,11 @@ func (slf *SQLiteFlavor) DropForeignKey(i interface{}, ft, fkn string) error {
 
 	// copy the data back
 	if bakTn != "" {
-		q = fmt.Sprintf("INSERT INTO %s SELECT * FROM %s;", ft, bakTn)
+		q = "INSERT INTO " + ft + " SELECT * FROM " + bakTn + ";"
 		cmds = append(cmds, q)
 
 		// drop the backup table directly
-		q = fmt.Sprintf("DROP TABLE IF EXISTS %s;", bakTn)
+		q = "DROP TABLE IF EXISTS " + bakTn + ";"
 		cmds = append(cmds, q)
 	}
 
@@ -923,14 +922,14 @@ func (slf *SQLiteFlavor) Create(ent interface{}) error {
 		if v == "DEFAULT" {
 			continue
 		}
-		insFlds = fmt.Sprintf("%s %s, ", insFlds, k)
+		insFlds = insFlds + " " + k + ", "
 		insVals = fmt.Sprintf("%s %s, ", insVals, v)
 	}
 	insFlds = strings.TrimSuffix(insFlds, ", ")
 	insVals = strings.TrimSuffix(insVals, ", ")
 
 	// build the sqlite insert query
-	insQuery := fmt.Sprintf("INSERT OR FAIL INTO %s (%s) VALUES (%s);", info.tn, insFlds, insVals)
+	insQuery := "INSERT OR FAIL INTO " + info.tn + " (" + insFlds + ") VALUES (" + insVals + ");"
 	slf.QsLog(insQuery)
 
 	// clear the source data - deals with non-persistet columns
@@ -948,7 +947,7 @@ func (slf *SQLiteFlavor) Create(ent interface{}) error {
 		return err
 	}
 
-	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s = %d LIMIT 1;", info.tn, info.incKeyName, lastID)
+	selQuery := "SELECT * FROM " + info.tn + " WHERE " + info.incKeyName + " = " + strconv.FormatInt(lastID, 10) + " LIMIT 1;"
 	slf.QsLog(selQuery)
 
 	err = slf.db.QueryRowx(selQuery).StructScan(info.ent) //.MapScan(info.resultMap) // SliceScan
@@ -996,7 +995,7 @@ func (slf *SQLiteFlavor) Update(ent interface{}) error {
 	}
 	colList = strings.TrimSuffix(colList, ", ")
 
-	updQuery := fmt.Sprintf("UPDATE OR FAIL %s SET %s WHERE %s;", info.tn, colList, keyList)
+	updQuery := "UPDATE OR FAIL " + info.tn + " SET " + colList + " WHERE " + keyList + ";"
 	slf.QsLog(updQuery)
 
 	// clear the source data - deals with non-persistent columns
@@ -1010,7 +1009,7 @@ func (slf *SQLiteFlavor) Update(ent interface{}) error {
 	}
 
 	// read the updated row
-	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s LIMIT 1;", info.tn, keyList)
+	selQuery := "SELECT * FROM " + info.tn + " WHERE " + keyList + " LIMIT 1;"
 	slf.QsLog(selQuery)
 
 	err = slf.db.QueryRowx(selQuery).StructScan(info.ent) //.MapScan(info.resultMap) // SliceScan
@@ -1020,149 +1019,3 @@ func (slf *SQLiteFlavor) Update(ent interface{}) error {
 	info.entValue = reflect.ValueOf(info.ent)
 	return nil
 }
-
-// // GetEntitiesWithCommands is the experimental replacement for all get-set ops
-//func (slf *SQLiteFlavor) GetEntitiesWithCommands(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (interface{}, error) {
-
-// 	fmt.Println()
-// 	fmt.Println("GetEntitiesWithCommands received params:", params)
-// 	fmt.Println("GetEntitiesWithCommands received cmdMap:", cmdMap)
-// 	fmt.Println()
-
-// 	var err error
-// 	var count uint64
-// 	var row *sqlx.Row
-// 	paramString := ""
-// 	selQuery := ""
-
-// 	// get the underlying data type of the interface{}
-// 	entTypeElem := reflect.TypeOf(ents).Elem()
-// 	// fmt.Println("entTypeElem:", entTypeElem)
-
-// 	// create a struct from the type
-// 	testVar := reflect.New(entTypeElem)
-
-// 	// determine the db table name
-// 	tn := common.GetTableName(ents)
-
-// 	// are there any parameters to include in the query?
-// 	var pv []interface{}
-// 	if params != nil && len(params) > 0 {
-// 		paramString = " WHERE"
-// 		for i := range params {
-// 			paramString = fmt.Sprintf("%s %s %s ? %s", paramString, common.CamelToSnake(params[i].FieldName), params[i].Operand, params[i].NextOperator)
-// 			pv = append(pv, params[i].ParamValue)
-// 		}
-// 	}
-// 	fmt.Println("constructed paramString:", paramString)
-
-// 	// received a $count command?  this supercedes all, as it should not
-// 	// be mixed with any other $<commands>.
-// 	_, ok := cmdMap["count"]
-// 	if ok {
-// 		if paramString == "" {
-// 			selQuery = fmt.Sprintf("SELECT COUNT(*) FROM %s;", tn)
-// 			slf.QsLog(selQuery)
-// 			row = slf.ExecuteQueryRowx(selQuery)
-// 		} else {
-// 			selQuery = fmt.Sprintf("SELECT COUNT(*) FROM %s%s;", tn, paramString)
-// 			slf.QsLog(selQuery)
-// 			row = slf.ExecuteQueryRowx(selQuery, pv...)
-// 		}
-
-// 		err = row.Scan(&count)
-// 		if err != nil {
-// 			log.Fatal(err)
-// 		}
-// 		return count, nil
-// 	}
-
-// 	// no $count command - build query
-// 	var obString string
-// 	var limitString string
-// 	var offsetString string
-// 	var adString string
-
-// 	// received $orderby command?
-// 	obField, ok := cmdMap["orderby"]
-// 	if ok {
-// 		obString = fmt.Sprintf(" ORDER BY %s", obField.(string))
-// 	}
-
-// 	// received $asc command?
-// 	_, ok = cmdMap["asc"]
-// 	if ok {
-// 		adString = " ASC"
-// 	}
-
-// 	// received $desc command?
-// 	_, ok = cmdMap["desc"]
-// 	if ok {
-// 		adString = " DESC"
-// 	}
-
-// 	// received $limit command?
-// 	limField, ok := cmdMap["limit"]
-// 	if ok {
-// 		limitString = fmt.Sprintf(" LIMIT %v", limField)
-// 	}
-
-// 	// received $offset command?
-// 	offField, ok := cmdMap["offset"]
-// 	if ok {
-// 		offsetString = fmt.Sprintf(" OFFSET %v", offField)
-
-// 		// SQLite requires a limit if offset is requested. -1 is open-ended limit.
-// 		if limitString == "" {
-// 			limitString = " LIMIT -1"
-// 		}
-// 	}
-
-// 	// -- SELECT COUNT(*) FROM equipment;
-// 	// -- SELECT * FROM equipment;
-// 	// -- SELECT * FROM equipment LIMIT 2;
-// 	// -- SELECT * FROM equipment LIMIT -1 OFFSET 2;
-// 	// -- SELECT * FROM equipment LIMIT 2 OFFSET 1;
-// 	// -- SELECT * FROM equipment ORDER BY equipment_num DESC;
-// 	// -- SELECT * FROM equipment ORDER BY equipment_num ASC;
-// 	// -- SELECT * FROM equipment ORDER BY equipment_num ASC LIMIT -1 OFFSET 2;
-
-// 	// if $asc or $desc were specifed with no $orderby, default to order by id
-// 	if obString == "" && adString != "" {
-// 		obString = " ORDER BY id"
-// 	}
-
-// 	selQuery = fmt.Sprintf("SELECT * FROM %s%s", tn, paramString)
-// 	selQuery = slf.db.Rebind(selQuery)
-// 	fmt.Println("rebound selQuery:", selQuery)
-
-// 	selQuery = fmt.Sprintf("%s%s%s%s%s;", selQuery, obString, adString, limitString, offsetString)
-// 	fmt.Println("selQuery fully constructed:", selQuery)
-// 	slf.QsLog(selQuery)
-
-// 	// read the rows
-// 	fmt.Println("pv...", pv)
-// 	rows, err := slf.db.Queryx(selQuery, pv...)
-// 	if err != nil {
-// 		log.Printf("GetEntities for table &s returned error: %v\n", err.Error())
-// 		return nil, err
-// 	}
-// 	defer rows.Close()
-
-// 	// iterate over the rows collection and put the results
-// 	// into the ents interface (slice)
-// 	entsv := reflect.ValueOf(ents)
-// 	for rows.Next() {
-// 		err = rows.StructScan(testVar.Interface())
-// 		if err != nil {
-// 			fmt.Println("scan error:", err)
-// 			return nil, err
-// 		}
-// 		// fmt.Println(testVar)
-// 		entsv = reflect.Append(entsv, testVar.Elem())
-// 	}
-
-// 	ents = entsv.Interface()
-// 	// fmt.Println("ents:", ents)
-// 	return entsv.Interface(), nil
-// }

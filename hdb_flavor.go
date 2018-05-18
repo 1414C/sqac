@@ -392,7 +392,6 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 
 	indexes := make(map[string]IndexInfo)
 	fKeys := make([]FKeyInfo, 0)
-	// tableSchema := fmt.Sprintf("CREATE COLUMN TABLE %s%s%s (", qt, tn, qt)
 	tableSchema := "CREATE COLUMN TABLE " + qt + tn + qt + " ("
 
 	// get a list of the field names, go-types and db attributes.
@@ -474,7 +473,6 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 					if p.Value == "inc" {
 						hdbSeq.TableName = strings.ToUpper(tn)
 						hdbSeq.FieldName = strings.ToUpper(fd.FName)
-						// hdbSeq.SeqName = fmt.Sprintf("SEQ_%s_%s", hdbSeq.TableName, hdbSeq.FieldName)
 						hdbSeq.SeqName = "SEQ_" + hdbSeq.TableName + "_" + hdbSeq.FieldName
 						if hdbSeq.Start == 0 {
 							hdbSeq.Start = 1
@@ -581,10 +579,8 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 
 		// add the current column to the schema
 		if col.uType != "" {
-			// tableSchema = tableSchema + fmt.Sprintf("%s%s%s %s", qt, col.fName, qt, col.uType)
 			tableSchema = tableSchema + qt + col.fName + qt + " " + col.uType
 		} else {
-			// tableSchema = tableSchema + fmt.Sprintf("%s%s%s %s", qt, col.fName, qt, col.fType)
 			tableSchema = tableSchema + qt + col.fName + qt + " " + col.fType
 		}
 		if col.fAutoInc == true {
@@ -612,7 +608,6 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 	}
 	if tableSchema != "" && pKeys != "" {
 		pKeys = strings.TrimSuffix(pKeys, ",")
-		// tableSchema = tableSchema + fmt.Sprintf("PRIMARY KEY (%s) )", pKeys)
 		tableSchema = tableSchema + "PRIMARY KEY (" + pKeys + ") )"
 	}
 	tableSchema = tableSchema + ";"
@@ -784,7 +779,6 @@ func (hf *HDBFlavor) AlterTables(i ...interface{}) error {
 		// go through the latest version of the model and check each
 		// field against its definition in the database.
 		qt := hf.GetDBQuote()
-		// alterSchema := fmt.Sprintf("ALTER TABLE %s%s%s ADD (", qt, tn, qt)
 		alterSchema := "ALTER TABLE " + qt + tn + qt + " ADD ("
 		var cols []string
 
@@ -792,7 +786,6 @@ func (hf *HDBFlavor) AlterTables(i ...interface{}) error {
 			// new columns first
 			if !hf.ExistsColumn(tn, fd.FName) && fd.NoDB == false {
 
-				// colSchema := fmt.Sprintf("%s%s%s %s", qt, fd.FName, qt, fd.FType)
 				colSchema := qt + fd.FName + qt + " " + fd.FType
 				for _, p := range fd.SqacPairs {
 					switch p.Name {
@@ -803,7 +796,6 @@ func (hf *HDBFlavor) AlterTables(i ...interface{}) error {
 					case "default":
 						switch fd.UnderGoType {
 						case "string":
-							// colSchema = fmt.Sprintf("%s DEFAULT '%s'", colSchema, p.Value)
 							colSchema = colSchema + " DEFAULT '" + p.Value + "'"
 
 						case "bool":
@@ -819,13 +811,11 @@ func (hf *HDBFlavor) AlterTables(i ...interface{}) error {
 							}
 
 						default:
-							// colSchema = fmt.Sprintf("%s DEFAULT %s", colSchema, p.Value)
 							colSchema = colSchema + " DEFAULT " + p.Value
 						}
 
 					case "nullable":
 						if p.Value == "false" {
-							// colSchema = fmt.Sprintf("%s NOT NULL", colSchema)
 							colSchema = colSchema + " NOT NULL"
 						}
 
@@ -837,10 +827,9 @@ func (hf *HDBFlavor) AlterTables(i ...interface{}) error {
 			}
 		}
 
-		// ALTER TABLE ADD COLUMNS...
+		// ALTER TABLE ADD ( new_column1 nvarchar(255) NOT NULL DEFAULT 'nc1_default', new_column2 ...
 		if len(cols) > 0 {
 			for _, c := range cols {
-				// alterSchema = fmt.Sprintf("%s %s", alterSchema, c)
 				alterSchema = alterSchema + " " + c
 			}
 			alterSchema = strings.TrimSuffix(alterSchema, ",") + ");"
@@ -890,7 +879,6 @@ func (hf *HDBFlavor) AlterTables(i ...interface{}) error {
 func (hf *HDBFlavor) ExistsTable(tn string) bool {
 
 	n := 0
-	// etQuery := fmt.Sprintf("SELECT COUNT(*) FROM Sys.Tables WHERE TABLE_NAME = '%s';", strings.ToUpper(tn))
 	etQuery := "SELECT COUNT(*) FROM Sys.Tables WHERE TABLE_NAME = '" + strings.ToUpper(tn) + "';"
 	hf.QsLog(etQuery)
 	hf.db.QueryRow(etQuery).Scan(&n)
@@ -979,7 +967,6 @@ func (hf *HDBFlavor) getSequenceName(name string) (seqName string, err error) {
 	}
 
 	// identify the column_id associated with the sequence
-	// seqQuery := fmt.Sprintf("SELECT column_id FROM table_columns WHERE table_name = '%s' and column_name = '%s';", tn, fn)
 	seqQuery := "SELECT column_id FROM table_columns WHERE table_name = '" + tn + "' and column_name = '" + fn + "';"
 	hf.QsLog(seqQuery)
 
@@ -1010,7 +997,6 @@ func (hf *HDBFlavor) ExistsSequence(sn string) bool {
 
 	// search for sequence by name
 	seqCount := 0
-	// seqNameQuery := fmt.Sprintf("SELECT COUNT(*) FROM Sys.Sequences WHERE SEQUENCE_NAME = '%s'", strings.ToUpper(sn))
 	seqNameQuery := "SELECT COUNT(*) FROM Sys.Sequences WHERE SEQUENCE_NAME = '" + strings.ToUpper(sn) + "';"
 	hf.QsLog(seqNameQuery)
 
@@ -1038,7 +1024,6 @@ func (hf *HDBFlavor) CreateSequence(sn string, start int) {
 	}
 
 	// build the sequence creation DDL
-	// crtSequence := fmt.Sprintf("CREATE SEQUENCE %s START WITH %d INCREMENT BY 1;", strings.ToUpper(sn), start)
 	crtSequence := "CREATE SEQUENCE " + strings.ToUpper(sn) + " START WITH " + strconv.Itoa(start) + " INCREMENT BY 1;"
 	hf.QsLog(crtSequence)
 
@@ -1071,9 +1056,9 @@ func (hf *HDBFlavor) DropSequence(sn string) error {
 func (hf *HDBFlavor) GetNextSequenceValue(name string) (int, error) {
 
 	var nextVal int
-	// nextQuery := fmt.Sprintf("SELECT %s.NEXTVAL FROM dummy;", strings.ToUpper(name))
 	nextQuery := "SELECT " + strings.ToUpper(name) + ".NEXTVAL FROM dummy;"
 	hf.QsLog(nextQuery)
+
 	err := hf.db.QueryRow(nextQuery).Scan(&nextVal)
 	if err != nil {
 		return 0, err
@@ -1087,11 +1072,9 @@ func (hf *HDBFlavor) ExistsForeignKeyByName(i interface{}, fkn string) (bool, er
 
 	var count uint64
 	tn := strings.ToUpper(common.GetTableName(i))
-
-	// fkQuery := fmt.Sprintf("SELECT COUNT(*) FROM Sys.Referential_Constraints WHERE TABLE_NAME='%s' AND CONSTRAINT_NAME='%s';", tn, strings.ToUpper(fkn))
 	fkQuery := "SELECT COUNT(*) FROM Sys.Referential_Constraints WHERE TABLE_NAME='" + tn + "' AND CONSTRAINT_NAME='" + strings.ToUpper(fkn) + "';"
-
 	hf.QsLog(fkQuery)
+
 	err := hf.Get(&count, fkQuery)
 	if err != nil {
 		return false, nil
@@ -1144,18 +1127,14 @@ func (hf *HDBFlavor) Create(ent interface{}) error {
 
 		// pull an id - this is ugly, but hdb does not have a reliable
 		// mechanism to report a new row-id.  Dynamic SQL in a SP may
-		// be better, but opens the door for bad behaviour.  Try this
-		// for now.
+		// be better, but would open the door for bad behaviour.
 		if strings.Compare(k, info.incKeyName) == 0 {
-			// keyQuery := fmt.Sprintf("SELECT SEQ_%s_%s.NEXTVAL FROM DUMMY;", strings.ToUpper(info.tn), strings.ToUpper(info.incKeyName))
 			keyQuery := "SELECT SEQ_" + strings.ToUpper(info.tn) + "_" + strings.ToUpper(info.incKeyName) + ".NEXTVAL FROM DUMMY;"
 			hf.QsLog(keyQuery)
 			err = hf.db.QueryRowx(keyQuery).Scan(&incKey)
 			if err != nil {
 				return err
 			}
-			// insFlds = fmt.Sprintf("%s%s, ", insFlds, k)
-			// insVals = fmt.Sprintf("%s%v, ", insVals, incKey)
 			insFlds = insFlds + k + ", "
 			insVals = insVals + strconv.Itoa(incKey) + ", "
 			continue
@@ -1164,7 +1143,6 @@ func (hf *HDBFlavor) Create(ent interface{}) error {
 		if v == "DEFAULT" {
 			continue
 		}
-		// insFlds = fmt.Sprintf("%s%s, ", insFlds, k)
 		insFlds = insFlds + k + ", "
 		insVals = fmt.Sprintf("%s%s, ", insVals, v)
 	}
@@ -1173,7 +1151,6 @@ func (hf *HDBFlavor) Create(ent interface{}) error {
 	insVals = strings.TrimSuffix(insVals, ", ") + ")"
 
 	// build the hdb insert query
-	// insQuery := fmt.Sprintf("INSERT INTO %s %s VALUES %s;", info.tn, insFlds, insVals)
 	insQuery := "INSERT INTO " + info.tn + " " + insFlds + " VALUES " + insVals + ";"
 	hf.QsLog(insQuery)
 
@@ -1187,7 +1164,6 @@ func (hf *HDBFlavor) Create(ent interface{}) error {
 		return err
 	}
 
-	// selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s = %v;", info.tn, info.incKeyName, incKey)
 	selQuery := "SELECT * FROM " + info.tn + " WHERE " + info.incKeyName + " = " + strconv.Itoa(incKey) + ";"
 	hf.QsLog(selQuery)
 
@@ -1235,7 +1211,6 @@ func (hf *HDBFlavor) Update(ent interface{}) error {
 	}
 	colList = strings.TrimSuffix(colList, ", ")
 
-	// updQuery := fmt.Sprintf("UPDATE %s SET %s WHERE %s;", info.tn, colList, keyList)
 	updQuery := "UPDATE " + info.tn + " SET " + colList + " WHERE " + keyList + ";"
 	hf.QsLog(updQuery)
 
@@ -1250,7 +1225,6 @@ func (hf *HDBFlavor) Update(ent interface{}) error {
 	}
 
 	// read the updated row
-	// selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %v;", info.tn, keyList)
 	selQuery := "SELECT * FROM " + info.tn + " WHERE " + keyList + ";"
 	hf.QsLog(selQuery)
 

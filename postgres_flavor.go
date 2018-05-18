@@ -148,7 +148,7 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 	var sequences []common.SqacPair
 	indexes := make(map[string]IndexInfo)
 	fKeys := make([]FKeyInfo, 0)
-	tableSchema := fmt.Sprintf("CREATE TABLE %s (", tn)
+	tableSchema := "CREATE TABLE " + tn + " ("
 
 	// get a list of the field names, go-types and db attributes.
 	// TagReader is a common function across db-flavors. For
@@ -227,7 +227,7 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 				// 	col.uType = p.Value
 
 				case "default":
-					col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
+					col.fDefault = "DEFAULT " + p.Value
 
 				case "nullable":
 					if p.Value == "false" {
@@ -279,7 +279,7 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 					}
 
 				case "default":
-					col.fDefault = fmt.Sprintf("DEFAULT '%s'", p.Value)
+					col.fDefault = "DEFAULT '" + p.Value + "'"
 
 				case "constraint":
 					if p.Value == "unique" {
@@ -323,7 +323,7 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 					}
 
 				case "default":
-					col.fDefault = fmt.Sprintf("DEFAULT '%s'", p.Value)
+					col.fDefault = "DEFAULT '" + p.Value + "'"
 
 				case "constraint":
 					if p.Value == "unique" {
@@ -360,7 +360,7 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 					pKeys = pKeys + fd.FName + ","
 
 				case "default":
-					col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
+					col.fDefault = "DEFAULT " + p.Value
 
 				case "nullable":
 					if p.Value == "false" {
@@ -399,9 +399,9 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 
 				case "default":
 					if p.Value != "eot" {
-						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
+						col.fDefault = "DEFAULT " + p.Value
 					} else {
-						col.fDefault = fmt.Sprintf("DEFAULT %s", "make_timestamptz(9999, 12, 31, 23, 59, 59.9)")
+						col.fDefault = "DEFAULT " + "make_timestamptz(9999, 12, 31, 23, 59, 59.9)"
 					}
 
 				case "index":
@@ -433,9 +433,9 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 				switch p.Name {
 				case "default":
 					if p.Value != "eot" {
-						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
+						col.fDefault = "DEFAULT " + p.Value
 					} else {
-						col.fDefault = fmt.Sprintf("DEFAULT %s", "make_timestamptz(9999, 12, 31, 23, 59, 59.9)")
+						col.fDefault = "DEFAULT " + "make_timestamptz(9999, 12, 31, 23, 59, 59.9)"
 					}
 
 				case "fkey":
@@ -452,9 +452,9 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 
 		// add the current column to the schema
 		if col.uType != "" {
-			tableSchema = tableSchema + fmt.Sprintf("%s %s", col.fName, col.uType)
+			tableSchema = tableSchema + col.fName + " " + col.uType
 		} else {
-			tableSchema = tableSchema + fmt.Sprintf("%s %s", col.fName, col.fType)
+			tableSchema = tableSchema + col.fName + " " + col.fType
 		}
 		if col.fNullable != "" {
 			tableSchema = tableSchema + " " + col.fNullable
@@ -475,7 +475,7 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 	}
 	if tableSchema != "" && pKeys != "" {
 		pKeys = strings.TrimSuffix(pKeys, ",")
-		tableSchema = tableSchema + fmt.Sprintf("CONSTRAINT %s_pkey PRIMARY KEY (%s) );", strings.ToLower(tn), pKeys)
+		tableSchema = tableSchema + "CONSTRAINT " + strings.ToLower(tn) + "_pkey PRIMARY KEY (" + pKeys + ") );"
 	}
 
 	// fill the return structure passing out the CREATE TABLE schema, and component info
@@ -529,7 +529,7 @@ func (pf *PostgresFlavor) DropTables(i ...interface{}) error {
 			if pf.log {
 				log.Printf("table %s exists - adding to drop schema...\n", tn)
 			}
-			dropSchema = dropSchema + fmt.Sprintf("DROP TABLE IF EXISTS %s;", tn)
+			dropSchema = dropSchema + "DROP TABLE IF EXISTS " + tn + ";"
 		}
 	}
 	if dropSchema != "" {
@@ -591,14 +591,14 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 
 		// go through the latest version of the model and check each
 		// field against its definition in the database.
-		alterSchema := fmt.Sprintf("ALTER TABLE IF EXISTS %s", tn)
+		alterSchema := "ALTER TABLE IF EXISTS " + tn
 		var cols []string
 
 		for _, fd := range tc.flDef {
 			// new columns first
 			if !pf.ExistsColumn(tn, fd.FName) && fd.NoDB == false {
 
-				colSchema := fmt.Sprintf("ADD COLUMN %s %s", fd.FName, fd.FType)
+				colSchema := "ADD COLUMN " + fd.FName + " " + fd.FType
 				for _, p := range fd.SqacPairs {
 					switch p.Name {
 					case "primary_key":
@@ -607,14 +607,14 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 
 					case "default":
 						if fd.UnderGoType == "string" {
-							colSchema = fmt.Sprintf("%s DEFAULT '%s'", colSchema, p.Value)
+							colSchema = colSchema + " DEFAULT '" + p.Value + "'"
 						} else {
-							colSchema = fmt.Sprintf("%s DEFAULT %s", colSchema, p.Value)
+							colSchema = colSchema + " DEFAULT " + p.Value
 						}
 
 					case "nullable":
 						if p.Value == "false" {
-							colSchema = fmt.Sprintf("%s NOT NULL", colSchema)
+							colSchema = colSchema + " NOT NULL"
 						}
 
 					default:
@@ -628,7 +628,7 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 		// ALTER TABLE ADD COLUMNS...
 		if len(cols) > 0 {
 			for _, c := range cols {
-				alterSchema = fmt.Sprintf("%s %s", alterSchema, c)
+				alterSchema = alterSchema + " " + c
 			}
 			alterSchema = strings.TrimSuffix(alterSchema, ",")
 			pf.ProcessSchema(alterSchema)
@@ -694,7 +694,7 @@ func (pf *PostgresFlavor) DestructiveResetTables(i ...interface{}) error {
 // consistency is maintained, this approach is fine.
 func (pf *PostgresFlavor) ExistsTable(tn string) bool {
 
-	reqQuery := fmt.Sprintf("SELECT to_regclass('public.%s');", tn)
+	reqQuery := "SELECT to_regclass('public." + tn + "');"
 	pf.QsLog(reqQuery)
 
 	rows, err := pf.db.Query(reqQuery)
@@ -757,7 +757,7 @@ func (pf *PostgresFlavor) ExistsIndex(tn string, in string) bool {
 // tn is ignored for Postgres.
 func (pf *PostgresFlavor) DropIndex(tn string, in string) error {
 
-	indexSchema := fmt.Sprintf("DROP INDEX IF EXISTS %s;", in)
+	indexSchema := "DROP INDEX IF EXISTS " + in + ";"
 	pf.ProcessSchema(indexSchema)
 	return nil
 }
@@ -767,7 +767,7 @@ func (pf *PostgresFlavor) DropIndex(tn string, in string) error {
 func (pf *PostgresFlavor) ExistsSequence(sn string) bool {
 
 	var params []interface{}
-	reqQuery := fmt.Sprintf("SELECT relname FROM pg_class WHERE relkind = 'S' AND relname::name = $1")
+	reqQuery := "SELECT relname FROM pg_class WHERE relkind = 'S' AND relname::name = $1"
 	params = append(params, sn)
 	pf.QsLog(reqQuery, params...)
 
@@ -792,7 +792,7 @@ func (pf *PostgresFlavor) ExistsSequence(sn string) bool {
 // database in the public schema.  Panics on error.
 func (pf *PostgresFlavor) CreateSequence(sn string, start int) {
 
-	seqSchema := fmt.Sprintf("CREATE SEQUENCE %s START %d;", sn, start)
+	seqSchema := "CREATE SEQUENCE " + sn + " START " + strconv.Itoa(start) + ";"
 	pf.ProcessSchema(seqSchema)
 }
 
@@ -801,7 +801,7 @@ func (pf *PostgresFlavor) CreateSequence(sn string, start int) {
 // created on the db.  There are no safeguards here.
 func (pf *PostgresFlavor) AlterSequenceStart(sn string, start int) error {
 
-	seqSchema := fmt.Sprintf("ALTER SEQUENCE IF EXISTS %s RESTART WITH %d;", sn, start)
+	seqSchema := "ALTER SEQUENCE IF EXISTS " + sn + " RESTART WITH " + strconv.Itoa(start) + ";"
 	pf.ProcessSchema(seqSchema)
 	return nil
 }
@@ -814,7 +814,7 @@ func (pf *PostgresFlavor) AlterSequenceStart(sn string, start int) error {
 func (pf *PostgresFlavor) GetNextSequenceValue(name string) (int, error) {
 
 	// determine the column name of the primary key
-	pKeyQuery := fmt.Sprintf("SELECT c.column_name, c.ordinal_position FROM information_schema.key_column_usage AS c LEFT JOIN information_schema.table_constraints AS t ON t.constraint_name = c.constraint_name WHERE t.table_name = '%s' AND t.constraint_type = 'PRIMARY KEY';", name)
+	pKeyQuery := "SELECT c.column_name, c.ordinal_position FROM information_schema.key_column_usage AS c LEFT JOIN information_schema.table_constraints AS t ON t.constraint_name = c.constraint_name WHERE t.table_name = '" + name + "' AND t.constraint_type = 'PRIMARY KEY';"
 	var keyColumn string
 	var keyColumnPos int
 	pf.QsLog(pKeyQuery)
@@ -825,11 +825,11 @@ func (pf *PostgresFlavor) GetNextSequenceValue(name string) (int, error) {
 	}
 
 	// Postgres sequences have format '<tablename>_<keyColumn>_seq'
-	seqName := fmt.Sprintf("%s_%s_seq", name, keyColumn)
+	seqName := name + "_" + keyColumn + "_seq"
 
 	if pf.ExistsSequence(seqName) {
 		seq := 0
-		seqQuery := fmt.Sprintf("SELECT nextval('%s');", seqName)
+		seqQuery := "SELECT nextval('" + seqName + "');"
 		pf.QsLog(seqQuery)
 
 		err := pf.db.QueryRow(seqQuery).Scan(&seq)
@@ -848,7 +848,7 @@ func (pf *PostgresFlavor) ExistsForeignKeyByName(i interface{}, fkn string) (boo
 	var count uint64
 	tn := common.GetTableName(i)
 
-	fkQuery := fmt.Sprintf("SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_name='%s' AND table_name='%s';", fkn, tn)
+	fkQuery := "SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_name='" + fkn + "' AND table_name='" + tn + "';"
 	pf.QsLog(fkQuery)
 
 	err := pf.Get(&count, fkQuery)
@@ -891,8 +891,7 @@ func (pf *PostgresFlavor) Create(ent interface{}) error {
 	}
 
 	// build the postgres insert query
-	insQuery := fmt.Sprintf("INSERT INTO %s", info.tn)
-	insQuery = fmt.Sprintf("%s %s VALUES %s RETURNING *;", insQuery, info.fList, info.vList)
+	insQuery := "INSERT INTO " + info.tn + info.fList + " VALUES " + info.vList + " RETURNING *;"
 	pf.QsLog(insQuery)
 
 	// clear the source data - deals with non-persistent columns
@@ -930,6 +929,7 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 			log.Println("CRUD UPDATED TYPE:", fType)
 		}
 
+		// leave as Sprintf
 		if fType == "string" {
 			keyList = fmt.Sprintf("%s %s = '%v' AND", keyList, k, s)
 		} else {
@@ -939,9 +939,7 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 
 	keyList = strings.TrimSuffix(keyList, " AND")
 	keyList = keyList + " RETURNING *;"
-
-	updQuery := fmt.Sprintf("UPDATE %s SET", info.tn)
-	updQuery = fmt.Sprintf("%s %s = %s WHERE%s", updQuery, info.fList, info.vList, keyList)
+	updQuery := "UPDATE " + info.tn + " SET " + info.fList + " = " + info.vList + " WHERE" + keyList
 	pf.QsLog(updQuery)
 
 	// clear the source data - deals with non-persistet columns
@@ -956,145 +954,3 @@ func (pf *PostgresFlavor) Update(ent interface{}) error {
 	info.entValue = reflect.ValueOf(info.ent)
 	return nil
 }
-
-// // GetEntitiesWithCommands is the experimental replacement for all get-set ops
-//func (pf *PostgresFlavor) GetEntitiesWithCommands(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (interface{}, error) {
-
-// 	fmt.Println()
-// 	fmt.Println("GetEntitiesWithCommands received params:", params)
-// 	fmt.Println("GetEntitiesWithCommands received cmdMap:", cmdMap)
-// 	fmt.Println()
-
-// 	var err error
-// 	var count uint64
-// 	var row *sqlx.Row
-// 	paramString := ""
-// 	selQuery := ""
-
-// 	// get the underlying data type of the interface{}
-// 	entTypeElem := reflect.TypeOf(ents).Elem()
-// 	// fmt.Println("entTypeElem:", entTypeElem)
-
-// 	// create a struct from the type
-// 	testVar := reflect.New(entTypeElem)
-
-// 	// determine the db table name
-// 	tn := common.GetTableName(ents)
-
-// 	// are there any parameters to include in the query?
-// 	var pv []interface{}
-// 	if params != nil && len(params) > 0 {
-// 		paramString = " WHERE"
-// 		for i := range params {
-// 			paramString = fmt.Sprintf("%s %s %s ? %s", paramString, common.CamelToSnake(params[i].FieldName), params[i].Operand, params[i].NextOperator)
-// 			pv = append(pv, params[i].ParamValue)
-// 		}
-// 	}
-// 	fmt.Println("constructed paramString:", paramString)
-
-// 	// received a $count command?  this supercedes all, as it should not
-// 	// be mixed with any other $<commands>.
-// 	_, ok := cmdMap["count"]
-// 	if ok {
-// 		if paramString == "" {
-// 			selQuery = fmt.Sprintf("SELECT COUNT(*) FROM %s;", tn)
-// 			pf.QsLog(selQuery)
-// 			row = pf.ExecuteQueryRowx(selQuery)
-// 		} else {
-// 			selQuery = fmt.Sprintf("SELECT COUNT(*) FROM %s%s;", tn, paramString)
-// 			pf.QsLog(selQuery)
-// 			row = pf.ExecuteQueryRowx(selQuery, pv...)
-// 		}
-
-// 		err = row.Scan(&count)
-// 		if err != nil {
-// 			log.Fatal(err)
-// 		}
-// 		return count, nil
-// 	}
-
-// 	// no $count command - build query
-// 	var obString string
-// 	var limitString string
-// 	var offsetString string
-// 	var adString string
-
-// 	// received $orderby command?
-// 	obField, ok := cmdMap["orderby"]
-// 	if ok {
-// 		obString = fmt.Sprintf(" ORDER BY %s", obField.(string))
-// 	}
-
-// 	// received $asc command?
-// 	_, ok = cmdMap["asc"]
-// 	if ok {
-// 		adString = " ASC"
-// 	}
-
-// 	// received $desc command?
-// 	_, ok = cmdMap["desc"]
-// 	if ok {
-// 		adString = " DESC"
-// 	}
-
-// 	// received $limit command?
-// 	limField, ok := cmdMap["limit"]
-// 	if ok {
-// 		limitString = fmt.Sprintf(" LIMIT %v", limField)
-// 	}
-
-// 	// received $offset command?
-// 	offField, ok := cmdMap["offset"]
-// 	if ok {
-// 		offsetString = fmt.Sprintf(" OFFSET %v", offField)
-// 	}
-
-// 	// -- SELECT COUNT(*) FROM library;
-// 	// -- SELECT * FROM library;
-// 	// -- SELECT * FROM library LIMIT 2;
-// 	// -- SELECT * FROM library OFFSET 2;
-// 	// -- SELECT * FROM library LIMIT 2 OFFSET 1;
-// 	// -- SELECT * FROM library ORDER BY ID DESC;
-// 	// -- SELECT * FROM library ORDER BY ID ASC;
-// 	// -- SELECT * FROM library ORDER BY name ASC;
-// 	// -- SELECT * FROM library ORDER BY ID ASC LIMIT 2 OFFSET 2;
-
-// 	// if $asc or $desc were specifed with no $orderby, default to order by id
-// 	if obString == "" && adString != "" {
-// 		obString = " ORDER BY id"
-// 	}
-
-// 	selQuery = fmt.Sprintf("SELECT * FROM %s%s", tn, paramString)
-// 	selQuery = pf.db.Rebind(selQuery)
-// 	fmt.Println("rebound selQuery:", selQuery)
-
-// 	selQuery = fmt.Sprintf("%s%s%s%s%s;", selQuery, obString, adString, limitString, offsetString)
-// 	fmt.Println("selQuery fully constructed:", selQuery)
-// 	pf.QsLog(selQuery)
-
-// 	// read the rows
-// 	fmt.Println("pv...", pv)
-// 	rows, err := pf.db.Queryx(selQuery, pv...)
-// 	if err != nil {
-// 		log.Printf("GetEntities for table &s returned error: %v\n", err.Error())
-// 		return nil, err
-// 	}
-// 	defer rows.Close()
-
-// 	// iterate over the rows collection and put the results
-// 	// into the ents interface (slice)
-// 	entsv := reflect.ValueOf(ents)
-// 	for rows.Next() {
-// 		err = rows.StructScan(testVar.Interface())
-// 		if err != nil {
-// 			fmt.Println("scan error:", err)
-// 			return nil, err
-// 		}
-// 		// fmt.Println(testVar)
-// 		entsv = reflect.Append(entsv, testVar.Elem())
-// 	}
-
-// 	ents = entsv.Interface()
-// 	// fmt.Println("ents:", ents)
-// 	return entsv.Interface(), nil
-// }

@@ -133,7 +133,7 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 	var sequences []common.SqacPair
 	indexes := make(map[string]IndexInfo)
 	fKeys := make([]FKeyInfo, 0)
-	tableSchema := fmt.Sprintf("CREATE TABLE %s%s%s (", qt, tn, qt)
+	tableSchema := "CREATE TABLE " + qt + tn + qt + "("
 
 	// get a list of the field names, go-types and db attributes.
 	// TagReader is a common function across db-flavors. For
@@ -215,7 +215,7 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 				case "primary_key":
 
 					col.fPrimaryKey = "PRIMARY KEY"
-					pKeys = fmt.Sprintf("%s %s%s%s,", pKeys, qt, fd.FName, qt)
+					pKeys = pKeys + " " + qt + fd.FName + qt + ","
 
 					if p.Value == "inc" {
 						// warn that user-specified db_type type will be ignored
@@ -238,13 +238,13 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 
 				case "default":
 					if fd.UnderGoType == "string" {
-						col.fDefault = fmt.Sprintf("DEFAULT '%s'", p.Value)
+						col.fDefault = "DEFAULT '" + p.Value + "'"
 					} else {
-						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
+						col.fDefault = "DEFAULT " + p.Value
 					}
 					if fd.UnderGoType == "time.Time" && p.Value == "eot" {
 						p.Value = "TIMESTAMP('2003-12-31 12:00:00')"
-						col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
+						col.fDefault = "DEFAULT " + p.Value
 					}
 
 				case "constraint":
@@ -282,7 +282,7 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 					if p.Value == "eot" {
 						p.Value = "TIMESTAMP('2003-12-31 12:00:00')"
 					}
-					col.fDefault = fmt.Sprintf("DEFAULT %s", p.Value)
+					col.fDefault = "DEFAULT " + p.Value
 				}
 
 			}
@@ -291,9 +291,11 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 
 		// add the current column to the schema
 		if col.uType != "" {
-			tableSchema = tableSchema + fmt.Sprintf("%s%s%s %s", qt, col.fName, qt, col.uType)
+			// tableSchema = tableSchema + fmt.Sprintf("%s%s%s %s", qt, col.fName, qt, col.uType)
+			tableSchema = tableSchema + qt + col.fName + qt + " " + col.uType
 		} else {
-			tableSchema = tableSchema + fmt.Sprintf("%s%s%s %s", qt, col.fName, qt, col.fType)
+			// tableSchema = tableSchema + fmt.Sprintf("%s%s%s %s", qt, col.fName, qt, col.fType)
+			tableSchema = tableSchema + qt + col.fName + qt + " " + col.fType
 		}
 		if col.fAutoInc == true {
 			tableSchema = tableSchema + " AUTO_INCREMENT"
@@ -317,7 +319,7 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 	}
 	if tableSchema != "" && pKeys != "" {
 		pKeys = strings.TrimSuffix(pKeys, ",")
-		tableSchema = tableSchema + fmt.Sprintf("PRIMARY KEY (%s) )", pKeys)
+		tableSchema = tableSchema + "PRIMARY KEY (" + pKeys + ") )"
 	}
 	tableSchema = tableSchema + " ENGINE=InnoDB DEFAULT CHARSET=latin1;"
 
@@ -405,14 +407,14 @@ func (myf *MySQLFlavor) AlterTables(i ...interface{}) error {
 		// go through the latest version of the model and check each
 		// field against its definition in the database.
 		qt := myf.GetDBQuote()
-		alterSchema := fmt.Sprintf("ALTER TABLE %s%s%s", qt, tn, qt)
+		alterSchema := "ALTER TABLE " + qt + tn + qt
 		var cols []string
 
 		for _, fd := range tc.flDef {
 			// new columns first
 			if !myf.ExistsColumn(tn, fd.FName) && fd.NoDB == false {
 
-				colSchema := fmt.Sprintf("ADD COLUMN %s%s%s %s", qt, fd.FName, qt, fd.FType)
+				colSchema := "ADD COLUMN " + qt + fd.FName + qt + " " + fd.FType
 				for _, p := range fd.SqacPairs {
 					switch p.Name {
 					case "primary_key":
@@ -421,14 +423,14 @@ func (myf *MySQLFlavor) AlterTables(i ...interface{}) error {
 
 					case "default":
 						if fd.UnderGoType == "string" {
-							colSchema = fmt.Sprintf("%s DEFAULT '%s'", colSchema, p.Value)
+							colSchema = colSchema + " DEFAULT '" + p.Value + "'"
 						} else {
-							colSchema = fmt.Sprintf("%s DEFAULT %s", colSchema, p.Value)
+							colSchema = colSchema + " DEFAULT " + p.Value
 						}
 
 					case "nullable":
 						if p.Value == "false" {
-							colSchema = fmt.Sprintf("%s NOT NULL", colSchema)
+							colSchema = colSchema + " NOT NULL"
 						}
 
 					default:
@@ -442,7 +444,7 @@ func (myf *MySQLFlavor) AlterTables(i ...interface{}) error {
 		// ALTER TABLE ADD COLUMNS...
 		if len(cols) > 0 {
 			for _, c := range cols {
-				alterSchema = fmt.Sprintf("%s %s", alterSchema, c)
+				alterSchema = alterSchema + " " + c
 			}
 
 			alterSchema = strings.TrimSuffix(alterSchema, ",")
@@ -490,7 +492,7 @@ func (myf *MySQLFlavor) AlterTables(i ...interface{}) error {
 func (myf *MySQLFlavor) DropIndex(tn string, in string) error {
 
 	if myf.ExistsIndex(tn, in) {
-		indexSchema := fmt.Sprintf("DROP INDEX %s ON %s;", in, tn)
+		indexSchema := "DROP INDEX " + in + " ON " + tn + ";"
 		myf.ProcessSchema(indexSchema)
 		return nil
 	}
@@ -526,7 +528,7 @@ func (myf *MySQLFlavor) DestructiveResetTables(i ...interface{}) error {
 func (myf *MySQLFlavor) AlterSequenceStart(name string, start int) error {
 
 	// ALTER TABLE users AUTO_INCREMENT=1001;
-	alterSequenceSchema := fmt.Sprintf(" ALTER TABLE %s AUTO_INCREMENT=%d;", name, start)
+	alterSequenceSchema := " ALTER TABLE " + name + " AUTO_INCREMENT=" + strconv.Itoa(start) + ";"
 	myf.ProcessSchema(alterSequenceSchema)
 	return nil
 }
@@ -539,7 +541,7 @@ func (myf *MySQLFlavor) GetNextSequenceValue(name string) (int, error) {
 	seq := 0
 	if myf.ExistsTable(name) {
 
-		seqQuery := fmt.Sprintf("SELECT `AUTO_INCREMENT` FROM  INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s';", myf.GetDBName(), name)
+		seqQuery := "SELECT `AUTO_INCREMENT` FROM  INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '" + myf.GetDBName() + "' AND TABLE_NAME = '" + name + "';"
 		myf.QsLog(seqQuery)
 
 		err := myf.db.QueryRow(seqQuery).Scan(&seq)
@@ -555,8 +557,7 @@ func (myf *MySQLFlavor) GetNextSequenceValue(name string) (int, error) {
 func (myf *MySQLFlavor) DropForeignKey(i interface{}, ft, fkn string) error {
 
 	// mysql: SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_name='user__fk__store_id' AND table_name='client';
-
-	schema := fmt.Sprintf("ALTER TABLE %v DROP FOREIGN KEY %v", ft, fkn)
+	schema := "ALTER TABLE " + ft + " DROP FOREIGN KEY " + fkn
 	myf.QsLog(schema)
 
 	_, err := myf.Exec(schema)
@@ -573,7 +574,7 @@ func (myf *MySQLFlavor) ExistsForeignKeyByName(i interface{}, fkn string) (bool,
 	var count uint64
 	tn := common.GetTableName(i)
 
-	fkQuery := fmt.Sprintf("SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_name='%s' AND table_name='%s';", fkn, tn)
+	fkQuery := "SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_name='" + fkn + "' AND table_name='" + tn + "';"
 	myf.QsLog(fkQuery)
 
 	err := myf.Get(&count, fkQuery)
@@ -616,8 +617,7 @@ func (myf *MySQLFlavor) Create(ent interface{}) error {
 	}
 
 	// build the mysql insert query
-	insQuery := fmt.Sprintf("INSERT INTO %s", info.tn)
-	insQuery = fmt.Sprintf("%s %s VALUES %s;", insQuery, info.fList, info.vList)
+	insQuery := "INSERT INTO " + info.tn + " " + info.fList + " VALUES " + info.vList + ";"
 	myf.QsLog(insQuery)
 
 	// clear the source data - deals with non-persistet columns
@@ -635,7 +635,7 @@ func (myf *MySQLFlavor) Create(ent interface{}) error {
 		return err
 	}
 
-	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s = %d LIMIT 1;", info.tn, info.incKeyName, lastID)
+	selQuery := "SELECT * FROM " + info.tn + " WHERE " + info.incKeyName + " = " + strconv.FormatInt(lastID, 10) + " LIMIT 1;"
 	myf.QsLog(selQuery)
 
 	err = myf.db.QueryRowx(selQuery).StructScan(info.ent) // .MapScan(info.resultMap) // SliceScan
@@ -682,7 +682,7 @@ func (myf *MySQLFlavor) Update(ent interface{}) error {
 	}
 	colList = strings.TrimSuffix(colList, ", ")
 
-	updQuery := fmt.Sprintf("UPDATE %s SET %s WHERE %s;", info.tn, colList, keyList)
+	updQuery := "UPDATE " + info.tn + " SET " + colList + " WHERE " + keyList + ";"
 	myf.QsLog(updQuery)
 
 	// clear the source data - deals with non-persistet columns
@@ -696,7 +696,7 @@ func (myf *MySQLFlavor) Update(ent interface{}) error {
 	}
 
 	// read the updated row
-	selQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s LIMIT 1;", info.tn, keyList)
+	selQuery := "SELECT * FROM " + info.tn + " WHERE " + keyList + " LIMIT 1;"
 	myf.QsLog(selQuery)
 
 	err = myf.db.QueryRowx(selQuery).StructScan(info.ent) // .MapScan(info.resultMap) // SliceScan

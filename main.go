@@ -100,7 +100,7 @@ func Create(flavor string, logFlag bool, dbLogFlag bool, connectionString string
 	case "hdb":
 		hdh := new(HDBFlavor)
 		handle = hdh
-		// db, err := Open("hdb", "hdb://SMACLEOD:Blockhead1@clkhana01.lab.clockwork.ca:30047")
+		// db, err := Open("hdb", "hdb://SMACLEOD:Blockhead2@clkhana01.lab.clockwork.ca:30047")
 		db, err := Open("hdb", connectionString)
 		if err != nil {
 			log.Fatalf("%s\n", err.Error())

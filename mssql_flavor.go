@@ -519,7 +519,6 @@ func (msf *MSSQLFlavor) AlterTables(i ...interface{}) error {
 		// ALTER TABLE ADD COLUMNS...
 		if len(cols) > 0 {
 			for _, c := range cols {
-				// alterSchema = fmt.Sprintf("%s %s", alterSchema, c)
 				alterSchema = alterSchema + " " + c
 			}
 			alterSchema = strings.TrimSuffix(alterSchema, ",")
@@ -874,7 +873,6 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []commo
 			msf.QsLog(selQuery)
 			row = msf.ExecuteQueryRowx(selQuery)
 		} else {
-			// selQuery = fmt.Sprintf("SELECT COUNT(*) FROM %s%s;", tn, paramString)
 			selQuery = "SELECT COUNT(*) FROM " + tn + paramString + ";"
 			msf.QsLog(selQuery)
 			row = msf.ExecuteQueryRowx(selQuery, pv...)

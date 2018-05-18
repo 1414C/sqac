@@ -509,10 +509,8 @@ func (bf *BaseFlavor) CreateIndex(in string, index IndexInfo) error {
 	}
 
 	if !index.Unique {
-		// indexSchema = fmt.Sprintf("CREATE INDEX %s ON %s (%s);", in, index.TableName, fList)
 		indexSchema = "CREATE INDEX " + in + " ON " + index.TableName + " (" + fList + ");"
 	} else {
-		// indexSchema = fmt.Sprintf("CREATE UNIQUE INDEX %s ON %s (%s);", in, index.TableName, fList)
 		indexSchema = "CREATE UNIQUE INDEX " + in + " ON " + index.TableName + " (" + fList + ");"
 	}
 
@@ -587,7 +585,6 @@ func (bf *BaseFlavor) GetNextSequenceValue(name string) (int, error) {
 // CreateForeignKey creates a foreign-key on an existing column.
 func (bf *BaseFlavor) CreateForeignKey(i interface{}, ft, rt, ff, rf string) error {
 
-	// schema := fmt.Sprintf("ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY(%s) REFERENCES %s(%s);", ft, "fk_"+ft+"_"+rt+"_"+rf, ff, rt, rf)
 	schema := "ALTER TABLE " + ft + " ADD CONSTRAINT " + "fk_" + ft + "_" + rt + "_" + rf + " FOREIGN KEY(" + ff + ")" + " REFERENCES " + rt + "(" + rf + ");"
 	bf.QsLog(schema)
 
@@ -601,7 +598,6 @@ func (bf *BaseFlavor) CreateForeignKey(i interface{}, ft, rt, ff, rf string) err
 // DropForeignKey drops a foreign-key on an existing column
 func (bf *BaseFlavor) DropForeignKey(i interface{}, ft, fkn string) error {
 
-	// schema := fmt.Sprintf("ALTER TABLE %v DROP CONSTRAINT %v;", ft, fkn)
 	schema := "ALTER TABLE " + ft + " DROP CONSTRAINT " + fkn + ";"
 	bf.QsLog(schema)
 
@@ -1126,7 +1122,6 @@ func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []common.
 	if params != nil && len(params) > 0 {
 		paramString = " WHERE"
 		for i := range params {
-			//paramString = fmt.Sprintf("%s %s %s ? %s", paramString, common.CamelToSnake(params[i].FieldName), params[i].Operand, params[i].NextOperator)
 			paramString = paramString + " " + common.CamelToSnake(params[i].FieldName) + " " + params[i].Operand + " ? " + params[i].NextOperator
 			pv = append(pv, params[i].ParamValue)
 		}
