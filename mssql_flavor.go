@@ -51,8 +51,8 @@ type MSSQLFlavor struct {
 // - pg now() equivalent
 // - pg make_timestamptz(9999, 12, 31, 23, 59, 59.9) equivalent
 
-// createTables creates tables on the postgres database referenced
-// by pf.DB.  This internally visible version is able to defer
+// createTables creates tables on the mssql database referenced
+// by msf.DB.  This internally visible version is able to defer
 // foreign-key creation if called with calledFromAlter = true.
 func (msf *MSSQLFlavor) createTables(calledFromAlter bool, i ...interface{}) ([]ForeignKeyBuffer, error) {
 
@@ -421,7 +421,7 @@ func (msf *MSSQLFlavor) AlterTables(i ...interface{}) error {
 		// determine the table name
 		tn := common.GetTableName(i[t])
 		if tn == "" {
-			return fmt.Errorf("unable to determine table name in pf.AlterTables")
+			return fmt.Errorf("unable to determine table name in msf.AlterTables")
 		}
 
 		// if the table does not exist, add the Model{} definition to
