@@ -1072,7 +1072,15 @@ func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 	}
 	defer rows.Close()
 
-	results := indirect(reflect.ValueOf(ents))
+	// this is where it happens for GetEntities4(...) and why I am  not too
+	// satisfied with generic programming in go:
+	// results := indirect(reflect.ValueOf(ents))
+	eValue := reflect.ValueOf(ents)
+	for eValue.Kind() == reflect.Ptr {
+		eValue = eValue.Elem()
+	}
+
+	results := eValue
 	resultType := results.Type().Elem()
 	results.Set(reflect.MakeSlice(results.Type(), 0, 0))
 
@@ -1195,7 +1203,7 @@ func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []common.
 			}
 		case "hdb":
 			if limitString == "" {
-				limitString = " LIMIT 99999999999999999999"
+				limitString = " LIMIT null"
 			}
 		case "mssql":
 			// handled in mssql_flavor
