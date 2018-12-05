@@ -67,9 +67,9 @@ $ go test -v -db hdb sqac_test.go
 ```
 
 - [x]Support unique constraint on single-fields
-- [ ]Support unique constraines on grouped fields(?)
+- [ ]Support unique constraints on grouped fields(?)
 - [x]Complete sql/sqlx query/exec wrapper tests
-- [x]Autoincrement fields should be designated as sqac:"primary_key:inc"
+- [x]Auto-increment fields should be designated as sqac:"primary_key:inc"
 - [ ]SQLite stores timestamps as UTC, so clients would need to convert back to the local timezone on a read.
 - [x]Consider saving all time as UTC
 - [ ]Consider converting all time reads as Local
@@ -102,7 +102,8 @@ import (
 
 func main() {
 
-	dbFlag := flag.String("db", "sqlite", "db-type for connection")
+    dbFlag := flag.String("db", "sqlite", "db-type for connection")
+    csFlag := flag.String("cs", "testdb.sqlite", "connection-string for the database")
 	logFlag := flag.Bool("l", false, "activate sqac detail logging to stdout")
 	dbLogFlag := flag.Bool("dbl", false, "activate DDL/DML logging to stdout)")
 	flag.Parse()
@@ -114,13 +115,10 @@ func main() {
 		Handle sqac.PublicDB
 	)
 
-	// Sqlite is used in this example, so the connection string is simply a file name.
-	cs := "testdb.sqlite"
-
 	// Create a PublicDB instance.  Check the Create method, as the return parameter contains
 	// not only an implementation of PublicDB targeting the db-type/db, but also a pointer
 	// facilitating access to the db via jmoiron's sqlx package.
-	Handle = sqac.Create(*dbFlag, *logFlag, *dbLogFlag, cs)
+	Handle = sqac.Create(*dbFlag, *logFlag, *dbLogFlag, *cs)
 
 	// Execute a call to get the name of the db-driver being used.  At this point, any method
 	// contained in the sqac.PublicDB interface may be called.
@@ -133,10 +131,19 @@ func main() {
 
 ```
 
+Execute the test program as follows using sqlite.  Note that the sample program makes no
+effort to validate the flag parameters.
+
+```bash
+
+  go run -db sqlite -cs testdb.sqlite main.go
+
+```
+
+
 ## Connection Strings
 sqac presently supports MSSQL, MySql, PostgreSQL, Sqlite3 and the SAP Hana database.  You will
-need to know the db user-name and password, as wel as the address:port and name of the database
-you are connecting to.
+need to know the db user-name / password, as well as the address:port and name of the database.
 
 ### MSSQL Connection String
 
@@ -186,20 +193,69 @@ you are connecting to.
 
 ## Table DDL-Type Operations
 
-sqac table-declarations are informed by go structs with json-style tags indicating 
-column attributes.  For example, the following code-snippet declares a sqac-table
-called 'Depot':
+sqac table-declarations are informed by go structs with json-style tags indicating
+column attributes.  A complete list of tags/column attributes can be found in section
+X.Y.Z.  
+
+A small example declaring sqac table 'depot' follows:
 
 ```golang
 
-  	type Depot struct {
-		DepotNum   int       `db:"depot_num" sqac:"primary_key:inc"`
-		CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now();"`
-		Region     string    `db:"region" sqac:"nullable:false;default:YYC"`
-		Province   string    `db:"province" sqac:"nullable:false;default:AB"`
-		Country    string    `db:"country" sqac:"nullable:false;default:CA"`
-	}
+    type Depot struct {
+        DepotNum   int       `db:"depot_num" sqac:"primary_key:inc"`
+        CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now();"`
+        Region     string    `db:"region" sqac:"nullable:false;default:YYC"`
+        Province   string    `db:"province" sqac:"nullable:false;default:AB"`
+        Country    string    `db:"country" sqac:"nullable:false;default:CA"`
+        }
 
 ```
 
-Table 'Depot' is declared to have a primary key
+The 'db:' tag is used to declare the column name in the database, while the 'sqac:' tag
+is used to inform the sqac runtime how to setup the column attributes in the database.
+
+A breakdown of the column attributes follows:
+
+'depot_num' is declared as an auto-incrementing primary key called starting at 0.  
+'create_date' is declared as a non-nullable column using sqac date function 'now()' as a default value.
+'region' is declared as a non-nullable column with a default value of "YYC".
+'province' is declared as a non-nullable column with a default value of "AB".
+'country' is declared as a non-nullable column with a default value of "CA".
+
+An excerpt from 'a_sqac_test.go' illustrates how the sqac method PublicDB.CreateTables
+is used to create new tables in the database:
+
+```golang
+
+// TestCreateTableBasic
+//
+// Create table depot via CreateTables(i ...interface{})
+// Verify table creation via ExistsTable(tn string)
+// Perform negative validation be checking for non-existant
+// table "table_name" via ExistsTable(tn string)
+//
+func TestCreateTableBasic(t *testing.T) {
+
+    type Depot struct {
+        DepotNum   int       `db:"depot_num" sqac:"primary_key:inc"`
+        CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now();"`
+        Region     string    `db:"region" sqac:"nullable:false;default:YYC"`
+        Province   string    `db:"province" sqac:"nullable:false;default:AB"`
+        Country    string    `db:"country" sqac:"nullable:false;default:CA"`
+    }
+
+    err := Handle.CreateTables(Depot{})
+    if err != nil {
+        t.Errorf("%s", err.Error())
+    }
+
+    // determine the table name as per the table creation logic
+    tn := common.GetTableName(Depot{})     // "depot"
+
+    // expect that table depot exists
+    if !Handle.ExistsTable(tn) {
+        t.Errorf("table %s was not created", tn)
+    }
+}
+
+```
