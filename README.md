@@ -192,12 +192,18 @@ need to know the db user-name / password, as well as the address:port and name o
 
 ## Table Declarations
 
-sqac table-declarations are informed by go structs with json-style tags indicating
-column attributes.  A complete list of tags/column attributes follows:
+sqac table-declarations are informed by go structs with json-style struct-tags indicating
+column attributes.  Two tags are used: 'db:' and 'sqac:'.
 
-|  Database               | JSON Value for db_dialect field    |
+The 'db:' tag is used to declare the database column name.  This is typically the snake_case
+conversion of the go struct field-name.
+
+The 'sqac:' tag us used to declare column attributes.  A list of the supported attributes
+follows:
+
+|  sqac tag               | Description                        |
 |-------------------------|------------------------------------|
-| Postgres                | "db_dialect": "postgres"           |
+| **"primary_key:"**  | This tag is used to declare that the specified column should be used as a primary-key in the generated database table.   There are a few variations in its use:  <br><br> **"primary_key:inc"** declares the primary-key as auto-incrementing from 0 in the database table schema. <br> **"primary_key:"** declares the primary-key as a non-auto-incrementing primary-key in the database schema. <br>  **"primary_key:inc;start:90000000"** declares the primary-key as auto-incrementing starting from 900000000.  <br><br>  **Notes:** auto-incrementing primary-keys increment by 1 and must always be declared as go-type **int**.|
 | MSSQL (2008+)           | "db_dialect": "mssql"              |
 | SAP Hana                | "db_dialect": "hdb"                |
 | SQLite3                 | "db_dialect": "sqlite3"            |
