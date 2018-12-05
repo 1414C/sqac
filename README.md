@@ -190,12 +190,22 @@ need to know the db user-name / password, as well as the address:port and name o
 
 ```
 
-
-## Table DDL-Type Operations
+## Table Declarations
 
 sqac table-declarations are informed by go structs with json-style tags indicating
-column attributes.  A complete list of tags/column attributes can be found in section
-X.Y.Z.  
+column attributes.  A complete list of tags/column attributes follows:
+
+    |  Database               | JSON Value for db_dialect field    |
+    |-------------------------|------------------------------------|
+    | Postgres                | "db_dialect": "postgres"           |
+    | MSSQL (2008+)           | "db_dialect": "mssql"              |
+    | SAP Hana                | "db_dialect": "hdb"                |
+    | SQLite3                 | "db_dialect": "sqlite3"            |
+    | MySQL / MariaDB         | "db_dialect": "mysql"              |
+
+
+
+## Table DDL-Type Operations
 
 A small example declaring sqac table 'depot' follows:
 
