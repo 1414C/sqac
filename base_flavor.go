@@ -98,7 +98,7 @@ const CTick = "'"
 const CBackTick = "`"
 const CDblQuote = "\""
 
-// PublicDB exposes functions for db schema operations
+// PublicDB exposes functions for db related operations.
 type PublicDB interface {
 
 	// postgres, sqlite, mariadb, hdb, hana etc.
@@ -115,7 +115,9 @@ type PublicDB interface {
 	GetDB() *sqlx.DB
 
 	// GetDBName reports the name of the currently connected db for
-	// information_schema access
+	// information_schema access.  File-based databases like
+	// sqlite report the name as the absolute path to the location
+	// of their database file.
 	GetDBName() string
 
 	// GetDBQuote reports the quoting preference for db-query construction.

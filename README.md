@@ -16,11 +16,11 @@ sqac is a simple overlay to provide a common interface to an attached mssql, mys
 
 * passing: pg, mssql, mysql, hdb, sqlite
 * refactor non-indempotent SQLite Foreign-Key test to use a closure
-* consider parsing the stored create schema when adding / dropping a foreign-key on SQLite tables (== dangerous)
+* consider parsing the stored create schema when adding / dropping a foreign-key on SQLite tables (dangerous?)
 * add cascade to Drops?
 
 * Testing / TODO
-* examine the $desc orderby when limit / offset is used in postgres with selection parameter (weirdness)
+* examine the $desc orderby when limit / offset is used in postgres with selection parameter (odd)
 * change from timestamp with TZ to timestamp and ensure timestamps are in UTC before submitting to the db
 * examine view support
 * remove extraneous getSet-type methods
@@ -77,3 +77,129 @@ $ go test -v -db hdb sqac_test.go
 - [ ]HDB ExistsTable should include SCHEMA field in selection?
 - [x]Really consider what to do with nullable fields
 - [ ]It would be nice to replace the fmt.Sprintf(...) calls in the DDL and DML constructions with inline strconv.XXXX, as the performance seems to be 2-4x better.  oops.  In practical terms we are dealing with 10's of ns here, but under high load it could be a thing.  Consider doing this when implementing DB2 support.
+
+<br></br>
+## sqac Quickstart Example
+
+The following example illustrates the general usage form of the sqac library:
+
+```golang
+
+package main
+
+import (
+	"flag"
+	"fmt"
+
+	"github.com/1414C/sqac"
+	// "github.com/1414C/sqac/common"
+	_ "github.com/SAP/go-hdb/driver"
+	_ "github.com/denisenkom/go-mssqldb"
+	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
+	_ "github.com/mattn/go-sqlite3"
+)
+
+func main() {
+
+	dbFlag := flag.String("db", "sqlite", "db-type for connection")
+	logFlag := flag.Bool("l", false, "activate sqac detail logging to stdout")
+	dbLogFlag := flag.Bool("dbl", false, "activate DDL/DML logging to stdout)")
+	flag.Parse()
+
+	// This will be the central access-point to the ORM and should be made
+	// available in all locations where access to the persistent storage
+	// (database) is required.
+	var (
+		Handle sqac.PublicDB
+	)
+
+	// Sqlite is used in this example, so the connection string is simply a file name.
+	cs := "testdb.sqlite"
+
+	// Create a PublicDB instance.  Check the Create method, as the return parameter contains
+	// not only an implementation of PublicDB targeting the db-type/db, but also a pointer
+	// facilitating access to the db via jmoiron's sqlx package.
+	Handle = sqac.Create(*dbFlag, *logFlag, *dbLogFlag, cs)
+
+	// Execute a call to get the name of the db-driver being used.  At this point, any method
+	// contained in the sqac.PublicDB interface may be called.
+	driverName := Handle.GetDBDriverName()
+	fmt.Println("driverName:", driverName)
+
+	// Close the connection.
+	Handle.Close()
+}
+
+```
+
+## Connection Strings
+sqac presently supports MSSQL, MySql, PostgreSQL, Sqlite3 and the SAP Hana database.  You will
+need to know the db user-name and password, as wel as the address:port and name of the database
+you are connecting to.
+
+### MSSQL Connection String
+
+```golang
+
+  cs := "sqlserver://SA:my_passwd@localhost:1401?database=my_dbname"
+
+```
+
+### MySQL Connection String
+
+```golang
+
+  cs := "my_uname:my_passwd@tcp(192.168.1.10:3306)/my_dbname?charset=utf8&parseTime=True&loc=Local"
+
+```
+
+### PostgreSQL Connection String
+
+```golang
+
+  cs := "host=127.0.0.1 user=my_uname dbname=my_dbname sslmode=disable password=my_passwd"
+
+```
+
+### Sqlite3 Connection String
+
+```golang
+
+  cs := "my_db_file.sqlite"
+
+  // or
+
+  cs = "my_db_file.db"
+
+```
+
+
+### SAP Hana Connection String
+
+```golang
+
+  cs := "hdb://my_uname:my_passwd@192.168.111.45:30015"
+
+```
+
+
+## Table DDL-Type Operations
+
+sqac table-declarations are informed by go structs with json-style tags indicating 
+column attributes.  For example, the following code-snippet declares a sqac-table
+called 'Depot':
+
+```golang
+
+  	type Depot struct {
+		DepotNum   int       `db:"depot_num" sqac:"primary_key:inc"`
+		CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now();"`
+		Region     string    `db:"region" sqac:"nullable:false;default:YYC"`
+		Province   string    `db:"province" sqac:"nullable:false;default:AB"`
+		Country    string    `db:"country" sqac:"nullable:false;default:CA"`
+	}
+
+```
+
+Table 'Depot' is declared to have a primary key
