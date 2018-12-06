@@ -79,7 +79,7 @@ Install sqac via go get:
 ```bash
 go get -u github.com/sqac
 ```
-
+<br>
 Ensure that you have also installed the drivers for the databases you plan to use.  Supported drivers:
 
 | Driver Name               | Driver Location                   |
@@ -89,15 +89,15 @@ Ensure that you have also installed the drivers for the databases you plan to us
 |MySQL Database Driver      | github.com/go-sql-driver/mysql    |
 |PostgreSQL Database Driver | github.com/lib/pq                 |
 |SQLite3 Database Driver    | github.com/mattn/go-sqlite3       |
-
-May verify the installation with your database by running the included test suite against sqlite.  Test execution will create a 'testdb.sqlite' database file in the sqac directory.  The tests are not entirely idempotent and the testdb.sqlite file will not be cleaned up.  This is by design as the tests were used
+<br>
+Verify the installation by running the included test suite against sqlite.  Test execution will create a 'testdb.sqlite' database file in the sqac directory.  The tests are not entirely idempotent and the testdb.sqlite file will not be cleaned up.  This is by design as the tests were used
 for debugging purposes during the development.  It would be a simple matter to tidy this up.
 
 ```bash
 go test -v -db sqlite
 ```
 
-If running against sqlite is not an option, the test suite may be run against any of the supported database systems.  When running against a non-sqlite db, a connection string must be supplied via the *cs* flag.
+If running against sqlite is not an option, the test suite may be run against any of the supported database systems.  When running against a non-sqlite db, a connection string must be supplied via the *cs* flag.  See the Connection Strings section for database-specific connection string formats.
 
 ```bash
 go test -v -db pg -cs "host=127.0.0.1 user=my_uname dbname=my_dbname sslmode=disable password=my_passwd"
@@ -127,53 +127,53 @@ import (
 
 func main() {
 
-    dbFlag := flag.String("db", "sqlite", "db-type for connection")
-    csFlag := flag.String("cs", "testdb.sqlite", "connection-string for the database")
-    logFlag := flag.Bool("l", false, "activate sqac detail logging to stdout")
-    dbLogFlag := flag.Bool("dbl", false, "activate DDL/DML logging to stdout)")
-    flag.Parse()
+  dbFlag := flag.String("db", "sqlite", "db-type for connection")
+  csFlag := flag.String("cs", "testdb.sqlite", "connection-string for the database")
+  logFlag := flag.Bool("l", false, "activate sqac detail logging to stdout")
+  dbLogFlag := flag.Bool("dbl", false, "activate DDL/DML logging to stdout)")
+  flag.Parse()
 
-    // This will be the central access-point to the ORM and should be made
-    // available in all locations where access to the persistent storage
-    // (database) is required.
-    var (
+  // This will be the central access-point to the ORM and should be made
+  // available in all locations where access to the persistent storage
+  // (database) is required.
+  var (
     Handle sqac.PublicDB
-    )
+  )
 
-    // Create a PublicDB instance.  Check the Create method, as the return parameter contains
-    // not only an implementation of PublicDB targeting the db-type/db, but also a pointer
-    // facilitating access to the db via jmoiron's sqlx package.  This is useful if you wish
-    // to access the sql/sqlx APIs directly.
-    Handle = sqac.Create(*dbFlag, *logFlag, *dbLogFlag, *cs)
+  // Create a PublicDB instance.  Check the Create method, as the return parameter contains
+  // not only an implementation of PublicDB targeting the db-type/db, but also a pointer
+  // facilitating access to the db via jmoiron's sqlx package.  This is useful if you wish
+  // to access the sql/sqlx APIs directly.
+  Handle = sqac.Create(*dbFlag, *logFlag, *dbLogFlag, *cs)
 
-    // Execute a call to get the name of the db-driver being used.  At this point, any method
-    // contained in the sqac.PublicDB interface may be called.
-    driverName := Handle.GetDBDriverName()
-    fmt.Println("driverName:", driverName)
+  // Execute a call to get the name of the db-driver being used.  At this point, any method
+  // contained in the sqac.PublicDB interface may be called.
+  driverName := Handle.GetDBDriverName()
+  fmt.Println("driverName:", driverName)
 
-    // Create a new table in the database
-    err := Handle.CreateTables(Depot{})
-    if err != nil {
-      t.Errorf("%s", err.Error())
-    }
-
-    // Determine the table name as per the table creation logic
-    tn := common.GetTableName(Depot{})
-
-    // Expect that table depot exists
-    if !Handle.ExistsTable(tn) {
-      t.Errorf("table %s was not created", tn)
-    }
-
-    // Drop the table
-    err = Handle.DropTables(Depot{})
-    if err != nil {
-      t.Errorf("table %s was not dropped", tn)
-    }
-
-    // Close the connection.
-    Handle.Close()
+  // Create a new table in the database
+  err := Handle.CreateTables(Depot{})
+  if err != nil {
+    t.Errorf("%s", err.Error())
   }
+
+  // Determine the table name as per the table creation logic
+  tn := common.GetTableName(Depot{})
+
+  // Expect that table depot exists
+  if !Handle.ExistsTable(tn) {
+    t.Errorf("table %s was not created", tn)
+  }
+
+  // Drop the table
+  err = Handle.DropTables(Depot{})
+  if err != nil {
+    t.Errorf("table %s was not dropped", tn)
+  }
+
+  // Close the connection.
+  Handle.Close()
+}
 ```
 
 Execute the sample program as follows using sqlite.  Note that the sample program makes no
@@ -184,7 +184,7 @@ go run -db sqlite -cs testdb.sqlite main.go
 ```
 
 ## Connection Strings
-sqac presently supports MSSQL, MySql, PostgreSQL, Sqlite3 and the SAP Hana database.  You will
+sqac presently supports MSSQL, MySQL, PostgreSQL, Sqlite3 and the SAP Hana database.  You will
 need to know the db user-name / password, as well as the address:port and name of the database.
 
 ### MSSQL Connection String
@@ -215,12 +215,12 @@ cs := "my_db_file.sqlite"
 cs = "my_db_file.db"
 ```
 
-
 ### SAP Hana Connection String
 
 ```golang
 cs := "hdb://my_uname:my_passwd@192.168.111.45:30015"
 ```
+<br>
 
 ## Table Declarations
 
@@ -241,6 +241,7 @@ follows:
 | **"index:"**            | Single column indexes can be declared via the "index:" tag.  The example index declarations require only the "index:unique / non-unique" pair in the column's sqac-tag.  The following column declaration results in the creation of a unique index on table column "create_date": <br> `db:"create_date" sqac:"nullable:false;default:now();index:unique"` <br><br>  A non-unique single column index for the same column is declared as follows: <br> `db:"create_date" sqac:"nullable:false;default:now();index:non-unique"` <br><br><br> Multi-column indexes can also be declared via the index tag.  The following example illustrates the declaration of a non-unique two-column index containing columns "new_column1" and "new_column2": <br> `db:"new_column1" sqac:"nullable:false;index:idx_depot_new_column1_new_column2"` <br> `db:"new_column2" sqac:"nullable:false;default:0;index:idx_depot_new_column1_new_column2"` <br>|
 | **"fkey:**   | Foreign-keys can be declared between table columns.  The following example results in the creation of a foreign-key between the table's "warehouse_id" column and reference column "id" in table "warehouse". <br><br> WarehouseID uint64 `db:"warehouse_id" json:"warehouse_id" sqac:"nullable:false;fkey:warehouse(id)"` <br><br> This example is not very clear - see the full example code excerpt in the Table Declaration Examples section.     |
 | Non-persistent column   | There are scenarios where model columns may not be persisted in the database.  If a column is to be determined at runtime by the consuming application (for example), the following syntax may be used: <br> NonPersistentColumn string    `db:"non_persistent_column" sqac:"-"`              |
+<br>
 
 ### Simple Table Declaration
 
@@ -266,6 +267,7 @@ A breakdown of the column attributes follows:
 'region' is declared as a non-nullable column with a default value of "YYC".
 'province' is declared as a non-nullable column with a default value of "AB".
 'country' is declared as a non-nullable column with a default value of "CA".
+<br><br>
 
 ### Comprehensive Table Declaration
 
