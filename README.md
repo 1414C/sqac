@@ -72,6 +72,39 @@ go test -v -db hdb sqac_test.go
 - [ ]It would be nice to replace the fmt.Sprintf(...) calls in the DDL and DML constructions with inline strconv.XXXX, as the performance seems to be 2-4x better.  oops.  In practical terms we are dealing with 10's of ns here, but under high load it could be a thing.  Consider doing this when implementing DB2 support.
 
 <br></br>
+
+## Installation
+
+Install sqac via go get:
+```bash
+go get -u github.com/sqac
+```
+
+Ensure that you have also installed the drivers for the databases you plan to use.  Supported drivers:
+
+| Driver Name               | Driver Location                   |
+|---------------------------|-----------------------------------|
+|SAP Hana Database Driver   | github.com/SAP/go-hdb/driver      |
+|MSSQL Database Driver      | github.com/denisenkom/go-mssqldb  |
+|MySQL Database Driver      | github.com/go-sql-driver/mysql    |
+|PostgreSQL Database Driver | github.com/lib/pq                 |
+|SQLite3 Database Driver    | github.com/mattn/go-sqlite3       |
+
+May verify the installation with your database by running the included test suite against sqlite.  Test execution will create a 'testdb.sqlite' database file in the sqac directory.  The tests are not entirely idempotent and the testdb.sqlite file will not be cleaned up.  This is by design as the tests were used
+for debugging purposes during the development.  It would be a simple matter to tidy this up.
+
+```bash
+go test -v -db sqlite
+```
+
+If running against sqlite is not an option, the test suite may be run against any of the supported database systems.  When running against a non-sqlite db, a connection string must be supplied via the *cs* flag.
+
+```bash
+go test -v -db pg -cs "host=127.0.0.1 user=my_uname dbname=my_dbname sslmode=disable password=my_passwd"
+```
+
+<br>
+
 ## Quickstart
 
 The following example illustrates the general usage of the sqac library.  
@@ -109,7 +142,8 @@ func main() {
 
     // Create a PublicDB instance.  Check the Create method, as the return parameter contains
     // not only an implementation of PublicDB targeting the db-type/db, but also a pointer
-    // facilitating access to the db via jmoiron's sqlx package.
+    // facilitating access to the db via jmoiron's sqlx package.  This is useful if you wish
+    // to access the sql/sqlx APIs directly.
     Handle = sqac.Create(*dbFlag, *logFlag, *dbLogFlag, *cs)
 
     // Execute a call to get the name of the db-driver being used.  At this point, any method
@@ -117,21 +151,21 @@ func main() {
     driverName := Handle.GetDBDriverName()
     fmt.Println("driverName:", driverName)
 
-    // create a new table in the database
+    // Create a new table in the database
     err := Handle.CreateTables(Depot{})
     if err != nil {
       t.Errorf("%s", err.Error())
     }
 
-    // determine the table name as per the table creation logic
+    // Determine the table name as per the table creation logic
     tn := common.GetTableName(Depot{})
 
-    // expect that table depot exists
+    // Expect that table depot exists
     if !Handle.ExistsTable(tn) {
       t.Errorf("table %s was not created", tn)
     }
 
-    // drop the table
+    // Drop the table
     err = Handle.DropTables(Depot{})
     if err != nil {
       t.Errorf("table %s was not dropped", tn)
@@ -142,11 +176,11 @@ func main() {
   }
 ```
 
-Execute the test program as follows using sqlite.  Note that the sample program makes no
+Execute the sample program as follows using sqlite.  Note that the sample program makes no
 effort to validate the flag parameters.
 
 ```bash
-  go run -db sqlite -cs testdb.sqlite main.go
+go run -db sqlite -cs testdb.sqlite main.go
 ```
 
 ## Connection Strings
@@ -156,36 +190,36 @@ need to know the db user-name / password, as well as the address:port and name o
 ### MSSQL Connection String
 
 ```golang
-  cs := "sqlserver://SA:my_passwd@localhost:1401?database=my_dbname"
+cs := "sqlserver://SA:my_passwd@localhost:1401?database=my_dbname"
 ```
 
 ### MySQL Connection String
 
 ```golang
-  cs := "my_uname:my_passwd@tcp(192.168.1.10:3306)/my_dbname?charset=utf8&parseTime=True&loc=Local"
+cs := "my_uname:my_passwd@tcp(192.168.1.10:3306)/my_dbname?charset=utf8&parseTime=True&loc=Local"
 ```
 
 ### PostgreSQL Connection String
 
 ```golang
-  cs := "host=127.0.0.1 user=my_uname dbname=my_dbname sslmode=disable password=my_passwd"
+cs := "host=127.0.0.1 user=my_uname dbname=my_dbname sslmode=disable password=my_passwd"
 ```
 
 ### Sqlite3 Connection String
 
 ```golang
-  cs := "my_db_file.sqlite"
+cs := "my_db_file.sqlite"
 
-  // or
+// or
 
-  cs = "my_db_file.db"
+cs = "my_db_file.db"
 ```
 
 
 ### SAP Hana Connection String
 
 ```golang
-  cs := "hdb://my_uname:my_passwd@192.168.111.45:30015"
+cs := "hdb://my_uname:my_passwd@192.168.111.45:30015"
 ```
 
 ## Table Declarations
