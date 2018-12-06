@@ -80,7 +80,7 @@ Install sqac via go get:
 go get -u github.com/sqac
 ```
 <br>
-Ensure that you have also installed the drivers for the databases you plan to use.  Supported drivers:
+Ensure that you have also installed the drivers for the databases you plan to use.  Supported drivers include:
 
 | Driver Name               | Driver Location                   |
 |---------------------------|-----------------------------------|
