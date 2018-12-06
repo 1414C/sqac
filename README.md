@@ -26,44 +26,37 @@ sqac is a simple overlay to provide a common interface to an attached mssql, mys
 * remove extraneous getSet-type methods
 
 ```bash
-
 go test -v -l -db <dbtype> sqac_test.go
-
 ```
 
 Postgres:
+
 ```bash
-
-$ go test -v -db postgres sqac_test.go
-
+go test -v -db postgres sqac_test.go
 ```
 
 MySQL:
+
 ```bash
-
-$ go test -v -db mysql sqac_test.go
-
+go test -v -db mysql sqac_test.go
 ```
 
 MSSQL:
+
 ```bash
-
-$ go test -v -db mssql sqac_test.go
-
+go test -v -db mssql sqac_test.go
 ```
 
 SQLite:
+
 ```bash
-
-$ go test -v -db sqlite sqac_test.go
-
+go test -v -db sqlite sqac_test.go
 ```
 
 SAP Hana:
+
 ```bash
-
-$ go test -v -db hdb sqac_test.go
-
+go test -v -db hdb sqac_test.go
 ```
 
 - [x]Support unique constraint on single-fields
@@ -81,10 +74,9 @@ $ go test -v -db hdb sqac_test.go
 <br></br>
 ## Quickstart
 
-The following example illustrates the general usage of the sqac library:
+The following example illustrates the general usage of the sqac library.  
 
 ```golang
-
 package main
 
 import (
@@ -125,19 +117,36 @@ func main() {
     driverName := Handle.GetDBDriverName()
     fmt.Println("driverName:", driverName)
 
+    // create a new table in the database
+    err := Handle.CreateTables(Depot{})
+    if err != nil {
+      t.Errorf("%s", err.Error())
+    }
+
+    // determine the table name as per the table creation logic
+    tn := common.GetTableName(Depot{})
+
+    // expect that table depot exists
+    if !Handle.ExistsTable(tn) {
+      t.Errorf("table %s was not created", tn)
+    }
+
+    // drop the table
+    err = Handle.DropTables(Depot{})
+    if err != nil {
+      t.Errorf("table %s was not dropped", tn)
+    }
+
     // Close the connection.
     Handle.Close()
   }
-
 ```
 
 Execute the test program as follows using sqlite.  Note that the sample program makes no
 effort to validate the flag parameters.
 
 ```bash
-
   go run -db sqlite -cs testdb.sqlite main.go
-
 ```
 
 ## Connection Strings
@@ -147,46 +156,36 @@ need to know the db user-name / password, as well as the address:port and name o
 ### MSSQL Connection String
 
 ```golang
-
   cs := "sqlserver://SA:my_passwd@localhost:1401?database=my_dbname"
-
 ```
 
 ### MySQL Connection String
 
 ```golang
-
   cs := "my_uname:my_passwd@tcp(192.168.1.10:3306)/my_dbname?charset=utf8&parseTime=True&loc=Local"
-
 ```
 
 ### PostgreSQL Connection String
 
 ```golang
-
   cs := "host=127.0.0.1 user=my_uname dbname=my_dbname sslmode=disable password=my_passwd"
-
 ```
 
 ### Sqlite3 Connection String
 
 ```golang
-
   cs := "my_db_file.sqlite"
 
   // or
 
   cs = "my_db_file.db"
-
 ```
 
 
 ### SAP Hana Connection String
 
 ```golang
-
   cs := "hdb://my_uname:my_passwd@192.168.111.45:30015"
-
 ```
 
 ## Table Declarations
@@ -209,14 +208,11 @@ follows:
 | **"fkey:**   | Foreign-keys can be declared between table columns.  The following example results in the creation of a foreign-key between the table's "warehouse_id" column and reference column "id" in table "warehouse". <br><br> WarehouseID uint64 `db:"warehouse_id" json:"warehouse_id" sqac:"nullable:false;fkey:warehouse(id)"` <br><br> This example is not very clear - see the full example code excerpt in the Table Declaration Examples section.     |
 | Non-persistent column   | There are scenarios where model columns may not be persisted in the database.  If a column is to be determined at runtime by the consuming application (for example), the following syntax may be used: <br> NonPersistentColumn string    `db:"non_persistent_column" sqac:"-"`              |
 
-
-
 ### Simple Table Declaration
 
 A small example declaring sqac table 'depot' follows:
 
 ```golang
-
     type Depot struct {
         DepotNum   int       `db:"depot_num" sqac:"primary_key:inc"`
         CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now();"`
@@ -224,7 +220,6 @@ A small example declaring sqac table 'depot' follows:
         Province   string    `db:"province" sqac:"nullable:false;default:AB"`
         Country    string    `db:"country" sqac:"nullable:false;default:CA"`
     }
-
 ```
 
 The 'db:' tag is used to declare the column name in the database, while the 'sqac:' tag
@@ -243,26 +238,26 @@ A breakdown of the column attributes follows:
 A more comprehensive declaration of table "depot":
 
 ```golang
-    type DepotCreate struct {
-      DepotNum            int       `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
-      DepotBay            int       `db:"depot_bay" sqac:"primary_key:"`
-      CreateDate          time.Time `db:"create_date" sqac:"nullable:false;default:now();index:unique"`
-      Region              string    `db:"region" sqac:"nullable:false;default:YYC"`
-      Province            string    `db:"province" sqac:"nullable:false;default:AB"`
-      Country             string    `db:"country" sqac:"nullable:true;default:CA"`
-      NewColumn1          string    `db:"new_column1" sqac:"nullable:false"`
-      NewColumn2          int64     `db:"new_column2" sqac:"nullable:false"`
-      NewColumn3          float64   `db:"new_column3" sqac:"nullable:false;default:0.0"`
-      IntDefaultZero      int       `db:"int_default_zero" sqac:"nullable:false;default:0"`
-      IntDefault42        int       `db:"int_default42" sqac:"nullable:false;default:42"`
-      FldOne              int       `db:"fld_one" sqac:"nullable:false;default:0;index:idx_depotcreate_fld_one_fld_two"`
-      FldTwo              int       `db:"fld_two" sqac:"nullable:false;default:0;index:idx_depotcreate_fld_one_fld_two"`
-      TimeCol             time.Time `db:"time_col" sqac:"nullable:false"`
-      TimeColNow          time.Time `db:"time_col_now" sqac:"nullable:false;default:now()"`
-      TimeColEot          time.Time `db:"time_col_eot" sqac:"nullable:false;default:eot"`
-      IntZeroValNoDefault int       `db:"int_zero_val_no_default" sqac:"nullable:false"`
-      NonPersistentColumn string    `db:"non_persistent_column" sqac:"-"`
-  }
+type DepotCreate struct {
+  DepotNum            int       `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+  DepotBay            int       `db:"depot_bay" sqac:"primary_key:"`
+  CreateDate          time.Time `db:"create_date" sqac:"nullable:false;default:now();index:unique"`
+  Region              string    `db:"region" sqac:"nullable:false;default:YYC"`
+  Province            string    `db:"province" sqac:"nullable:false;default:AB"`
+  Country             string    `db:"country" sqac:"nullable:true;default:CA"`
+  NewColumn1          string    `db:"new_column1" sqac:"nullable:false"`
+  NewColumn2          int64     `db:"new_column2" sqac:"nullable:false"`
+  NewColumn3          float64   `db:"new_column3" sqac:"nullable:false;default:0.0"`
+  IntDefaultZero      int       `db:"int_default_zero" sqac:"nullable:false;default:0"`
+  IntDefault42        int       `db:"int_default42" sqac:"nullable:false;default:42"`
+  FldOne              int       `db:"fld_one" sqac:"nullable:false;default:0;index:idx_depotcreate_fld_one_fld_two"`
+  FldTwo              int       `db:"fld_two" sqac:"nullable:false;default:0;index:idx_depotcreate_fld_one_fld_two"`
+  TimeCol             time.Time `db:"time_col" sqac:"nullable:false"`
+  TimeColNow          time.Time `db:"time_col_now" sqac:"nullable:false;default:now()"`
+  TimeColEot          time.Time `db:"time_col_eot" sqac:"nullable:false;default:eot"`
+  IntZeroValNoDefault int       `db:"int_zero_val_no_default" sqac:"nullable:false"`
+  NonPersistentColumn string    `db:"non_persistent_column" sqac:"-"`
+}
 ```
 
 ### Table Declaration Using Nested Structs
@@ -270,50 +265,47 @@ A more comprehensive declaration of table "depot":
 Table declarations may also contain nested structs:
 
 ```golang
+type Triplet struct {
+  TripOne   string `db:"trip_one" sqac:"nullable:false"`
+  TripTwo   int64  `db:"trip_two" sqac:"nullable:false;default:0"`
+  Tripthree string `db:"trip_three" sqac:"nullable:false"`
+}
 
-    type Triplet struct {
-      TripOne   string `db:"trip_one" sqac:"nullable:false"`
-      TripTwo   int64  `db:"trip_two" sqac:"nullable:false;default:0"`
-      Tripthree string `db:"trip_three" sqac:"nullable:false"`
-    }
-
-    type Equipment struct {
-      EquipmentNum   int64     `db:"equipment_num" sqac:"primary_key:inc;start:55550000"`
-      ValidFrom      time.Time `db:"valid_from" sqac:"primary_key;nullable:false;default:now()"`
-      ValidTo        time.Time `db:"valid_to" sqac:"primary_key;nullable:false;default:make_timestamptz(9999, 12, 31, 23, 59, 59.9)"`
-      CreatedAt      time.Time `db:"created_at" sqac:"nullable:false;default:now()"`
-      InspectionAt   time.Time `db:"inspection_at" sqac:"nullable:true"`
-      MaterialNum    int       `db:"material_num" sqac:"index:idx_material_num_serial_num"`
-      Description    string    `db:"description" sqac:"sqac:nullable:false"`
-      SerialNum      string    `db:"serial_num" sqac:"index:idx_material_num_serial_num"`
-      Triplet        // structs can be nested to any level
-    }
-
+type Equipment struct {
+  EquipmentNum   int64     `db:"equipment_num" sqac:"primary_key:inc;start:55550000"`
+  ValidFrom      time.Time `db:"valid_from" sqac:"primary_key;nullable:false;default:now()"`
+  ValidTo        time.Time `db:"valid_to" sqac:"primary_key;nullable:false;default:make_timestamptz(9999, 12, 31, 23, 59, 59.9)"`
+  CreatedAt      time.Time `db:"created_at" sqac:"nullable:false;default:now()"`
+  InspectionAt   time.Time `db:"inspection_at" sqac:"nullable:true"`
+  MaterialNum    int       `db:"material_num" sqac:"index:idx_material_num_serial_num"`
+  Description    string    `db:"description" sqac:"sqac:nullable:false"`
+  SerialNum      string    `db:"serial_num" sqac:"index:idx_material_num_serial_num"`
+  Triplet        // structs can be nested to any level
+}
 ```
 
 ### Table Declaration With Foreign-Key
 
 ```golang
-  type Warehouse struct {
-      ID       uint64 `db:"id" json:"id" sqac:"primary_key:inc;start:40000000"`
-      City     string `db:"city" json:"city" sqac:"nullable:false;default:Calgary"`
-      Quadrant string `db:"quadrant" json:"quadrant" sqac:"nullable:false;default:SE"`
-  }
+type Warehouse struct {
+    ID       uint64 `db:"id" json:"id" sqac:"primary_key:inc;start:40000000"`
+    City     string `db:"city" json:"city" sqac:"nullable:false;default:Calgary"`
+    Quadrant string `db:"quadrant" json:"quadrant" sqac:"nullable:false;default:SE"`
+}
 
-  type Product struct {
-      ID          uint64 `db:"id" json:"id" sqac:"primary_key:inc;start:95000000"`
-      ProductName string `db:"product_name" json:"product_name" sqac:"nullable:false;default:unknown"`
-      ProductCode string `db:"product_code" json:"product_code" sqac:"nullable:false;default:0000-0000-00"`
-      UOM         string `db:"uom" json:"uom" sqac:"nullable:false;default:EA"`
-      WarehouseID uint64 `db:"warehouse_id" json:"warehouse_id" sqac:"nullable:false;fkey:warehouse(id)"`
-  }
+type Product struct {
+    ID          uint64 `db:"id" json:"id" sqac:"primary_key:inc;start:95000000"`
+    ProductName string `db:"product_name" json:"product_name" sqac:"nullable:false;default:unknown"`
+    ProductCode string `db:"product_code" json:"product_code" sqac:"nullable:false;default:0000-0000-00"`
+    UOM         string `db:"uom" json:"uom" sqac:"nullable:false;default:EA"`
+    WarehouseID uint64 `db:"warehouse_id" json:"warehouse_id" sqac:"nullable:false;fkey:warehouse(id)"`
+}
 ```
 
 An excerpt from 'a_sqac_test.go' illustrates how the sqac method PublicDB.CreateTables
 is used to create new tables in the database:
 
 ```golang
-
 // TestCreateTableBasic
 //
 // Create table depot via CreateTables(i ...interface{})
