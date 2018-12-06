@@ -298,6 +298,8 @@ type DepotCreate struct {
 }
 ```
 
+<br>
+
 ### Table Declaration Using Nested Structs
 
 Table declarations may also contain nested structs:
@@ -322,6 +324,8 @@ type Equipment struct {
 }
 ```
 
+<br>
+
 ### Table Declaration With Foreign-Key
 
 ```golang
@@ -342,6 +346,17 @@ type Product struct {
 
 An excerpt from 'a_sqac_test.go' illustrates how the sqac method PublicDB.CreateTables
 is used to create new tables in the database:
+
+
+## Accessing Documentation
+
+The API is somewhat documented via comments in the code.  This can be accessed by running the *godoc* command:
+
+```bash
+godoc -http=:6061
+```
+
+Once the *godoc* server has started, hit http://localhost:6060/pkg/github.com/1414C/sqac/ for sqac API documentation.
 
 ```golang
 // TestCreateTableBasic
