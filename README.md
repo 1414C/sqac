@@ -183,6 +183,8 @@ effort to validate the flag parameters.
 go run -db sqlite -cs testdb.sqlite main.go
 ```
 
+<br>
+
 ## Connection Strings
 sqac presently supports MSSQL, MySQL, PostgreSQL, Sqlite3 and the SAP Hana database.  You will
 need to know the db user-name / password, as well as the address:port and name of the database.
