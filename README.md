@@ -223,7 +223,7 @@ A small example declaring sqac table 'depot' follows:
         Region     string    `db:"region" sqac:"nullable:false;default:YYC"`
         Province   string    `db:"province" sqac:"nullable:false;default:AB"`
         Country    string    `db:"country" sqac:"nullable:false;default:CA"`
-        }
+    }
 
 ```
 
@@ -244,24 +244,24 @@ A more comprehensive declaration of table "depot":
 
 ```golang
     type DepotCreate struct {
-    DepotNum            int       `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
-    DepotBay            int       `db:"depot_bay" sqac:"primary_key:"`
-    CreateDate          time.Time `db:"create_date" sqac:"nullable:false;default:now();index:unique"`
-    Region              string    `db:"region" sqac:"nullable:false;default:YYC"`
-    Province            string    `db:"province" sqac:"nullable:false;default:AB"`
-    Country             string    `db:"country" sqac:"nullable:true;default:CA"`
-    NewColumn1          string    `db:"new_column1" sqac:"nullable:false"`
-    NewColumn2          int64     `db:"new_column2" sqac:"nullable:false"`
-    NewColumn3          float64   `db:"new_column3" sqac:"nullable:false;default:0.0"`
-    IntDefaultZero      int       `db:"int_default_zero" sqac:"nullable:false;default:0"`
-    IntDefault42        int       `db:"int_default42" sqac:"nullable:false;default:42"`
-    FldOne              int       `db:"fld_one" sqac:"nullable:false;default:0;index:idx_depotcreate_fld_one_fld_two"`
-    FldTwo              int       `db:"fld_two" sqac:"nullable:false;default:0;index:idx_depotcreate_fld_one_fld_two"`
-    TimeCol             time.Time `db:"time_col" sqac:"nullable:false"`
-    TimeColNow          time.Time `db:"time_col_now" sqac:"nullable:false;default:now()"`
-    TimeColEot          time.Time `db:"time_col_eot" sqac:"nullable:false;default:eot"`
-    IntZeroValNoDefault int       `db:"int_zero_val_no_default" sqac:"nullable:false"`
-    NonPersistentColumn string    `db:"non_persistent_column" sqac:"-"`
+      DepotNum            int       `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
+      DepotBay            int       `db:"depot_bay" sqac:"primary_key:"`
+      CreateDate          time.Time `db:"create_date" sqac:"nullable:false;default:now();index:unique"`
+      Region              string    `db:"region" sqac:"nullable:false;default:YYC"`
+      Province            string    `db:"province" sqac:"nullable:false;default:AB"`
+      Country             string    `db:"country" sqac:"nullable:true;default:CA"`
+      NewColumn1          string    `db:"new_column1" sqac:"nullable:false"`
+      NewColumn2          int64     `db:"new_column2" sqac:"nullable:false"`
+      NewColumn3          float64   `db:"new_column3" sqac:"nullable:false;default:0.0"`
+      IntDefaultZero      int       `db:"int_default_zero" sqac:"nullable:false;default:0"`
+      IntDefault42        int       `db:"int_default42" sqac:"nullable:false;default:42"`
+      FldOne              int       `db:"fld_one" sqac:"nullable:false;default:0;index:idx_depotcreate_fld_one_fld_two"`
+      FldTwo              int       `db:"fld_two" sqac:"nullable:false;default:0;index:idx_depotcreate_fld_one_fld_two"`
+      TimeCol             time.Time `db:"time_col" sqac:"nullable:false"`
+      TimeColNow          time.Time `db:"time_col_now" sqac:"nullable:false;default:now()"`
+      TimeColEot          time.Time `db:"time_col_eot" sqac:"nullable:false;default:eot"`
+      IntZeroValNoDefault int       `db:"int_zero_val_no_default" sqac:"nullable:false"`
+      NonPersistentColumn string    `db:"non_persistent_column" sqac:"-"`
   }
 ```
 
@@ -272,22 +272,22 @@ Table declarations may also contain nested structs:
 ```golang
 
     type Triplet struct {
-    TripOne   string `db:"trip_one" sqac:"nullable:false"`
-    TripTwo   int64  `db:"trip_two" sqac:"nullable:false;default:0"`
-    Tripthree string `db:"trip_three" sqac:"nullable:false"`
+      TripOne   string `db:"trip_one" sqac:"nullable:false"`
+      TripTwo   int64  `db:"trip_two" sqac:"nullable:false;default:0"`
+      Tripthree string `db:"trip_three" sqac:"nullable:false"`
     }
 
     type Equipment struct {
-    EquipmentNum   int64     `db:"equipment_num" sqac:"primary_key:inc;start:55550000"`
-    ValidFrom      time.Time `db:"valid_from" sqac:"primary_key;nullable:false;default:now()"`
-    ValidTo        time.Time `db:"valid_to" sqac:"primary_key;nullable:false;default:make_timestamptz(9999, 12, 31, 23, 59, 59.9)"`
-    CreatedAt      time.Time `db:"created_at" sqac:"nullable:false;default:now()"`
-    InspectionAt   time.Time `db:"inspection_at" sqac:"nullable:true"`
-    MaterialNum    int       `db:"material_num" sqac:"index:idx_material_num_serial_num"`
-    Description    string    `db:"description" sqac:"sqac:nullable:false"`
-    SerialNum      string    `db:"serial_num" sqac:"index:idx_material_num_serial_num"`
-    Triplet        // structs can be nested to any level
-}
+      EquipmentNum   int64     `db:"equipment_num" sqac:"primary_key:inc;start:55550000"`
+      ValidFrom      time.Time `db:"valid_from" sqac:"primary_key;nullable:false;default:now()"`
+      ValidTo        time.Time `db:"valid_to" sqac:"primary_key;nullable:false;default:make_timestamptz(9999, 12, 31, 23, 59, 59.9)"`
+      CreatedAt      time.Time `db:"created_at" sqac:"nullable:false;default:now()"`
+      InspectionAt   time.Time `db:"inspection_at" sqac:"nullable:true"`
+      MaterialNum    int       `db:"material_num" sqac:"index:idx_material_num_serial_num"`
+      Description    string    `db:"description" sqac:"sqac:nullable:false"`
+      SerialNum      string    `db:"serial_num" sqac:"index:idx_material_num_serial_num"`
+      Triplet        // structs can be nested to any level
+    }
 
 ```
 
@@ -295,17 +295,17 @@ Table declarations may also contain nested structs:
 
 ```golang
   type Warehouse struct {
-    ID       uint64 `db:"id" json:"id" sqac:"primary_key:inc;start:40000000"`
-    City     string `db:"city" json:"city" sqac:"nullable:false;default:Calgary"`
-    Quadrant string `db:"quadrant" json:"quadrant" sqac:"nullable:false;default:SE"`
+      ID       uint64 `db:"id" json:"id" sqac:"primary_key:inc;start:40000000"`
+      City     string `db:"city" json:"city" sqac:"nullable:false;default:Calgary"`
+      Quadrant string `db:"quadrant" json:"quadrant" sqac:"nullable:false;default:SE"`
   }
 
   type Product struct {
-    ID          uint64 `db:"id" json:"id" sqac:"primary_key:inc;start:95000000"`
-    ProductName string `db:"product_name" json:"product_name" sqac:"nullable:false;default:unknown"`
-    ProductCode string `db:"product_code" json:"product_code" sqac:"nullable:false;default:0000-0000-00"`
-    UOM         string `db:"uom" json:"uom" sqac:"nullable:false;default:EA"`
-    WarehouseID uint64 `db:"warehouse_id" json:"warehouse_id" sqac:"nullable:false;fkey:warehouse(id)"`
+      ID          uint64 `db:"id" json:"id" sqac:"primary_key:inc;start:95000000"`
+      ProductName string `db:"product_name" json:"product_name" sqac:"nullable:false;default:unknown"`
+      ProductCode string `db:"product_code" json:"product_code" sqac:"nullable:false;default:0000-0000-00"`
+      UOM         string `db:"uom" json:"uom" sqac:"nullable:false;default:EA"`
+      WarehouseID uint64 `db:"warehouse_id" json:"warehouse_id" sqac:"nullable:false;fkey:warehouse(id)"`
   }
 ```
 
