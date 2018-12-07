@@ -1047,7 +1047,7 @@ func (bf *BaseFlavor) GetEntities2(ge GetEnt) error {
 // can be used, but is not recommended, as it is a pretty slow way of doing things and
 // a quick internet search on []interface{} will turn up all sorts of acrimony.  Notice
 // that the method signature is still interface{}?  Not very transparent IMO.
-// Use GetEntitiedByCommands instead; it is faster and has more functionality.
+// Use GetEntitiedByCommands instead.
 func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 
 	// get the underlying data type of the interface{} ([]ModelEtc)
