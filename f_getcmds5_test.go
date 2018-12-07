@@ -1,8 +1,6 @@
 package sqac_test
 
 import (
-	"fmt"
-	"log"
 	"testing"
 
 	"github.com/1414C/sqac/common"
@@ -79,7 +77,7 @@ func TestCRUDGetEntities5OpenSelect(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	result, err := Handle.GetEntities5(recRead, nil, nil)
+	_, err = Handle.GetEntities5(&recRead, nil, nil)
 	if err != nil {
 		t.Errorf("error: TestCRUDGetEntities5OpenSelect: %v", err)
 	}
@@ -174,7 +172,7 @@ func TestCRUDGetEntities5SelectUint(t *testing.T) {
 	pa = append(pa, p)
 
 	// call with no parameters and no commands
-	result, err := Handle.GetEntities5(recRead, pa, nil)
+	_, err = Handle.GetEntities5(&recRead, pa, nil)
 	if err != nil {
 		t.Errorf("error: TestCRUDGetEntities5SelectUint: %v", err)
 	}
@@ -251,7 +249,7 @@ func TestCRUDGetEntities5SelectString(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	result, err := Handle.GetEntities5(recRead, pa, nil)
+	_, err = Handle.GetEntities5(&recRead, pa, nil)
 	if err != nil {
 		t.Errorf("error: TestCRUDGetEntities5SelectString: %v", err)
 	}
@@ -313,17 +311,6 @@ func TestCRUDGetEntities5SelectCount(t *testing.T) {
 	// create the test records
 	createGetCmdTestRecs(t)
 
-	// // set a parameter for id
-	// p := common.GetParam{
-	// 	FieldName:    "fld_two_string",
-	// 	Operand:      "=",
-	// 	ParamValue:   "Record Two",
-	// 	NextOperator: "",
-	// }
-
-	// pa := []common.GetParam{}
-	// pa = append(pa, p)
-
 	// set a selection limit = 4
 	cmdMap := make(map[string]interface{})
 	cmdMap["count"] = nil
@@ -332,9 +319,9 @@ func TestCRUDGetEntities5SelectCount(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	result, err := Handle.GetEntities5(recRead, nil, cmdMap)
+	result, err := Handle.GetEntities5(&recRead, nil, cmdMap)
 	if err != nil {
-		t.Errorf("error: TestCRUDGetEntities5SelectCount: &v", err)
+		t.Errorf("error: TestCRUDGetEntities5SelectCount: %v", err)
 	}
 
 	if result != 8 {
@@ -390,17 +377,6 @@ func TestCRUDGetEntities5Limit(t *testing.T) {
 	// create the test records
 	createGetCmdTestRecs(t)
 
-	// // set a parameter for id
-	// p := common.GetParam{
-	// 	FieldName:    "fld_two_string",
-	// 	Operand:      "=",
-	// 	ParamValue:   "Record Two",
-	// 	NextOperator: "",
-	// }
-
-	// pa := []common.GetParam{}
-	// pa = append(pa, p)
-
 	// set a selection limit = 4
 	cmdMap := make(map[string]interface{})
 	cmdMap["limit"] = "4"
@@ -409,7 +385,7 @@ func TestCRUDGetEntities5Limit(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters command $limit=4
-	result, err := Handle.GetEntities5(recRead, nil, cmdMap)
+	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
 	if err != nil {
 		t.Errorf("error: TestCRUDGetEntities5Limit: %v", err)
 	}
@@ -476,7 +452,7 @@ func TestCRUDGetEntities5LimitDesc(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	result, err := Handle.GetEntities5(recRead, nil, cmdMap)
+	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
 	if err != nil {
 		t.Errorf("error: TestCRUDGetEntities5LimitDesc: %v", err)
 	}
@@ -541,17 +517,6 @@ func TestCRUDGetEntities5LimitAsc(t *testing.T) {
 	// create the test records
 	createGetCmdTestRecs(t)
 
-	// // set a parameter for id
-	// p := common.GetParam{
-	// 	FieldName:    "fld_two_string",
-	// 	Operand:      "=",
-	// 	ParamValue:   "Record Two",
-	// 	NextOperator: "",
-	// }
-
-	// pa := []common.GetParam{}
-	// pa = append(pa, p)
-
 	// set a selection limit = 4
 	cmdMap := make(map[string]interface{})
 	cmdMap["limit"] = "4"
@@ -561,26 +526,19 @@ func TestCRUDGetEntities5LimitAsc(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	result, err := Handle.GetEntities5(recRead, nil, cmdMap)
-	switch result.(type) {
-	case []GetCmdTest:
-		recRead = result.([]GetCmdTest)
-		if len(recRead) != 4 {
-			t.Errorf("error: TestCRUDGetEntities5LimitAsc: expected 4 records, got: %v", len(recRead))
+	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
+	if err != nil {
+		t.Errorf("error: TestCRUDGetEntities5LimitAsc: %v", err)
+	}
+	if len(recRead) != 4 {
+		t.Errorf("error: TestCRUDGetEntities5LimitAsc: expected 4 records, got: %v", len(recRead))
+	}
+	if len(recRead) > 0 {
+		if recRead[0].ID != 90000000 {
+			t.Errorf("error: TestCRUDGetEntities5LimitAsc: expected result[0] record with key ID == 90000000, got: %v", recRead[0].ID)
 		}
-		if len(recRead) > 0 {
-			if recRead[0].ID != 90000000 {
-				t.Errorf("error: TestCRUDGetEntities5LimitAsc: expected result[0] record with key ID == 90000000, got: %v", recRead[0].ID)
-			}
-		} else {
-			t.Errorf("error: TestCRUDGetEntities5LimitAsc: expected 4 records, got: %v", len(recRead))
-		}
-	case uint64:
-		// valid result, but a fail in this case
-	case int64:
-		// possible result, but a fail in this case
-	default:
-		t.Errorf("error: TestCRUDGetEntities5LimitAsc")
+	} else {
+		t.Errorf("error: TestCRUDGetEntities5LimitAsc: expected 4 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -632,17 +590,6 @@ func TestCRUDGetEntities5Offset(t *testing.T) {
 	// create the test records
 	createGetCmdTestRecs(t)
 
-	// // set a parameter for id
-	// p := common.GetParam{
-	// 	FieldName:    "fld_two_string",
-	// 	Operand:      "=",
-	// 	ParamValue:   "Record Two",
-	// 	NextOperator: "",
-	// }
-
-	// pa := []common.GetParam{}
-	// pa = append(pa, p)
-
 	// set an offset of 2
 	cmdMap := make(map[string]interface{})
 	cmdMap["offset"] = 2
@@ -651,26 +598,20 @@ func TestCRUDGetEntities5Offset(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	result, err := Handle.GetEntities5(recRead, nil, cmdMap)
-	switch result.(type) {
-	case []GetCmdTest:
-		recRead = result.([]GetCmdTest)
-		if len(recRead) != 6 {
-			t.Errorf("error: TestCRUDGetEntities5Offset: expected 6 records, got: %v", len(recRead))
+	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
+	if err != nil {
+		t.Errorf("error: TestCRUDGetEntities5Offset: %v", err)
+	}
+
+	if len(recRead) != 6 {
+		t.Errorf("error: TestCRUDGetEntities5Offset: expected 6 records, got: %v", len(recRead))
+	}
+	if len(recRead) > 0 {
+		if recRead[0].ID != 90000002 {
+			t.Errorf("error: TestCRUDGetEntities5Offset: expected result[0] record with key ID == 90000002, got: %v", recRead[0].ID)
 		}
-		if len(recRead) > 0 {
-			if recRead[0].ID != 90000002 {
-				t.Errorf("error: TestCRUDGetEntities5Offset: expected result[0] record with key ID == 90000002, got: %v", recRead[0].ID)
-			}
-		} else {
-			t.Errorf("error: TestCRUDGetEntities5Offset: expected 6 records, got: %v", len(recRead))
-		}
-	case uint64:
-		// valid result, but a fail in this case
-	case int64:
-		// possible result, but a fail in this case
-	default:
-		t.Errorf("error: TestCRUDGetEntities5Offset")
+	} else {
+		t.Errorf("error: TestCRUDGetEntities5Offset: expected 6 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -722,17 +663,6 @@ func TestCRUDGetEntities5OffsetDesc(t *testing.T) {
 	// create the test records
 	createGetCmdTestRecs(t)
 
-	// // set a parameter for id
-	// p := common.GetParam{
-	// 	FieldName:    "fld_two_string",
-	// 	Operand:      "=",
-	// 	ParamValue:   "Record Two",
-	// 	NextOperator: "",
-	// }
-
-	// pa := []common.GetParam{}
-	// pa = append(pa, p)
-
 	// set an offset of 2
 	cmdMap := make(map[string]interface{})
 	cmdMap["offset"] = 2
@@ -742,26 +672,20 @@ func TestCRUDGetEntities5OffsetDesc(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	result, err := Handle.GetEntities5(recRead, nil, cmdMap)
-	switch result.(type) {
-	case []GetCmdTest:
-		recRead = result.([]GetCmdTest)
-		if len(recRead) != 6 {
-			t.Errorf("error: TestCRUDGetEntities5OffsetDesc: expected 6 records, got: %v", len(recRead))
+	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
+	if err != nil {
+		t.Errorf("error: TestCRUDGetEntities5OffsetDesc: %v", err)
+	}
+
+	if len(recRead) != 6 {
+		t.Errorf("error: TestCRUDGetEntities5OffsetDesc: expected 6 records, got: %v", len(recRead))
+	}
+	if len(recRead) > 0 {
+		if recRead[0].ID != 90000005 {
+			t.Errorf("error: TestCRUDGetEntities5OffsetDesc: expected result[0] record with key ID == 90000005, got: %v", recRead[0].ID)
 		}
-		if len(recRead) > 0 {
-			if recRead[0].ID != 90000005 {
-				t.Errorf("error: TestCRUDGetEntities5OffsetDesc: expected result[0] record with key ID == 90000005, got: %v", recRead[0].ID)
-			}
-		} else {
-			t.Errorf("error: TestCRUDGetEntities5OffsetDesc: expected 6 records, got: %v", len(recRead))
-		}
-	case uint64:
-		// valid result, but a fail in this case
-	case int64:
-		// possible result, but a fail in this case
-	default:
-		t.Errorf("error: TestCRUDGetEntities5OffsetDesc")
+	} else {
+		t.Errorf("error: TestCRUDGetEntities5OffsetDesc: expected 6 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -813,17 +737,6 @@ func TestCRUDGetEntities5OffsetLimit(t *testing.T) {
 	// create the test records
 	createGetCmdTestRecs(t)
 
-	// // set a parameter for id
-	// p := common.GetParam{
-	// 	FieldName:    "fld_two_string",
-	// 	Operand:      "=",
-	// 	ParamValue:   "Record Two",
-	// 	NextOperator: "",
-	// }
-
-	// pa := []common.GetParam{}
-	// pa = append(pa, p)
-
 	// set an offset of 2, limit of 4
 	cmdMap := make(map[string]interface{})
 	cmdMap["offset"] = 2
@@ -833,26 +746,20 @@ func TestCRUDGetEntities5OffsetLimit(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	result, err := Handle.GetEntities5(recRead, nil, cmdMap)
-	switch result.(type) {
-	case []GetCmdTest:
-		recRead = result.([]GetCmdTest)
-		if len(recRead) != 4 {
-			t.Errorf("error: TestCRUDGetEntities5OffsetLimit: expected 4 records, got: %v", len(recRead))
+	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
+	if err != nil {
+		t.Errorf("error: TestCRUDGetEntities5OffsetLimit: %v", err)
+	}
+
+	if len(recRead) != 4 {
+		t.Errorf("error: TestCRUDGetEntities5OffsetLimit: expected 4 records, got: %v", len(recRead))
+	}
+	if len(recRead) > 0 {
+		if recRead[0].ID != 90000002 {
+			t.Errorf("error: TestCRUDGetEntities5OffsetLimit: expected result[0] record with key ID == 90000002, got: %v", recRead[0].ID)
 		}
-		if len(recRead) > 0 {
-			if recRead[0].ID != 90000002 {
-				t.Errorf("error: TestCRUDGetEntities5OffsetLimit: expected result[0] record with key ID == 90000002, got: %v", recRead[0].ID)
-			}
-		} else {
-			t.Errorf("error: TestCRUDGetEntities5OffsetLimit: expected 4 records, got: %v", len(recRead))
-		}
-	case uint64:
-		// valid result, but a fail in this case
-	case int64:
-		// possible result, but a fail in this case
-	default:
-		t.Errorf("error: TestCRUDGetEntities5OffsetLimit")
+	} else {
+		t.Errorf("error: TestCRUDGetEntities5OffsetLimit: expected 4 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -904,17 +811,6 @@ func TestCRUDGetEntities5OffsetLimitDesc(t *testing.T) {
 	// create the test records
 	createGetCmdTestRecs(t)
 
-	// // set a parameter for id
-	// p := common.GetParam{
-	// 	FieldName:    "fld_two_string",
-	// 	Operand:      "=",
-	// 	ParamValue:   "Record Two",
-	// 	NextOperator: "",
-	// }
-
-	// pa := []common.GetParam{}
-	// pa = append(pa, p)
-
 	// set an offset of 2, limit of 4, order by id descending
 	cmdMap := make(map[string]interface{})
 	cmdMap["offset"] = 2
@@ -925,26 +821,20 @@ func TestCRUDGetEntities5OffsetLimitDesc(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	result, err := Handle.GetEntities5(recRead, nil, cmdMap)
-	switch result.(type) {
-	case []GetCmdTest:
-		recRead = result.([]GetCmdTest)
-		if len(recRead) != 4 {
-			t.Errorf("error: TestCRUDGetEntities5OffsetLimitDesc: expected 4 records, got: %v", len(recRead))
+	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
+	if err != nil {
+		t.Errorf("error: TestCRUDGetEntities5OffsetLimitDesc: %v", err)
+	}
+
+	if len(recRead) != 4 {
+		t.Errorf("error: TestCRUDGetEntities5OffsetLimitDesc: expected 4 records, got: %v", len(recRead))
+	}
+	if len(recRead) > 0 {
+		if recRead[0].ID != 90000005 {
+			t.Errorf("error: TestCRUDGetEntities5OffsetLimitDesc: expected result[0] record with key ID == 90000005, got: %v", recRead[0].ID)
 		}
-		if len(recRead) > 0 {
-			if recRead[0].ID != 90000005 {
-				t.Errorf("error: TestCRUDGetEntities5OffsetLimitDesc: expected result[0] record with key ID == 90000005, got: %v", recRead[0].ID)
-			}
-		} else {
-			t.Errorf("error: TestCRUDGetEntities5OffsetLimitDesc: expected 4 records, got: %v", len(recRead))
-		}
-	case uint64:
-		// valid result, but a fail in this case
-	case int64:
-		// possible result, but a fail in this case
-	default:
-		t.Errorf("error: TestCRUDGetEntities5OffsetLimitDesc")
+	} else {
+		t.Errorf("error: TestCRUDGetEntities5OffsetLimitDesc: expected 4 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -996,17 +886,6 @@ func TestCRUDGetEntities5OrderBy(t *testing.T) {
 	// create the test records
 	createGetCmdTestRecs(t)
 
-	// // set a parameter for id
-	// p := common.GetParam{
-	// 	FieldName:    "fld_two_string",
-	// 	Operand:      "=",
-	// 	ParamValue:   "Record Two",
-	// 	NextOperator: "",
-	// }
-
-	// pa := []common.GetParam{}
-	// pa = append(pa, p)
-
 	// set $orderby=name
 	cmdMap := make(map[string]interface{})
 	cmdMap["orderby"] = "fld_two_string"
@@ -1015,26 +894,20 @@ func TestCRUDGetEntities5OrderBy(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	result, err := Handle.GetEntities5(recRead, nil, cmdMap)
-	switch result.(type) {
-	case []GetCmdTest:
-		recRead = result.([]GetCmdTest)
-		if len(recRead) != 8 {
-			t.Errorf("error: TestCRUDGetEntities5OrderBy: expected 8 records, got: %v", len(recRead))
+	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
+	if err != nil {
+		t.Errorf("error: TestCRUDGetEntities5OrderBy: %v", err)
+	}
+
+	if len(recRead) != 8 {
+		t.Errorf("error: TestCRUDGetEntities5OrderBy: expected 8 records, got: %v", len(recRead))
+	}
+	if len(recRead) > 0 {
+		if recRead[0].ID != 90000000 {
+			t.Errorf("error: TestCRUDGetEntities5OrderBy: expected result[0] record with key ID == 90000000 got: %v", recRead[0].ID)
 		}
-		if len(recRead) > 0 {
-			if recRead[0].ID != 90000000 {
-				t.Errorf("error: TestCRUDGetEntities5OrderBy: expected result[0] record with key ID == 90000000 got: %v", recRead[0].ID)
-			}
-		} else {
-			t.Errorf("error: TestCRUDGetEntities5OrderBy: expected 8 records, got: %v", len(recRead))
-		}
-	case uint64:
-		// valid result, but a fail in this case
-	case int64:
-		// possible result, but a fail in this case
-	default:
-		t.Errorf("error: TestCRUDGetEntities5OrderBy")
+	} else {
+		t.Errorf("error: TestCRUDGetEntities5OrderBy: expected 8 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -1086,17 +959,6 @@ func TestCRUDGetEntities5OrderByDesc(t *testing.T) {
 	// create the test records
 	createGetCmdTestRecs(t)
 
-	// // set a parameter for id
-	// p := common.GetParam{
-	// 	FieldName:    "fld_two_string",
-	// 	Operand:      "=",
-	// 	ParamValue:   "Record Two",
-	// 	NextOperator: "",
-	// }
-
-	// pa := []common.GetParam{}
-	// pa = append(pa, p)
-
 	// set $orderby=name
 	cmdMap := make(map[string]interface{})
 	cmdMap["orderby"] = "fld_two_string"
@@ -1106,26 +968,20 @@ func TestCRUDGetEntities5OrderByDesc(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	result, err := Handle.GetEntities5(recRead, nil, cmdMap)
-	switch result.(type) {
-	case []GetCmdTest:
-		recRead = result.([]GetCmdTest)
-		if len(recRead) != 8 {
-			t.Errorf("error: TestCRUDGetEntities5OrderByDesc: expected 8 records, got: %v", len(recRead))
+	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
+	if err != nil {
+		t.Errorf("error: TestCRUDGetEntities5OrderByDesc: %v", err)
+	}
+
+	if len(recRead) != 8 {
+		t.Errorf("error: TestCRUDGetEntities5OrderByDesc: expected 8 records, got: %v", len(recRead))
+	}
+	if len(recRead) > 0 {
+		if recRead[0].ID != 90000007 {
+			t.Errorf("error: TestCRUDGetEntities5OrderByDesc: expected result[0] record with key ID == 90000007 got: %v", recRead[0].ID)
 		}
-		if len(recRead) > 0 {
-			if recRead[0].ID != 90000007 {
-				t.Errorf("error: TestCRUDGetEntities5OrderByDesc: expected result[0] record with key ID == 90000007 got: %v", recRead[0].ID)
-			}
-		} else {
-			t.Errorf("error: TestCRUDGetEntities5OrderByDesc: expected 8 records, got: %v", len(recRead))
-		}
-	case uint64:
-		// valid result, but a fail in this case
-	case int64:
-		// possible result, but a fail in this case
-	default:
-		t.Errorf("error: TestCRUDGetEntities5OrderByDesc")
+	} else {
+		t.Errorf("error: TestCRUDGetEntities5OrderByDesc: expected 8 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -1197,29 +1053,23 @@ func TestCRUDGetEntities5ParamOrderBy(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	result, err := Handle.GetEntities5(recRead, pa, cmdMap)
-	switch result.(type) {
-	case []GetCmdTest:
-		recRead = result.([]GetCmdTest)
-		if len(recRead) != 5 {
-			t.Errorf("error: TestCRUDGetEntities5ParamOrderBy: expected 5 records, got: %v", len(recRead))
+	_, err = Handle.GetEntities5(&recRead, pa, cmdMap)
+	if err != nil {
+		t.Errorf("error: TestCRUDGetEntities5ParamOrderBy: %v", err)
+	}
+
+	if len(recRead) != 5 {
+		t.Errorf("error: TestCRUDGetEntities5ParamOrderBy: expected 5 records, got: %v", len(recRead))
+	}
+	if len(recRead) > 0 {
+		if recRead[0].ID != 90000003 {
+			t.Errorf("error: TestCRUDGetEntities5ParamOrderBy: expected result[0] record with key ID == 90000003 got: %v", recRead[0].ID)
 		}
-		if len(recRead) > 0 {
-			if recRead[0].ID != 90000003 {
-				t.Errorf("error: TestCRUDGetEntities5ParamOrderBy: expected result[0] record with key ID == 90000003 got: %v", recRead[0].ID)
-			}
-			if recRead[4].ID != 90000007 {
-				t.Errorf("error: TestCRUDGetEntities5ParamOrderBy: expected result[0] record with key ID == 90000007 got: %v", recRead[4].ID)
-			}
-		} else {
-			t.Errorf("error: TestCRUDGetEntities5ParamOrderBy: expected 5 records, got: %v", len(recRead))
+		if recRead[4].ID != 90000007 {
+			t.Errorf("error: TestCRUDGetEntities5ParamOrderBy: expected result[0] record with key ID == 90000007 got: %v", recRead[4].ID)
 		}
-	case uint64:
-		// valid result, but a fail in this case
-	case int64:
-		// possible result, but a fail in this case
-	default:
-		t.Errorf("error: TestCRUDGetEntities5ParamOrderBy")
+	} else {
+		t.Errorf("error: TestCRUDGetEntities5ParamOrderBy: expected 5 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -1291,29 +1141,23 @@ func TestCRUDGetEntities5ParamOrderByDesc(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	result, err := Handle.GetEntities5(recRead, pa, cmdMap)
-	switch result.(type) {
-	case []GetCmdTest:
-		recRead = result.([]GetCmdTest)
-		if len(recRead) != 5 {
-			t.Errorf("error: TestCRUDGetEntities5ParamOrderByDesc: expected 5 records, got: %v", len(recRead))
+	_, err = Handle.GetEntities5(&recRead, pa, cmdMap)
+	if err != nil {
+		t.Errorf("error: TestCRUDGetEntities5ParamOrderByDesc: %v", err)
+	}
+
+	if len(recRead) != 5 {
+		t.Errorf("error: TestCRUDGetEntities5ParamOrderByDesc: expected 5 records, got: %v", len(recRead))
+	}
+	if len(recRead) > 0 {
+		if recRead[0].ID != 90000007 {
+			t.Errorf("error: TestCRUDGetEntities5ParamOrderByDesc: expected result[0] record with key ID == 90000007 got: %v", recRead[0].ID)
 		}
-		if len(recRead) > 0 {
-			if recRead[0].ID != 90000007 {
-				t.Errorf("error: TestCRUDGetEntities5ParamOrderByDesc: expected result[0] record with key ID == 90000007 got: %v", recRead[0].ID)
-			}
-			if recRead[4].ID != 90000003 {
-				t.Errorf("error: TestCRUDGetEntities5ParamOrderByDesc: expected result[0] record with key ID == 90000003 got: %v", recRead[4].ID)
-			}
-		} else {
-			t.Errorf("error: TestCRUDGetEntities5ParamOrderByDesc: expected 5 records, got: %v", len(recRead))
+		if recRead[4].ID != 90000003 {
+			t.Errorf("error: TestCRUDGetEntities5ParamOrderByDesc: expected result[0] record with key ID == 90000003 got: %v", recRead[4].ID)
 		}
-	case uint64:
-		// valid result, but a fail in this case
-	case int64:
-		// possible result, but a fail in this case
-	default:
-		t.Errorf("error: TestCRUDGetEntities5ParamOrderByDesc")
+	} else {
+		t.Errorf("error: TestCRUDGetEntities5ParamOrderByDesc: expected 5 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -1365,17 +1209,6 @@ func TestCRUDGetEntities5OrderByDescLimit(t *testing.T) {
 	// create the test records
 	createGetCmdTestRecs(t)
 
-	// // set a parameter for id
-	// p := common.GetParam{
-	// 	FieldName:    "fld_two_string",
-	// 	Operand:      "=",
-	// 	ParamValue:   "Record Two",
-	// 	NextOperator: "",
-	// }
-
-	// pa := []common.GetParam{}
-	// pa = append(pa, p)
-
 	// set $orderby=name
 	cmdMap := make(map[string]interface{})
 	cmdMap["orderby"] = "fld_two_string"
@@ -1386,33 +1219,27 @@ func TestCRUDGetEntities5OrderByDescLimit(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	result, err := Handle.GetEntities5(recRead, nil, cmdMap)
-	switch result.(type) {
-	case []GetCmdTest:
-		recRead = result.([]GetCmdTest)
-		if len(recRead) != 3 {
-			t.Errorf("error: TestCRUDGetEntities5OrderByDescLimit: expected 3 records, got: %v", len(recRead))
+	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
+	if err != nil {
+		t.Errorf("error: TestCRUDGetEntities5OrderByDescLimit: %v", err)
+	}
+
+	if len(recRead) != 3 {
+		t.Errorf("error: TestCRUDGetEntities5OrderByDescLimit: expected 3 records, got: %v", len(recRead))
+	}
+	if len(recRead) > 0 {
+		if recRead[0].ID != 90000007 {
+			t.Errorf("error: TestCRUDGetEntities5OrderByDescLimit: expected result[0] record with key ID == 90000007 got: %v", recRead[0].ID)
 		}
-		if len(recRead) > 0 {
-			if recRead[0].ID != 90000007 {
-				t.Errorf("error: TestCRUDGetEntities5OrderByDescLimit: expected result[0] record with key ID == 90000007 got: %v", recRead[0].ID)
-			}
-		} else {
-			t.Errorf("error: TestCRUDGetEntities5OrderByDescLimit: expected 3 records, got: %v", len(recRead))
+	} else {
+		t.Errorf("error: TestCRUDGetEntities5OrderByDescLimit: expected 3 records, got: %v", len(recRead))
+	}
+	if len(recRead) == 3 {
+		if recRead[2].ID != 90000005 {
+			t.Errorf("error: TestCRUDGetEntities5OrderByDescLimit: expected result[2] record with key ID == 90000005 got: %v", recRead[2].ID)
 		}
-		if len(recRead) == 3 {
-			if recRead[2].ID != 90000005 {
-				t.Errorf("error: TestCRUDGetEntities5OrderByDescLimit: expected result[2] record with key ID == 90000005 got: %v", recRead[2].ID)
-			}
-		} else {
-			t.Errorf("error: TestCRUDGetEntities5OrderByDescLimit: expected 3 records, got: %v", len(recRead))
-		}
-	case uint64:
-		// valid result, but a fail in this case
-	case int64:
-		// possible result, but a fail in this case
-	default:
-		t.Errorf("error: TestCRUDGetEntities5OrderByDescLimit")
+	} else {
+		t.Errorf("error: TestCRUDGetEntities5OrderByDescLimit: expected 3 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -1464,17 +1291,6 @@ func TestCRUDGetEntities5OrderByDescLimitOffset(t *testing.T) {
 	// create the test records
 	createGetCmdTestRecs(t)
 
-	// // set a parameter for id
-	// p := common.GetParam{
-	// 	FieldName:    "fld_two_string",
-	// 	Operand:      "=",
-	// 	ParamValue:   "Record Two",
-	// 	NextOperator: "",
-	// }
-
-	// pa := []common.GetParam{}
-	// pa = append(pa, p)
-
 	// set $orderby=name$descending$limit=3$offset=2
 	cmdMap := make(map[string]interface{})
 	cmdMap["orderby"] = "fld_two_string"
@@ -1486,33 +1302,27 @@ func TestCRUDGetEntities5OrderByDescLimitOffset(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	result, err := Handle.GetEntities5(recRead, nil, cmdMap)
-	switch result.(type) {
-	case []GetCmdTest:
-		recRead = result.([]GetCmdTest)
-		if len(recRead) != 3 {
-			t.Errorf("error: TestCRUDGetEntities5OrderByDescLimitOffset: expected 3 records, got: %v", len(recRead))
+	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
+	if err != nil {
+		t.Errorf("error: TestCRUDGetEntities5OrderByDescLimitOffset: %v", err)
+	}
+
+	if len(recRead) != 3 {
+		t.Errorf("error: TestCRUDGetEntities5OrderByDescLimitOffset: expected 3 records, got: %v", len(recRead))
+	}
+	if len(recRead) > 0 {
+		if recRead[0].ID != 90000005 {
+			t.Errorf("error: TestCRUDGetEntities5OrderByDescLimitOffset: expected result[0] record with key ID == 90000005 got: %v", recRead[0].ID)
 		}
-		if len(recRead) > 0 {
-			if recRead[0].ID != 90000005 {
-				t.Errorf("error: TestCRUDGetEntities5OrderByDescLimitOffset: expected result[0] record with key ID == 90000005 got: %v", recRead[0].ID)
-			}
-		} else {
-			t.Errorf("error: TestCRUDGetEntities5OrderByDescLimitOffset: expected 3 records, got: %v", len(recRead))
+	} else {
+		t.Errorf("error: TestCRUDGetEntities5OrderByDescLimitOffset: expected 3 records, got: %v", len(recRead))
+	}
+	if len(recRead) == 3 {
+		if recRead[2].ID != 90000003 {
+			t.Errorf("error: TestCRUDGetEntities5OrderByDescLimitOffset: expected result[2] record with key ID == 90000003 got: %v", recRead[2].ID)
 		}
-		if len(recRead) == 3 {
-			if recRead[2].ID != 90000003 {
-				t.Errorf("error: TestCRUDGetEntities5OrderByDescLimitOffset: expected result[2] record with key ID == 90000003 got: %v", recRead[2].ID)
-			}
-		} else {
-			t.Errorf("error: TestCRUDGetEntities5OrderByDescLimitOffset: expected 3 records, got: %v", len(recRead))
-		}
-	case uint64:
-		// valid result, but a fail in this case
-	case int64:
-		// possible result, but a fail in this case
-	default:
-		t.Errorf("error: TestCRUDGetEntities5OrderByDescLimitOffset")
+	} else {
+		t.Errorf("error: TestCRUDGetEntities5OrderByDescLimitOffset: expected 3 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -1564,17 +1374,6 @@ func TestCRUDGetEntities5OrderByAscLimitOffset(t *testing.T) {
 	// create the test records
 	createGetCmdTestRecs(t)
 
-	// // set a parameter for id
-	// p := common.GetParam{
-	// 	FieldName:    "fld_two_string",
-	// 	Operand:      "=",
-	// 	ParamValue:   "Record Two",
-	// 	NextOperator: "",
-	// }
-
-	// pa := []common.GetParam{}
-	// pa = append(pa, p)
-
 	// set $orderby=name$descending$limit=3$offset=2
 	cmdMap := make(map[string]interface{})
 	cmdMap["orderby"] = "fld_two_string"
@@ -1586,33 +1385,27 @@ func TestCRUDGetEntities5OrderByAscLimitOffset(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	result, err := Handle.GetEntities5(recRead, nil, cmdMap)
-	switch result.(type) {
-	case []GetCmdTest:
-		recRead = result.([]GetCmdTest)
-		if len(recRead) != 3 {
-			t.Errorf("error: TestCRUDGetEntities5OrderByAscLimitOffset: expected 3 records, got: %v", len(recRead))
+	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
+	if err != nil {
+		t.Errorf("error: TestCRUDGetEntities5OrderByAscLimitOffset: %v", err)
+	}
+
+	if len(recRead) != 3 {
+		t.Errorf("error: TestCRUDGetEntities5OrderByAscLimitOffset: expected 3 records, got: %v", len(recRead))
+	}
+	if len(recRead) > 0 {
+		if recRead[0].ID != 90000002 {
+			t.Errorf("error: TestCRUDGetEntities5OrderByAscLimitOffset: expected result[0] record with key ID == 90000002 got: %v", recRead[0].ID)
 		}
-		if len(recRead) > 0 {
-			if recRead[0].ID != 90000002 {
-				t.Errorf("error: TestCRUDGetEntities5OrderByAscLimitOffset: expected result[0] record with key ID == 90000002 got: %v", recRead[0].ID)
-			}
-		} else {
-			t.Errorf("error: TestCRUDGetEntities5OrderByAscLimitOffset: expected 3 records, got: %v", len(recRead))
+	} else {
+		t.Errorf("error: TestCRUDGetEntities5OrderByAscLimitOffset: expected 3 records, got: %v", len(recRead))
+	}
+	if len(recRead) == 3 {
+		if recRead[2].ID != 90000004 {
+			t.Errorf("error: TestCRUDGetEntities5OrderByAscLimitOffset: expected result[2] record with key ID == 90000004 got: %v", recRead[2].ID)
 		}
-		if len(recRead) == 3 {
-			if recRead[2].ID != 90000004 {
-				t.Errorf("error: TestCRUDGetEntities5OrderByAscLimitOffset: expected result[2] record with key ID == 90000004 got: %v", recRead[2].ID)
-			}
-		} else {
-			t.Errorf("error: TestCRUDGetEntities5OrderByAscLimitOffset: expected 3 records, got: %v", len(recRead))
-		}
-	case uint64:
-		// valid result, but a fail in this case
-	case int64:
-		// possible result, but a fail in this case
-	default:
-		t.Errorf("error: TestCRUDGetEntities5OrderByAscLimitOffset")
+	} else {
+		t.Errorf("error: TestCRUDGetEntities5OrderByAscLimitOffset: expected 3 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -1664,17 +1457,6 @@ func TestCRUDGetEntities5TestOffsetOrderByAscLimitOffset(t *testing.T) {
 	// create the test records
 	createGetCmdTestRecs(t)
 
-	// // set a parameter for id
-	// p := common.GetParam{
-	// 	FieldName:    "fld_two_string",
-	// 	Operand:      "=",
-	// 	ParamValue:   "Record Two",
-	// 	NextOperator: "",
-	// }
-
-	// pa := []common.GetParam{}
-	// pa = append(pa, p)
-
 	// set $orderby=name$descending$limit=3$offset=2
 	cmdMap := make(map[string]interface{})
 	cmdMap["orderby"] = "fld_two_string"
@@ -1686,33 +1468,27 @@ func TestCRUDGetEntities5TestOffsetOrderByAscLimitOffset(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	result, err := Handle.GetEntities5(recRead, nil, cmdMap)
-	switch result.(type) {
-	case []GetCmdTest:
-		recRead = result.([]GetCmdTest)
-		if len(recRead) != 3 {
-			t.Errorf("error: TestCRUDGetEntities5TestOrderByAscLimitOffset: expected 3 records, got: %v", len(recRead))
+	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
+	if err != nil {
+		t.Errorf("error: TestCRUDGetEntities5TestOrderByAscLimitOffset: %v", err)
+	}
+
+	if len(recRead) != 3 {
+		t.Errorf("error: TestCRUDGetEntities5TestOrderByAscLimitOffset: expected 3 records, got: %v", len(recRead))
+	}
+	if len(recRead) > 0 {
+		if recRead[0].ID != 90000002 {
+			t.Errorf("error: TestCRUDGetEntities5TestOrderByAscLimitOffset: expected result[0] record with key ID == 90000002 got: %v", recRead[0].ID)
 		}
-		if len(recRead) > 0 {
-			if recRead[0].ID != 90000002 {
-				t.Errorf("error: TestCRUDGetEntities5TestOrderByAscLimitOffset: expected result[0] record with key ID == 90000002 got: %v", recRead[0].ID)
-			}
-		} else {
-			t.Errorf("error: TestCRUDGetEntities5TestOrderByAscLimitOffset: expected 3 records, got: %v", len(recRead))
+	} else {
+		t.Errorf("error: TestCRUDGetEntities5TestOrderByAscLimitOffset: expected 3 records, got: %v", len(recRead))
+	}
+	if len(recRead) == 3 {
+		if recRead[2].ID != 90000004 {
+			t.Errorf("error: TestCRUDGetEntities5TestOrderByAscLimitOffset: expected result[2] record with key ID == 90000004 got: %v", recRead[2].ID)
 		}
-		if len(recRead) == 3 {
-			if recRead[2].ID != 90000004 {
-				t.Errorf("error: TestCRUDGetEntities5TestOrderByAscLimitOffset: expected result[2] record with key ID == 90000004 got: %v", recRead[2].ID)
-			}
-		} else {
-			t.Errorf("error: TestCRUDGetEntities5TestOrderByAscLimitOffset: expected 3 records, got: %v", len(recRead))
-		}
-	case uint64:
-		// valid result, but a fail in this case
-	case int64:
-		// possible result, but a fail in this case
-	default:
-		t.Errorf("error: TestCRUDGetEntitiesWithCommandsTestOrderByAscLimitOffset")
+	} else {
+		t.Errorf("error: TestCRUDGetEntities5TestOrderByAscLimitOffset: expected 3 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest

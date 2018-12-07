@@ -1070,7 +1070,7 @@ func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 	// read the rows
 	rows, err := bf.db.Queryx(selQuery)
 	if err != nil {
-		log.Printf("GetEntities for table &s returned error: %v\n", err.Error())
+		log.Printf("GetEntities for table %s returned error: %v\n", tn, err.Error())
 		// return err
 	}
 	defer rows.Close()
@@ -1244,9 +1244,10 @@ func (bf *BaseFlavor) GetEntities5(ents interface{}, params []common.GetParam, c
 	// read the rows
 	rows, err := bf.db.Queryx(selQuery)
 	if err != nil {
-		log.Printf("GetEntities for table &s returned error: %v\n", err.Error())
+		log.Printf("GetEntities for table %s returned error: %v\n", tn, err.Error())
 		return 0, err
 	}
+
 	defer rows.Close()
 
 	// this is where it happens for GetEntities5(...) and why I am  not too
@@ -1264,6 +1265,7 @@ func (bf *BaseFlavor) GetEntities5(ents interface{}, params []common.GetParam, c
 		resultType = resultType.Elem()
 	}
 
+	var c uint64
 	slice := reflect.MakeSlice(sliceTypeElem, 0, 0)
 	for rows.Next() {
 		err = rows.StructScan(dstRow.Interface())
@@ -1273,16 +1275,13 @@ func (bf *BaseFlavor) GetEntities5(ents interface{}, params []common.GetParam, c
 		}
 		slice = reflect.Append(slice, dstRow.Elem())
 		results.Set(reflect.Append(results, dstRow.Elem()))
+		c++
 	}
 	// fmt.Println("slice:", slice)
 	// fmt.Println("")
 	// fmt.Println("results:", results)
 	// fmt.Println("ents:", ents)
-	err = rows.Scan(&count)
-	if err != nil {
-		return 0, err
-	}
-	return count, nil
+	return c, nil
 }
 
 // GetEntitiesWithCommands is the new and improved get for lists of entities.  Each DB needs
