@@ -832,7 +832,7 @@ func (msf *MSSQLFlavor) Update(ent interface{}) error {
 	return nil
 }
 
-// GetEntitiesWithCommands is the experimental replacement for all get-set ops
+// GetEntitiesWithCommands is a parameterized get.  See the BaseFlavor implementation for more info.
 func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (interface{}, error) {
 
 	var err error
@@ -919,7 +919,6 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []commo
 	limField, ok := cmdMap["limit"]
 	if ok {
 		if offsetString != "" {
-			// (" FETCH NEXT %v ROWS ONLY", limField)
 			limitString = " FETCH NEXT " + strconv.FormatInt(reflect.ValueOf(limField).Int(), 10) + " ROWS ONLY"
 		} else {
 			limitString = fmt.Sprintf("TOP(%v)", limField)
@@ -963,7 +962,7 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []commo
 	// read the rows
 	rows, err := msf.db.Queryx(selQuery, pv...)
 	if err != nil {
-		log.Printf("GetEntities for table &s returned error: %v\n", err.Error())
+		log.Printf("GetEntitiesWithCommands for table &s returned error: %v\n", err.Error())
 		return nil, err
 	}
 	defer rows.Close()
@@ -982,4 +981,172 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []commo
 
 	ents = entsv.Interface()
 	return entsv.Interface(), nil
+}
+
+// GetEntitiesWithCommandsIP is a parameterized get.  See the BaseFlavor implementation for more info.
+func (msf *MSSQLFlavor) GetEntitiesWithCommandsIP(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (result uint64, err error) {
+
+	var count uint64
+	var row *sqlx.Row
+	paramString := ""
+	selQuery := ""
+
+	// get the underlying data type of the interface{} ([]ModelEtc)
+	sliceTypeElem := reflect.TypeOf(ents).Elem()
+
+	// get the underlying (struct?) type of the slice
+	t := reflect.Indirect(reflect.ValueOf(ents)).Type().Elem()
+
+	// create a struct from the type
+	dstRow := reflect.New(t)
+
+	// determine the db table name
+	tn := common.GetTableName(ents)
+
+	// are there any parameters to include in the query?
+	var pv []interface{}
+	if params != nil && len(params) > 0 {
+		paramString = " WHERE"
+		for i := range params {
+			paramString = paramString + " " + common.CamelToSnake(params[i].FieldName) + " " + params[i].Operand + " ? " + params[i].NextOperator
+			pv = append(pv, params[i].ParamValue)
+		}
+	}
+
+	// received a $count command?  this supercedes all, as it should not
+	// be mixed with any other $<commands>.
+	_, ok := cmdMap["count"]
+	if ok {
+		if paramString == "" {
+			selQuery = "SELECT COUNT(*) FROM " + tn + ";"
+			msf.QsLog(selQuery)
+			row = msf.ExecuteQueryRowx(selQuery)
+		} else {
+			selQuery = "SELECT COUNT(*) FROM " + tn + paramString + ";"
+			msf.QsLog(selQuery)
+			row = msf.ExecuteQueryRowx(selQuery, pv...)
+		}
+
+		err = row.Scan(&count)
+		if err != nil {
+			return 0, err
+		}
+		return count, nil
+	}
+
+	// no $count command - build query
+	var obString string
+	var limitString string
+	var offsetString string
+	var adString string
+
+	// received $orderby command?
+	obField, ok := cmdMap["orderby"]
+	if ok {
+		obString = " ORDER BY " + obField.(string)
+	}
+
+	// received $asc command?
+	_, ok = cmdMap["asc"]
+	if ok {
+		adString = " ASC"
+	}
+
+	// received $desc command?
+	_, ok = cmdMap["desc"]
+	if ok {
+		adString = " DESC"
+	}
+
+	// received $offset command?
+	offField, ok := cmdMap["offset"]
+	if ok {
+		offsetString = fmt.Sprintf(" OFFSET %v ROWS", offField)
+	}
+
+	// received $limit command?
+	limField, ok := cmdMap["limit"]
+	if ok {
+		if offsetString != "" {
+			limitString = " FETCH NEXT " + strconv.FormatInt(reflect.ValueOf(limField).Int(), 10) + " ROWS ONLY"
+		} else {
+			limitString = fmt.Sprintf("TOP(%v)", limField)
+		}
+	}
+
+	// -- SELECT COUNT(*) FROM library;
+	// -- SELECT * FROM library;
+	// -- SELECT * FROM library LIMIT 2;
+	// -- SELECT * FROM library OFFSET 2;
+	// -- SELECT * FROM library LIMIT 2 OFFSET 1;
+	// -- SELECT * FROM library ORDER BY ID DESC;
+	// -- SELECT * FROM library ORDER BY ID ASC;
+	// -- SELECT * FROM library ORDER BY name ASC;
+	// -- SELECT * FROM library ORDER BY ID ASC LIMIT 2 OFFSET 2;
+
+	// if $asc or $desc were specifed with no $orderby, default to order by id
+	if obString == "" && adString != "" {
+		obString = " ORDER BY id"
+	}
+
+	if offsetString != "" && obString == "" {
+		obString = " ORDER BY id"
+	}
+
+	if limitString != "" && offsetString == "" {
+		selQuery = "SELECT " + limitString + " * FROM " + tn + paramString
+	} else {
+		selQuery = "SELECT * FROM " + tn + paramString
+	}
+	selQuery = msf.db.Rebind(selQuery)
+
+	// use SELECT (TOP n) * ...
+	if limitString != "" && offsetString == "" {
+		selQuery = selQuery + obString + adString + ";"
+	} else {
+		selQuery = selQuery + obString + adString + offsetString + limitString + ";"
+	}
+	msf.QsLog(selQuery)
+
+	// read the rows
+	rows, err := msf.db.Queryx(selQuery, pv...)
+	if err != nil {
+		log.Printf("GetEntitiesWithCommandsIP for table %s returned error: %v\n", tn, err.Error())
+		return 0, err
+	}
+
+	defer rows.Close()
+
+	// this is where it happens for GetEntitiesWithCommandsIP(...) and why I am  not too
+	// satisfied with generic programming in go:
+	eValue := reflect.ValueOf(ents)
+	for eValue.Kind() == reflect.Ptr {
+		eValue = eValue.Elem()
+	}
+
+	results := eValue
+	resultType := results.Type().Elem()
+	results.Set(reflect.MakeSlice(results.Type(), 0, 0))
+
+	if resultType.Kind() == reflect.Ptr {
+		resultType = resultType.Elem()
+	}
+
+	var c uint64
+	slice := reflect.MakeSlice(sliceTypeElem, 0, 0)
+	for rows.Next() {
+		err = rows.StructScan(dstRow.Interface())
+		if err != nil {
+			log.Println("GetEntitiesWithCommandsIP scan error:", err)
+			return 0, err
+		}
+		slice = reflect.Append(slice, dstRow.Elem())
+		results.Set(reflect.Append(results, dstRow.Elem()))
+		c++
+	}
+	// fmt.Println("slice:", slice)
+	// fmt.Println("")
+	// fmt.Println("results:", results)
+	// fmt.Println("ents:", ents)
+	return c, nil
 }

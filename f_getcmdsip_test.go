@@ -10,7 +10,7 @@ import (
 //
 // Test CRUD GetSet
 // call with no parameters and no commands
-func TestCRUDGetEntities5OpenSelect(t *testing.T) {
+func TestCRUDGetEntitiesWithCommandsIPOpenSelect(t *testing.T) {
 
 	// type GetCmdTest struct {
 	// 	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
@@ -77,13 +77,13 @@ func TestCRUDGetEntities5OpenSelect(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	_, err = Handle.GetEntities5(&recRead, nil, nil)
+	_, err = Handle.GetEntitiesWithCommandsIP(&recRead, nil, nil)
 	if err != nil {
-		t.Errorf("error: TestCRUDGetEntities5OpenSelect: %v", err)
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOpenSelect: %v", err)
 	}
 
 	if len(recRead) != 8 {
-		t.Errorf("error: TestCRUDGetEntities5OpenSelect: expected 8 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOpenSelect: expected 8 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -93,11 +93,11 @@ func TestCRUDGetEntities5OpenSelect(t *testing.T) {
 	}
 }
 
-// TestCRUDGetEntities5SelectUint
+// TestCRUDGetEntitiesWithCommandsIPSelectUint
 //
 // Test CRUD GetSet
 // call with single parameter (id = 4) and no commands
-func TestCRUDGetEntities5SelectUint(t *testing.T) {
+func TestCRUDGetEntitiesWithCommandsIPSelectUint(t *testing.T) {
 
 	// type GetCmdTest struct {
 	// 	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
@@ -172,17 +172,17 @@ func TestCRUDGetEntities5SelectUint(t *testing.T) {
 	pa = append(pa, p)
 
 	// call with a single parameter and no commands
-	_, err = Handle.GetEntities5(&recRead, pa, nil)
+	_, err = Handle.GetEntitiesWithCommandsIP(&recRead, pa, nil)
 	if err != nil {
-		t.Errorf("error: TestCRUDGetEntities5SelectUint: %v", err)
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPSelectUint: %v", err)
 	}
 
 	if len(recRead) > 0 {
 		if recRead[0].ID != 90000004 {
-			t.Errorf("error: TestCRUDGetEntities5SelectUint: expected 1 record with key ID == 90000004, got: %v", recRead[0].ID)
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPSelectUint: expected 1 record with key ID == 90000004, got: %v", recRead[0].ID)
 		}
 	} else {
-		t.Errorf("error: TestCRUDGetEntities5SelectUint: expected 1 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPSelectUint: expected 1 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -192,11 +192,11 @@ func TestCRUDGetEntities5SelectUint(t *testing.T) {
 	}
 }
 
-// TestCRUDGetEntities5SelectString
+// TestCRUDGetEntitiesWithCommandsIPSelectString
 //
 // Test CRUD GetSet
 // call with single parameter fld_two_string="Record Two",and no commands
-func TestCRUDGetEntities5SelectString(t *testing.T) {
+func TestCRUDGetEntitiesWithCommandsIPSelectString(t *testing.T) {
 
 	// type GetCmdTest struct {
 	// 	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
@@ -249,17 +249,17 @@ func TestCRUDGetEntities5SelectString(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	_, err = Handle.GetEntities5(&recRead, pa, nil)
+	_, err = Handle.GetEntitiesWithCommandsIP(&recRead, pa, nil)
 	if err != nil {
-		t.Errorf("error: TestCRUDGetEntities5SelectString: %v", err)
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPSelectString: %v", err)
 	}
 
 	if len(recRead) > 0 {
 		if recRead[0].ID != 90000002 {
-			t.Errorf("error: TestCRUDGetEntities5SelectString: expected 1 record with key ID == 90000002, got: %v", recRead[0].ID)
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPSelectString: expected 1 record with key ID == 90000002, got: %v", recRead[0].ID)
 		}
 	} else {
-		t.Errorf("error: TestCRUDGetEntities5SelectString: expected 1 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPSelectString: expected 1 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -269,11 +269,11 @@ func TestCRUDGetEntities5SelectString(t *testing.T) {
 	}
 }
 
-// TestCRUDGetEntities5SelectCount
+// TestCRUDGetEntitiesWithCommandsIPSelectCount
 //
 // Test CRUD GetSet
 // call with command /$count
-func TestCRUDGetEntities5SelectCount(t *testing.T) {
+func TestCRUDGetEntitiesWithCommandsIPSelectCount(t *testing.T) {
 
 	// type GetCmdTest struct {
 	// 	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
@@ -319,13 +319,13 @@ func TestCRUDGetEntities5SelectCount(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	result, err := Handle.GetEntities5(&recRead, nil, cmdMap)
+	result, err := Handle.GetEntitiesWithCommandsIP(&recRead, nil, cmdMap)
 	if err != nil {
-		t.Errorf("error: TestCRUDGetEntities5SelectCount: %v", err)
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPSelectCount: %v", err)
 	}
 
 	if result != 8 {
-		t.Errorf("error: TestCRUDGetEntities5SelectCount: expected 8 records: got %v", result)
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPSelectCount: expected 8 records: got %v", result)
 	}
 
 	// drop table getcmdtest
@@ -335,11 +335,11 @@ func TestCRUDGetEntities5SelectCount(t *testing.T) {
 	}
 }
 
-// TestCRUDGetEntities5Limit
+// TestCRUDGetEntitiesWithCommandsIPLimit
 //
 // Test CRUD GetSet
 // call with command /$limit=4
-func TestCRUDGetEntities5Limit(t *testing.T) {
+func TestCRUDGetEntitiesWithCommandsIPLimit(t *testing.T) {
 
 	// type GetCmdTest struct {
 	// 	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
@@ -385,13 +385,13 @@ func TestCRUDGetEntities5Limit(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters command $limit=4
-	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
+	_, err = Handle.GetEntitiesWithCommandsIP(&recRead, nil, cmdMap)
 	if err != nil {
-		t.Errorf("error: TestCRUDGetEntities5Limit: %v", err)
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPLimit: %v", err)
 	}
 
 	if len(recRead) != 4 {
-		t.Errorf("error: TestCRUDGetEntities5Limit: expected 4 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPLimit: expected 4 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -401,11 +401,11 @@ func TestCRUDGetEntities5Limit(t *testing.T) {
 	}
 }
 
-// TestCRUDGetEntities5LimitDesc
+// TestCRUDGetEntitiesWithCommandsIPLimitDesc
 //
 // Test CRUD GetSet
 // call with command /$limit=4$desc
-func TestCRUDGetEntities5LimitDesc(t *testing.T) {
+func TestCRUDGetEntitiesWithCommandsIPLimitDesc(t *testing.T) {
 
 	// type GetCmdTest struct {
 	// 	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
@@ -452,20 +452,20 @@ func TestCRUDGetEntities5LimitDesc(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
+	_, err = Handle.GetEntitiesWithCommandsIP(&recRead, nil, cmdMap)
 	if err != nil {
-		t.Errorf("error: TestCRUDGetEntities5LimitDesc: %v", err)
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPLimitDesc: %v", err)
 	}
 
 	if len(recRead) != 4 {
-		t.Errorf("error: TestCRUDGetEntities5LimitDesc: expected 4 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPLimitDesc: expected 4 records, got: %v", len(recRead))
 	}
 	if len(recRead) > 0 {
 		if recRead[0].ID != 90000007 {
-			t.Errorf("error: TestCRUDGetEntities5LimitDesc: expected result[0] record with key ID == 90000007, got: %v", recRead[0].ID)
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPLimitDesc: expected result[0] record with key ID == 90000007, got: %v", recRead[0].ID)
 		}
 	} else {
-		t.Errorf("error: TestCRUDGetEntities5LimitDesc: expected 4 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPLimitDesc: expected 4 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -475,11 +475,11 @@ func TestCRUDGetEntities5LimitDesc(t *testing.T) {
 	}
 }
 
-// TestCRUDGetEntities5LimitAsc
+// TestCRUDGetEntitiesWithCommandsIPLimitAsc
 //
 // Test CRUD GetSet
 // call with command /$limit=4$asc
-func TestCRUDGetEntities5LimitAsc(t *testing.T) {
+func TestCRUDGetEntitiesWithCommandsIPLimitAsc(t *testing.T) {
 
 	// type GetCmdTest struct {
 	// 	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
@@ -526,19 +526,19 @@ func TestCRUDGetEntities5LimitAsc(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
+	_, err = Handle.GetEntitiesWithCommandsIP(&recRead, nil, cmdMap)
 	if err != nil {
-		t.Errorf("error: TestCRUDGetEntities5LimitAsc: %v", err)
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPLimitAsc: %v", err)
 	}
 	if len(recRead) != 4 {
-		t.Errorf("error: TestCRUDGetEntities5LimitAsc: expected 4 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPLimitAsc: expected 4 records, got: %v", len(recRead))
 	}
 	if len(recRead) > 0 {
 		if recRead[0].ID != 90000000 {
-			t.Errorf("error: TestCRUDGetEntities5LimitAsc: expected result[0] record with key ID == 90000000, got: %v", recRead[0].ID)
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPLimitAsc: expected result[0] record with key ID == 90000000, got: %v", recRead[0].ID)
 		}
 	} else {
-		t.Errorf("error: TestCRUDGetEntities5LimitAsc: expected 4 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPLimitAsc: expected 4 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -548,11 +548,11 @@ func TestCRUDGetEntities5LimitAsc(t *testing.T) {
 	}
 }
 
-// TestCRUDGetEntities5Offset
+// TestCRUDGetEntitiesWithCommandsIPOffset
 //
 // Test CRUD GetSet
 // call with command /$offset=2
-func TestCRUDGetEntities5Offset(t *testing.T) {
+func TestCRUDGetEntitiesWithCommandsIPOffset(t *testing.T) {
 
 	// type GetCmdTest struct {
 	// 	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
@@ -598,20 +598,20 @@ func TestCRUDGetEntities5Offset(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
+	_, err = Handle.GetEntitiesWithCommandsIP(&recRead, nil, cmdMap)
 	if err != nil {
-		t.Errorf("error: TestCRUDGetEntities5Offset: %v", err)
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOffset: %v", err)
 	}
 
 	if len(recRead) != 6 {
-		t.Errorf("error: TestCRUDGetEntities5Offset: expected 6 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOffset: expected 6 records, got: %v", len(recRead))
 	}
 	if len(recRead) > 0 {
 		if recRead[0].ID != 90000002 {
-			t.Errorf("error: TestCRUDGetEntities5Offset: expected result[0] record with key ID == 90000002, got: %v", recRead[0].ID)
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOffset: expected result[0] record with key ID == 90000002, got: %v", recRead[0].ID)
 		}
 	} else {
-		t.Errorf("error: TestCRUDGetEntities5Offset: expected 6 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOffset: expected 6 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -621,11 +621,11 @@ func TestCRUDGetEntities5Offset(t *testing.T) {
 	}
 }
 
-// TestCRUDGetEntities5OffsetDesc
+// TestCRUDGetEntitiesWithCommandsIPOffsetDesc
 //
 // Test CRUD GetSet
 // call with command /$offset=2$desc
-func TestCRUDGetEntities5OffsetDesc(t *testing.T) {
+func TestCRUDGetEntitiesWithCommandsIPOffsetDesc(t *testing.T) {
 
 	// type GetCmdTest struct {
 	// 	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
@@ -672,20 +672,20 @@ func TestCRUDGetEntities5OffsetDesc(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
+	_, err = Handle.GetEntitiesWithCommandsIP(&recRead, nil, cmdMap)
 	if err != nil {
-		t.Errorf("error: TestCRUDGetEntities5OffsetDesc: %v", err)
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOffsetDesc: %v", err)
 	}
 
 	if len(recRead) != 6 {
-		t.Errorf("error: TestCRUDGetEntities5OffsetDesc: expected 6 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOffsetDesc: expected 6 records, got: %v", len(recRead))
 	}
 	if len(recRead) > 0 {
 		if recRead[0].ID != 90000005 {
-			t.Errorf("error: TestCRUDGetEntities5OffsetDesc: expected result[0] record with key ID == 90000005, got: %v", recRead[0].ID)
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOffsetDesc: expected result[0] record with key ID == 90000005, got: %v", recRead[0].ID)
 		}
 	} else {
-		t.Errorf("error: TestCRUDGetEntities5OffsetDesc: expected 6 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOffsetDesc: expected 6 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -695,11 +695,11 @@ func TestCRUDGetEntities5OffsetDesc(t *testing.T) {
 	}
 }
 
-// TestCRUDGetEntities5OffsetLimit
+// TestCRUDGetEntitiesWithCommandsIPOffsetLimit
 //
 // Test CRUD GetSet
 // call with command /$offset=2$limit=4
-func TestCRUDGetEntities5OffsetLimit(t *testing.T) {
+func TestCRUDGetEntitiesWithCommandsIPOffsetLimit(t *testing.T) {
 
 	// type GetCmdTest struct {
 	// 	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
@@ -746,20 +746,20 @@ func TestCRUDGetEntities5OffsetLimit(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
+	_, err = Handle.GetEntitiesWithCommandsIP(&recRead, nil, cmdMap)
 	if err != nil {
-		t.Errorf("error: TestCRUDGetEntities5OffsetLimit: %v", err)
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOffsetLimit: %v", err)
 	}
 
 	if len(recRead) != 4 {
-		t.Errorf("error: TestCRUDGetEntities5OffsetLimit: expected 4 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOffsetLimit: expected 4 records, got: %v", len(recRead))
 	}
 	if len(recRead) > 0 {
 		if recRead[0].ID != 90000002 {
-			t.Errorf("error: TestCRUDGetEntities5OffsetLimit: expected result[0] record with key ID == 90000002, got: %v", recRead[0].ID)
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOffsetLimit: expected result[0] record with key ID == 90000002, got: %v", recRead[0].ID)
 		}
 	} else {
-		t.Errorf("error: TestCRUDGetEntities5OffsetLimit: expected 4 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOffsetLimit: expected 4 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -769,11 +769,11 @@ func TestCRUDGetEntities5OffsetLimit(t *testing.T) {
 	}
 }
 
-// TestCRUDGetEntities5OffsetLimitDesc
+// TestCRUDGetEntitiesWithCommandsIPOffsetLimitDesc
 //
 // Test CRUD GetSet
 // call with command /$offset=2$limit=4$desc
-func TestCRUDGetEntities5OffsetLimitDesc(t *testing.T) {
+func TestCRUDGetEntitiesWithCommandsIPOffsetLimitDesc(t *testing.T) {
 
 	// type GetCmdTest struct {
 	// 	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
@@ -821,20 +821,20 @@ func TestCRUDGetEntities5OffsetLimitDesc(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
+	_, err = Handle.GetEntitiesWithCommandsIP(&recRead, nil, cmdMap)
 	if err != nil {
-		t.Errorf("error: TestCRUDGetEntities5OffsetLimitDesc: %v", err)
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOffsetLimitDesc: %v", err)
 	}
 
 	if len(recRead) != 4 {
-		t.Errorf("error: TestCRUDGetEntities5OffsetLimitDesc: expected 4 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOffsetLimitDesc: expected 4 records, got: %v", len(recRead))
 	}
 	if len(recRead) > 0 {
 		if recRead[0].ID != 90000005 {
-			t.Errorf("error: TestCRUDGetEntities5OffsetLimitDesc: expected result[0] record with key ID == 90000005, got: %v", recRead[0].ID)
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOffsetLimitDesc: expected result[0] record with key ID == 90000005, got: %v", recRead[0].ID)
 		}
 	} else {
-		t.Errorf("error: TestCRUDGetEntities5OffsetLimitDesc: expected 4 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOffsetLimitDesc: expected 4 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -844,11 +844,11 @@ func TestCRUDGetEntities5OffsetLimitDesc(t *testing.T) {
 	}
 }
 
-// TestCRUDGetEntities5OrderBy
+// TestCRUDGetEntitiesWithCommandsIPOrderBy
 //
 // Test CRUD GetSet
 // call with command /$orderby=name
-func TestCRUDGetEntities5OrderBy(t *testing.T) {
+func TestCRUDGetEntitiesWithCommandsIPOrderBy(t *testing.T) {
 
 	// type GetCmdTest struct {
 	// 	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
@@ -894,20 +894,20 @@ func TestCRUDGetEntities5OrderBy(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
+	_, err = Handle.GetEntitiesWithCommandsIP(&recRead, nil, cmdMap)
 	if err != nil {
-		t.Errorf("error: TestCRUDGetEntities5OrderBy: %v", err)
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderBy: %v", err)
 	}
 
 	if len(recRead) != 8 {
-		t.Errorf("error: TestCRUDGetEntities5OrderBy: expected 8 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderBy: expected 8 records, got: %v", len(recRead))
 	}
 	if len(recRead) > 0 {
 		if recRead[0].ID != 90000000 {
-			t.Errorf("error: TestCRUDGetEntities5OrderBy: expected result[0] record with key ID == 90000000 got: %v", recRead[0].ID)
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderBy: expected result[0] record with key ID == 90000000 got: %v", recRead[0].ID)
 		}
 	} else {
-		t.Errorf("error: TestCRUDGetEntities5OrderBy: expected 8 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderBy: expected 8 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -917,11 +917,11 @@ func TestCRUDGetEntities5OrderBy(t *testing.T) {
 	}
 }
 
-// TestCRUDGetEntities5OrderByDesc
+// TestCRUDGetEntitiesWithCommandsIPOrderByDesc
 //
 // Test CRUD GetSet
 // call with command /$orderby=name$desc
-func TestCRUDGetEntities5OrderByDesc(t *testing.T) {
+func TestCRUDGetEntitiesWithCommandsIPOrderByDesc(t *testing.T) {
 
 	// type GetCmdTest struct {
 	// 	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
@@ -968,20 +968,20 @@ func TestCRUDGetEntities5OrderByDesc(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
+	_, err = Handle.GetEntitiesWithCommandsIP(&recRead, nil, cmdMap)
 	if err != nil {
-		t.Errorf("error: TestCRUDGetEntities5OrderByDesc: %v", err)
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderByDesc: %v", err)
 	}
 
 	if len(recRead) != 8 {
-		t.Errorf("error: TestCRUDGetEntities5OrderByDesc: expected 8 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderByDesc: expected 8 records, got: %v", len(recRead))
 	}
 	if len(recRead) > 0 {
 		if recRead[0].ID != 90000007 {
-			t.Errorf("error: TestCRUDGetEntities5OrderByDesc: expected result[0] record with key ID == 90000007 got: %v", recRead[0].ID)
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderByDesc: expected result[0] record with key ID == 90000007 got: %v", recRead[0].ID)
 		}
 	} else {
-		t.Errorf("error: TestCRUDGetEntities5OrderByDesc: expected 8 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderByDesc: expected 8 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -991,11 +991,11 @@ func TestCRUDGetEntities5OrderByDesc(t *testing.T) {
 	}
 }
 
-// TestCRUDGetEntities5ParamOrderBy
+// TestCRUDGetEntitiesWithCommandsIPParamOrderBy
 //
 // Test CRUD GetSet
 // call with command /$orderby=name /parameters: id > 90000002
-func TestCRUDGetEntities5ParamOrderBy(t *testing.T) {
+func TestCRUDGetEntitiesWithCommandsIPParamOrderBy(t *testing.T) {
 
 	// type GetCmdTest struct {
 	// 	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
@@ -1053,23 +1053,23 @@ func TestCRUDGetEntities5ParamOrderBy(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	_, err = Handle.GetEntities5(&recRead, pa, cmdMap)
+	_, err = Handle.GetEntitiesWithCommandsIP(&recRead, pa, cmdMap)
 	if err != nil {
-		t.Errorf("error: TestCRUDGetEntities5ParamOrderBy: %v", err)
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPParamOrderBy: %v", err)
 	}
 
 	if len(recRead) != 5 {
-		t.Errorf("error: TestCRUDGetEntities5ParamOrderBy: expected 5 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPParamOrderBy: expected 5 records, got: %v", len(recRead))
 	}
 	if len(recRead) > 0 {
 		if recRead[0].ID != 90000003 {
-			t.Errorf("error: TestCRUDGetEntities5ParamOrderBy: expected result[0] record with key ID == 90000003 got: %v", recRead[0].ID)
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPParamOrderBy: expected result[0] record with key ID == 90000003 got: %v", recRead[0].ID)
 		}
 		if recRead[4].ID != 90000007 {
-			t.Errorf("error: TestCRUDGetEntities5ParamOrderBy: expected result[0] record with key ID == 90000007 got: %v", recRead[4].ID)
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPParamOrderBy: expected result[0] record with key ID == 90000007 got: %v", recRead[4].ID)
 		}
 	} else {
-		t.Errorf("error: TestCRUDGetEntities5ParamOrderBy: expected 5 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPParamOrderBy: expected 5 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -1079,11 +1079,11 @@ func TestCRUDGetEntities5ParamOrderBy(t *testing.T) {
 	}
 }
 
-// TestCRUDGetEntities5ParamOrderByDesc
+// TestCRUDGetEntitiesWithCommandsIPParamOrderByDesc
 //
 // Test CRUD GetSet
 // call with command /$orderby=name /parameters: id > 90000002
-func TestCRUDGetEntities5ParamOrderByDesc(t *testing.T) {
+func TestCRUDGetEntitiesWithCommandsIPParamOrderByDesc(t *testing.T) {
 
 	// type GetCmdTest struct {
 	// 	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
@@ -1141,23 +1141,23 @@ func TestCRUDGetEntities5ParamOrderByDesc(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	_, err = Handle.GetEntities5(&recRead, pa, cmdMap)
+	_, err = Handle.GetEntitiesWithCommandsIP(&recRead, pa, cmdMap)
 	if err != nil {
-		t.Errorf("error: TestCRUDGetEntities5ParamOrderByDesc: %v", err)
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPParamOrderByDesc: %v", err)
 	}
 
 	if len(recRead) != 5 {
-		t.Errorf("error: TestCRUDGetEntities5ParamOrderByDesc: expected 5 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPParamOrderByDesc: expected 5 records, got: %v", len(recRead))
 	}
 	if len(recRead) > 0 {
 		if recRead[0].ID != 90000007 {
-			t.Errorf("error: TestCRUDGetEntities5ParamOrderByDesc: expected result[0] record with key ID == 90000007 got: %v", recRead[0].ID)
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPParamOrderByDesc: expected result[0] record with key ID == 90000007 got: %v", recRead[0].ID)
 		}
 		if recRead[4].ID != 90000003 {
-			t.Errorf("error: TestCRUDGetEntities5ParamOrderByDesc: expected result[0] record with key ID == 90000003 got: %v", recRead[4].ID)
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPParamOrderByDesc: expected result[0] record with key ID == 90000003 got: %v", recRead[4].ID)
 		}
 	} else {
-		t.Errorf("error: TestCRUDGetEntities5ParamOrderByDesc: expected 5 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPParamOrderByDesc: expected 5 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -1167,11 +1167,11 @@ func TestCRUDGetEntities5ParamOrderByDesc(t *testing.T) {
 	}
 }
 
-// TestCRUDGetEntities5OrderByDescLimit
+// TestCRUDGetEntitiesWithCommandsIPOrderByDescLimit
 //
 // Test CRUD GetSet
 // call with command /$orderby=name$desc$limit=3
-func TestCRUDGetEntities5OrderByDescLimit(t *testing.T) {
+func TestCRUDGetEntitiesWithCommandsIPOrderByDescLimit(t *testing.T) {
 
 	// type GetCmdTest struct {
 	// 	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
@@ -1219,27 +1219,27 @@ func TestCRUDGetEntities5OrderByDescLimit(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
+	_, err = Handle.GetEntitiesWithCommandsIP(&recRead, nil, cmdMap)
 	if err != nil {
-		t.Errorf("error: TestCRUDGetEntities5OrderByDescLimit: %v", err)
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderByDescLimit: %v", err)
 	}
 
 	if len(recRead) != 3 {
-		t.Errorf("error: TestCRUDGetEntities5OrderByDescLimit: expected 3 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderByDescLimit: expected 3 records, got: %v", len(recRead))
 	}
 	if len(recRead) > 0 {
 		if recRead[0].ID != 90000007 {
-			t.Errorf("error: TestCRUDGetEntities5OrderByDescLimit: expected result[0] record with key ID == 90000007 got: %v", recRead[0].ID)
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderByDescLimit: expected result[0] record with key ID == 90000007 got: %v", recRead[0].ID)
 		}
 	} else {
-		t.Errorf("error: TestCRUDGetEntities5OrderByDescLimit: expected 3 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderByDescLimit: expected 3 records, got: %v", len(recRead))
 	}
 	if len(recRead) == 3 {
 		if recRead[2].ID != 90000005 {
-			t.Errorf("error: TestCRUDGetEntities5OrderByDescLimit: expected result[2] record with key ID == 90000005 got: %v", recRead[2].ID)
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderByDescLimit: expected result[2] record with key ID == 90000005 got: %v", recRead[2].ID)
 		}
 	} else {
-		t.Errorf("error: TestCRUDGetEntities5OrderByDescLimit: expected 3 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderByDescLimit: expected 3 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -1249,11 +1249,11 @@ func TestCRUDGetEntities5OrderByDescLimit(t *testing.T) {
 	}
 }
 
-// TestCRUDGetEntities5OrderByDescLimitOffset
+// TestCRUDGetEntitiesWithCommandsIPOrderByDescLimitOffset
 //
 // Test CRUD GetSet
 // call with command /$orderby=name$desc$limit=3$offset=2
-func TestCRUDGetEntities5OrderByDescLimitOffset(t *testing.T) {
+func TestCRUDGetEntitiesWithCommandsIPOrderByDescLimitOffset(t *testing.T) {
 
 	// type GetCmdTest struct {
 	// 	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
@@ -1302,27 +1302,27 @@ func TestCRUDGetEntities5OrderByDescLimitOffset(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
+	_, err = Handle.GetEntitiesWithCommandsIP(&recRead, nil, cmdMap)
 	if err != nil {
-		t.Errorf("error: TestCRUDGetEntities5OrderByDescLimitOffset: %v", err)
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderByDescLimitOffset: %v", err)
 	}
 
 	if len(recRead) != 3 {
-		t.Errorf("error: TestCRUDGetEntities5OrderByDescLimitOffset: expected 3 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderByDescLimitOffset: expected 3 records, got: %v", len(recRead))
 	}
 	if len(recRead) > 0 {
 		if recRead[0].ID != 90000005 {
-			t.Errorf("error: TestCRUDGetEntities5OrderByDescLimitOffset: expected result[0] record with key ID == 90000005 got: %v", recRead[0].ID)
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderByDescLimitOffset: expected result[0] record with key ID == 90000005 got: %v", recRead[0].ID)
 		}
 	} else {
-		t.Errorf("error: TestCRUDGetEntities5OrderByDescLimitOffset: expected 3 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderByDescLimitOffset: expected 3 records, got: %v", len(recRead))
 	}
 	if len(recRead) == 3 {
 		if recRead[2].ID != 90000003 {
-			t.Errorf("error: TestCRUDGetEntities5OrderByDescLimitOffset: expected result[2] record with key ID == 90000003 got: %v", recRead[2].ID)
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderByDescLimitOffset: expected result[2] record with key ID == 90000003 got: %v", recRead[2].ID)
 		}
 	} else {
-		t.Errorf("error: TestCRUDGetEntities5OrderByDescLimitOffset: expected 3 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderByDescLimitOffset: expected 3 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -1332,11 +1332,11 @@ func TestCRUDGetEntities5OrderByDescLimitOffset(t *testing.T) {
 	}
 }
 
-// TestCRUDGetEntities5OrderByAscLimitOffset
+// TestCRUDGetEntitiesWithCommandsIPOrderByAscLimitOffset
 //
 // Test CRUD GetSet
 // call with command /$orderby=name$asc$limit=3$offset=2
-func TestCRUDGetEntities5OrderByAscLimitOffset(t *testing.T) {
+func TestCRUDGetEntitiesWithCommandsIPOrderByAscLimitOffset(t *testing.T) {
 
 	// type GetCmdTest struct {
 	// 	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
@@ -1385,27 +1385,27 @@ func TestCRUDGetEntities5OrderByAscLimitOffset(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
+	_, err = Handle.GetEntitiesWithCommandsIP(&recRead, nil, cmdMap)
 	if err != nil {
-		t.Errorf("error: TestCRUDGetEntities5OrderByAscLimitOffset: %v", err)
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderByAscLimitOffset: %v", err)
 	}
 
 	if len(recRead) != 3 {
-		t.Errorf("error: TestCRUDGetEntities5OrderByAscLimitOffset: expected 3 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderByAscLimitOffset: expected 3 records, got: %v", len(recRead))
 	}
 	if len(recRead) > 0 {
 		if recRead[0].ID != 90000002 {
-			t.Errorf("error: TestCRUDGetEntities5OrderByAscLimitOffset: expected result[0] record with key ID == 90000002 got: %v", recRead[0].ID)
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderByAscLimitOffset: expected result[0] record with key ID == 90000002 got: %v", recRead[0].ID)
 		}
 	} else {
-		t.Errorf("error: TestCRUDGetEntities5OrderByAscLimitOffset: expected 3 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderByAscLimitOffset: expected 3 records, got: %v", len(recRead))
 	}
 	if len(recRead) == 3 {
 		if recRead[2].ID != 90000004 {
-			t.Errorf("error: TestCRUDGetEntities5OrderByAscLimitOffset: expected result[2] record with key ID == 90000004 got: %v", recRead[2].ID)
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderByAscLimitOffset: expected result[2] record with key ID == 90000004 got: %v", recRead[2].ID)
 		}
 	} else {
-		t.Errorf("error: TestCRUDGetEntities5OrderByAscLimitOffset: expected 3 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPOrderByAscLimitOffset: expected 3 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest
@@ -1419,7 +1419,7 @@ func TestCRUDGetEntities5OrderByAscLimitOffset(t *testing.T) {
 //
 // Test CRUD GetSet
 // call with command /$orderby=name
-func TestCRUDGetEntities5TestOffsetOrderByAscLimitOffset(t *testing.T) {
+func TestCRUDGetEntitiesWithCommandsIPTestOffsetOrderByAscLimitOffset(t *testing.T) {
 
 	// type GetCmdTest struct {
 	// 	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
@@ -1468,27 +1468,27 @@ func TestCRUDGetEntities5TestOffsetOrderByAscLimitOffset(t *testing.T) {
 	recRead := []GetCmdTest{}
 
 	// call with no parameters and no commands
-	_, err = Handle.GetEntities5(&recRead, nil, cmdMap)
+	_, err = Handle.GetEntitiesWithCommandsIP(&recRead, nil, cmdMap)
 	if err != nil {
-		t.Errorf("error: TestCRUDGetEntities5TestOrderByAscLimitOffset: %v", err)
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPTestOrderByAscLimitOffset: %v", err)
 	}
 
 	if len(recRead) != 3 {
-		t.Errorf("error: TestCRUDGetEntities5TestOrderByAscLimitOffset: expected 3 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPTestOrderByAscLimitOffset: expected 3 records, got: %v", len(recRead))
 	}
 	if len(recRead) > 0 {
 		if recRead[0].ID != 90000002 {
-			t.Errorf("error: TestCRUDGetEntities5TestOrderByAscLimitOffset: expected result[0] record with key ID == 90000002 got: %v", recRead[0].ID)
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPTestOrderByAscLimitOffset: expected result[0] record with key ID == 90000002 got: %v", recRead[0].ID)
 		}
 	} else {
-		t.Errorf("error: TestCRUDGetEntities5TestOrderByAscLimitOffset: expected 3 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPTestOrderByAscLimitOffset: expected 3 records, got: %v", len(recRead))
 	}
 	if len(recRead) == 3 {
 		if recRead[2].ID != 90000004 {
-			t.Errorf("error: TestCRUDGetEntities5TestOrderByAscLimitOffset: expected result[2] record with key ID == 90000004 got: %v", recRead[2].ID)
+			t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPTestOrderByAscLimitOffset: expected result[2] record with key ID == 90000004 got: %v", recRead[2].ID)
 		}
 	} else {
-		t.Errorf("error: TestCRUDGetEntities5TestOrderByAscLimitOffset: expected 3 records, got: %v", len(recRead))
+		t.Errorf("error: TestCRUDGetEntitiesWithCommandsIPTestOrderByAscLimitOffset: expected 3 records, got: %v", len(recRead))
 	}
 
 	// drop table getcmdtest

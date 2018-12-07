@@ -195,7 +195,7 @@ type PublicDB interface {
 	GetEntities(ents interface{}) (interface{}, error)
 	GetEntities2(ge GetEnt) error
 	GetEntities4(ents interface{})
-	GetEntities5(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (uint64, error)
+	GetEntitiesWithCommandsIP(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (uint64, error)
 	GetEntitiesWithCommands(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (interface{}, error)
 }
 
@@ -956,31 +956,7 @@ func (bf *BaseFlavor) GetEntity(ent interface{}) error {
 	return nil
 }
 
-// GetEntities - this is one way to do it, but reflection feels like a mistake
-// in the CRUD code.  consider an alternative approach whereby a CRUD interface
-// is declared using the model.<ent> as the basis.
-//
-// type CRUDEnt{} interface
-//
-//  Create(h *sqac.Handle)
-//  Read()
-//  Update()
-//  Delete()
-//  GetEntities()
-//
-//  Each model would have a corresponding interface implementation,
-//  based on its own data.  The interface object would be passed from
-//  the application side into the CRUD part of the ORM.  The ORM would
-//  then provide a sqac.Handle that would be used inside the interface
-//  implementation to perform the required CRUD task.  It follows that
-//  the data for the Create, Read, Update, Delete would need to be set
-//  inside the interface object prior to its being passed to the ORM.
-//  The interface object would be passed by reference, allowing the
-//  results to be 'passed' back to the caller without any fuss or
-//  delay.  Advantage - no reflection.  Disadvantage - it seems rather
-//  messy, as the extraction of the retrieved data would likely be
-//  though the struct or slice of structs the interface is implemented
-//  on.
+// GetEntities is experimental - use GetEntitiesWithCommands.
 func (bf *BaseFlavor) GetEntities(ents interface{}) (interface{}, error) {
 
 	// get the underlying data type of the interface{}
@@ -1043,12 +1019,13 @@ func (bf *BaseFlavor) GetEntities2(ge GetEnt) error {
 	return nil
 }
 
-// GetEntities4 is experimental, and uses alot of reflection to permit the retrieval of
-// the equivalent of []interface{} where interface{} can be taken to mean Model{}.  This
-// can be used, but is not recommended, as it is a pretty slow way of doing things and
-// a quick internet search on []interface{} will turn up all sorts of acrimony.  Notice
+// GetEntities4 is experimental - use GetEntitiesByCommands or GetEntitiesByCommandsIP.
+//
+// This method uses alot of reflection to permit the retrieval of the equivalent of
+// []interface{} where interface{} can be taken to mean Model{}.  This can be used,
+// but may prove to be a slow way of doing things.
+// A quick internet search on []interface{} will turn up all sorts of acrimony.  Notice
 // that the method signature is still interface{}?  Not very transparent.
-// Use GetEntitiedByCommands instead.
 func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 
 	// get the underlying data type of the interface{} ([]ModelEtc)
@@ -1105,13 +1082,18 @@ func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 	// fmt.Println("ents:", ents)
 }
 
-// GetEntities5 is experimental, and uses alot of reflection to permit the retrieval of
-// the equivalent of []interface{} where interface{} can be taken to mean Model{}.  This
-// can be used, but is not recommended, as it is a pretty slow way of doing things and
-// a quick internet search on []interface{} will turn up all sorts of acrimony.  Notice
-// that the method signature is still interface{}?  Not very transparent.
-// Use GetEntitiedByCommands instead.
-func (bf *BaseFlavor) GetEntities5(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (result uint64, err error) {
+// GetEntitiesWithCommandsIP uses alot of reflection to permit the retrieval of the equivalent
+// of []interface{} where interface{} can be taken to mean Model{}.  This can be used, but may
+// not be the fastest way to do the selection in terms of processing in the go runtime.
+// A quick internet search on []interface{} will turn up all sorts of acrimony related to
+// refelection and using interface{} as []interface.
+// However, this is the Get method that is preferred, as the caller can simply pass the address
+// of a slice of the requested table-type in the ents parameter, then read the resulting
+// slice directly in their program following method execution.
+// Each DB needs slightly different handling due to differences in OFFSET / LIMIT / TOP support.
+// This is a mostly common version, but MSSQL has its own specific implementation due to
+// some extra differences in transact-SQL.
+func (bf *BaseFlavor) GetEntitiesWithCommandsIP(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (result uint64, err error) {
 
 	var count uint64
 	var row *sqlx.Row
@@ -1123,7 +1105,6 @@ func (bf *BaseFlavor) GetEntities5(ents interface{}, params []common.GetParam, c
 
 	// get the underlying (struct?) type of the slice
 	t := reflect.Indirect(reflect.ValueOf(ents)).Type().Elem()
-	// fmt.Println("t:", t)
 
 	// create a struct from the type
 	dstRow := reflect.New(t)
@@ -1158,7 +1139,6 @@ func (bf *BaseFlavor) GetEntities5(ents interface{}, params []common.GetParam, c
 
 		err = row.Scan(&count)
 		if err != nil {
-			// log.Fatal(err)
 			return 0, err
 		}
 		return count, nil
@@ -1270,7 +1250,7 @@ func (bf *BaseFlavor) GetEntities5(ents interface{}, params []common.GetParam, c
 	for rows.Next() {
 		err = rows.StructScan(dstRow.Interface())
 		if err != nil {
-			log.Println("GetEntities5 scan error:", err)
+			log.Println("GetEntitiesWithCommandsIP scan error:", err)
 			return 0, err
 		}
 		slice = reflect.Append(slice, dstRow.Elem())
@@ -1284,10 +1264,11 @@ func (bf *BaseFlavor) GetEntities5(ents interface{}, params []common.GetParam, c
 	return c, nil
 }
 
-// GetEntitiesWithCommands is the new and improved get for lists of entities.  Each DB needs
+// GetEntitiesWithCommands can be used as a get for lists of entities.  Each DB needs
 // slightly different handling due to differences in OFFSET / LIMIT / TOP support.
 // This is a mostly common version, but MSSQL has its own specific implementation due to
-// some extra differences in transact-SQL.
+// some extra differences in transact-SQL.  This method still requires that the caller
+// perform a type-assertion on the returned interface{} ([]interface{}) parameter.
 func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (interface{}, error) {
 
 	var err error
