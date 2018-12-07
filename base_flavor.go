@@ -1242,7 +1242,7 @@ func (bf *BaseFlavor) GetEntities5(ents interface{}, params []common.GetParam, c
 	bf.QsLog(selQuery)
 
 	// read the rows
-	rows, err := bf.db.Queryx(selQuery)
+	rows, err := bf.db.Queryx(selQuery, pv...)
 	if err != nil {
 		log.Printf("GetEntities for table %s returned error: %v\n", tn, err.Error())
 		return 0, err

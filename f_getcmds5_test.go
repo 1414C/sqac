@@ -171,7 +171,7 @@ func TestCRUDGetEntities5SelectUint(t *testing.T) {
 	pa := []common.GetParam{}
 	pa = append(pa, p)
 
-	// call with no parameters and no commands
+	// call with a single parameter and no commands
 	_, err = Handle.GetEntities5(&recRead, pa, nil)
 	if err != nil {
 		t.Errorf("error: TestCRUDGetEntities5SelectUint: %v", err)
