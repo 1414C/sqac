@@ -195,6 +195,7 @@ type PublicDB interface {
 	GetEntities(ents interface{}) (interface{}, error)
 	GetEntities2(ge GetEnt) error
 	GetEntities4(ents interface{})
+	GetEntities5(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (uint64, error)
 	GetEntitiesWithCommands(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (interface{}, error)
 }
 
@@ -1046,7 +1047,7 @@ func (bf *BaseFlavor) GetEntities2(ge GetEnt) error {
 // the equivalent of []interface{} where interface{} can be taken to mean Model{}.  This
 // can be used, but is not recommended, as it is a pretty slow way of doing things and
 // a quick internet search on []interface{} will turn up all sorts of acrimony.  Notice
-// that the method signature is still interface{}?  Not very transparent IMO.
+// that the method signature is still interface{}?  Not very transparent.
 // Use GetEntitiedByCommands instead.
 func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 
@@ -1076,7 +1077,6 @@ func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 
 	// this is where it happens for GetEntities4(...) and why I am  not too
 	// satisfied with generic programming in go:
-	// results := indirect(reflect.ValueOf(ents))
 	eValue := reflect.ValueOf(ents)
 	for eValue.Kind() == reflect.Ptr {
 		eValue = eValue.Elem()
@@ -1105,8 +1105,188 @@ func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 	// fmt.Println("ents:", ents)
 }
 
-// GetEntitiesWithCommands is the new and improved get for lists of entities.  Each DB needs a
-// slightly different implementation due to differences in OFFSET / LIMIT / TOP support.
+// GetEntities5 is experimental, and uses alot of reflection to permit the retrieval of
+// the equivalent of []interface{} where interface{} can be taken to mean Model{}.  This
+// can be used, but is not recommended, as it is a pretty slow way of doing things and
+// a quick internet search on []interface{} will turn up all sorts of acrimony.  Notice
+// that the method signature is still interface{}?  Not very transparent.
+// Use GetEntitiedByCommands instead.
+func (bf *BaseFlavor) GetEntities5(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (result uint64, err error) {
+
+	var count uint64
+	var row *sqlx.Row
+	paramString := ""
+	selQuery := ""
+
+	// get the underlying data type of the interface{} ([]ModelEtc)
+	sliceTypeElem := reflect.TypeOf(ents).Elem()
+
+	// get the underlying (struct?) type of the slice
+	t := reflect.Indirect(reflect.ValueOf(ents)).Type().Elem()
+	// fmt.Println("t:", t)
+
+	// create a struct from the type
+	dstRow := reflect.New(t)
+
+	// determine the db table name
+	tn := common.GetTableName(ents)
+
+	// are there any parameters to include in the query?
+	var pv []interface{}
+	if params != nil && len(params) > 0 {
+		paramString = " WHERE"
+		for i := range params {
+			paramString = paramString + " " + common.CamelToSnake(params[i].FieldName) + " " + params[i].Operand + " ? " + params[i].NextOperator
+			pv = append(pv, params[i].ParamValue)
+		}
+	}
+
+	// received a $count command?  this supercedes all, as it should not
+	// be mixed with any other $<commands>.
+	_, ok := cmdMap["count"]
+	if ok {
+		if paramString == "" {
+			selQuery = "SELECT COUNT(*) FROM " + tn + ";"
+			bf.QsLog(selQuery)
+			row = bf.ExecuteQueryRowx(selQuery)
+		} else {
+			selQuery = "SELECT COUNT(*) FROM " + tn + paramString + ";"
+			fmt.Println("S1:", selQuery)
+			bf.QsLog(selQuery)
+			row = bf.ExecuteQueryRowx(selQuery, pv...)
+		}
+
+		err = row.Scan(&count)
+		if err != nil {
+			// log.Fatal(err)
+			return 0, err
+		}
+		return count, nil
+	}
+
+	// no $count command - build query
+	var obString string
+	var limitString string
+	var offsetString string
+	var adString string
+
+	// received $orderby command?
+	obField, ok := cmdMap["orderby"]
+	if ok {
+		obString = " ORDER BY " + obField.(string)
+	}
+
+	// received $asc command?
+	_, ok = cmdMap["asc"]
+	if ok {
+		adString = " ASC"
+	}
+
+	// received $desc command?
+	_, ok = cmdMap["desc"]
+	if ok {
+		adString = " DESC"
+	}
+
+	// received $limit command?
+	limField, ok := cmdMap["limit"]
+	if ok {
+		limitString = fmt.Sprintf(" LIMIT %v", limField)
+	}
+
+	// received $offset command?  some db's require a limit with offset....
+	offField, ok := cmdMap["offset"]
+	if ok {
+		switch bf.GetDBDriverName() {
+		case "sqlite3":
+			// set -1 for open-ended limit
+			if limitString == "" {
+				limitString = " LIMIT -1"
+			}
+		case "mysql":
+			// set 18446744073709551615 for open-ended limit :P
+			if limitString == "" {
+				limitString = " LIMIT 18446744073709551615"
+			}
+		case "hdb":
+			if limitString == "" {
+				limitString = " LIMIT null"
+			}
+		case "mssql":
+			// handled in mssql_flavor
+
+		default:
+
+		}
+		offsetString = fmt.Sprintf(" OFFSET %v", offField)
+	}
+
+	// -- SELECT COUNT(*) FROM library;
+	// -- SELECT * FROM library;
+	// -- SELECT * FROM library LIMIT 2;
+	// -- SELECT * FROM library OFFSET 2;
+	// -- SELECT * FROM library LIMIT 2 OFFSET 1;
+	// -- SELECT * FROM library ORDER BY ID DESC;
+	// -- SELECT * FROM library ORDER BY ID ASC;
+	// -- SELECT * FROM library ORDER BY name ASC;
+	// -- SELECT * FROM library ORDER BY ID ASC LIMIT 2 OFFSET 2;
+
+	// if $asc or $desc were specifed with no $orderby, default to order by id
+	if obString == "" && adString != "" {
+		obString = " ORDER BY id"
+	}
+
+	selQuery = "SELECT * FROM " + tn + paramString
+	selQuery = bf.db.Rebind(selQuery)
+	selQuery = selQuery + obString + adString + limitString + offsetString + ";"
+	bf.QsLog(selQuery)
+
+	// read the rows
+	rows, err := bf.db.Queryx(selQuery)
+	if err != nil {
+		log.Printf("GetEntities for table &s returned error: %v\n", err.Error())
+		return 0, err
+	}
+	defer rows.Close()
+
+	// this is where it happens for GetEntities5(...) and why I am  not too
+	// satisfied with generic programming in go:
+	eValue := reflect.ValueOf(ents)
+	for eValue.Kind() == reflect.Ptr {
+		eValue = eValue.Elem()
+	}
+
+	results := eValue
+	resultType := results.Type().Elem()
+	results.Set(reflect.MakeSlice(results.Type(), 0, 0))
+
+	if resultType.Kind() == reflect.Ptr {
+		resultType = resultType.Elem()
+	}
+
+	slice := reflect.MakeSlice(sliceTypeElem, 0, 0)
+	for rows.Next() {
+		err = rows.StructScan(dstRow.Interface())
+		if err != nil {
+			log.Println("GetEntities5 scan error:", err)
+			return 0, err
+		}
+		slice = reflect.Append(slice, dstRow.Elem())
+		results.Set(reflect.Append(results, dstRow.Elem()))
+	}
+	// fmt.Println("slice:", slice)
+	// fmt.Println("")
+	// fmt.Println("results:", results)
+	// fmt.Println("ents:", ents)
+	err = rows.Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+// GetEntitiesWithCommands is the new and improved get for lists of entities.  Each DB needs
+// slightly different handling due to differences in OFFSET / LIMIT / TOP support.
 // This is a mostly common version, but MSSQL has its own specific implementation due to
 // some extra differences in transact-SQL.
 func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (interface{}, error) {
@@ -1260,9 +1440,9 @@ func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []common.
 }
 
 // this is where it happens for GetEntities4(...)
-func indirect(reflectValue reflect.Value) reflect.Value {
-	for reflectValue.Kind() == reflect.Ptr {
-		reflectValue = reflectValue.Elem()
-	}
-	return reflectValue
-}
+// func indirect(reflectValue reflect.Value) reflect.Value {
+// 	for reflectValue.Kind() == reflect.Ptr {
+// 		reflectValue = reflectValue.Elem()
+// 	}
+// 	return reflectValue
+// }
