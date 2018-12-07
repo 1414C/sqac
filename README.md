@@ -140,6 +140,15 @@ func main() {
     Handle sqac.PublicDB
   )
 
+  // Declare a struct to use as a source for table declaration.
+  type Depot struct {
+      DepotNum   int       `db:"depot_num" sqac:"primary_key:inc"`
+      CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now();"`
+      Region     string    `db:"region" sqac:"nullable:false;default:YYC"`
+      Province   string    `db:"province" sqac:"nullable:false;default:AB"`
+      Country    string    `db:"country" sqac:"nullable:false;default:CA"`
+  }
+
   // Create a PublicDB instance.  Check the Create method, as the return parameter contains
   // not only an implementation of PublicDB targeting the db-type/db, but also a pointer
   // facilitating access to the db via jmoiron's sqlx package.  This is useful if you wish
