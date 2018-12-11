@@ -3,6 +3,7 @@ package sqac_test
 import (
 	"testing"
 
+	"github.com/1414C/sqac"
 	"github.com/1414C/sqac/common"
 )
 
@@ -161,14 +162,14 @@ func TestCRUDGetEntitiesWithCommandsIPSelectUint(t *testing.T) {
 	// create a slice to read into
 	recRead := []GetCmdTest{}
 
-	p := common.GetParam{
+	p := sqac.GetParam{
 		FieldName:    "id",
 		Operand:      "=",
 		ParamValue:   90000004,
 		NextOperator: "",
 	}
 
-	pa := []common.GetParam{}
+	pa := []sqac.GetParam{}
 	pa = append(pa, p)
 
 	// call with a single parameter and no commands
@@ -235,14 +236,14 @@ func TestCRUDGetEntitiesWithCommandsIPSelectString(t *testing.T) {
 	createGetCmdTestRecs(t)
 
 	// set a parameter for id
-	p := common.GetParam{
+	p := sqac.GetParam{
 		FieldName:    "fld_two_string",
 		Operand:      "=",
 		ParamValue:   "CCCCCC",
 		NextOperator: "",
 	}
 
-	pa := []common.GetParam{}
+	pa := []sqac.GetParam{}
 	pa = append(pa, p)
 
 	// create a slice to read into
@@ -1034,14 +1035,14 @@ func TestCRUDGetEntitiesWithCommandsIPParamOrderBy(t *testing.T) {
 	createGetCmdTestRecs(t)
 
 	// set a parameter for id
-	p := common.GetParam{
+	p := sqac.GetParam{
 		FieldName:    "id",
 		Operand:      ">",
 		ParamValue:   90000002,
 		NextOperator: "",
 	}
 
-	pa := []common.GetParam{}
+	pa := []sqac.GetParam{}
 	pa = append(pa, p)
 
 	// set $orderby=name
@@ -1122,14 +1123,14 @@ func TestCRUDGetEntitiesWithCommandsIPParamOrderByDesc(t *testing.T) {
 	createGetCmdTestRecs(t)
 
 	// set a parameter for id
-	p := common.GetParam{
+	p := sqac.GetParam{
 		FieldName:    "id",
 		Operand:      ">",
 		ParamValue:   90000002,
 		NextOperator: "",
 	}
 
-	pa := []common.GetParam{}
+	pa := []sqac.GetParam{}
 	pa = append(pa, p)
 
 	// set $orderby=name

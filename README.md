@@ -15,7 +15,7 @@ sqac is a simple overlay to provide a common interface to an attached mssql, mys
 - comprehensive test cases
 
 * passing: pg, mssql, mysql, hdb, sqlite
-* refactor non-indempotent SQLite Foreign-Key test to use a closure
+* refactor non-idempotent SQLite Foreign-Key test to use a closure
 * consider parsing the stored create schema when adding / dropping a foreign-key on SQLite tables (dangerous?)
 * add cascade to Drops?
 
@@ -24,6 +24,7 @@ sqac is a simple overlay to provide a common interface to an attached mssql, mys
 * change from timestamp with TZ to timestamp and ensure timestamps are in UTC before submitting to the db
 * examine view support
 * remove extraneous getSet-type methods
+* ProcessSchema does not return an error; ProcessTransaction does?  Noticed this in DropIndex.
 
 ```bash
 go test -v -l -db <dbtype> sqac_test.go

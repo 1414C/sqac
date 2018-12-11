@@ -833,7 +833,7 @@ func (msf *MSSQLFlavor) Update(ent interface{}) error {
 }
 
 // GetEntitiesWithCommands is a parameterized get.  See the BaseFlavor implementation for more info.
-func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (interface{}, error) {
+func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []GetParam, cmdMap map[string]interface{}) (interface{}, error) {
 
 	var err error
 	var count uint64
@@ -984,7 +984,7 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []commo
 }
 
 // GetEntitiesWithCommandsIP is a parameterized get.  See the BaseFlavor implementation for more info.
-func (msf *MSSQLFlavor) GetEntitiesWithCommandsIP(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (result uint64, err error) {
+func (msf *MSSQLFlavor) GetEntitiesWithCommandsIP(ents interface{}, params []GetParam, cmdMap map[string]interface{}) (result uint64, err error) {
 
 	var count uint64
 	var row *sqlx.Row

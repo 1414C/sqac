@@ -5,6 +5,7 @@ import (
 	"log"
 	"testing"
 
+	"github.com/1414C/sqac"
 	"github.com/1414C/sqac/common"
 )
 
@@ -169,14 +170,14 @@ func TestCRUDGetEntitiesWithCommandsSelectUint(t *testing.T) {
 	// create a slice to read into
 	recRead := []GetCmdTest{}
 
-	p := common.GetParam{
+	p := sqac.GetParam{
 		FieldName:    "id",
 		Operand:      "=",
 		ParamValue:   90000004,
 		NextOperator: "",
 	}
 
-	pa := []common.GetParam{}
+	pa := []sqac.GetParam{}
 	pa = append(pa, p)
 
 	// call with no parameters and no commands
@@ -257,14 +258,14 @@ func TestCRUDGetEntitiesWithCommandsSelectString(t *testing.T) {
 	createGetCmdTestRecs(t)
 
 	// set a parameter for id
-	p := common.GetParam{
+	p := sqac.GetParam{
 		FieldName:    "fld_two_string",
 		Operand:      "=",
 		ParamValue:   "CCCCCC",
 		NextOperator: "",
 	}
 
-	pa := []common.GetParam{}
+	pa := []sqac.GetParam{}
 	pa = append(pa, p)
 
 	// create a slice to read into
@@ -1237,14 +1238,14 @@ func TestCRUDGetEntitiesWithCommandsParamOrderBy(t *testing.T) {
 	createGetCmdTestRecs(t)
 
 	// set a parameter for id
-	p := common.GetParam{
+	p := sqac.GetParam{
 		FieldName:    "id",
 		Operand:      ">",
 		ParamValue:   90000002,
 		NextOperator: "",
 	}
 
-	pa := []common.GetParam{}
+	pa := []sqac.GetParam{}
 	pa = append(pa, p)
 
 	// set $orderby=name
@@ -1331,14 +1332,14 @@ func TestCRUDGetEntitiesWithCommandsParamOrderByDesc(t *testing.T) {
 	createGetCmdTestRecs(t)
 
 	// set a parameter for id
-	p := common.GetParam{
+	p := sqac.GetParam{
 		FieldName:    "id",
 		Operand:      ">",
 		ParamValue:   90000002,
 		NextOperator: "",
 	}
 
-	pa := []common.GetParam{}
+	pa := []sqac.GetParam{}
 	pa = append(pa, p)
 
 	// set $orderby=name

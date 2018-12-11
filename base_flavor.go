@@ -62,6 +62,15 @@ type TblComponents struct {
 	err       error
 }
 
+// GetParam defines a common structure for
+// CRUD GET parameters.
+type GetParam struct {
+	FieldName    string
+	Operand      string
+	ParamValue   interface{}
+	NextOperator string
+}
+
 // Log dumps all of the raw table components to stdout is called for CreateTable
 // and AlterTable operations if the main sqac logging has been activated via
 // BaseFlavor.Log(true).
@@ -110,7 +119,7 @@ type PublicDB interface {
 	DBLog(b bool)
 	IsDBLog() bool
 
-	// set the *sqlx.DB handle in the PublicDB interface
+	// set the *sqlx.DB handle for the PublicDB interface
 	SetDB(db *sqlx.DB)
 	GetDB() *sqlx.DB
 
@@ -187,7 +196,7 @@ type PublicDB interface {
 	DBBoolToBool(interface{}) bool
 	TimeToFormattedString(i interface{}) string
 
-	// CRUD ops :(
+	// CRUD ops
 	Create(ent interface{}) error
 	Update(ent interface{}) error
 	Delete(ent interface{}) error    // (id uint) error
@@ -195,8 +204,8 @@ type PublicDB interface {
 	GetEntities(ents interface{}) (interface{}, error)
 	GetEntities2(ge GetEnt) error
 	GetEntities4(ents interface{})
-	GetEntitiesWithCommandsIP(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (uint64, error)
-	GetEntitiesWithCommands(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (interface{}, error)
+	GetEntitiesWithCommandsIP(ents interface{}, params []GetParam, cmdMap map[string]interface{}) (uint64, error)
+	GetEntitiesWithCommands(ents interface{}, params []GetParam, cmdMap map[string]interface{}) (interface{}, error)
 }
 
 // ensure consistency of interface implementation
@@ -1083,17 +1092,14 @@ func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 }
 
 // GetEntitiesWithCommandsIP uses alot of reflection to permit the retrieval of the equivalent
-// of []interface{} where interface{} can be taken to mean Model{}.  This can be used, but may
-// not be the fastest way to do the selection in terms of processing in the go runtime.
-// A quick internet search on []interface{} will turn up all sorts of acrimony related to
-// refelection and using interface{} as []interface.
-// However, this is the Get method that is preferred, as the caller can simply pass the address
-// of a slice of the requested table-type in the ents parameter, then read the resulting
+// of []interface{} where interface{} can be taken to mean Model{}.
+// This is the Get method that is preferred, as the caller can simply pass a pointer to
+// a slice of the requested table-type in the ents parameter, then read the resulting
 // slice directly in their program following method execution.
 // Each DB needs slightly different handling due to differences in OFFSET / LIMIT / TOP support.
 // This is a mostly common version, but MSSQL has its own specific implementation due to
 // some extra differences in transact-SQL.
-func (bf *BaseFlavor) GetEntitiesWithCommandsIP(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (result uint64, err error) {
+func (bf *BaseFlavor) GetEntitiesWithCommandsIP(ents interface{}, params []GetParam, cmdMap map[string]interface{}) (result uint64, err error) {
 
 	var count uint64
 	var row *sqlx.Row
@@ -1269,7 +1275,7 @@ func (bf *BaseFlavor) GetEntitiesWithCommandsIP(ents interface{}, params []commo
 // This is a mostly common version, but MSSQL has its own specific implementation due to
 // some extra differences in transact-SQL.  This method still requires that the caller
 // perform a type-assertion on the returned interface{} ([]interface{}) parameter.
-func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []common.GetParam, cmdMap map[string]interface{}) (interface{}, error) {
+func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []GetParam, cmdMap map[string]interface{}) (interface{}, error) {
 
 	var err error
 	var count uint64
