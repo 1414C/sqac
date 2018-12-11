@@ -204,8 +204,8 @@ type PublicDB interface {
 	GetEntities(ents interface{}) (interface{}, error)
 	GetEntities2(ge GetEnt) error
 	GetEntities4(ents interface{})
-	GetEntitiesWithCommandsIP(ents interface{}, params []GetParam, cmdMap map[string]interface{}) (uint64, error)
-	GetEntitiesWithCommands(ents interface{}, params []GetParam, cmdMap map[string]interface{}) (interface{}, error)
+	GetEntitiesCP(ents interface{}, pList []GetParam, cmdMap map[string]interface{}) (uint64, error)
+	GetEntitiesWithCommands(ents interface{}, pList []GetParam, cmdMap map[string]interface{}) (interface{}, error)
 }
 
 // ensure consistency of interface implementation
@@ -1091,7 +1091,7 @@ func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 	// fmt.Println("ents:", ents)
 }
 
-// GetEntitiesWithCommandsIP uses alot of reflection to permit the retrieval of the equivalent
+// GetEntitiesCP uses alot of reflection to permit the retrieval of the equivalent
 // of []interface{} where interface{} can be taken to mean Model{}.
 // This is the Get method that is preferred, as the caller can simply pass a pointer to
 // a slice of the requested table-type in the ents parameter, then read the resulting
@@ -1099,7 +1099,7 @@ func (bf *BaseFlavor) GetEntities4(ents interface{}) {
 // Each DB needs slightly different handling due to differences in OFFSET / LIMIT / TOP support.
 // This is a mostly common version, but MSSQL has its own specific implementation due to
 // some extra differences in transact-SQL.
-func (bf *BaseFlavor) GetEntitiesWithCommandsIP(ents interface{}, params []GetParam, cmdMap map[string]interface{}) (result uint64, err error) {
+func (bf *BaseFlavor) GetEntitiesCP(ents interface{}, pList []GetParam, cmdMap map[string]interface{}) (result uint64, err error) {
 
 	var count uint64
 	var row *sqlx.Row
@@ -1120,11 +1120,11 @@ func (bf *BaseFlavor) GetEntitiesWithCommandsIP(ents interface{}, params []GetPa
 
 	// are there any parameters to include in the query?
 	var pv []interface{}
-	if params != nil && len(params) > 0 {
+	if pList != nil && len(pList) > 0 {
 		paramString = " WHERE"
-		for i := range params {
-			paramString = paramString + " " + common.CamelToSnake(params[i].FieldName) + " " + params[i].Operand + " ? " + params[i].NextOperator
-			pv = append(pv, params[i].ParamValue)
+		for i := range pList {
+			paramString = paramString + " " + common.CamelToSnake(pList[i].FieldName) + " " + pList[i].Operand + " ? " + pList[i].NextOperator
+			pv = append(pv, pList[i].ParamValue)
 		}
 	}
 
@@ -1256,7 +1256,7 @@ func (bf *BaseFlavor) GetEntitiesWithCommandsIP(ents interface{}, params []GetPa
 	for rows.Next() {
 		err = rows.StructScan(dstRow.Interface())
 		if err != nil {
-			log.Println("GetEntitiesWithCommandsIP scan error:", err)
+			log.Println("GetEntitiesCP scan error:", err)
 			return 0, err
 		}
 		slice = reflect.Append(slice, dstRow.Elem())
@@ -1275,7 +1275,7 @@ func (bf *BaseFlavor) GetEntitiesWithCommandsIP(ents interface{}, params []GetPa
 // This is a mostly common version, but MSSQL has its own specific implementation due to
 // some extra differences in transact-SQL.  This method still requires that the caller
 // perform a type-assertion on the returned interface{} ([]interface{}) parameter.
-func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []GetParam, cmdMap map[string]interface{}) (interface{}, error) {
+func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, pList []GetParam, cmdMap map[string]interface{}) (interface{}, error) {
 
 	var err error
 	var count uint64
@@ -1295,11 +1295,11 @@ func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, params []GetPara
 
 	// are there any parameters to include in the query?
 	var pv []interface{}
-	if params != nil && len(params) > 0 {
+	if pList != nil && len(pList) > 0 {
 		paramString = " WHERE"
-		for i := range params {
-			paramString = paramString + " " + common.CamelToSnake(params[i].FieldName) + " " + params[i].Operand + " ? " + params[i].NextOperator
-			pv = append(pv, params[i].ParamValue)
+		for i := range pList {
+			paramString = paramString + " " + common.CamelToSnake(pList[i].FieldName) + " " + pList[i].Operand + " ? " + pList[i].NextOperator
+			pv = append(pv, pList[i].ParamValue)
 		}
 	}
 

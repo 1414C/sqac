@@ -833,7 +833,7 @@ func (msf *MSSQLFlavor) Update(ent interface{}) error {
 }
 
 // GetEntitiesWithCommands is a parameterized get.  See the BaseFlavor implementation for more info.
-func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []GetParam, cmdMap map[string]interface{}) (interface{}, error) {
+func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, pList []GetParam, cmdMap map[string]interface{}) (interface{}, error) {
 
 	var err error
 	var count uint64
@@ -853,11 +853,11 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []GetPa
 
 	// are there any parameters to include in the query?
 	var pv []interface{}
-	if params != nil && len(params) > 0 {
+	if pList != nil && len(pList) > 0 {
 		paramString = " WHERE"
-		for i := range params {
-			paramString = paramString + " " + common.CamelToSnake(params[i].FieldName) + " " + params[i].Operand + " ? " + params[i].NextOperator
-			pv = append(pv, params[i].ParamValue)
+		for i := range pList {
+			paramString = paramString + " " + common.CamelToSnake(pList[i].FieldName) + " " + pList[i].Operand + " ? " + pList[i].NextOperator
+			pv = append(pv, pList[i].ParamValue)
 		}
 	}
 	if msf.log {
@@ -983,8 +983,8 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, params []GetPa
 	return entsv.Interface(), nil
 }
 
-// GetEntitiesWithCommandsIP is a parameterized get.  See the BaseFlavor implementation for more info.
-func (msf *MSSQLFlavor) GetEntitiesWithCommandsIP(ents interface{}, params []GetParam, cmdMap map[string]interface{}) (result uint64, err error) {
+// GetEntitiesCP is a parameterized get.  See the BaseFlavor implementation for more info.
+func (msf *MSSQLFlavor) GetEntitiesCP(ents interface{}, pList []GetParam, cmdMap map[string]interface{}) (result uint64, err error) {
 
 	var count uint64
 	var row *sqlx.Row
@@ -1005,11 +1005,11 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommandsIP(ents interface{}, params []Get
 
 	// are there any parameters to include in the query?
 	var pv []interface{}
-	if params != nil && len(params) > 0 {
+	if pList != nil && len(pList) > 0 {
 		paramString = " WHERE"
-		for i := range params {
-			paramString = paramString + " " + common.CamelToSnake(params[i].FieldName) + " " + params[i].Operand + " ? " + params[i].NextOperator
-			pv = append(pv, params[i].ParamValue)
+		for i := range pList {
+			paramString = paramString + " " + common.CamelToSnake(pList[i].FieldName) + " " + pList[i].Operand + " ? " + pList[i].NextOperator
+			pv = append(pv, pList[i].ParamValue)
 		}
 	}
 
@@ -1111,13 +1111,13 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommandsIP(ents interface{}, params []Get
 	// read the rows
 	rows, err := msf.db.Queryx(selQuery, pv...)
 	if err != nil {
-		log.Printf("GetEntitiesWithCommandsIP for table %s returned error: %v\n", tn, err.Error())
+		log.Printf("GetEntitiesCP for table %s returned error: %v\n", tn, err.Error())
 		return 0, err
 	}
 
 	defer rows.Close()
 
-	// this is where it happens for GetEntitiesWithCommandsIP(...) and why I am  not too
+	// this is where it happens for GetEntitiesCP(...) and why I am  not too
 	// satisfied with generic programming in go:
 	eValue := reflect.ValueOf(ents)
 	for eValue.Kind() == reflect.Ptr {
@@ -1137,7 +1137,7 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommandsIP(ents interface{}, params []Get
 	for rows.Next() {
 		err = rows.StructScan(dstRow.Interface())
 		if err != nil {
-			log.Println("GetEntitiesWithCommandsIP scan error:", err)
+			log.Println("GetEntitiesCP scan error:", err)
 			return 0, err
 		}
 		slice = reflect.Append(slice, dstRow.Elem())
