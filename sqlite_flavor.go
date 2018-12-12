@@ -386,7 +386,7 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}, isAlter boo
 						switch p.Value {
 						case "now()":
 							p.Value = "(datetime('now'))"
-						case "eot":
+						case "eot()":
 							p.Value = "('9999-12-31 23:59:59')"
 						default:
 
@@ -429,7 +429,7 @@ func (slf *SQLiteFlavor) buildTablSchema(tn string, ent interface{}, isAlter boo
 					switch p.Value {
 					case "now()":
 						p.Value = "(datetime('now'))"
-					case "eot":
+					case "eot()":
 						p.Value = "('9999-12-31 23:59:59')"
 					default:
 

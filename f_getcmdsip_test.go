@@ -270,6 +270,97 @@ func TestCRUDGetEntitiesCPSelectString(t *testing.T) {
 	}
 }
 
+// TestCRUDGetEntitiesCPSelectMultiParam
+//
+// Test CRUD GetSet
+// call with mutiple parameters (fld_three_float > 40 AND fld_six_float = 400.1414) and no commands
+func TestCRUDGetEntitiesCPSelectMultiParam(t *testing.T) {
+
+	// type GetCmdTest struct {
+	// 	ID                  uint64    `db:"id" json:"id" sqac:"primary_key:inc;start:90000000"`
+	// 	FldOneInt           int       `db:"fld_one_int" json:"fld_one_int" sqac:"nullable:false;default:0"`
+	// 	TimeNow             time.Time `db:"time_now" json:"time_now" sqac:"nullable:false;default:now();index:unique"`
+	// 	FldTwoString        string    `db:"fld_two_string" json:"fld_two_string" sqac:"nullable:false;default:YYC"`
+	// 	FldThreeFloat       float64   `db:"fld_three_float" json:"fld_three_float" sqac:"nullable:false;default:0.0"`
+	// 	FldFourBool         bool      `db:"fld_four_bool" json:"fld_four_bool"  sqac:"nullable:false;default:false"`
+	// 	NonPersistentColumn string    `db:"non_persistent_column" sqac:"-"`
+	// 	FldFiveString       *string   `db:"fld_five_string" json:"fld_five_string" sqac:"nullable:true"`
+	// 	FldSixFloat         *float64  `db:"fld_six_float" json:"fld_six_float" sqac:"nullable:true"`
+	// 	FldSevenBool        *bool     `db:"fld_seven_bool" json:"fld_seven_bool" sqac:"nullable:true"`
+	// }
+
+	// determine the table names as per the table creation logic
+	tn := common.GetTableName(GetCmdTest{})
+
+	// drop table getcmdtest
+	err := Handle.DropTables(GetCmdTest{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// create table getcmdtest
+	err = Handle.CreateTables(GetCmdTest{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+
+	// expect that table getcmdtest exists
+	if !Handle.ExistsTable(tn) {
+		t.Errorf("table %s does not exist", tn)
+	}
+
+	// create the test records
+	createGetCmdTestRecs(t)
+
+	// create a slice to read into
+	recRead := []GetCmdTest{}
+
+	p := sqac.GetParam{
+		FieldName:    "fld_three_float",
+		Operand:      ">",
+		ParamValue:   40.0,
+		NextOperator: "AND",
+	}
+
+	pa := []sqac.GetParam{}
+	pa = append(pa, p)
+	p.FieldName = "fld_six_float"
+	p.Operand = "="
+	p.ParamValue = 400.1414
+	p.NextOperator = ""
+	pa = append(pa, p)
+
+	// call with parameters and no commands - expect two records
+	n, err := Handle.GetEntitiesCP(&recRead, pa, nil)
+	if err != nil {
+		t.Errorf("error: TestCRUDGetEntitiesCPSelectUint: %v", err)
+	}
+
+	// got two records?
+	l := len(recRead)
+	if l != 2 {
+		t.Errorf("error: TestCRUDGetEntitiesCPSelectUint: expected two records - got %d", l)
+	}
+
+	// records are correct?
+	if recRead[0].FldThreeFloat != 40.75757 {
+		t.Errorf("error: TestCRUDGetEntitiesCPSelectUint: expected first record with FldThreeFloat == 40.75757, got: %v", recRead[0].FldThreeFloat)
+	}
+	if recRead[1].FldThreeFloat != 50.58585 {
+		t.Errorf("error: TestCRUDGetEntitiesCPSelectUint: expected second record with FldThreeFloat == 450.58585, got: %v", recRead[1].FldThreeFloat)
+	}
+
+	if n != uint64(l) {
+		t.Errorf("error: returned record count %d does not match number of returned records %d", n, l)
+	}
+
+	// drop table getcmdtest
+	err = Handle.DropTables(GetCmdTest{})
+	if err != nil {
+		t.Errorf("%s", err.Error())
+	}
+}
+
 // TestCRUDGetEntitiesCPSelectCount
 //
 // Test CRUD GetSet

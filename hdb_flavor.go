@@ -506,7 +506,7 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 						switch p.Value {
 						case "now()":
 							p.Value = "CURRENT_UTCTIMESTAMP"
-						case "eot":
+						case "eot()":
 							p.Value = "'9999-12-31 23:59:59.99999'"
 						default:
 
@@ -560,7 +560,7 @@ func (hf *HDBFlavor) buildTablSchema(tn string, ent interface{}) TblComponents {
 					switch p.Value {
 					case "now()":
 						p.Value = "CURRENT_UTCTIMESTAMP"
-					case "eot":
+					case "eot()":
 						p.Value = "'9999-12-31 23:59:59.99999'"
 					default:
 

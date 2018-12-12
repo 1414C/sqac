@@ -62,8 +62,7 @@ type TblComponents struct {
 	err       error
 }
 
-// GetParam defines a common structure for
-// CRUD GET parameters.
+// GetParam defines a common structure for CRUD GET parameters.
 type GetParam struct {
 	FieldName    string
 	Operand      string
@@ -1006,12 +1005,14 @@ func (bf *BaseFlavor) GetEntities(ents interface{}) (interface{}, error) {
 	return entsv.Interface(), nil
 }
 
-// GetEntities2 attempts to retrieve all entities based on the internal implementation of GetEnt.
-// GetEnt exposes a single method (Exec) to execute the request.  All this because go can only go
-// so far with meta-type programming in go before you get buried in reflection.
-// ge allows you to pass a sqac handle into get entities, then you can do what you need to do.
-// GetEntities2 has been replaced by GetEntitiesWithCommands, but can be used if you want a clean
-// looking API that is pretty quick (very light use of reflection).
+// GetEntities2 attempts to retrieve all entities based on the internal implementation
+// of interface GetEnt.
+// GetEnt exposes a single method (Exec(handle PublicDB)error) to execute the request.
+// All this because go can only go so far with meta-type programming in go before being
+// buried in reflection.  ge allows you to pass a sqac handle into the method so you
+// can code directly against the desired struct/table with no reflection.
+// GetEntities2 has been replaced by GetEntitiesWithCommands, but can be used if you
+// want a clean looking API that is pretty quick (very light use of reflection).
 // That said, it is a --dirty-- way of doing things.
 func (bf *BaseFlavor) GetEntities2(ge GetEnt) error {
 
@@ -1028,7 +1029,7 @@ func (bf *BaseFlavor) GetEntities2(ge GetEnt) error {
 	return nil
 }
 
-// GetEntities4 is experimental - use GetEntitiesByCommands or GetEntitiesByCommandsIP.
+// GetEntities4 is experimental - use GetEntitiesCP.
 //
 // This method uses alot of reflection to permit the retrieval of the equivalent of
 // []interface{} where interface{} can be taken to mean Model{}.  This can be used,
@@ -1138,7 +1139,6 @@ func (bf *BaseFlavor) GetEntitiesCP(ents interface{}, pList []GetParam, cmdMap m
 			row = bf.ExecuteQueryRowx(selQuery)
 		} else {
 			selQuery = "SELECT COUNT(*) FROM " + tn + paramString + ";"
-			fmt.Println("S1:", selQuery)
 			bf.QsLog(selQuery)
 			row = bf.ExecuteQueryRowx(selQuery, pv...)
 		}
@@ -1263,14 +1263,11 @@ func (bf *BaseFlavor) GetEntitiesCP(ents interface{}, pList []GetParam, cmdMap m
 		results.Set(reflect.Append(results, dstRow.Elem()))
 		c++
 	}
-	// fmt.Println("slice:", slice)
-	// fmt.Println("")
-	// fmt.Println("results:", results)
-	// fmt.Println("ents:", ents)
 	return c, nil
 }
 
-// GetEntitiesWithCommands can be used as a get for lists of entities.  Each DB needs
+// GetEntitiesWithCommands - it is recommended to use GetEntitiesCP instead of this method
+// This method can be used as a get for lists of entities.  Each DB needs
 // slightly different handling due to differences in OFFSET / LIMIT / TOP support.
 // This is a mostly common version, but MSSQL has its own specific implementation due to
 // some extra differences in transact-SQL.  This method still requires that the caller
@@ -1313,7 +1310,6 @@ func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, pList []GetParam
 			row = bf.ExecuteQueryRowx(selQuery)
 		} else {
 			selQuery = "SELECT COUNT(*) FROM " + tn + paramString + ";"
-			fmt.Println("S1:", selQuery)
 			bf.QsLog(selQuery)
 			row = bf.ExecuteQueryRowx(selQuery, pv...)
 		}

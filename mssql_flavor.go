@@ -248,7 +248,7 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 						switch p.Value {
 						case "now()":
 							p.Value = "GETDATE()"
-						case "eot":
+						case "eot()":
 							p.Value = "'9999-12-31 23:59:59.999'"
 						default:
 
@@ -305,7 +305,7 @@ func (msf *MSSQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 					switch p.Value {
 					case "now()":
 						p.Value = "GETDATE()"
-					case "eot":
+					case "eot()":
 						p.Value = "'9999-12-31 23:59:59.999'"
 					default:
 

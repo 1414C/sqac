@@ -302,7 +302,7 @@ type DepotCreate struct {
   FldTwo              int       `db:"fld_two" sqac:"nullable:false;default:0;index:idx_depotcreate_fld_one_fld_two"`
   TimeCol             time.Time `db:"time_col" sqac:"nullable:false"`
   TimeColNow          time.Time `db:"time_col_now" sqac:"nullable:false;default:now()"`
-  TimeColEot          time.Time `db:"time_col_eot" sqac:"nullable:false;default:eot"`
+  TimeColEot          time.Time `db:"time_col_eot" sqac:"nullable:false;default:eot()"`
   IntZeroValNoDefault int       `db:"int_zero_val_no_default" sqac:"nullable:false"`
   NonPersistentColumn string    `db:"non_persistent_column" sqac:"-"`
 }

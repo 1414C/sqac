@@ -151,7 +151,7 @@ GO
 
 	--EquipmentNum   int64     `db:"equipment_num" sqac:"primary_key:inc;start:55550000"`
 	--ValidFrom      time.Time `db:"valid_from" sqac:"primary_key;nullable:false;default:now()"`
-	--ValidTo        time.Time `db:"valid_to" sqac:"primary_key;nullable:false;default:eot"`
+	--ValidTo        time.Time `db:"valid_to" sqac:"primary_key;nullable:false;default:eot()"`
 	--CreatedAt      time.Time `db:"created_at" sqac:"nullable:false;default:now()"`
 	--InspectionAt   time.Time `db:"inspection_at" sqac:"nullable:true"`
 	--MaterialNum    int       `db:"material_num" sqac:"index:idx_material_num_serial_num"`

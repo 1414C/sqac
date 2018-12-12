@@ -398,7 +398,7 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 					pKeys = pKeys + fd.FName + ","
 
 				case "default":
-					if p.Value != "eot" {
+					if p.Value != "eot()" {
 						col.fDefault = "DEFAULT " + p.Value
 					} else {
 						col.fDefault = "DEFAULT " + "make_timestamptz(9999, 12, 31, 23, 59, 59.9)"
@@ -432,7 +432,7 @@ func (pf *PostgresFlavor) buildTablSchema(tn string, ent interface{}) TblCompone
 			for _, p := range fd.SqacPairs {
 				switch p.Name {
 				case "default":
-					if p.Value != "eot" {
+					if p.Value != "eot()" {
 						col.fDefault = "DEFAULT " + p.Value
 					} else {
 						col.fDefault = "DEFAULT " + "make_timestamptz(9999, 12, 31, 23, 59, 59.9)"

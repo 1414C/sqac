@@ -242,8 +242,8 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 					} else {
 						col.fDefault = "DEFAULT " + p.Value
 					}
-					if fd.UnderGoType == "time.Time" && p.Value == "eot" {
-						p.Value = "TIMESTAMP('2003-12-31 12:00:00')"
+					if fd.UnderGoType == "time.Time" && p.Value == "eot()" {
+						p.Value = "TIMESTAMP('2038-01-09 03:14:07')"
 						col.fDefault = "DEFAULT " + p.Value
 					}
 
@@ -279,8 +279,11 @@ func (myf *MySQLFlavor) buildTablSchema(tn string, ent interface{}) TblComponent
 		} else { // *time.Time only supports default directive
 			for _, p := range fd.SqacPairs {
 				if p.Name == "default" {
-					if p.Value == "eot" {
-						p.Value = "TIMESTAMP('2003-12-31 12:00:00')"
+					if p.Value == "eot()" {
+						// maximum mysql ts - consider using DATETIME,
+						// although DT use would not be consistent with
+						// the other db dialects in sqac.
+						p.Value = "TIMESTAMP('2038-01-09 03:14:07')"
 					}
 					col.fDefault = "DEFAULT " + p.Value
 				}
