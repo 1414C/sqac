@@ -478,7 +478,7 @@ func TestExistsForeignKeyByFields(t *testing.T) {
 		t.Errorf("failed to create foreign-key; got: %s", err)
 	}
 
-	// check that the foreign-key exists by name
+	// check that the foreign-key exists by fields
 	kExists, err := Handle.ExistsForeignKeyByFields(Product{}, "product", "warehouse", "warehouse_id", "id")
 	if err != nil {
 		t.Errorf(err.Error())
