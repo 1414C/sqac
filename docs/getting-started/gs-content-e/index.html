@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
 <link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-    <title>Tags :: Sqac ORM</title>
+    <title>Database Connection Strings :: Sqac ORM</title>
 
     
     <link href="/sqac/css/nucleus.css?1544732899" rel="stylesheet">
@@ -34,7 +34,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/sqac/tags/">
+  <body class="" data-url="/sqac/getting-started/gs-content-e/">
     <nav id="sidebar" class="">
 
 
@@ -93,7 +93,7 @@
   
     
     <li data-nav-id="/sqac/getting-started/" title="Getting Started" class="dd-item 
-        
+        parent
         
         
         ">
@@ -174,7 +174,7 @@
  
   
     
-      <li data-nav-id="/sqac/getting-started/gs-content-e/" title="Database Connection Strings" class="dd-item ">
+      <li data-nav-id="/sqac/getting-started/gs-content-e/" title="Database Connection Strings" class="dd-item active">
         <a href="/sqac/getting-started/gs-content-e/">
         Database Connection Strings
         
@@ -827,7 +827,19 @@
                     
           
           
-            Tags
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/sqac/'></a> > <a href='/sqac/getting-started/'>Getting Started</a> > Database Connection Strings
+          
+         
+          
+         
           
         
                  
@@ -836,7 +848,27 @@
                 
                     <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#mssql-connection-string">MSSQL Connection String</a></li>
+<li><a href="#mysql-connection-string">MySQL Connection String</a></li>
+<li><a href="#postgresql-connection-string">PostgreSQL Connection String</a></li>
+<li><a href="#sqlite3-connection-string">Sqlite3 Connection String</a></li>
+<li><a href="#sap-hana-connection-string">SAP Hana Connection String</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
     </div>
 </div>
 
@@ -848,7 +880,7 @@
         
         <div id="body-inner">
           
-            <h1>Tags</h1>
+            <h1>Database Connection Strings</h1>
           
 
         
@@ -856,9 +888,53 @@
 
 
 
+<p>Sqac requires a connection string in order to connect to the target database.  Each of the supported databases has their own distinct connection string syntax.</p>
+
+<p>sqac presently supports MSSQL, MySQL, PostgreSQL, Sqlite3 and the SAP Hana database.  You will need to know the db user-name / password, as well as the address:port and name of the database.  Sample connection strings are provided as a reference.
+<br><br></p>
+
+<h5 id="mssql-connection-string">MSSQL Connection String</h5>
+
+<pre><code class="language-golang">cs := &quot;sqlserver://SA:my_passwd@localhost:1401?database=my_dbname&quot;
+</code></pre>
+
+<p><br></p>
+
+<h5 id="mysql-connection-string">MySQL Connection String</h5>
+
+<pre><code class="language-golang">cs := &quot;my_uname:my_passwd@tcp(192.168.1.10:3306)/my_dbname?charset=utf8&amp;parseTime=True&amp;loc=Local&quot;
+</code></pre>
+
+<p><br></p>
+
+<h5 id="postgresql-connection-string">PostgreSQL Connection String</h5>
+
+<pre><code class="language-golang">cs := &quot;host=127.0.0.1 user=my_uname dbname=my_dbname sslmode=disable password=my_passwd&quot;
+</code></pre>
+
+<p><br></p>
+
+<h5 id="sqlite3-connection-string">Sqlite3 Connection String</h5>
+
+<pre><code class="language-golang">cs := &quot;my_db_file.sqlite&quot;
+
+// or
+
+cs = &quot;my_db_file.db&quot;
+</code></pre>
+
+<p><br></p>
+
+<h5 id="sap-hana-connection-string">SAP Hana Connection String</h5>
+
+<pre><code class="language-golang">cs := &quot;hdb://my_uname:my_passwd@192.168.111.45:30015&quot;
+</code></pre>
+
+
 <footer class=" footline" >
 	
 </footer>
+
 
         
         </div> 
@@ -891,8 +967,6 @@
             
                 
                     
-                        
-                        
                     
                 
                 
@@ -906,6 +980,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -955,6 +1032,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -973,6 +1051,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1442,8 +1523,10 @@
 	 
 	 
 		
+			<a class="nav nav-prev" href="/sqac/getting-started/gs-content-c/" title="Using Sqac"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/sqac/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/sqac/modeling/" title="Sqac Modeling" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -1474,3 +1557,4 @@
 
   </body>
 </html>
+

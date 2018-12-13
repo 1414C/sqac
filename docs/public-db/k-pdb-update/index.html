@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
 <link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-    <title>Tags :: Sqac ORM</title>
+    <title>Update :: Sqac ORM</title>
 
     
     <link href="/sqac/css/nucleus.css?1544732899" rel="stylesheet">
@@ -34,7 +34,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/sqac/tags/">
+  <body class="" data-url="/sqac/public-db/k-pdb-update/">
     <nav id="sidebar" class="">
 
 
@@ -385,7 +385,7 @@
   
     
     <li data-nav-id="/sqac/public-db/" title="PublicDB API" class="dd-item 
-        
+        parent
         
         
         ">
@@ -599,7 +599,7 @@
  
   
     
-      <li data-nav-id="/sqac/public-db/k-pdb-update/" title="Update" class="dd-item ">
+      <li data-nav-id="/sqac/public-db/k-pdb-update/" title="Update" class="dd-item active">
         <a href="/sqac/public-db/k-pdb-update/">
         Update
         
@@ -827,7 +827,19 @@
                     
           
           
-            Tags
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/sqac/'></a> > <a href='/sqac/public-db/'>PublicDB API</a> > Update
+          
+         
+          
+         
           
         
                  
@@ -836,7 +848,21 @@
                 
                     <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#publicdb-update-ent-interface-error">PublicDB.Update(ent interface{}) error</a></li>
+<li><a href="#crud-update-example">CRUD Update Example</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
     </div>
 </div>
 
@@ -848,7 +874,7 @@
         
         <div id="body-inner">
           
-            <h1>Tags</h1>
+            <h1>Update</h1>
           
 
         
@@ -856,9 +882,89 @@
 
 
 
+<p><br></p>
+
+<h4 id="publicdb-update-ent-interface-error">PublicDB.Update(ent interface{}) error</h4>
+
+<p>The Update method is part of sqac&rsquo;s CRUD API and is used to update an existing row of the specified entity into it&rsquo;s related database table.  Structs annotated with &lsquo;sqac:&rsquo; tags are colloquially known as sqac entities, hence the parameter name &lsquo;ent&rsquo;.</p>
+
+<p>The ent parameter must be a pointer to a populated go struct of the sqac table declaration.  If the table contains a primary-key in the database, the key column(s) may not be updated, but must be included.  If an error is encountered, it will be returned to the caller.</p>
+
+<h4 id="crud-update-example">CRUD Update Example</h4>
+
+<p>The following example illustrates the update of an existing record (entity) in database table &ldquo;depot&rdquo;.</p>
+
+<pre><code class="language-golang">package main
+
+import (
+  &quot;log&quot;
+
+  &quot;github.com/1414C/sqac&quot;
+  _ &quot;github.com/mattn/go-sqlite3&quot;
+)
+
+func main() {
+
+  var (
+    Handle sqac.PublicDB
+  )
+
+  // Declare a struct to be used as the source for table creation
+  type Depot struct {
+    DepotNum   int       `db:&quot;depot_num&quot; sqac:&quot;primary_key:inc&quot;`
+    CreateDate time.Time `db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();&quot;`
+    Country    string    `db:&quot;country&quot; sqac:&quot;nullable:false;default:CA&quot;`
+    Province   string    `db:&quot;province&quot; sqac:&quot;nullable:false;default:AB&quot;`
+    Region     string    `db:&quot;region&quot; sqac:&quot;nullable:false;default:YYC&quot;`
+    Population int       `db:&quot;population&quot; sqac:&quot;nullable:false;default:0;index:non-unique&quot;`
+  }
+
+  // Create a PublicDB instance to connect to the test sqlite db
+  Handle = sqac.Create(&quot;sqlite&quot;, false, false, &quot;testdb.sqlite&quot;)
+
+  // Create a new table in the database
+  err := Handle.DestructiveResetTables(Depot{})
+  if err != nil {
+    log.Errorf(&quot;%s&quot;, err.Error())
+  }
+
+  // Insert a new record into table &quot;depot&quot;
+  var depotRecord = Depot{
+      Country: &quot;CA&quot;,
+      Province: &quot;BC&quot;,
+      Region: &quot;YVR&quot;,
+      Population: 2500000,
+  }
+  
+  err = Handle.Create(&amp;depotRecord)
+  if err != nil {
+      log.Errorf(err.Error())
+  } else {
+      log.Println(&quot;New record: &quot;, depotRecord)
+  }
+
+  // Update the existing record using the fully populated depotRecord
+  // struct as a starting point.
+  depotRecord.Province = &quot;ON&quot;
+  depotRecord.Region = &quot;YYZ&quot;
+  depotRecord.Population = 4500000
+  err = Handle.Update(&amp;depotRecord)
+  if err != nil {
+      log.Errorf(err.Error())
+  } else {
+      log.Println(&quot;Updated record: &quot;, depotRecord)
+  }
+
+  // Close the connection
+  Handle.Close()
+}
+</code></pre>
+
+
 <footer class=" footline" >
 	
 </footer>
+
 
         
         </div> 
@@ -1118,6 +1224,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1130,6 +1237,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1291,6 +1401,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1306,6 +1417,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1442,8 +1556,10 @@
 	 
 	 
 		
+			<a class="nav nav-prev" href="/sqac/public-db/j-pdb-create/" title="Create"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/sqac/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/sqac/public-db/l-pdb-delete/" title="Delete" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -1474,3 +1590,4 @@
 
   </body>
 </html>
+

@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
 <link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-    <title>Tags :: Sqac ORM</title>
+    <title>Installing Sqac :: Sqac ORM</title>
 
     
     <link href="/sqac/css/nucleus.css?1544732899" rel="stylesheet">
@@ -34,7 +34,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/sqac/tags/">
+  <body class="" data-url="/sqac/getting-started/gs-content-b/">
     <nav id="sidebar" class="">
 
 
@@ -93,7 +93,7 @@
   
     
     <li data-nav-id="/sqac/getting-started/" title="Getting Started" class="dd-item 
-        
+        parent
         
         
         ">
@@ -136,7 +136,7 @@
  
   
     
-      <li data-nav-id="/sqac/getting-started/gs-content-b/" title="Installing Sqac" class="dd-item ">
+      <li data-nav-id="/sqac/getting-started/gs-content-b/" title="Installing Sqac" class="dd-item active">
         <a href="/sqac/getting-started/gs-content-b/">
         Installing Sqac
         
@@ -827,7 +827,19 @@
                     
           
           
-            Tags
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/sqac/'></a> > <a href='/sqac/getting-started/'>Getting Started</a> > Installing Sqac
+          
+         
+          
+         
           
         
                  
@@ -848,17 +860,73 @@
         
         <div id="body-inner">
           
-            <h1>Tags</h1>
+            <h1>Installing Sqac</h1>
           
 
         
 
 
+<p>The easiest way to install Sqac is to use <em>go get</em> on the command-line to pull the latest version from github, as shown below:</p>
+
+<pre><code class="language-bash">go get -u github.com/1414C/sqac
+</code></pre>
+
+<p>The &lsquo;go get&rsquo; command will pull the sqac github repository into your $GOPATH/src/github.com folder, as well as any dependencies referenced by the sqac source code.  The <em>-u</em> flag is included to instruct <em>go get</em> to check for and pull updates to Jiffy packages and their dependencies.  This is the least sophisticated way of managing dependencies in go.  At the time of this writing &lsquo;vgo&rsquo; is not yet part of the official golang toolchain.</p>
+
+<p>Ensure that you have also installed the drivers for the databases you plan to use.  Supported drivers include:</p>
+
+<table>
+<thead>
+<tr>
+<th>Driver Name</th>
+<th>Driver Location</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>SAP Hana Database Driver</td>
+<td>github.com/SAP/go-hdb/driver</td>
+</tr>
+
+<tr>
+<td>MSSQL Database Driver</td>
+<td>github.com/denisenkom/go-mssqldb</td>
+</tr>
+
+<tr>
+<td>MySQL Database Driver</td>
+<td>github.com/go-sql-driver/mysql</td>
+</tr>
+
+<tr>
+<td>PostgreSQL Database Driver</td>
+<td>github.com/lib/pq</td>
+</tr>
+
+<tr>
+<td>SQLite3 Database Driver</td>
+<td>github.com/mattn/go-sqlite3</td>
+</tr>
+</tbody>
+</table>
+
+<p><br>
+Verify the installation by running the included test suite against sqlite.  Test execution will create a &lsquo;testdb.sqlite&rsquo; database file in the sqac directory.  The tests are not entirely idempotent and the testdb.sqlite file will not be cleaned up.  This is by design as the tests were used for debugging purposes during the development.  <em>It would be a simple matter to tidy this up.</em></p>
+
+<pre><code class="language-bash">go test -v -db sqlite
+</code></pre>
+
+<p>If running against sqlite is not an option, the test suite may be run against any of the supported database systems.  When running against a non-sqlite db, a connection string must be supplied via the <em>cs</em> flag.  See the Connection Strings section for database-specific connection string formats.  The following invocation of the test suite is targeting as PostgreSQL database via the -db pg and corresponding -cs &ldquo;connection_string&rdquo; flags:</p>
+
+<pre><code class="language-bash">go test -v -db pg -cs &quot;host=127.0.0.1 user=my_uname dbname=my_dbname sslmode=disable password=my_passwd&quot;
+</code></pre>
 
 
 <footer class=" footline" >
 	
 </footer>
+
 
         
         </div> 
@@ -891,8 +959,6 @@
             
                 
                     
-                        
-                        
                     
                 
                 
@@ -906,6 +972,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -923,6 +992,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -938,6 +1008,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1442,8 +1515,10 @@
 	 
 	 
 		
+			<a class="nav nav-prev" href="/sqac/getting-started/gs-content-a/" title="Go Environment"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/sqac/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/sqac/getting-started/gs-content-c/" title="Using Sqac" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -1474,3 +1549,4 @@
 
   </body>
 </html>
+

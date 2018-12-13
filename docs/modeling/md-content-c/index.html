@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
 <link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-    <title>Tags :: Sqac ORM</title>
+    <title>nullable: :: Sqac ORM</title>
 
     
     <link href="/sqac/css/nucleus.css?1544732899" rel="stylesheet">
@@ -34,7 +34,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/sqac/tags/">
+  <body class="" data-url="/sqac/modeling/md-content-c/">
     <nav id="sidebar" class="">
 
 
@@ -201,7 +201,7 @@
   
     
     <li data-nav-id="/sqac/modeling/" title="Sqac Modeling" class="dd-item 
-        
+        parent
         
         
         ">
@@ -263,7 +263,7 @@
  
   
     
-      <li data-nav-id="/sqac/modeling/md-content-c/" title="nullable:" class="dd-item ">
+      <li data-nav-id="/sqac/modeling/md-content-c/" title="nullable:" class="dd-item active">
         <a href="/sqac/modeling/md-content-c/">
         nullable:
         
@@ -827,7 +827,19 @@
                     
           
           
-            Tags
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/sqac/'></a> > <a href='/sqac/modeling/'>Sqac Modeling</a> > nullable:
+          
+         
+          
+         
           
         
                  
@@ -836,7 +848,21 @@
                 
                     <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#nullable-overview">&ldquo;nullable:&rdquo; Overview</a>
+<ul>
+<li>
+<ul>
+<li><a href="#nullable-false-example">&ldquo;nullable:false&rdquo; example</a></li>
+<li><a href="#nullable-true-example">&ldquo;nullable:true&rdquo; example</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
     </div>
 </div>
 
@@ -848,7 +874,7 @@
         
         <div id="body-inner">
           
-            <h1>Tags</h1>
+            <h1>nullable:</h1>
           
 
         
@@ -856,9 +882,47 @@
 
 
 
+<h2 id="nullable-overview">&ldquo;nullable:&rdquo; Overview</h2>
+
+<p>Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database.  The following examples illustrate the use of the &ldquo;nullable:&rdquo; &lsquo;sqac:&rsquo; tag described in the <a href="/sqac/modeling/md-content-a">Sqac Tag Overview</a> section of this document.</p>
+
+<p>Unless specified, most databases will create columns as nullable by default.  Use the &ldquo;nullable:&rdquo; tag to explicitly declare the data requirements of fields in the source go-struct and the nullability of the corresponding columns in the database.</p>
+
+<p><br></p>
+
+<h4 id="nullable-false-example">&ldquo;nullable:false&rdquo; example</h4>
+
+<p>The following example illustrates the use of &lsquo;sqac:&rsquo; tag &ldquo;nullable:false&rdquo; to declare a column as not null in the database.  If no value can be provided for a column deemed to be not nullable, consider setting a default value at the database level via the &ldquo;default:&rdquo; &lsquo;sqac:&rsquo; tag, or provide the <a href="https://tour.golang.org/basics/12">go zero-value</a> for the field.</p>
+
+<pre><code class="language-golang">  // Declare a struct to be used as the source for table creation.
+  // db column &quot;region&quot; will be created as NOT NULL
+  type Depot struct {
+    ...
+    Region     string    `db:&quot;region&quot; sqac:&quot;nullable:false&quot;`
+    ...
+    ...
+  }
+</code></pre>
+
+<h4 id="nullable-true-example">&ldquo;nullable:true&rdquo; example</h4>
+
+<p>The following example illustrates the use of &lsquo;sqac:&rsquo; tag &ldquo;nullable:true&rdquo; to declare a column as nullable in the database.  Care should be taken when deciding to create a column as nullable, as the consumer may not be expecting null values in the selected data.  Note that reading a null value into a non-pointer field in the go-struct will result in an error.  In the following example code the &ldquo;Region&rdquo; field has been declared as a pointer to a string (*string) rather than a string for this reason.</p>
+
+<pre><code class="language-golang">  // Declare a struct to be used as the source for table creation.
+  // db column &quot;region&quot; will be nullable in the database
+  type Depot struct {
+    ...
+    Region     *string    `db:&quot;region&quot; sqac:&quot;nullable:true&quot;`
+    ...
+    ...
+  }
+</code></pre>
+
+
 <footer class=" footline" >
 	
 </footer>
+
 
         
         </div> 
@@ -974,6 +1038,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -986,6 +1051,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1019,6 +1087,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1034,6 +1103,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1442,8 +1514,10 @@
 	 
 	 
 		
+			<a class="nav nav-prev" href="/sqac/modeling/md-content-b/" title="primary_key:"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/sqac/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/sqac/modeling/md-content-d/" title="default:" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -1474,3 +1548,4 @@
 
   </body>
 </html>
+

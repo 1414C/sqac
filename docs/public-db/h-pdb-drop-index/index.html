@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
 <link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-    <title>Tags :: Sqac ORM</title>
+    <title>DropIndex :: Sqac ORM</title>
 
     
     <link href="/sqac/css/nucleus.css?1544732899" rel="stylesheet">
@@ -34,7 +34,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/sqac/tags/">
+  <body class="" data-url="/sqac/public-db/h-pdb-drop-index/">
     <nav id="sidebar" class="">
 
 
@@ -385,7 +385,7 @@
   
     
     <li data-nav-id="/sqac/public-db/" title="PublicDB API" class="dd-item 
-        
+        parent
         
         
         ">
@@ -542,7 +542,7 @@
  
   
     
-      <li data-nav-id="/sqac/public-db/h-pdb-drop-index/" title="DropIndex" class="dd-item ">
+      <li data-nav-id="/sqac/public-db/h-pdb-drop-index/" title="DropIndex" class="dd-item active">
         <a href="/sqac/public-db/h-pdb-drop-index/">
         DropIndex
         
@@ -827,7 +827,19 @@
                     
           
           
-            Tags
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/sqac/'></a> > <a href='/sqac/public-db/'>PublicDB API</a> > DropIndex
+          
+         
+          
+         
           
         
                  
@@ -836,7 +848,21 @@
                 
                     <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#publicdb-dropindex-tn-string-in-string-error">PublicDB.DropIndex(tn string, in string) error</a></li>
+<li><a href="#dropindex-example">DropIndex Example</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
     </div>
 </div>
 
@@ -848,7 +874,7 @@
         
         <div id="body-inner">
           
-            <h1>Tags</h1>
+            <h1>DropIndex</h1>
           
 
         
@@ -856,9 +882,80 @@
 
 
 
+<p><br></p>
+
+<h4 id="publicdb-dropindex-tn-string-in-string-error">PublicDB.DropIndex(tn string, in string) error</h4>
+
+<p>DropIndex drops named index &ldquo;in&rdquo; on database table &ldquo;tn&rdquo;.  The method performs a check for the existence of the specified index prior to initiating the drop request to the database.  In the event that the specified index does not exist, no error is returned as the database is deemed to be in the correct state.</p>
+
+<p>When using DropIndex it is important to consider whether the table&rsquo;s source model (go struct annotated with &lsquo;sqac:&rsquo; tags) contains the index declaration.  If the dropped index remains in the source go struct&rsquo;s &lsquo;sqac:&rsquo; tags it will be recreated if <a href="/sqac/public-db/d-pdb-alter-tables">PublicDB.AlterTables</a> is called with said go struct in the future.</p>
+
+<p>Errors encountered during DropIndex execution are returned to the caller immediately.</p>
+
+<h4 id="dropindex-example">DropIndex Example</h4>
+
+<p>The following structure &lsquo;Depot&rsquo; has been used to create table &ldquo;depot&rdquo; in the target database.  We will subsequently use the PublicDB.CreateIndex() method to create a new non-unique index on table columns &ldquo;region&rdquo; and &ldquo;county&rdquo;:</p>
+
+<pre><code class="language-golang">package main
+
+import (
+  &quot;log&quot;
+
+  &quot;github.com/1414C/sqac&quot;
+  _ &quot;github.com/SAP/go-hdb/driver&quot;
+  _ &quot;github.com/denisenkom/go-mssqldb&quot;
+  _ &quot;github.com/go-sql-driver/mysql&quot;
+  _ &quot;github.com/lib/pq&quot;
+  _ &quot;github.com/mattn/go-sqlite3&quot;
+)
+
+func main() {
+
+  var (
+    Handle sqac.PublicDB
+  )
+
+  // table depot declaration with index idx_depot_region_county declaration
+  type Depot struct {
+    DepotNum   int       `db:&quot;depot_num&quot; sqac:&quot;primary_key:inc&quot;`
+    CreateDate time.Time `db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();&quot;`
+    Country    string    `db:&quot;country&quot; sqac:&quot;nullable:false;default:CA&quot;`
+    Province   string    `db:&quot;province&quot; sqac:&quot;nullable:false;default:AB&quot;`
+    Region     string    `db:&quot;region&quot; sqac:&quot;nullable:false;default:YYC;index:idx_depot_region_county&quot;`
+    County     string    `db:&quot;county&quot; sqac:&quot;nullable:false;index:idx_depot_region_county&quot;`
+    Population int       `db:&quot;population&quot; sqac:&quot;nullable:false;default:0;index:non-unique&quot;`
+  }
+
+  // Create a PublicDB instance to connect to the test sqlite db
+  Handle = sqac.Create(&quot;sqlite&quot;, false, false, &quot;testdb.sqlite&quot;)
+  defer Handle.Close()
+
+  // Ensure table &quot;depot&quot; exists in the database
+  err := Handle.DestructiveResetTables(Depot{})
+  if err != nil {
+    log.Fatalf(&quot;%s&quot;, err.Error())
+  }
+
+  // Determine the table name in the database
+  tn := sqac.GetTableName(Depot{})    // &quot;depot&quot;
+  if tn == &quot;&quot; {
+    log.Fatalf(&quot;Unable to determine table name for struct %v&quot;, Depot{})
+  }
+
+  // Drop index &quot;idx_depot_region_county&quot; on table &quot;depot&quot;
+  err = Handle.DropIndex(tn, &quot;idx_depot_region_county&quot;)
+  if err != nil {
+    log.Errorf(&quot;%s&quot;, err.Error())
+  }
+  Handle.Close()
+}
+</code></pre>
+
+
 <footer class=" footline" >
 	
 </footer>
+
 
         
         </div> 
@@ -1118,6 +1215,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1130,6 +1228,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1243,6 +1344,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1258,6 +1360,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1442,8 +1547,10 @@
 	 
 	 
 		
+			<a class="nav nav-prev" href="/sqac/public-db/g-pdb-create-index/" title="CreateIndex"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/sqac/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/sqac/public-db/i-pdb-exists-index/" title="ExistsIndex" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -1474,3 +1581,4 @@
 
   </body>
 </html>
+

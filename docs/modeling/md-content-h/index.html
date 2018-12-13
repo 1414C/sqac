@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
 <link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-    <title>Tags :: Sqac ORM</title>
+    <title>fkey: :: Sqac ORM</title>
 
     
     <link href="/sqac/css/nucleus.css?1544732899" rel="stylesheet">
@@ -34,7 +34,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/sqac/tags/">
+  <body class="" data-url="/sqac/modeling/md-content-h/">
     <nav id="sidebar" class="">
 
 
@@ -201,7 +201,7 @@
   
     
     <li data-nav-id="/sqac/modeling/" title="Sqac Modeling" class="dd-item 
-        
+        parent
         
         
         ">
@@ -358,7 +358,7 @@
  
   
     
-      <li data-nav-id="/sqac/modeling/md-content-h/" title="fkey:" class="dd-item ">
+      <li data-nav-id="/sqac/modeling/md-content-h/" title="fkey:" class="dd-item active">
         <a href="/sqac/modeling/md-content-h/">
         fkey:
         
@@ -827,7 +827,19 @@
                     
           
           
-            Tags
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/sqac/'></a> > <a href='/sqac/modeling/'>Sqac Modeling</a> > fkey:
+          
+         
+          
+         
           
         
                  
@@ -836,7 +848,21 @@
                 
                     <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#fkey-overview">&ldquo;fkey:&rdquo; Overview</a>
+<ul>
+<li>
+<ul>
+<li><a href="#fkey-ftable-name-fcolumn-name-overview">&ldquo;fkey:&lt;ftable_name&gt;(&lt;fcolumn_name&gt;)&rdquo; Overview</a></li>
+<li><a href="#sqac-foreign-key-naming-standard">Sqac Foreign-Key Naming Standard</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
     </div>
 </div>
 
@@ -848,7 +874,7 @@
         
         <div id="body-inner">
           
-            <h1>Tags</h1>
+            <h1>fkey:</h1>
           
 
         
@@ -856,9 +882,51 @@
 
 
 
+<h2 id="fkey-overview">&ldquo;fkey:&rdquo; Overview</h2>
+
+<p>Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database.  The following examples illustrate the use of the &ldquo;fkey:&rdquo; &lsquo;sqac:&rsquo; tag described in the <a href="/sqac/modeling/md-content-a">Sqac Tag Overview</a> section of this document.</p>
+
+<p>The &ldquo;fkey:&rdquo; tag is used to declare a foreign key for a column in the source go struct.  Declaration of a foreign-key results in a foreign-key constraint on the assigned column, thereby limiting its allowable values to those found in the table.column referenced in the foreign-key declaration.</p>
+
+<p><br></p>
+
+<h4 id="fkey-ftable-name-fcolumn-name-overview">&ldquo;fkey:&lt;ftable_name&gt;(&lt;fcolumn_name&gt;)&rdquo; Overview</h4>
+
+<p>The following example illustrates the use of the &ldquo;fkey:&rdquo; tag to declare a foreign key for table column product.warehouse_id.  Following the creation of tables &ldquo;warehouse&rdquo; and &ldquo;product&rdquo;, the foreign-key constraints in the model will be evaluated by the sqac runtime.  Both tables must exist in the database in order for the creation of the new constraint to be possible.</p>
+
+<p>Once the foreign-key constraint has been created on column product.warehouse_id, it will only permit values that exist in table column warehouse.id.</p>
+
+<pre><code class="language-golang">type Warehouse struct {
+    ID       uint64 `db:&quot;id&quot; json:&quot;id&quot; sqac:&quot;primary_key:inc;start:40000000&quot;`
+    City     string `db:&quot;city&quot; json:&quot;city&quot; sqac:&quot;nullable:false;default:Calgary&quot;`
+    Quadrant string `db:&quot;quadrant&quot; json:&quot;quadrant&quot; sqac:&quot;nullable:false;default:SE&quot;`
+}
+
+type Product struct {
+    ID          uint64 `db:&quot;id&quot; json:&quot;id&quot; sqac:&quot;primary_key:inc;start:95000000&quot;`
+    ProductName string `db:&quot;product_name&quot; json:&quot;product_name&quot; sqac:&quot;nullable:false;default:unknown&quot;`
+    ProductCode string `db:&quot;product_code&quot; json:&quot;product_code&quot; sqac:&quot;nullable:false;default:0000-0000-00&quot;`
+    UOM         string `db:&quot;uom&quot; json:&quot;uom&quot; sqac:&quot;nullable:false;default:EA&quot;`
+    // foreign-key declared against table &quot;warehouse&quot;, column &quot;id&quot;
+    WarehouseID uint64 `db:&quot;warehouse_id&quot; json:&quot;warehouse_id&quot; sqac:&quot;nullable:false;fkey:warehouse(id)&quot;`
+}
+</code></pre>
+
+<p><br></p>
+
+<h4 id="sqac-foreign-key-naming-standard">Sqac Foreign-Key Naming Standard</h4>
+
+<p>By sqac convention, foreign-keys will be created using the following naming standard:</p>
+
+<p><strong>&ldquo;fk_product_warehouse_id&rdquo;</strong> which equates to:</p>
+
+<p><strong>&ldquo;fk_&lt;from_table&gt;_&lt;ref_table&gt;_&lt;ref_table_key_column&gt;&ldquo;</strong></p>
+
+
 <footer class=" footline" >
 	
 </footer>
+
 
         
         </div> 
@@ -974,6 +1042,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -986,6 +1055,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1099,6 +1171,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1117,6 +1190,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1442,8 +1518,10 @@
 	 
 	 
 		
+			<a class="nav nav-prev" href="/sqac/modeling/md-content-g/" title="non-persistent tag"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/sqac/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/sqac/public-db/" title="PublicDB API" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -1474,3 +1552,4 @@
 
   </body>
 </html>
+

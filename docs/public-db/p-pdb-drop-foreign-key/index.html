@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
 <link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-    <title>Tags :: Sqac ORM</title>
+    <title>DropForeignKey :: Sqac ORM</title>
 
     
     <link href="/sqac/css/nucleus.css?1544732899" rel="stylesheet">
@@ -34,7 +34,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/sqac/tags/">
+  <body class="" data-url="/sqac/public-db/p-pdb-drop-foreign-key/">
     <nav id="sidebar" class="">
 
 
@@ -385,7 +385,7 @@
   
     
     <li data-nav-id="/sqac/public-db/" title="PublicDB API" class="dd-item 
-        
+        parent
         
         
         ">
@@ -694,7 +694,7 @@
  
   
     
-      <li data-nav-id="/sqac/public-db/p-pdb-drop-foreign-key/" title="DropForeignKey" class="dd-item ">
+      <li data-nav-id="/sqac/public-db/p-pdb-drop-foreign-key/" title="DropForeignKey" class="dd-item active">
         <a href="/sqac/public-db/p-pdb-drop-foreign-key/">
         DropForeignKey
         
@@ -827,7 +827,19 @@
                     
           
           
-            Tags
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/sqac/'></a> > <a href='/sqac/public-db/'>PublicDB API</a> > DropForeignKey
+          
+         
+          
+         
           
         
                  
@@ -836,7 +848,23 @@
                 
                     <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#publicdb-dropforeignkey-i-interface-ft-fkn-string-error">PublicDB.DropForeignKey(i interface{}, ft, fkn string) error</a></li>
+<li><a href="#parameters">Parameters</a></li>
+<li><a href="#publicdb-dropforeignkey-example">PublicDB.DropForeignKey Example</a></li>
+<li><a href="#db-specific-notes">DB Specific Notes</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
     </div>
 </div>
 
@@ -848,7 +876,7 @@
         
         <div id="body-inner">
           
-            <h1>Tags</h1>
+            <h1>DropForeignKey</h1>
           
 
         
@@ -856,9 +884,81 @@
 
 
 
+<p><br></p>
+
+<h4 id="publicdb-dropforeignkey-i-interface-ft-fkn-string-error">PublicDB.DropForeignKey(i interface{}, ft, fkn string) error</h4>
+
+<p>The DropForeignKey method facilitates the dropping of an existing foreign-key constraint in the database.</p>
+
+<h4 id="parameters">Parameters</h4>
+
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>i interface{}</td>
+<td>Accepts the go struct type of the table from which the foreign-key is being dropped. <br>For example:<br><br>If table column product.warehouse_id had a foreign-key constraint against table column warehouse.id, this parameter should be provided with go type Product{}.</td>
+</tr>
+
+<tr>
+<td>ft string</td>
+<td>The database table name of the table on which the foreign-key is being dropped. <br>For example:<br><br>If table column product.warehouse_id had a foreign-key constraint against table column warehouse.id, this parameter should be provided with &ldquo;product&rdquo;.</td>
+</tr>
+
+<tr>
+<td>fkn string</td>
+<td>The name of the foreign-key being dropped. <br>For example:<br><br>If table column product.warehouse_id has a foreign-key constraint against table.column warehouse.id, by convention this parameter should contain: &ldquo;fk_product_warehouse_id&rdquo;.</td>
+</tr>
+</tbody>
+</table>
+
+<p><br>
+Sqac foreign-key naming convention can be found in the <a href="/sqac/modeling/md-content-h/#sqac-foreign-key-naming-standard">&ldquo;fkey:&rdquo; &lsquo;sqac:&rsquo; tag documentation</a>.</p>
+
+<p><br></p>
+
+<h4 id="publicdb-dropforeignkey-example">PublicDB.DropForeignKey Example</h4>
+
+<p>A sample call using the scenario described in the Parameters table follows:</p>
+
+<pre><code class="language-golang">...
+// drop the foreign-key
+err := Handle.DropForeignKey(Product{}, pn, &quot;fk_product_warehouse_id&quot;)
+...
+...
+</code></pre>
+
+<p><br></p>
+
+<h4 id="db-specific-notes">DB Specific Notes</h4>
+
+<table>
+<thead>
+<tr>
+<th>Database</th>
+<th>Notes</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Sqlite3</td>
+<td>SQLite does not permit ADD/DROP&rsquo;s of foreign-key constraints on an existing table.  As a result, sqac will simulate the dropping of a foreign-key constraint by executing the following steps: <br><br> <strong>1.</strong>  Copying the existing table and it&rsquo;s content to a temp DB table. <br> <strong>2.</strong> Dropping the existing table. <br> <strong>3.</strong>  Recreating the table based on the &ldquo;sqac:&rdquo; tags declared in the go struct type contained in parameter i interface{}. <br> <strong>4.</strong> Loading the backed up table data from the temp table into the new table. <br> <strong>5.</strong> Dropping the temp table. <br><br> This is not a fool-proof way of dealing with the situation, as the table in question may not have current or correct &ldquo;sqac:&rdquo; tags.  <em>Exercise caution using DropForeignKey with Sqlite3.</em></td>
+</tr>
+</tbody>
+</table>
+
+
 <footer class=" footline" >
 	
 </footer>
+
 
         
         </div> 
@@ -1118,6 +1218,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1130,6 +1231,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1371,6 +1475,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1386,6 +1491,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1442,8 +1550,10 @@
 	 
 	 
 		
+			<a class="nav nav-prev" href="/sqac/public-db/o-pdb-create-foreign-key/" title="CreateForeignKey"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/sqac/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/sqac/public-db/q-pdb-exists-foreign-key-by-name/" title="ExistsForeignKeyByName" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -1474,3 +1584,4 @@
 
   </body>
 </html>
+

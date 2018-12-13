@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
 <link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-    <title>Tags :: Sqac ORM</title>
+    <title>default: :: Sqac ORM</title>
 
     
     <link href="/sqac/css/nucleus.css?1544732899" rel="stylesheet">
@@ -34,7 +34,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/sqac/tags/">
+  <body class="" data-url="/sqac/modeling/md-content-d/">
     <nav id="sidebar" class="">
 
 
@@ -201,7 +201,7 @@
   
     
     <li data-nav-id="/sqac/modeling/" title="Sqac Modeling" class="dd-item 
-        
+        parent
         
         
         ">
@@ -282,7 +282,7 @@
  
   
     
-      <li data-nav-id="/sqac/modeling/md-content-d/" title="default:" class="dd-item ">
+      <li data-nav-id="/sqac/modeling/md-content-d/" title="default:" class="dd-item active">
         <a href="/sqac/modeling/md-content-d/">
         default:
         
@@ -827,7 +827,19 @@
                     
           
           
-            Tags
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/sqac/'></a> > <a href='/sqac/modeling/'>Sqac Modeling</a> > default:
+          
+         
+          
+         
           
         
                  
@@ -836,7 +848,22 @@
                 
                     <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#default-overview">&ldquo;default:&rdquo; Overview</a>
+<ul>
+<li>
+<ul>
+<li><a href="#default-value-example">&ldquo;default:&lt;value&gt;&rdquo; example</a></li>
+<li><a href="#time-time-default-now-function">time.Time &ldquo;default:now()&rdquo; function</a></li>
+<li><a href="#time-time-default-eot-function">time.Time &ldquo;default:eot()&rdquo; function</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
     </div>
 </div>
 
@@ -848,7 +875,7 @@
         
         <div id="body-inner">
           
-            <h1>Tags</h1>
+            <h1>default:</h1>
           
 
         
@@ -856,9 +883,63 @@
 
 
 
+<h2 id="default-overview">&ldquo;default:&rdquo; Overview</h2>
+
+<p>Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database.  The following examples illustrate the use of the &ldquo;default:&rdquo; &lsquo;sqac:&rsquo; tag described in the <a href="/sqac/modeling/md-content-a">Sqac Tag Overview</a> section of this document.</p>
+
+<p>Use the &ldquo;default:&rdquo; tag to explicitly declare default column values in the database table schema.  The default values will be used only if no value has been provided for a defaulted column during record creation.  A field with a &ldquo;default:&rdquo; tag will be defaulted at the database level if it contains a null value, or the <a href="https://tour.golang.org/basics/12">go zero-value</a> corresponding to the field&rsquo;s go data type.</p>
+
+<p><br></p>
+
+<h4 id="default-value-example">&ldquo;default:&lt;value&gt;&rdquo; example</h4>
+
+<p>The following example illustrates the use of &lsquo;sqac:&rsquo; tag &ldquo;default:&lt;value&gt;&rdquo; to declare a column&rsquo;s default value in the database table schema.  Care should be taken to supply default values that correspond to the go data type of the the field/column.</p>
+
+<pre><code class="language-golang">  // Declare a struct to be used as the source for table creation.
+  // sample default value assignments are shown
+  type Depot struct {
+    ...
+    Region     string    `db:&quot;region&quot; sqac:&quot;default:AB&quot;`
+    Efficiency float64   `db:&quot;efficiency&quot; sqac:&quot;default:99.999&quot;`
+    Active     bool      `db:&quot;active&quot; sqac:&quot;default:true&quot;`
+    ...
+    ...
+  }
+</code></pre>
+
+<h4 id="time-time-default-now-function">time.Time &ldquo;default:now()&rdquo; function</h4>
+
+<p>Most database systems offer a selection of functions to provide default time and/or timestamp values.  Sqac uses UTC timestamps as discussed in section X.Y.Z for fields declared as time.Time or *time.Time.  &ldquo;default:now()&rdquo; will instruct the database to use its equivalent now() function to provide a default value for the field at time of record insertion.  The defaulted value will be created as a UTC timestamp.</p>
+
+<pre><code class="language-golang">  // Declare a struct to be used as the source for table creation.
+  // field will be defaulted to current timestamp at time of  record insertion
+  type Depot struct {
+    ...
+    CreateDate time.Time `db:&quot;create_date&quot; sqac:&quot;default:now();&quot;`
+    ...
+    ...
+  }
+</code></pre>
+
+<h4 id="time-time-default-eot-function">time.Time &ldquo;default:eot()&rdquo; function</h4>
+
+<p>Most database systems offer a selection of functions to provide default date-time and/or timestamp values.  Sqac uses UTC timestamps as discussed in section X.Y.Z for fields declared as time.Time or *time.Time.  &ldquo;default:eot()&rdquo; will set a default value for the field based on the maximum UTC timestamp supported by the database.  Typically this will be along the lines of &lsquo;9999 12 31 235959.999 UTC&rsquo;, but some databases (MySQL/MariaDB) have lower maximum timestamp values.</p>
+
+<pre><code class="language-golang">  // Declare a struct to be used as the source for table creation.
+  // field will be defaulted to current timestamp at time of  record insertion
+  type Depot struct {
+    ...
+    ExpiryDate time.Time `db:&quot;expiry_date&quot; sqac:&quot;default:eot();&quot;`
+    ...
+    ...
+  }
+</code></pre>
+
+
 <footer class=" footline" >
 	
 </footer>
+
 
         
         </div> 
@@ -974,6 +1055,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -986,6 +1068,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1035,6 +1120,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1050,6 +1136,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1442,8 +1531,10 @@
 	 
 	 
 		
+			<a class="nav nav-prev" href="/sqac/modeling/md-content-c/" title="nullable:"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/sqac/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/sqac/modeling/md-content-e/" title="index:" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -1474,3 +1565,4 @@
 
   </body>
 </html>
+

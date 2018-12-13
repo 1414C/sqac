@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
 <link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-    <title>Tags :: Sqac ORM</title>
+    <title>GetEntity :: Sqac ORM</title>
 
     
     <link href="/sqac/css/nucleus.css?1544732899" rel="stylesheet">
@@ -34,7 +34,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/sqac/tags/">
+  <body class="" data-url="/sqac/public-db/m-pdb-get-entity/">
     <nav id="sidebar" class="">
 
 
@@ -385,7 +385,7 @@
   
     
     <li data-nav-id="/sqac/public-db/" title="PublicDB API" class="dd-item 
-        
+        parent
         
         
         ">
@@ -637,7 +637,7 @@
  
   
     
-      <li data-nav-id="/sqac/public-db/m-pdb-get-entity/" title="GetEntity" class="dd-item ">
+      <li data-nav-id="/sqac/public-db/m-pdb-get-entity/" title="GetEntity" class="dd-item active">
         <a href="/sqac/public-db/m-pdb-get-entity/">
         GetEntity
         
@@ -827,7 +827,19 @@
                     
           
           
-            Tags
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/sqac/'></a> > <a href='/sqac/public-db/'>PublicDB API</a> > GetEntity
+          
+         
+          
+         
           
         
                  
@@ -836,7 +848,21 @@
                 
                     <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#publicdb-getentity-ent-interface-error">PublicDB.GetEntity(ent interface{}) error</a></li>
+<li><a href="#crud-getentity-example">CRUD GetEntity Example</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
     </div>
 </div>
 
@@ -848,7 +874,7 @@
         
         <div id="body-inner">
           
-            <h1>Tags</h1>
+            <h1>GetEntity</h1>
           
 
         
@@ -856,9 +882,90 @@
 
 
 
+<p><br></p>
+
+<h4 id="publicdb-getentity-ent-interface-error">PublicDB.GetEntity(ent interface{}) error</h4>
+
+<p>The GetEntity method is part of sqac&rsquo;s CRUD API and is used to retrieve an existing row of the specified entity from it&rsquo;s related database table.  Structs annotated with &lsquo;sqac:&rsquo; tags are colloquially known as sqac entities, hence the parameter name &lsquo;ent&rsquo;.</p>
+
+<p>The ent parameter must be a pointer to a go struct of the sqac table declaration in which the primary-key fields have been populated.  The GetEntity method can be thought of as a fully-keyed SELECT SINGLE statement.  If an error is encountered, it will be returned to the caller.</p>
+
+<p>PublicDB.GetEntitiesCP is a more flexible and useful method.</p>
+
+<h4 id="crud-getentity-example">CRUD GetEntity Example</h4>
+
+<p>The following example illustrates the deletion of an existing record (entity) from database table &ldquo;depot&rdquo;.</p>
+
+<p>```golang
+package main</p>
+
+<p>import (
+  &ldquo;log&rdquo;</p>
+
+<p>&ldquo;github.com/1414C/sqac&rdquo;
+  _ &ldquo;github.com/mattn/go-sqlite3&rdquo;
+)</p>
+
+<p>func main() {</p>
+
+<p>var (
+    Handle sqac.PublicDB
+  )</p>
+
+<p>// Declare a struct to be used as the source for table creation
+  type Depot struct {
+    DepotNum   int       <code>db:&quot;depot_num&quot; sqac:&quot;primary_key:inc&quot;</code>
+    CreateDate time.Time <code>db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();&quot;</code>
+    Country    string    <code>db:&quot;country&quot; sqac:&quot;nullable:false;default:CA&quot;</code>
+    Province   string    <code>db:&quot;province&quot; sqac:&quot;nullable:false;default:AB&quot;</code>
+    Region     string    <code>db:&quot;region&quot; sqac:&quot;nullable:false;default:YYC&quot;</code>
+    Population int       <code>db:&quot;population&quot; sqac:&quot;nullable:false;default:0;index:non-unique&quot;</code>
+  }</p>
+
+<p>// Create a PublicDB instance to connect to the test sqlite db
+  Handle = sqac.Create(&ldquo;sqlite&rdquo;, false, false, &ldquo;testdb.sqlite&rdquo;)</p>
+
+<p>// Create a new table in the database
+  err := Handle.DestructiveResetTables(Depot{})
+  if err != nil {
+    log.Errorf(&ldquo;%s&rdquo;, err.Error())
+  }</p>
+
+<p>// Insert a new record into table &ldquo;depot&rdquo;
+  var depotRecord = Depot{
+      Country: &ldquo;CA&rdquo;,
+      Province: &ldquo;BC&rdquo;,
+      Region: &ldquo;YVR&rdquo;,
+      Population: 2500000,
+  }</p>
+
+<p>err = Handle.Create(&amp;depotRecord)
+  if err != nil {
+      log.Errorf(err.Error())
+  } else {
+      log.Println(&ldquo;New record: &ldquo;, depotRecord)
+  }</p>
+
+<p>// Retrieve the existing record using the fully populated depotRecord&rsquo;s primary-key value
+  var readRecord = Depot{
+      DepotNum: depotRecord.DepotNum,
+  }
+  err = Handle.GetEntity(&amp;readRecord)
+  if err != nil {
+      log.Errorf(err.Error())
+  } else {
+      log.Println(&ldquo;Retrieved record: &ldquo;,readRecord)
+  }</p>
+
+<p>// Close the connection
+  Handle.Close()
+}</p>
+
+
 <footer class=" footline" >
 	
 </footer>
+
 
         
         </div> 
@@ -1118,6 +1225,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1130,6 +1238,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1323,6 +1434,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1338,6 +1450,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1442,8 +1557,10 @@
 	 
 	 
 		
+			<a class="nav nav-prev" href="/sqac/public-db/l-pdb-delete/" title="Delete"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/sqac/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/sqac/public-db/n-pdb-get-entities-with-commands-ip/" title="GetEntitiesCP" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -1474,3 +1591,4 @@
 
   </body>
 </html>
+

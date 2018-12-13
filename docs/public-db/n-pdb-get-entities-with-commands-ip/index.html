@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
 <link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-    <title>Tags :: Sqac ORM</title>
+    <title>GetEntitiesCP :: Sqac ORM</title>
 
     
     <link href="/sqac/css/nucleus.css?1544732899" rel="stylesheet">
@@ -34,7 +34,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/sqac/tags/">
+  <body class="" data-url="/sqac/public-db/n-pdb-get-entities-with-commands-ip/">
     <nav id="sidebar" class="">
 
 
@@ -385,7 +385,7 @@
   
     
     <li data-nav-id="/sqac/public-db/" title="PublicDB API" class="dd-item 
-        
+        parent
         
         
         ">
@@ -656,7 +656,7 @@
  
   
     
-      <li data-nav-id="/sqac/public-db/n-pdb-get-entities-with-commands-ip/" title="GetEntitiesCP" class="dd-item ">
+      <li data-nav-id="/sqac/public-db/n-pdb-get-entities-with-commands-ip/" title="GetEntitiesCP" class="dd-item active">
         <a href="/sqac/public-db/n-pdb-get-entities-with-commands-ip/">
         GetEntitiesCP
         
@@ -827,7 +827,19 @@
                     
           
           
-            Tags
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/sqac/'></a> > <a href='/sqac/public-db/'>PublicDB API</a> > GetEntitiesCP
+          
+         
+          
+         
           
         
                  
@@ -836,7 +848,24 @@
                 
                     <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#publicdb-getentitiescp-ents-interface-params-getparam-cmdmap-map-string-interface-uint64-error">PublicDB.GetEntitiesCP(ents interface{}, params []GetParam, cmdMap map[string]interface{}) (uint64, error)</a></li>
+<li><a href="#parameters">Parameters</a></li>
+<li><a href="#crud-getentitiescp-simple-example">CRUD GetEntitiesCP Simple Example</a></li>
+<li><a href="#crud-getentitiescp-plist-example">CRUD GetEntitiesCP pList Example</a></li>
+<li><a href="#crud-getentitiescp-plist-and-cmdmap-example">CRUD GetEntitiesCP pList and cmdMap Example</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
     </div>
 </div>
 
@@ -848,7 +877,7 @@
         
         <div id="body-inner">
           
-            <h1>Tags</h1>
+            <h1>GetEntitiesCP</h1>
           
 
         
@@ -856,9 +885,124 @@
 
 
 
+<p><br></p>
+
+<h4 id="publicdb-getentitiescp-ents-interface-params-getparam-cmdmap-map-string-interface-uint64-error">PublicDB.GetEntitiesCP(ents interface{}, params []GetParam, cmdMap map[string]interface{}) (uint64, error)</h4>
+
+<p>The GetEntitiesCP method is part of sqac&rsquo;s CRUD API and is used to retrieve existing rows of the specified entity from their related database table.  Structs annotated with &lsquo;sqac:&rsquo; tags are colloquially known as sqac entities, hence the parameter name &lsquo;ent&rsquo;.</p>
+
+<p>The ent parameter must be a pointer to a slice declared using the go struct-type corresponding to the targeted database table.  This  method can be thought of as a flexible retrieval mechanism for one or more database records.  Complex selections can be constructed through the use of the <strong>params</strong> and <strong>cmdMap</strong> parameters.</p>
+
+<p>The call returns the slice pointer as well as the number of retrieved records and the standard go error type.</p>
+
+<h4 id="parameters">Parameters</h4>
+
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>ents interface{}</td>
+<td>An empty slice declared to be of the go struct-type corresponding to the targeted database table.  <br> For example: <br><br>  depotRead := []Depot{} <br>n, err := Handle.GetEntitiesCP(&amp;depotRead, p, cm) <br><br> A pointer to the depotRead slice should be passed into the method in the ents parameter.  The method will populate the slice based on the records retrieved from the database thereby making the selected records available to the caller on completion of the method.</td>
+</tr>
+
+<tr>
+<td>pList []GetParam</td>
+<td>A slice containing a list of parameters for use as SELECT criteria when retrieving the requested records from the database.  Each record in the <a href="/sqac/public-db/z-pdb-data-types/#sqac-getparam">sqac.GetParam</a> slice must contain a column-name from the target table, an operator and a value.  See the example program below.</td>
+</tr>
+
+<tr>
+<td>cmdMap map[string]interface{}</td>
+<td>The cmdMap parameter is used to provide additional instructions for use in the query.  Supported commands include: <strong>count, orderby, asc, desc, limit and offset</strong>.  Examples of the commands are shown in the subsequent sections.</td>
+</tr>
+</tbody>
+</table>
+
+<p><br></p>
+
+<h4 id="crud-getentitiescp-simple-example">CRUD GetEntitiesCP Simple Example</h4>
+
+<p>The following example illustrates reading all records from table &ldquo;depot&rdquo;:</p>
+
+<pre><code class="language-golang">// create a slice to hold records read from table &quot;depot&quot;
+depotRecs:= []Depot{}
+
+// call with no parameters and no commands
+_, err := Handle.GetEntitiesCP(&amp;depotRecs, nil, nil)
+</code></pre>
+
+<p><br></p>
+
+<h4 id="crud-getentitiescp-plist-example">CRUD GetEntitiesCP pList Example</h4>
+
+<pre><code class="language-golang">// create a slice to hold records read from table &quot;depot&quot;
+depotRecs:= []Depot{}
+
+// setup selection parameters
+p := sqac.GetParam{
+    FieldName:    &quot;region&quot;,
+    Operand:      &quot;=&quot;,
+    ParamValue:   &quot;ON&quot;,
+    NextOperator: &quot;AND&quot;
+}
+pa := []sqac.GetParam{}
+pa = append(pa, p)
+
+p.FieldName = &quot;population&quot;
+p.Operand = &quot;&gt;&quot;
+p.ParamValue = 1000000
+p.NextOperator = &quot;&quot;
+pa = append(pa, p)
+
+// call with parameters and no commands
+_, err := Handle.GetEntitiesCP(&amp;depotRecs, pa, nil)
+</code></pre>
+
+<p><br></p>
+
+<h4 id="crud-getentitiescp-plist-and-cmdmap-example">CRUD GetEntitiesCP pList and cmdMap Example</h4>
+
+<pre><code class="language-golang">// create a slice to hold records read from table &quot;depot&quot;
+depotRecs:= []Depot{}
+
+// setup selection parameters
+p := sqac.GetParam{
+    FieldName:    &quot;region&quot;,
+    Operand:      &quot;=&quot;,
+    ParamValue:   &quot;AB&quot;,
+    NextOperator: &quot;AND&quot;
+}
+pa := []sqac.GetParam{}
+pa = append(pa, p)
+
+p.FieldName = &quot;population&quot;
+p.Operand = &quot;&gt;&quot;
+p.ParamValue = 50000
+p.NextOperator = &quot;&quot;
+pa = append(pa, p)
+
+// create cmdMap - non-sensical, but shows what can be done
+// set $orderby=name$descending$limit=3$offset=2
+cm := make(map[string]interface{})
+cm[&quot;orderby&quot;] = &quot;population&quot;
+cm[&quot;asc&quot;] = nil   // no value required
+cm[&quot;limit&quot;] = 3
+cm[&quot;offset&quot;] = 2
+
+// call with parameters and command map
+_, err := Handle.GetEntitiesCP(&amp;depotRecs, pa, cm)
+</code></pre>
+
+
 <footer class=" footline" >
 	
 </footer>
+
 
         
         </div> 
@@ -1118,6 +1262,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1130,6 +1275,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1339,6 +1487,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1354,6 +1503,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1442,8 +1594,10 @@
 	 
 	 
 		
+			<a class="nav nav-prev" href="/sqac/public-db/m-pdb-get-entity/" title="GetEntity"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/sqac/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/sqac/public-db/o-pdb-create-foreign-key/" title="CreateForeignKey" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -1474,3 +1628,4 @@
 
   </body>
 </html>
+

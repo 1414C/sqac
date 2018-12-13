@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
 <link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-    <title>Tags :: Sqac ORM</title>
+    <title>CreateIndex :: Sqac ORM</title>
 
     
     <link href="/sqac/css/nucleus.css?1544732899" rel="stylesheet">
@@ -34,7 +34,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/sqac/tags/">
+  <body class="" data-url="/sqac/public-db/g-pdb-create-index/">
     <nav id="sidebar" class="">
 
 
@@ -385,7 +385,7 @@
   
     
     <li data-nav-id="/sqac/public-db/" title="PublicDB API" class="dd-item 
-        
+        parent
         
         
         ">
@@ -523,7 +523,7 @@
  
   
     
-      <li data-nav-id="/sqac/public-db/g-pdb-create-index/" title="CreateIndex" class="dd-item ">
+      <li data-nav-id="/sqac/public-db/g-pdb-create-index/" title="CreateIndex" class="dd-item active">
         <a href="/sqac/public-db/g-pdb-create-index/">
         CreateIndex
         
@@ -827,7 +827,19 @@
                     
           
           
-            Tags
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/sqac/'></a> > <a href='/sqac/public-db/'>PublicDB API</a> > CreateIndex
+          
+         
+          
+         
           
         
                  
@@ -836,7 +848,21 @@
                 
                     <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#publicdb-createindex-in-string-index-indexinfo-error">PublicDB.CreateIndex(in string, index IndexInfo) error</a></li>
+<li><a href="#createindex-example">CreateIndex Example</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
     </div>
 </div>
 
@@ -848,7 +874,7 @@
         
         <div id="body-inner">
           
-            <h1>Tags</h1>
+            <h1>CreateIndex</h1>
           
 
         
@@ -856,9 +882,91 @@
 
 
 
+<p><br></p>
+
+<h4 id="publicdb-createindex-in-string-index-indexinfo-error">PublicDB.CreateIndex(in string, index IndexInfo) error</h4>
+
+<p>CreateIndex creates the index contained in the incoming <a href="/sqac/public-db/z-pdb-data-types/#sqac.IndexInfo">IndexInfo structure</a>.  Indexes are created as non-unique by default, and in compound index situations the fields (columns) will be added to the index in the order they are contained in the IndexInfo.[]IndexFields slice.</p>
+
+<p>Care should be taken when providing an index name, as the value of input variable &lsquo;in&rsquo; is used verbatim when the index is created in the database.  The suggested format for index naming is as follows:</p>
+
+<p>&ldquo;idx_&rdquo; + table<em>name + &ldquo;</em>&rdquo; + column<em>name1 + &ldquo;</em>&rdquo; + column<em>name2 + &ldquo;</em>&rdquo; + &hellip;</p>
+
+<p>Incorporating the table name in the index name will prevent index name collisions in the target database.</p>
+
+<p>Generally speaking, it is best to maintain indexes via changes to the &lsquo;sqac:&rsquo; tag attributes in the go struct related to the target database table.  CreateIndex is provided as a convenience mechanism for (rare?) situations where changes to the model are prohibited, or where an index is required temporarily.</p>
+
+<p>Errors encountered during CreateIndex execution are returned to the caller immediately</p>
+
+<h4 id="createindex-example">CreateIndex Example</h4>
+
+<p>The following structure &lsquo;Depot&rsquo; has been used to create table &ldquo;depot&rdquo; in the target database.  We will subsequently use the PublicDB.CreateIndex() method to create a new non-unique index on table columns &ldquo;region&rdquo; and &ldquo;county&rdquo;:</p>
+
+<pre><code class="language-golang">package main
+
+import (
+  &quot;log&quot;
+
+  &quot;github.com/1414C/sqac&quot;
+  _ &quot;github.com/SAP/go-hdb/driver&quot;
+  _ &quot;github.com/denisenkom/go-mssqldb&quot;
+  _ &quot;github.com/go-sql-driver/mysql&quot;
+  _ &quot;github.com/lib/pq&quot;
+  _ &quot;github.com/mattn/go-sqlite3&quot;
+)
+
+func main() {
+
+  var (
+    Handle sqac.PublicDB
+  )
+
+  // table depot declaration - no index
+  type Depot struct {
+    DepotNum   int       `db:&quot;depot_num&quot; sqac:&quot;primary_key:inc&quot;`
+    CreateDate time.Time `db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();&quot;`
+    Country    string    `db:&quot;country&quot; sqac:&quot;nullable:false;default:CA&quot;`
+    Province   string    `db:&quot;province&quot; sqac:&quot;nullable:false;default:AB&quot;`
+    Region     string    `db:&quot;region&quot; sqac:&quot;nullable:false;default:YYC&quot;`
+    County     string    `db:&quot;county&quot; sqac:&quot;nullable:false&quot;`
+    Population int       `db:&quot;population&quot; sqac:&quot;nullable:false;default:0;index:non-unique&quot;`
+  }
+
+  // Create a PublicDB instance to connect to the test sqlite db
+  Handle = sqac.Create(&quot;sqlite&quot;, false, false, &quot;testdb.sqlite&quot;)
+  defer Handle.Close()
+
+  // Ensure table &quot;depot&quot; exists in the database
+  err := Handle.DestructiveResetTables(Depot{})
+  if err != nil {
+    log.Fatalf(&quot;%s&quot;, err.Error())
+  }
+
+  // Determine the table name in the database
+  tn := sqac.GetTableName(Depot{})    // &quot;depot&quot;
+  if tn == &quot;&quot; {
+    log.Fatalf(&quot;Unable to determine table name for struct %v&quot;, Depot{})
+  }
+
+  // Create the new index (without checking for its existence).
+  // See PublicDB.ExistsIndex()
+  var indexInfo sqac.IndexInfo
+  indexInfo.TableName = tn
+  indexInfo.Unique = false
+  indexInfo.IndexFields = []string{&quot;region&quot;, &quot;county&quot;}
+  err = Handle.CreateIndex(&quot;idx_depot_region_county&quot;, indexInfo)
+  if err != nil {
+    log.Errorf(&quot;%s&quot;, err.Error())
+  }
+  Handle.Close()
+}
+</code></pre>
+
+
 <footer class=" footline" >
 	
 </footer>
+
 
         
         </div> 
@@ -1118,6 +1226,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1130,6 +1239,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1227,6 +1339,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1242,6 +1355,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1442,8 +1558,10 @@
 	 
 	 
 		
+			<a class="nav nav-prev" href="/sqac/public-db/f-pdb-exists-table/" title="ExistsTable"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/sqac/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/sqac/public-db/h-pdb-drop-index/" title="DropIndex" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -1474,3 +1592,4 @@
 
   </body>
 </html>
+

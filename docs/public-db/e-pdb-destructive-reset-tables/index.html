@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
 <link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-    <title>Tags :: Sqac ORM</title>
+    <title>DestructiveResetTables :: Sqac ORM</title>
 
     
     <link href="/sqac/css/nucleus.css?1544732899" rel="stylesheet">
@@ -34,7 +34,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/sqac/tags/">
+  <body class="" data-url="/sqac/public-db/e-pdb-destructive-reset-tables/">
     <nav id="sidebar" class="">
 
 
@@ -385,7 +385,7 @@
   
     
     <li data-nav-id="/sqac/public-db/" title="PublicDB API" class="dd-item 
-        
+        parent
         
         
         ">
@@ -485,7 +485,7 @@
  
   
     
-      <li data-nav-id="/sqac/public-db/e-pdb-destructive-reset-tables/" title="DestructiveResetTables" class="dd-item ">
+      <li data-nav-id="/sqac/public-db/e-pdb-destructive-reset-tables/" title="DestructiveResetTables" class="dd-item active">
         <a href="/sqac/public-db/e-pdb-destructive-reset-tables/">
         DestructiveResetTables
         
@@ -827,7 +827,19 @@
                     
           
           
-            Tags
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/sqac/'></a> > <a href='/sqac/public-db/'>PublicDB API</a> > DestructiveResetTables
+          
+         
+          
+         
           
         
                  
@@ -836,7 +848,21 @@
                 
                     <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#publicdb-destructiveresettables-i-interface-error">PublicDB.DestructiveResetTables(i &hellip;interface{}) error</a></li>
+<li><a href="#destructiveresettables-example">DestructiveResetTables Example</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
     </div>
 </div>
 
@@ -848,7 +874,7 @@
         
         <div id="body-inner">
           
-            <h1>Tags</h1>
+            <h1>DestructiveResetTables</h1>
           
 
         
@@ -856,9 +882,104 @@
 
 
 
+<p><br></p>
+
+<h4 id="publicdb-destructiveresettables-i-interface-error">PublicDB.DestructiveResetTables(i &hellip;interface{}) error</h4>
+
+<p>The DestructiveResetTables method is used to drop and recreate one or more tables in the target database.  DestructiveResetTables accepts one or more go <a href="/sqac/sqac-modelling/a-model-overview">struct definitions that have been annotated with &ldquo;sqac:&rdquo; tags</a> and uses the provided information to drop and recreate the tables in the database.  Note that the DestructiveResetTables method will not attempt to drop a table that does not exist in the target database.  It follows that the data in the existing table will be lost unless backed up prior to the call to the DestructiveResetTables method.</p>
+
+<p>If a table in the parameter list does not exist in the database, the method will simply create it using the information provided in the struct tags.  No effort is made to determine deltas between existing database tables and their replacement declaration in the incoming parameter list.</p>
+
+<p>Errors encountered during table drop / creation are returned to the caller immediately.  This may result in the incomplete processing of the tables contained in parameter <strong>i &hellip;interface{}</strong>.</p>
+
+<h4 id="destructiveresettables-example">DestructiveResetTables Example</h4>
+
+<p>The following structure &lsquo;Depot&rsquo; has been used to create table &ldquo;depot&rdquo; in the target database.  We will change the type of the Region field to an integer value, thereby necessitating a drop and recreation of the table in the database.</p>
+
+<pre><code class="language-golang">  type Depot struct {
+    DepotNum   int       `db:&quot;depot_num&quot; sqac:&quot;primary_key:inc&quot;`
+    CreateDate time.Time `db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();&quot;`
+    Region     string    `db:&quot;region&quot; sqac:&quot;nullable:false;default:YYC&quot;`
+    Province   string    `db:&quot;province&quot; sqac:&quot;nullable:false;default:AB&quot;`
+    Country    string    `db:&quot;country&quot; sqac:&quot;nullable:false;default:CA&quot;`
+    Population int       `db:&quot;population&quot; sqac:&quot;nullable:false;default:0;index:non-unique&quot;`
+  }
+</code></pre>
+
+<p>The data type of column &ldquo;Region&rdquo; has been updated from &lsquo;string&rsquo; to &lsquo;int&rsquo; in the Depot struct declaration:</p>
+
+<pre><code class="language-golang">  type Depot struct {
+    DepotNum   int       `db:&quot;depot_num&quot; sqac:&quot;primary_key:inc&quot;`
+    CreateDate time.Time `db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();&quot;`
+    // --&gt; start of the alterations
+    Region     int       `db:&quot;region&quot; sqac:&quot;nullable:false;default:0&quot;`
+    // --&gt; end of the alterations
+    Province   string    `db:&quot;province&quot; sqac:&quot;nullable:false;default:AB&quot;`
+    Country    string    `db:&quot;country&quot; sqac:&quot;nullable:false;default:CA&quot;`
+    Population int       `db:&quot;population&quot; sqac:&quot;nullable:false;default:0;index:non-unique&quot;`
+  }
+</code></pre>
+
+<p>A complete sample program to perform the destructive reset of existing table &ldquo;depot&rdquo; is shown below:</p>
+
+<pre><code class="language-golang">package main
+
+import (
+
+  &quot;log&quot;
+  &quot;github.com/1414C/sqac&quot;
+  _ &quot;github.com/SAP/go-hdb/driver&quot;
+  _ &quot;github.com/denisenkom/go-mssqldb&quot;
+  _ &quot;github.com/go-sql-driver/mysql&quot;
+  _ &quot;github.com/lib/pq&quot;
+  _ &quot;github.com/mattn/go-sqlite3&quot;
+)
+
+func main() {
+
+  var (
+    Handle sqac.PublicDB
+  )
+
+  //   Original Depot declaration - left for illustrative purposes
+  //   type Depot struct {
+  //     DepotNum   int       `db:&quot;depot_num&quot; sqac:&quot;primary_key:inc&quot;`
+  //     CreateDate time.Time `db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();&quot;`
+  //     Country    string    `db:&quot;country&quot; sqac:&quot;nullable:false;default:CA&quot;`
+  //     Province   string    `db:&quot;province&quot; sqac:&quot;nullable:false;default:AB&quot;`
+  //     Region     string    `db:&quot;region&quot; sqac:&quot;nullable:false;default:YYC&quot;`
+  //     Population int       `db:&quot;population&quot; sqac:&quot;nullable:false;default:0;index:non-unique&quot;`
+  //   }
+
+  // updated Depot declaration with new data type int assigned to field &quot;Region&quot;
+  type Depot struct {
+    DepotNum   int       `db:&quot;depot_num&quot; sqac:&quot;primary_key:inc&quot;`
+    CreateDate time.Time `db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();&quot;`
+    Country    string    `db:&quot;country&quot; sqac:&quot;nullable:false;default:CA&quot;`
+    Province   string    `db:&quot;province&quot; sqac:&quot;nullable:false;default:AB&quot;`
+    Region     string    `db:&quot;region&quot; sqac:&quot;nullable:false;default:YYC&quot;`
+    Population int       `db:&quot;population&quot; sqac:&quot;nullable:false;default:0;index:non-unique&quot;`
+  }
+
+  // Create a PublicDB instance to connect to the test sqlite db
+  Handle = sqac.Create(&quot;sqlite&quot;, false, false, &quot;testdb.sqlite&quot;)
+
+  // Drop and recreate table &quot;depot&quot; in the target database via destructive reset
+  err := Handle.DestuctiveResetTables(Depot{})
+  if err != nil {
+    log.Errorf(&quot;%s&quot;, err.Error())
+  }
+
+  // Close the connection
+  Handle.Close()
+}
+</code></pre>
+
+
 <footer class=" footline" >
 	
 </footer>
+
 
         
         </div> 
@@ -1118,6 +1239,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1130,6 +1252,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1195,6 +1320,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1210,6 +1336,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1442,8 +1571,10 @@
 	 
 	 
 		
+			<a class="nav nav-prev" href="/sqac/public-db/d-pdb-alter-tables/" title="AlterTables"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/sqac/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/sqac/public-db/f-pdb-exists-table/" title="ExistsTable" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -1474,3 +1605,4 @@
 
   </body>
 </html>
+

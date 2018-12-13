@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
 <link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-    <title>Tags :: Sqac ORM</title>
+    <title>constraint: :: Sqac ORM</title>
 
     
     <link href="/sqac/css/nucleus.css?1544732899" rel="stylesheet">
@@ -34,7 +34,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/sqac/tags/">
+  <body class="" data-url="/sqac/modeling/md-content-f/">
     <nav id="sidebar" class="">
 
 
@@ -201,7 +201,7 @@
   
     
     <li data-nav-id="/sqac/modeling/" title="Sqac Modeling" class="dd-item 
-        
+        parent
         
         
         ">
@@ -320,7 +320,7 @@
  
   
     
-      <li data-nav-id="/sqac/modeling/md-content-f/" title="constraint:" class="dd-item ">
+      <li data-nav-id="/sqac/modeling/md-content-f/" title="constraint:" class="dd-item active">
         <a href="/sqac/modeling/md-content-f/">
         constraint:
         
@@ -827,7 +827,19 @@
                     
           
           
-            Tags
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/sqac/'></a> > <a href='/sqac/modeling/'>Sqac Modeling</a> > constraint:
+          
+         
+          
+         
           
         
                  
@@ -836,7 +848,20 @@
                 
                     <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#constraint-value-overview">&ldquo;constraint:&lt;value&gt;&rdquo; Overview</a>
+<ul>
+<li>
+<ul>
+<li><a href="#constraint-unique-example">&ldquo;constraint:unique&rdquo; example</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
     </div>
 </div>
 
@@ -848,7 +873,7 @@
         
         <div id="body-inner">
           
-            <h1>Tags</h1>
+            <h1>constraint:</h1>
           
 
         
@@ -856,9 +881,34 @@
 
 
 
+<h2 id="constraint-value-overview">&ldquo;constraint:&lt;value&gt;&rdquo; Overview</h2>
+
+<p>Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database.  The following examples illustrate the use of the &ldquo;constraint:&rdquo; &lsquo;sqac:&rsquo; tag described in the <a href="/sqac/modeling/md-content-a">Sqac Tag Overview</a> section of this document.</p>
+
+<p>The &ldquo;constraint:&rdquo; tag is presently only used to declare unique constraints on single columns.  It would be relatively simple to add support for any desired database constraint however.</p>
+
+<p><br></p>
+
+<h4 id="constraint-unique-example">&ldquo;constraint:unique&rdquo; example</h4>
+
+<p>The following example illustrates the use of &lsquo;sqac:&rsquo; tag &ldquo;constraint:&rdquo; to declare a unique column constraint.  Creation of a unique constraint on a single column results in an underlying db constraint, but does not necessarily create an index on the constrained column.  Check the target db documentation for details.</p>
+
+<p>If a column has been declared with a single-column index, the &ldquo;constraint:unique&rdquo; tag is redundant.  If a column has been declared with unique constraint, it may still be included in a <a href="/sqac/modeling/md-content-e/#index-compound-example">compound &ldquo;index:&rdquo; declaration</a>.</p>
+
+<pre><code class="language-golang">  // Declare a struct to be used as the source for table creation.
+  type Depot struct {
+    ...
+    AccountNum int       `db:&quot;account_num&quot; sqac:&quot;nullable:false;constraint:unique&quot;`    // unique constraint
+    ...
+    ...
+  }
+</code></pre>
+
+
 <footer class=" footline" >
 	
 </footer>
+
 
         
         </div> 
@@ -974,6 +1024,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -986,6 +1037,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1067,6 +1121,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1082,6 +1137,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1442,8 +1500,10 @@
 	 
 	 
 		
+			<a class="nav nav-prev" href="/sqac/modeling/md-content-e/" title="index:"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/sqac/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/sqac/modeling/md-content-g/" title="non-persistent tag" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -1474,3 +1534,4 @@
 
   </body>
 </html>
+

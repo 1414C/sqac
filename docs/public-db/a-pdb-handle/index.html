@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
 <link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-    <title>Tags :: Sqac ORM</title>
+    <title>Getting a PublicDB Handle :: Sqac ORM</title>
 
     
     <link href="/sqac/css/nucleus.css?1544732899" rel="stylesheet">
@@ -34,7 +34,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/sqac/tags/">
+  <body class="" data-url="/sqac/public-db/a-pdb-handle/">
     <nav id="sidebar" class="">
 
 
@@ -385,7 +385,7 @@
   
     
     <li data-nav-id="/sqac/public-db/" title="PublicDB API" class="dd-item 
-        
+        parent
         
         
         ">
@@ -409,7 +409,7 @@
  
   
     
-      <li data-nav-id="/sqac/public-db/a-pdb-handle/" title="Getting a PublicDB Handle" class="dd-item ">
+      <li data-nav-id="/sqac/public-db/a-pdb-handle/" title="Getting a PublicDB Handle" class="dd-item active">
         <a href="/sqac/public-db/a-pdb-handle/">
         Getting a PublicDB Handle
         
@@ -827,7 +827,19 @@
                     
           
           
-            Tags
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/sqac/'></a> > <a href='/sqac/public-db/'>PublicDB API</a> > Getting a PublicDB Handle
+          
+         
+          
+         
           
         
                  
@@ -836,7 +848,27 @@
                 
                     <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#handle-to-postgresql">Handle to PostgreSQL</a></li>
+<li><a href="#handle-to-mssql">Handle to MSSQL</a></li>
+<li><a href="#handle-to-sqlite">Handle to Sqlite</a></li>
+<li><a href="#handle-to-mysql">Handle to MySQL</a></li>
+<li><a href="#handle-to-sap-hana">Handle to SAP Hana</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
     </div>
 </div>
 
@@ -848,7 +880,7 @@
         
         <div id="body-inner">
           
-            <h1>Tags</h1>
+            <h1>Getting a PublicDB Handle</h1>
           
 
         
@@ -856,9 +888,72 @@
 
 
 
+<p>Before using the sqac API, a connection must be established to the target database.  The main interface used by sqac is called PublicDB and we will call this the so-called Handle variable in the sample code.</p>
+
+<pre><code class="language-golang">  // Handle will be the central access-point to the ORM and should be made
+  // available in all locations where access to the persistent storage
+  // (database) is required.
+  var (
+    Handle sqac.PublicDB
+  )
+</code></pre>
+
+<p>Once the Handle variable has been declared, an instance must be created via the sqac.Create function.  The sqac.Create call requires information regarding the type of database, whether logging should be activated, as well as a <a href="/sqac/getting-started/gs-content-e">connection string</a> for the database.  sqac.Create will fail in an absolute way if it encounters a problem.  It is therefore reasonably safe to just use the returned Handle variable without additional checking.  If sqac.Create does not result in a fatal error, it is safe to proceed.</p>
+
+<p>Samples for each of the supported database systems follow:</p>
+
+<p><br></p>
+
+<h5 id="handle-to-postgresql">Handle to PostgreSQL</h5>
+
+<pre><code class="language-golang">  // Create a PublicDB instance for PostGreSQL
+  cs := &quot;host=127.0.0.1 user=my_uname dbname=my_dbname sslmode=disable password=my_passwd&quot;
+  Handle = sqac.Create(&quot;postgres&quot;, false, false, cs)
+</code></pre>
+
+<p><br></p>
+
+<h5 id="handle-to-mssql">Handle to MSSQL</h5>
+
+<pre><code class="language-golang">  // Create a PublicDB instance for MSSQL
+  cs := &quot;sqlserver://SA:my_passwd@localhost:1401?database=my_dbname&quot;
+  Handle = sqac.Create(&quot;mssql&quot;, false, false, cs)
+</code></pre>
+
+<p><br></p>
+
+<h5 id="handle-to-sqlite">Handle to Sqlite</h5>
+
+<pre><code class="language-golang">  // Create a PublicDB instance for Sqlite
+  cs := &quot;testdb.sqlite&quot;
+  Handle = sqac.Create(&quot;sqlite&quot;, false, false, cs)
+</code></pre>
+
+<p><br></p>
+
+<h5 id="handle-to-mysql">Handle to MySQL</h5>
+
+<pre><code class="language-golang">  // Create a PublicDB instance for MySQL
+  cs := &quot;my_uname:my_passwd@tcp(192.168.1.10:3306)/my_dbname?charset=utf8&amp;parseTime=True&amp;loc=Local&quot;
+  Handle = sqac.Create(&quot;mysql&quot;, false, false, cs)
+</code></pre>
+
+<p><br></p>
+
+<h5 id="handle-to-sap-hana">Handle to SAP Hana</h5>
+
+<pre><code class="language-golang">  // Create a PublicDB instance for SAP Hana
+  cs := &quot;hdb://my_uname:my_passwd@192.168.111.45:30015&quot;
+  Handle = sqac.Create(&quot;hdb&quot;, false, false, cs)
+</code></pre>
+
+<p><br></p>
+
+
 <footer class=" footline" >
 	
 </footer>
+
 
         
         </div> 
@@ -1118,6 +1213,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1130,6 +1226,7 @@
             
             
                 
+                    
                     
                 
                 
@@ -1146,6 +1243,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1442,8 +1542,10 @@
 	 
 	 
 		
+			<a class="nav nav-prev" href="/sqac/public-db/" title="PublicDB API"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/sqac/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/sqac/public-db/b-pdb-create-tables/" title="CreateTables" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -1474,3 +1576,4 @@
 
   </body>
 </html>
+

@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
 <link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-    <title>Tags :: Sqac ORM</title>
+    <title>Using Sqac :: Sqac ORM</title>
 
     
     <link href="/sqac/css/nucleus.css?1544732899" rel="stylesheet">
@@ -34,7 +34,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/sqac/tags/">
+  <body class="" data-url="/sqac/getting-started/gs-content-c/">
     <nav id="sidebar" class="">
 
 
@@ -93,7 +93,7 @@
   
     
     <li data-nav-id="/sqac/getting-started/" title="Getting Started" class="dd-item 
-        
+        parent
         
         
         ">
@@ -155,7 +155,7 @@
  
   
     
-      <li data-nav-id="/sqac/getting-started/gs-content-c/" title="Using Sqac" class="dd-item ">
+      <li data-nav-id="/sqac/getting-started/gs-content-c/" title="Using Sqac" class="dd-item active">
         <a href="/sqac/getting-started/gs-content-c/">
         Using Sqac
         
@@ -827,7 +827,19 @@
                     
           
           
-            Tags
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/sqac/'></a> > <a href='/sqac/getting-started/'>Getting Started</a> > Using Sqac
+          
+         
+          
+         
           
         
                  
@@ -848,17 +860,154 @@
         
         <div id="body-inner">
           
-            <h1>Tags</h1>
+            <h1>Using Sqac</h1>
           
 
         
 
 
+<p>The following example illustrates the general usage of the sqac library.</p>
+
+<pre><code class="language-golang">package main
+
+import (
+  &quot;flag&quot;
+  &quot;fmt&quot;
+
+  &quot;github.com/1414C/sqac&quot;
+  _ &quot;github.com/SAP/go-hdb/driver&quot;
+  _ &quot;github.com/denisenkom/go-mssqldb&quot;
+  _ &quot;github.com/go-sql-driver/mysql&quot;
+  _ &quot;github.com/lib/pq&quot;
+  _ &quot;github.com/mattn/go-sqlite3&quot;
+)
+
+func main() {
+
+  dbFlag := flag.String(&quot;db&quot;, &quot;sqlite&quot;, &quot;db-type for connection&quot;)
+  csFlag := flag.String(&quot;cs&quot;, &quot;testdb.sqlite&quot;, &quot;connection-string for the database&quot;)
+  logFlag := flag.Bool(&quot;l&quot;, false, &quot;activate sqac detail logging to stdout&quot;)
+  dbLogFlag := flag.Bool(&quot;dbl&quot;, false, &quot;activate DDL/DML logging to stdout)&quot;)
+  flag.Parse()
+
+  // This will be the central access-point to the ORM and should be made
+  // available in all locations where access to the persistent storage
+  // (database) is required.
+  var (
+    Handle sqac.PublicDB
+  )
+
+  // Declare a struct to be used as the source for table creation.
+  type Depot struct {
+    DepotNum   int       `db:&quot;depot_num&quot; sqac:&quot;primary_key:inc&quot;`
+    CreateDate time.Time `db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();&quot;`
+    Region     string    `db:&quot;region&quot; sqac:&quot;nullable:false;default:YYC&quot;`
+    Province   string    `db:&quot;province&quot; sqac:&quot;nullable:false;default:AB&quot;`
+    Country    string    `db:&quot;country&quot; sqac:&quot;nullable:false;default:CA&quot;`
+    Population int       `db:&quot;population&quot; sqac:&quot;nullable:false;default:0;index:non-unique&quot;`
+  }
+
+  // Create a PublicDB instance.  Check the sqac.Create function, as the return parameter contains
+  // not only an implementation of PublicDB targeting the db-type/db, but also a pointer
+  // facilitating access to the db via jmoiron's sqlx package.  This is useful if you wish
+  // to access the sql/sqlx APIs directly.
+  Handle = sqac.Create(*dbFlag, *logFlag, *dbLogFlag, *cs)
+
+  // Execute a call to get the name of the db-driver being used.  At this point, any method
+  // contained in the sqac.PublicDB interface may be called.
+  driverName := Handle.GetDBDriverName()
+  fmt.Println(&quot;driverName:&quot;, driverName)
+
+  // Create a new table in the database
+  err := Handle.CreateTables(Depot{})
+  if err != nil {
+    t.Errorf(&quot;%s&quot;, err.Error())
+  }
+
+  // Determine the table name as per the table creation logic
+  tn := common.GetTableName(Depot{})
+
+  // Expect that table depot exists
+  if !Handle.ExistsTable(tn) {
+    t.Errorf(&quot;table %s was not created&quot;, tn)
+  }
+
+  // prepare data for insertion into the db-table
+  var newDepot = Depot{
+      // DepotNum:         1234,      // not needed - autoinc primary key
+      // CreateDate:           ,      // not needed - default:now()
+      Region:              &quot;YVR&quot;,
+      Province:            &quot;BC&quot;,
+      Country:             &quot;CA&quot;,
+      Population:          2500000,
+  }
+
+  // create a new record via the CRUD Create call
+  err = Handle.Create(&amp;newDepot)
+  if err != nil {
+    t.Errorf(err.Error())
+  }
+
+  // Drop the table
+  err = Handle.DropTables(Depot{})
+  if err != nil {
+    t.Errorf(&quot;table %s was not dropped&quot;, tn)
+  }
+
+  // Close the connection.
+  Handle.Close()
+}
+</code></pre>
+
+<p>Execute the sample program against a local sqlite database as follows.  Note that the sample program makes no
+effort to validate the flag parameters.</p>
+
+<pre><code class="language-bash">go run -db sqlite -cs testdb.sqlite main.go
+</code></pre>
+
+<p>Experiment by commenting out the the DropTables(Depot{}) call, and add code to test some simple CRUD type operations.</p>
+
+<p>Update an existing db record:</p>
+
+<pre><code class="language-golang">newDepot.Region = &quot;YYC&quot;           // &quot;YVR&quot;   -&gt; &quot;YYC&quot;
+newDepot.Province = &quot;AB&quot;          // &quot;BC&quot;    -&gt; &quot;AB&quot;
+newDepot.Population = 1000000     // 2500000 -&gt; 1000000
+err = Handle.Update(&amp;newDepot)
+if err != nil {
+    t.Errorf(err.Error())
+}
+</code></pre>
+
+<p>Read an existing db record:</p>
+
+<pre><code class="language-golang">// create a struct to read into and populate the keys
+depotRead := Depot{
+    DepotNum: newDepot.DepotNum,
+}
+
+err = Handle.GetEntity(&amp;depotRead)
+if err != nil {
+    t.Errorf(&quot;%s&quot;, err.Error())
+}
+
+if depotRead.Region != &quot;YYC&quot; || depotRead.Region != &quot;YVR&quot; {
+    t.Errorf(&quot;depotRead.Region error!&quot;)
+}
+</code></pre>
+
+<p>Delete an existing db record:</p>
+
+<pre><code class="language-golang">err = Handle.Delete(&amp;newDepot)
+if err != nil {
+    t.Errorf(&quot;%s&quot;, err.Error())
+}
+</code></pre>
 
 
 <footer class=" footline" >
 	
 </footer>
+
 
         
         </div> 
@@ -891,8 +1040,6 @@
             
                 
                     
-                        
-                        
                     
                 
                 
@@ -906,6 +1053,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -939,6 +1089,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -954,6 +1105,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1442,8 +1596,10 @@
 	 
 	 
 		
+			<a class="nav nav-prev" href="/sqac/getting-started/gs-content-b/" title="Installing Sqac"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/sqac/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/sqac/getting-started/gs-content-e/" title="Database Connection Strings" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -1474,3 +1630,4 @@
 
   </body>
 </html>
+

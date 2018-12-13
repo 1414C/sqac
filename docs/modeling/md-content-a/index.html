@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
 <link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-    <title>Tags :: Sqac ORM</title>
+    <title>Sqac Tags :: Sqac ORM</title>
 
     
     <link href="/sqac/css/nucleus.css?1544732899" rel="stylesheet">
@@ -34,7 +34,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/sqac/tags/">
+  <body class="" data-url="/sqac/modeling/md-content-a/">
     <nav id="sidebar" class="">
 
 
@@ -201,7 +201,7 @@
   
     
     <li data-nav-id="/sqac/modeling/" title="Sqac Modeling" class="dd-item 
-        
+        parent
         
         
         ">
@@ -225,7 +225,7 @@
  
   
     
-      <li data-nav-id="/sqac/modeling/md-content-a/" title="Sqac Tags" class="dd-item ">
+      <li data-nav-id="/sqac/modeling/md-content-a/" title="Sqac Tags" class="dd-item active">
         <a href="/sqac/modeling/md-content-a/">
         Sqac Tags
         
@@ -827,7 +827,19 @@
                     
           
           
-            Tags
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/sqac/'></a> > <a href='/sqac/modeling/'>Sqac Modeling</a> > Sqac Tags
+          
+         
+          
+         
           
         
                  
@@ -836,7 +848,14 @@
                 
                     <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#sqac-tag-overview">Sqac Tag Overview</a></li>
+</ul></li>
+</ul>
+</nav>
     </div>
 </div>
 
@@ -848,7 +867,7 @@
         
         <div id="body-inner">
           
-            <h1>Tags</h1>
+            <h1>Sqac Tags</h1>
           
 
         
@@ -856,9 +875,61 @@
 
 
 
+<h2 id="sqac-tag-overview">Sqac Tag Overview</h2>
+
+<p><a href="/sqac/modeling/md-content-b">Sqac table-declarations</a> are informed by go structs with json-style struct-tags indicating
+column attributes.  Two tags are used: <strong>&lsquo;db:&rsquo;</strong> and <strong>&lsquo;sqac:&rsquo;</strong>; the <strong>&lsquo;db:&rsquo;</strong> tag is used to declare the database column name.  This is typically the snake_case conversion of the go struct field-name.  The <strong>&lsquo;sqac:&rsquo;</strong> tag is used to declare column attributes.</p>
+
+<p>A list of the supported &lsquo;sqac:&rsquo; tag attributes follows:</p>
+
+<table>
+<thead>
+<tr>
+<th>sqac tag</th>
+<th>Description</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><strong>&ldquo;primary_key:&rdquo;</strong></td>
+<td>This tag is used to declare that the specified column should be used as a primary-key in the generated database table.   There are a few variations in its use:  <br><br> <strong>&ldquo;primary_key:inc&rdquo;</strong> declares the primary-key as auto-incrementing from 0 in the database table schema: <br> <code>db:&quot;depot_num&quot; sqac:&quot;primary_key:inc&quot;</code> <br><br><strong>&ldquo;primary_key:&rdquo;</strong> declares the primary-key as a non-auto-incrementing primary-key in the database schema: <br> <code>db:&quot;depot_num&quot; sqac:&quot;primary_key:&quot;</code> <br><br>  <strong>&ldquo;primary_key:inc;start:90000000&rdquo;</strong> declares the primary-key as auto-incrementing starting from 900000000: <br> <code>db:&quot;depot_num&quot; sqac:&quot;primary_key:inc;start:90000000&quot;</code> <br><br> It is possible to assign the &ldquo;primary_key:&rdquo; tag to more than one column in a table&rsquo;s model declaration.  The column containing the first occurrence of the tag (top-down) will be created as the actual primary-key in the database.  The collection of column declarations containing the &ldquo;primary_key:&rdquo; tag will be used to create a unique index on the DB table.  This is useful in cases where one is migrating data from a source system that has the concept of compound table keys.  For example, the following model excerpt would result in the creation of &ldquo;depot_num&rdquo; as the table&rsquo;s primary-key as well as the creation of a unique index containing &ldquo;depot_num&rdquo;, &ldquo;depot_bay&rdquo;, &ldquo;create_date&rdquo;: <br><br> DepotNum            int       <code>db:&quot;depot_num&quot; sqac:&quot;primary_key:inc;start:90000000&quot;</code><br> DepotBay            int       <code>db:&quot;depot_bay&quot; sqac:&quot;primary_key:&quot;</code> <br> CreateDate          time.Time <code>db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();index:unique&quot;</code><br><br><strong>Notes:</strong> auto-incrementing primary-keys increment by 1 and must always be declared as go-type <strong>int</strong>.</td>
+</tr>
+
+<tr>
+<td><strong>&ldquo;nullable:&rdquo;</strong></td>
+<td>This tag is used to declare that the specified column is nullable in the database. <br>  Allowed values are <em>true</em> or <em>false</em>. <br> <code>db:&quot;region&quot; sqac:&quot;nullable:false&quot;</code> or <br>  <code>db:&quot;region&quot; sqac:&quot;nullable:true&quot;</code> <br><br> <strong>Notes:</strong> If this tag is not specified, the column is declared as nullable with the exception of columns declared with the &ldquo;primary_key:&rdquo; tag.</td>
+</tr>
+
+<tr>
+<td><strong>&ldquo;default:</strong></td>
+<td>The &ldquo;default:&rdquo; tag is used to declare a default value for the column in the database table schema.  Default values are used as per the implementation of the SQL DEFAULT keyword in the target DBMS. <br>  <code>db:&quot;region&quot; sqac:&quot;nullable:false;default:YYC&quot;</code> <br><br> <strong>Notes:</strong> This tag supports the use of static values for all column-types, as well as a small set of date-time functions: &ldquo;default:now()&rdquo; / &ldquo;default:make_timestamptz(9999, 12, 31, 23, 59, 59.9)&rdquo; / &ldquo;default:eot()&rdquo;</td>
+</tr>
+
+<tr>
+<td><strong>&ldquo;index:&rdquo;</strong></td>
+<td>Single column indexes can be declared via the &ldquo;index:&rdquo; tag.  The example index declarations require only the &ldquo;index:unique / non-unique&rdquo; pair in the column&rsquo;s sqac-tag.  The following column declaration results in the creation of a unique index on table column &ldquo;create_date&rdquo;: <br> <code>db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();index:unique&quot;</code> <br><br>  A non-unique single column index for the same column is declared as follows: <br> <code>db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();index:non-unique&quot;</code> <br><br><br> Multi-column indexes can also be declared via the index tag.  The following example illustrates the declaration of a non-unique two-column index containing columns &ldquo;new_column1&rdquo; and &ldquo;new_column2&rdquo;: <br> <code>db:&quot;new_column1&quot; sqac:&quot;nullable:false;index:idx_depot_new_column1_new_column2&quot;</code> <br> <code>db:&quot;new_column2&quot; sqac:&quot;nullable:false;default:0;index:idx_depot_new_column1_new_column2&quot;</code> <br></td>
+</tr>
+
+<tr>
+<td><strong>&ldquo;fkey:</strong></td>
+<td>Foreign-keys can be declared between table columns.  The following example results in the creation of a foreign-key between the table&rsquo;s &ldquo;warehouse_id&rdquo; column and reference column &ldquo;id&rdquo; in table &ldquo;warehouse&rdquo;. <br><br> WarehouseID uint64 <code>db:&quot;warehouse_id&quot; json:&quot;warehouse_id&quot; sqac:&quot;nullable:false;fkey:warehouse(id)&quot;</code> <br><br> This example is not very clear - see the full example code excerpt in the Table Declaration Examples section.</td>
+</tr>
+
+<tr>
+<td>Non-persistent column</td>
+<td>There are scenarios where model columns may not be persisted in the database.  If a column is to be determined at runtime by the consuming application (for example), the following syntax may be used: <br> NonPersistentColumn string    <code>db:&quot;non_persistent_column&quot; sqac:&quot;-&quot;</code></td>
+</tr>
+</tbody>
+</table>
+
+<p><br></p>
+
+
 <footer class=" footline" >
 	
 </footer>
+
 
         
         </div> 
@@ -974,6 +1045,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -986,6 +1058,7 @@
             
             
                 
+                    
                     
                 
                 
@@ -1002,6 +1075,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1442,8 +1518,10 @@
 	 
 	 
 		
+			<a class="nav nav-prev" href="/sqac/modeling/" title="Sqac Modeling"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/sqac/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/sqac/modeling/md-content-b/" title="primary_key:" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -1474,3 +1552,4 @@
 
   </body>
 </html>
+

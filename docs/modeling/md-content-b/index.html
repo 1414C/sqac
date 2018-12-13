@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
 <link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-    <title>Tags :: Sqac ORM</title>
+    <title>primary_key: :: Sqac ORM</title>
 
     
     <link href="/sqac/css/nucleus.css?1544732899" rel="stylesheet">
@@ -34,7 +34,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/sqac/tags/">
+  <body class="" data-url="/sqac/modeling/md-content-b/">
     <nav id="sidebar" class="">
 
 
@@ -201,7 +201,7 @@
   
     
     <li data-nav-id="/sqac/modeling/" title="Sqac Modeling" class="dd-item 
-        
+        parent
         
         
         ">
@@ -244,7 +244,7 @@
  
   
     
-      <li data-nav-id="/sqac/modeling/md-content-b/" title="primary_key:" class="dd-item ">
+      <li data-nav-id="/sqac/modeling/md-content-b/" title="primary_key:" class="dd-item active">
         <a href="/sqac/modeling/md-content-b/">
         primary_key:
         
@@ -827,7 +827,19 @@
                     
           
           
-            Tags
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/sqac/'></a> > <a href='/sqac/modeling/'>Sqac Modeling</a> > primary_key:
+          
+         
+          
+         
           
         
                  
@@ -836,7 +848,23 @@
                 
                     <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#primary-key-overview">&ldquo;primary_key:&rdquo; Overview</a>
+<ul>
+<li>
+<ul>
+<li><a href="#primary-key-example">&ldquo;primary_key:&rdquo; example</a></li>
+<li><a href="#primary-key-inc-example">&ldquo;primary_key:inc&rdquo; example</a></li>
+<li><a href="#primary-key-inc-start-int-value-example">&ldquo;primary_key:inc;start:<em>&lt;int_value&gt;</em>&rdquo; example</a></li>
+<li><a href="#compound-primary-key-example">Compound &ldquo;primary_key:&rdquo; example</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
     </div>
 </div>
 
@@ -848,7 +876,7 @@
         
         <div id="body-inner">
           
-            <h1>Tags</h1>
+            <h1>primary_key:</h1>
           
 
         
@@ -856,9 +884,106 @@
 
 
 
+<h2 id="primary-key-overview">&ldquo;primary_key:&rdquo; Overview</h2>
+
+<p>Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database.  The following examples illustrate the use of the &lsquo;sqac:&rsquo; tags described in the <a href="/sqac/modeling/md-content-a">Sqac Tag Overview</a> section of this document.</p>
+
+<p><br></p>
+
+<h4 id="primary-key-example">&ldquo;primary_key:&rdquo; example</h4>
+
+<p>The following example illustrates the use of &lsquo;sqac:&rsquo; tag &ldquo;primary_key:&rdquo; to declare a non-auto-incrementing table primary-key.  Sqac expects table primary-keys to be declared as ints.  In such a declaration, the caller must be careful to provide an unused value for the primary-key column.</p>
+
+<pre><code class="language-golang">  // Declare a struct to be used as the source for table creation.
+  type Depot struct {
+    DepotNum   int       `db:&quot;depot_num&quot; sqac:&quot;primary_key:&quot;`
+    ...
+    ...
+  }
+</code></pre>
+
+<h4 id="primary-key-inc-example">&ldquo;primary_key:inc&rdquo; example</h4>
+
+<p>The following example illustrates the use of &lsquo;sqac:&rsquo; tag &ldquo;primary_key:inc&rdquo; to declare a table primary-key that auto-increments from 0.  Most databases only support the use of an auto-incrementing sequence on a single column within a table declaration.  Sqac expects columns setup with the auto-incrementing &ldquo;primary_key:&rdquo; to be declared as ints.</p>
+
+<pre><code class="language-golang">  // Declare a struct to be used as the source for table creation.
+  type Depot struct {
+    DepotNum   int       `db:&quot;depot_num&quot; sqac:&quot;primary_key:inc&quot;`
+    ...
+    ...
+  }
+</code></pre>
+
+<h4 id="primary-key-inc-start-int-value-example">&ldquo;primary_key:inc;start:<em>&lt;int_value&gt;</em>&rdquo; example</h4>
+
+<p>The following example illustrates the use of &lsquo;sqac:&rsquo; tag &ldquo;primary_key:&rdquo; to declare a table primary-key that auto-increments from a starting value of 1000000.  Sqac expects table primary-keys to be declared as ints.</p>
+
+<pre><code class="language-golang">  // Declare a struct to be used as the source for table creation.
+  type Depot struct {
+    DepotNum   int       `db:&quot;depot_num&quot; sqac:&quot;primary_key:inc;start:1000000&quot;`
+    ...
+    ...
+  }
+</code></pre>
+
+<h4 id="compound-primary-key-example">Compound &ldquo;primary_key:&rdquo; example</h4>
+
+<p>In cases where a single-key is not sufficient to differentiate between records, the &ldquo;primary_key:&rdquo; tag may be applied to multiple columns in a table declaration.  So doing will result in the creation of a database constraint or compound primary-key containing the chosen columns depending on the database being targeted.</p>
+
+<p>A similar effect can be obtained via declaration of a unique index containing the desired columns, or the use of the &ldquo;constraint:&rdquo; &lsquo;sqac:&rsquo; tag.  When declaring a compound key/constraint the data-types may be of any type with the exception of the auto-incrementing column (if any).</p>
+
+<p>The following example illustrates the creation of a two-field compound key:</p>
+
+<pre><code class="language-golang">  type Depot struct {
+    DepotNum   int       `db:&quot;depot_num&quot; sqac:&quot;primary_key:&quot;`
+    DepotBay   int       `db:&quot;depoy_bay&quot; sqac:&quot;primary_key:&quot;`
+    ...
+    ...
+</code></pre>
+
+<p>As declared, the two-field compound key creates the following in each of the supported DB systems:</p>
+
+<table>
+<thead>
+<tr>
+<th>DBMS</th>
+<th>Result</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Sqlite3</td>
+<td>CREATE TABLE IF NOT EXISTS depot (<br>  depot_num integer PRIMARY KEY AUTOINCREMENT,<br> depot_bay integer,<br> <strong>&hellip;</strong> <br> <strong>&hellip;</strong> <br>UNIQUE (depot_num, depot_bay) <br>);</td>
+</tr>
+
+<tr>
+<td>MySQL</td>
+<td>CREATE TABLE &lsquo;depot&rsquo; (<br> &lsquo;depot_num&rsquo; int(11) NOT NULL AUTO_INCREMENT,<br> &lsquo;depot_bay&rsquo; int(11) NOT NULL,<br><strong>&hellip;</strong> <br> <strong>&hellip;</strong> <br> PRIMARY KEY (&lsquo;depot_num&rsquo;, &lsquo;depot_bay&rsquo;) <br>) ENGINE = InnoDB AUTO_INCREMENT = 3 DEFAULT CHARSET = latin1</td>
+</tr>
+
+<tr>
+<td>MSSQL</td>
+<td>CREATE TABLE [dbo].[depot](<br>[depot_num] [int] IDENTITY(1,1) NOT NULL, <br> [depot_bay] [int] NOT NULL, <br><strong>&hellip;</strong> <br> <strong>&hellip;</strong> <br> ) ON [PRIMARY] <br>GO <br> ALTER TABLE [dbo].[depot] ADD PRIMARY KEY CLUSTERED <br>( <br> [depot_num] ASC, <br> [depot_bay] ASC <br>)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY] <br><strong>&hellip;</strong> <br> <strong>&hellip;</strong> <br></td>
+</tr>
+
+<tr>
+<td>PostgreSQL</td>
+<td>CREATE TABLE public.depot<br>(<br>depot_num integer NOT NULL DEFAULT nextval(&lsquo;depot_depot_num_seq&rsquo;::regclass),<br>depot_bay integer NOT NULL,<br><strong>&hellip;</strong> <br> <strong>&hellip;</strong> <br>CONSTRAINT depot_pkey PRIMARY KEY (depot_num, depot_bay)<br>)<br> <strong>&hellip;</strong> <br> <strong>&hellip;</strong> <br>;</td>
+</tr>
+
+<tr>
+<td>SAP Hana</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+
 <footer class=" footline" >
 	
 </footer>
+
 
         
         </div> 
@@ -974,6 +1099,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -986,6 +1112,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1003,6 +1132,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1018,6 +1148,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1442,8 +1575,10 @@
 	 
 	 
 		
+			<a class="nav nav-prev" href="/sqac/modeling/md-content-a/" title="Sqac Tags"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/sqac/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/sqac/modeling/md-content-c/" title="nullable:" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -1474,3 +1609,4 @@
 
   </body>
 </html>
+

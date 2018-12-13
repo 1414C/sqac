@@ -1,139 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Sqac ORM</title>
-    <link>https://1414c.github.io/sqac/</link>
-    <description>Recent content on Sqac ORM</description>
+    <title>PublicDB API on Sqac ORM</title>
+    <link>https://1414c.github.io/sqac/public-db/</link>
+    <description>Recent content in PublicDB API on Sqac ORM</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 06 Dec 2018 16:20:03 -0700</lastBuildDate>
+    <lastBuildDate>Fri, 07 Dec 2018 16:48:02 -0700</lastBuildDate>
     
-	<atom:link href="https://1414c.github.io/sqac/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://1414c.github.io/sqac/public-db/index.xml" rel="self" type="application/rss+xml" />
     
-    
-    <item>
-      <title>Go Environment</title>
-      <link>https://1414c.github.io/sqac/getting-started/gs-content-a/</link>
-      <pubDate>Thu, 06 Dec 2018 16:20:03 -0700</pubDate>
-      
-      <guid>https://1414c.github.io/sqac/getting-started/gs-content-a/</guid>
-      <description>If you already have Go installed and know that your installation is working, you should skip to the next section. If you need to get Go installed on your machine, keep reading.
-Go is easy to setup and can be installed from source or binary package, both which are available at golang.org. Sqac is presently built and tested using golang version 1.10, but it is best to use the latest stable 1.</description>
-    </item>
-    
-    <item>
-      <title>Installing Sqac</title>
-      <link>https://1414c.github.io/sqac/getting-started/gs-content-b/</link>
-      <pubDate>Fri, 07 Dec 2018 09:20:02 -0700</pubDate>
-      
-      <guid>https://1414c.github.io/sqac/getting-started/gs-content-b/</guid>
-      <description>The easiest way to install Sqac is to use go get on the command-line to pull the latest version from github, as shown below:
-go get -u github.com/1414C/sqac  The &amp;lsquo;go get&amp;rsquo; command will pull the sqac github repository into your $GOPATH/src/github.com folder, as well as any dependencies referenced by the sqac source code. The -u flag is included to instruct go get to check for and pull updates to Jiffy packages and their dependencies.</description>
-    </item>
-    
-    <item>
-      <title>Using Sqac</title>
-      <link>https://1414c.github.io/sqac/getting-started/gs-content-c/</link>
-      <pubDate>Fri, 07 Dec 2018 09:21:02 -0700</pubDate>
-      
-      <guid>https://1414c.github.io/sqac/getting-started/gs-content-c/</guid>
-      <description>The following example illustrates the general usage of the sqac library.
-package main import ( &amp;quot;flag&amp;quot; &amp;quot;fmt&amp;quot; &amp;quot;github.com/1414C/sqac&amp;quot; _ &amp;quot;github.com/SAP/go-hdb/driver&amp;quot; _ &amp;quot;github.com/denisenkom/go-mssqldb&amp;quot; _ &amp;quot;github.com/go-sql-driver/mysql&amp;quot; _ &amp;quot;github.com/lib/pq&amp;quot; _ &amp;quot;github.com/mattn/go-sqlite3&amp;quot; ) func main() { dbFlag := flag.String(&amp;quot;db&amp;quot;, &amp;quot;sqlite&amp;quot;, &amp;quot;db-type for connection&amp;quot;) csFlag := flag.String(&amp;quot;cs&amp;quot;, &amp;quot;testdb.sqlite&amp;quot;, &amp;quot;connection-string for the database&amp;quot;) logFlag := flag.Bool(&amp;quot;l&amp;quot;, false, &amp;quot;activate sqac detail logging to stdout&amp;quot;) dbLogFlag := flag.Bool(&amp;quot;dbl&amp;quot;, false, &amp;quot;activate DDL/DML logging to stdout)&amp;quot;) flag.Parse() // This will be the central access-point to the ORM and should be made // available in all locations where access to the persistent storage // (database) is required.</description>
-    </item>
-    
-    <item>
-      <title>Database Connection Strings</title>
-      <link>https://1414c.github.io/sqac/getting-started/gs-content-e/</link>
-      <pubDate>Fri, 07 Dec 2018 17:02:02 -0700</pubDate>
-      
-      <guid>https://1414c.github.io/sqac/getting-started/gs-content-e/</guid>
-      <description>Sqac requires a connection string in order to connect to the target database. Each of the supported databases has their own distinct connection string syntax.
-sqac presently supports MSSQL, MySQL, PostgreSQL, Sqlite3 and the SAP Hana database. You will need to know the db user-name / password, as well as the address:port and name of the database. Sample connection strings are provided as a reference. MSSQL Connection String cs := &amp;quot;sqlserver://SA:my_passwd@localhost:1401?</description>
-    </item>
-    
-    <item>
-      <title>Sqac Tags</title>
-      <link>https://1414c.github.io/sqac/modeling/md-content-a/</link>
-      <pubDate>Tue, 11 Dec 2018 15:02:03 -0700</pubDate>
-      
-      <guid>https://1414c.github.io/sqac/modeling/md-content-a/</guid>
-      <description>Sqac Tag Overview Sqac table-declarations are informed by go structs with json-style struct-tags indicating column attributes. Two tags are used: &amp;lsquo;db:&amp;rsquo; and &amp;lsquo;sqac:&amp;rsquo;; the &amp;lsquo;db:&amp;rsquo; tag is used to declare the database column name. This is typically the snake_case conversion of the go struct field-name. The &amp;lsquo;sqac:&amp;rsquo; tag is used to declare column attributes.
-A list of the supported &amp;lsquo;sqac:&amp;rsquo; tag attributes follows:
-   sqac tag Description     &amp;ldquo;primary_key:&amp;rdquo; This tag is used to declare that the specified column should be used as a primary-key in the generated database table.</description>
-    </item>
-    
-    <item>
-      <title>primary_key:</title>
-      <link>https://1414c.github.io/sqac/modeling/md-content-b/</link>
-      <pubDate>Tue, 11 Dec 2018 15:35:04 -0700</pubDate>
-      
-      <guid>https://1414c.github.io/sqac/modeling/md-content-b/</guid>
-      <description>&amp;ldquo;primary_key:&amp;rdquo; Overview Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database. The following examples illustrate the use of the &amp;lsquo;sqac:&amp;rsquo; tags described in the Sqac Tag Overview section of this document.
-
-&amp;ldquo;primary_key:&amp;rdquo; example The following example illustrates the use of &amp;lsquo;sqac:&amp;rsquo; tag &amp;ldquo;primary_key:&amp;rdquo; to declare a non-auto-incrementing table primary-key. Sqac expects table primary-keys to be declared as ints.</description>
-    </item>
-    
-    <item>
-      <title>nullable:</title>
-      <link>https://1414c.github.io/sqac/modeling/md-content-c/</link>
-      <pubDate>Wed, 12 Dec 2018 08:25:05 -0700</pubDate>
-      
-      <guid>https://1414c.github.io/sqac/modeling/md-content-c/</guid>
-      <description>&amp;ldquo;nullable:&amp;rdquo; Overview Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database. The following examples illustrate the use of the &amp;ldquo;nullable:&amp;rdquo; &amp;lsquo;sqac:&amp;rsquo; tag described in the Sqac Tag Overview section of this document.
-Unless specified, most databases will create columns as nullable by default. Use the &amp;ldquo;nullable:&amp;rdquo; tag to explicitly declare the data requirements of fields in the source go-struct and the nullability of the corresponding columns in the database.</description>
-    </item>
-    
-    <item>
-      <title>default:</title>
-      <link>https://1414c.github.io/sqac/modeling/md-content-d/</link>
-      <pubDate>Wed, 12 Dec 2018 09:00:06 -0700</pubDate>
-      
-      <guid>https://1414c.github.io/sqac/modeling/md-content-d/</guid>
-      <description>&amp;ldquo;default:&amp;rdquo; Overview Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database. The following examples illustrate the use of the &amp;ldquo;default:&amp;rdquo; &amp;lsquo;sqac:&amp;rsquo; tag described in the Sqac Tag Overview section of this document.
-Use the &amp;ldquo;default:&amp;rdquo; tag to explicitly declare default column values in the database table schema. The default values will be used only if no value has been provided for a defaulted column during record creation.</description>
-    </item>
-    
-    <item>
-      <title>index:</title>
-      <link>https://1414c.github.io/sqac/modeling/md-content-e/</link>
-      <pubDate>Wed, 12 Dec 2018 10:55:07 -0700</pubDate>
-      
-      <guid>https://1414c.github.io/sqac/modeling/md-content-e/</guid>
-      <description>&amp;ldquo;index:&amp;rdquo; Overview Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database. The following examples illustrate the use of the &amp;ldquo;index:&amp;rdquo; &amp;lsquo;sqac:&amp;rsquo; tag described in the Sqac Tag Overview section of this document.
-Use the &amp;ldquo;index:&amp;rdquo; tag to declare unique/non-unique indexes in database table schemas. Single column and compound indexes are supported.
-
-&amp;ldquo;index:&amp;lt;unique | non-unique&amp;gt;&amp;rdquo; example The following example illustrates the use of &amp;lsquo;sqac:&amp;rsquo; tag &amp;ldquo;index:&amp;rdquo; to declare a single column unique and single column non-unique index on two table fields.</description>
-    </item>
-    
-    <item>
-      <title>constraint:</title>
-      <link>https://1414c.github.io/sqac/modeling/md-content-f/</link>
-      <pubDate>Wed, 12 Dec 2018 13:11:08 -0700</pubDate>
-      
-      <guid>https://1414c.github.io/sqac/modeling/md-content-f/</guid>
-      <description>&amp;ldquo;constraint:&amp;lt;value&amp;gt;&amp;rdquo; Overview Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database. The following examples illustrate the use of the &amp;ldquo;constraint:&amp;rdquo; &amp;lsquo;sqac:&amp;rsquo; tag described in the Sqac Tag Overview section of this document.
-The &amp;ldquo;constraint:&amp;rdquo; tag is presently only used to declare unique constraints on single columns. It would be relatively simple to add support for any desired database constraint however.</description>
-    </item>
-    
-    <item>
-      <title>non-persistent tag</title>
-      <link>https://1414c.github.io/sqac/modeling/md-content-g/</link>
-      <pubDate>Wed, 12 Dec 2018 13:39:09 -0700</pubDate>
-      
-      <guid>https://1414c.github.io/sqac/modeling/md-content-g/</guid>
-      <description>non-persistent tag Overview Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database. The following examples illustrate the use of the &amp;ldquo;-&amp;rdquo; &amp;lsquo;sqac:&amp;rsquo; tag described in the Sqac Tag Overview section of this document.
-The &amp;ldquo;-&amp;rdquo; tag is used to declare a field in the source go struct as being non-persistent (not present) in the database table schema.</description>
-    </item>
-    
-    <item>
-      <title>fkey:</title>
-      <link>https://1414c.github.io/sqac/modeling/md-content-h/</link>
-      <pubDate>Wed, 12 Dec 2018 13:47:10 -0700</pubDate>
-      
-      <guid>https://1414c.github.io/sqac/modeling/md-content-h/</guid>
-      <description>&amp;ldquo;fkey:&amp;rdquo; Overview Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database. The following examples illustrate the use of the &amp;ldquo;fkey:&amp;rdquo; &amp;lsquo;sqac:&amp;rsquo; tag described in the Sqac Tag Overview section of this document.
-The &amp;ldquo;fkey:&amp;rdquo; tag is used to declare a foreign key for a column in the source go struct. Declaration of a foreign-key results in a foreign-key constraint on the assigned column, thereby limiting its allowable values to those found in the table.</description>
-    </item>
     
     <item>
       <title>Getting a PublicDB Handle</title>
@@ -326,16 +202,6 @@ type Warehouse struct { ID uint64 `db:&amp;quot;id&amp;quot; json:&amp;quot;id&a
       <description>sqac.IndexInfo IndexInfo is used by sqac to provide information to the PublicDB.CreateIndex method regarding the table name, uniqueness and columns to be included in a new database index.
 // IndexInfo contains index definitions as read from the sqac:&amp;quot;index&amp;quot; tags type IndexInfo struct { TableName string Unique bool IndexFields []string }  
 sqac.GetParam GetParam defines a common structure for CRUD GET parameters and is used in the PublicDB.GetEntitiesCP method.</description>
-    </item>
-    
-    <item>
-      <title>Credits</title>
-      <link>https://1414c.github.io/sqac/credits/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://1414c.github.io/sqac/credits/</guid>
-      <description> Contributors Thanks to them  for making Open Source Software a better place !
-Packages and libraries  sqlx go-sql-driver/mysql lib/pq go-sqlite3 go-mssqldb go-hdb  Tooling  Hugo Hugo Learn Theme  </description>
     </item>
     
   </channel>

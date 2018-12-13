@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
 <link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-    <title>Tags :: Sqac ORM</title>
+    <title>CreateTables :: Sqac ORM</title>
 
     
     <link href="/sqac/css/nucleus.css?1544732899" rel="stylesheet">
@@ -34,7 +34,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/sqac/tags/">
+  <body class="" data-url="/sqac/public-db/b-pdb-create-tables/">
     <nav id="sidebar" class="">
 
 
@@ -385,7 +385,7 @@
   
     
     <li data-nav-id="/sqac/public-db/" title="PublicDB API" class="dd-item 
-        
+        parent
         
         
         ">
@@ -428,7 +428,7 @@
  
   
     
-      <li data-nav-id="/sqac/public-db/b-pdb-create-tables/" title="CreateTables" class="dd-item ">
+      <li data-nav-id="/sqac/public-db/b-pdb-create-tables/" title="CreateTables" class="dd-item active">
         <a href="/sqac/public-db/b-pdb-create-tables/">
         CreateTables
         
@@ -827,7 +827,19 @@
                     
           
           
-            Tags
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/sqac/'></a> > <a href='/sqac/public-db/'>PublicDB API</a> > CreateTables
+          
+         
+          
+         
           
         
                  
@@ -836,7 +848,21 @@
                 
                     <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#publicdb-createtables-i-interface-error">PublicDB.CreateTables(i &hellip;interface{}) error</a></li>
+<li><a href="#createtables-example">CreateTables Example</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
     </div>
 </div>
 
@@ -848,7 +874,7 @@
         
         <div id="body-inner">
           
-            <h1>Tags</h1>
+            <h1>CreateTables</h1>
           
 
         
@@ -856,9 +882,78 @@
 
 
 
+<p><br></p>
+
+<h4 id="publicdb-createtables-i-interface-error">PublicDB.CreateTables(i &hellip;interface{}) error</h4>
+
+<p>The CreateTables method is used to create one or more tables in the target database.  CreateTables accepts one or more go <a href="/sqac/sqac-modelling/a-model-overview">struct definitions that have been annotated with &ldquo;sqac:&rdquo; tags</a> and uses the provided information to create new tables in the database.</p>
+
+<p>Errors encountered during table creation are returned to the caller immediately.  This may result in the incomplete processing of the tables contained in parameter <strong>i &hellip;interface{}</strong>.
+<br></p>
+
+<h4 id="createtables-example">CreateTables Example</h4>
+
+<pre><code class="language-golang">  // Declare a struct to be used as the source for table creation.
+  type Depot struct {
+    DepotNum   int       `db:&quot;depot_num&quot; sqac:&quot;primary_key:inc&quot;`
+    CreateDate time.Time `db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();&quot;`
+    Country    string    `db:&quot;country&quot; sqac:&quot;nullable:false;default:CA&quot;`
+    Province   string    `db:&quot;province&quot; sqac:&quot;nullable:false;default:AB&quot;`
+    Region     string    `db:&quot;region&quot; sqac:&quot;nullable:false;default:YYC&quot;`
+    Population int       `db:&quot;population&quot; sqac:&quot;nullable:false;default:0;index:non-unique&quot;`
+  }
+</code></pre>
+
+<p>The struct shown above can  be used by sqac to create a table named &ldquo;depot&rdquo; in the target database.  In order to call the PublicDB.CreateTables() method, an <a href="/sqac/public-db/a-pdb-handle">instance of PublicDB must be created and connected to the database</a>.  A small sample program illustrating the creation of table &ldquo;depot&rdquo; follows:</p>
+
+<pre><code class="language-golang">package main
+
+import (
+  &quot;log&quot;
+
+  &quot;github.com/1414C/sqac&quot;
+  _ &quot;github.com/SAP/go-hdb/driver&quot;
+  _ &quot;github.com/denisenkom/go-mssqldb&quot;
+  _ &quot;github.com/go-sql-driver/mysql&quot;
+  _ &quot;github.com/lib/pq&quot;
+  _ &quot;github.com/mattn/go-sqlite3&quot;
+)
+
+func main() {
+
+  var (
+    Handle sqac.PublicDB
+  )
+
+  // Declare a struct to be used as the source for table creation
+  type Depot struct {
+    DepotNum   int       `db:&quot;depot_num&quot; sqac:&quot;primary_key:inc&quot;`
+    CreateDate time.Time `db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();&quot;`
+    Country    string    `db:&quot;country&quot; sqac:&quot;nullable:false;default:CA&quot;`
+    Province   string    `db:&quot;province&quot; sqac:&quot;nullable:false;default:AB&quot;`
+    Region     string    `db:&quot;region&quot; sqac:&quot;nullable:false;default:YYC&quot;`
+    Population int       `db:&quot;population&quot; sqac:&quot;nullable:false;default:0;index:non-unique&quot;`
+  }
+
+  // Create a PublicDB instance to connect to the test sqlite db
+  Handle = sqac.Create(&quot;sqlite&quot;, false, false, &quot;testdb.sqlite&quot;)
+
+  // Create a new table in the database
+  err := Handle.CreateTables(Depot{})
+  if err != nil {
+    log.Errorf(&quot;%s&quot;, err.Error())
+  }
+
+  // Close the connection
+  Handle.Close()
+}
+</code></pre>
+
+
 <footer class=" footline" >
 	
 </footer>
+
 
         
         </div> 
@@ -1118,6 +1213,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1130,6 +1226,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1147,6 +1246,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1162,6 +1262,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1442,8 +1545,10 @@
 	 
 	 
 		
+			<a class="nav nav-prev" href="/sqac/public-db/a-pdb-handle/" title="Getting a PublicDB Handle"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/sqac/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/sqac/public-db/c-pdb-drop-tables/" title="DropTables" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -1474,3 +1579,4 @@
 
   </body>
 </html>
+

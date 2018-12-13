@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
 <link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-    <title>Tags :: Sqac ORM</title>
+    <title>index: :: Sqac ORM</title>
 
     
     <link href="/sqac/css/nucleus.css?1544732899" rel="stylesheet">
@@ -34,7 +34,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/sqac/tags/">
+  <body class="" data-url="/sqac/modeling/md-content-e/">
     <nav id="sidebar" class="">
 
 
@@ -201,7 +201,7 @@
   
     
     <li data-nav-id="/sqac/modeling/" title="Sqac Modeling" class="dd-item 
-        
+        parent
         
         
         ">
@@ -301,7 +301,7 @@
  
   
     
-      <li data-nav-id="/sqac/modeling/md-content-e/" title="index:" class="dd-item ">
+      <li data-nav-id="/sqac/modeling/md-content-e/" title="index:" class="dd-item active">
         <a href="/sqac/modeling/md-content-e/">
         index:
         
@@ -827,7 +827,19 @@
                     
           
           
-            Tags
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/sqac/'></a> > <a href='/sqac/modeling/'>Sqac Modeling</a> > index:
+          
+         
+          
+         
           
         
                  
@@ -836,7 +848,21 @@
                 
                     <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#index-overview">&ldquo;index:&rdquo; Overview</a>
+<ul>
+<li>
+<ul>
+<li><a href="#index-unique-non-unique-example">&ldquo;index:&lt;unique | non-unique&gt;&rdquo; example</a></li>
+<li><a href="#index-compound-example">&ldquo;index:&rdquo; compound example</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
     </div>
 </div>
 
@@ -848,7 +874,7 @@
         
         <div id="body-inner">
           
-            <h1>Tags</h1>
+            <h1>index:</h1>
           
 
         
@@ -856,9 +882,51 @@
 
 
 
+<h2 id="index-overview">&ldquo;index:&rdquo; Overview</h2>
+
+<p>Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database.  The following examples illustrate the use of the &ldquo;index:&rdquo; &lsquo;sqac:&rsquo; tag described in the <a href="/sqac/modeling/md-content-a">Sqac Tag Overview</a> section of this document.</p>
+
+<p>Use the &ldquo;index:&rdquo; tag to declare unique/non-unique indexes in database table schemas.  Single column and compound indexes are supported.</p>
+
+<p><br></p>
+
+<h4 id="index-unique-non-unique-example">&ldquo;index:&lt;unique | non-unique&gt;&rdquo; example</h4>
+
+<p>The following example illustrates the use of &lsquo;sqac:&rsquo; tag &ldquo;index:&rdquo; to declare a single column unique and single column non-unique index on two table fields.  Creation of a unique index on a single column results in an underlying db constraint. The unique constraint prevents the insertion of records when the indexed field contains a duplicate value.</p>
+
+<pre><code class="language-golang">  // Declare a struct to be used as the source for table creation.
+  type Depot struct {
+    ...
+    Region     string    `db:&quot;region&quot; sqac:&quot;default:AB;index:non-unique&quot;`         // non-unique index
+    AccountNum int       `db:&quot;account_num&quot; sqac:&quot;nullable:false;index:unique&quot;`    // unique index
+    ...
+    ...
+  }
+</code></pre>
+
+<h4 id="index-compound-example">&ldquo;index:&rdquo; compound example</h4>
+
+<p>The following example illustrates the use of &lsquo;sqac:&rsquo; tag &ldquo;index:&rdquo; to declare a multi-column non-unique index using two table fields.  As of this writing, sqac does not support the creation of a unique compound index through the &lsquo;sqac:&rsquo; tag model declarations.</p>
+
+<p>Conventionally the compound index should be named as shown in the example below.</p>
+
+<p>idx_&lt;table_name&gt;_&lt;field_name1&gt;_&lt;field_name2&gt;_&lt;field_name<em>n</em>&gt;</p>
+
+<pre><code class="language-golang">  // Declare a struct to be used as the source for table creation.
+  type Depot struct {
+    ...
+    Country    string    `db:&quot;country&quot; sqac:&quot;nullable:false;default:CA;index:idx_depot_country_province&quot;`
+    Province   string    `db:&quot;province&quot; sqac:&quot;nullable:false;default:AB;index:idx_depot_country_province&quot;`
+    ...
+    ...
+  }
+</code></pre>
+
+
 <footer class=" footline" >
 	
 </footer>
+
 
         
         </div> 
@@ -974,6 +1042,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -986,6 +1055,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1051,6 +1123,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1066,6 +1139,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1442,8 +1518,10 @@
 	 
 	 
 		
+			<a class="nav nav-prev" href="/sqac/modeling/md-content-d/" title="default:"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/sqac/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/sqac/modeling/md-content-f/" title="constraint:" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -1474,3 +1552,4 @@
 
   </body>
 </html>
+

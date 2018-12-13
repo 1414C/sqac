@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
 <link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-    <title>Tags :: Sqac ORM</title>
+    <title>non-persistent tag :: Sqac ORM</title>
 
     
     <link href="/sqac/css/nucleus.css?1544732899" rel="stylesheet">
@@ -34,7 +34,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/sqac/tags/">
+  <body class="" data-url="/sqac/modeling/md-content-g/">
     <nav id="sidebar" class="">
 
 
@@ -201,7 +201,7 @@
   
     
     <li data-nav-id="/sqac/modeling/" title="Sqac Modeling" class="dd-item 
-        
+        parent
         
         
         ">
@@ -339,7 +339,7 @@
  
   
     
-      <li data-nav-id="/sqac/modeling/md-content-g/" title="non-persistent tag" class="dd-item ">
+      <li data-nav-id="/sqac/modeling/md-content-g/" title="non-persistent tag" class="dd-item active">
         <a href="/sqac/modeling/md-content-g/">
         non-persistent tag
         
@@ -827,7 +827,19 @@
                     
           
           
-            Tags
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/sqac/'></a> > <a href='/sqac/modeling/'>Sqac Modeling</a> > non-persistent tag
+          
+         
+          
+         
           
         
                  
@@ -836,7 +848,20 @@
                 
                     <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#non-persistent-tag-overview">non-persistent tag Overview</a>
+<ul>
+<li>
+<ul>
+<li><a href="#example">&rdquo;-&rdquo; example</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
     </div>
 </div>
 
@@ -848,7 +873,7 @@
         
         <div id="body-inner">
           
-            <h1>Tags</h1>
+            <h1>non-persistent tag</h1>
           
 
         
@@ -856,9 +881,32 @@
 
 
 
+<h2 id="non-persistent-tag-overview">non-persistent tag Overview</h2>
+
+<p>Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database.  The following examples illustrate the use of the &ldquo;-&rdquo; &lsquo;sqac:&rsquo; tag described in the <a href="/sqac/modeling/md-content-a">Sqac Tag Overview</a> section of this document.</p>
+
+<p>The &ldquo;-&rdquo; tag is used to declare a field in the source go struct as being non-persistent (not present) in the database table schema.  Non-persistent fields are useful for values that are to be determined client-side, or for input fields that should not be saved.</p>
+
+<p><br></p>
+
+<h4 id="example">&rdquo;-&rdquo; example</h4>
+
+<p>The following example illustrates the use of &lsquo;sqac:&rsquo; tag &ldquo;-&rdquo; to declare a go struct field as non-persistent in the database.</p>
+
+<pre><code class="language-golang">  // Declare a struct to be used as the source for table creation.
+  type Depot struct {
+    ...
+    Password string       `db:&quot;password&quot; sqac:&quot;-&quot;`    // column will not be created in the database
+    ...
+    ...
+  }
+</code></pre>
+
+
 <footer class=" footline" >
 	
 </footer>
+
 
         
         </div> 
@@ -974,6 +1022,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -986,6 +1035,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1083,6 +1135,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1098,6 +1151,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1442,8 +1498,10 @@
 	 
 	 
 		
+			<a class="nav nav-prev" href="/sqac/modeling/md-content-f/" title="constraint:"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/sqac/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/sqac/modeling/md-content-h/" title="fkey:" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -1474,3 +1532,4 @@
 
   </body>
 </html>
+

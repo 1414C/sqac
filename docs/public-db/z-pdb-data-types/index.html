@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
 <link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-    <title>Tags :: Sqac ORM</title>
+    <title>sqac Data Types :: Sqac ORM</title>
 
     
     <link href="/sqac/css/nucleus.css?1544732899" rel="stylesheet">
@@ -34,7 +34,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/sqac/tags/">
+  <body class="" data-url="/sqac/public-db/z-pdb-data-types/">
     <nav id="sidebar" class="">
 
 
@@ -385,7 +385,7 @@
   
     
     <li data-nav-id="/sqac/public-db/" title="PublicDB API" class="dd-item 
-        
+        parent
         
         
         ">
@@ -751,7 +751,7 @@
  
   
     
-      <li data-nav-id="/sqac/public-db/z-pdb-data-types/" title="sqac Data Types" class="dd-item ">
+      <li data-nav-id="/sqac/public-db/z-pdb-data-types/" title="sqac Data Types" class="dd-item active">
         <a href="/sqac/public-db/z-pdb-data-types/">
         sqac Data Types
         
@@ -827,7 +827,19 @@
                     
           
           
-            Tags
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/sqac/'></a> > <a href='/sqac/public-db/'>PublicDB API</a> > sqac Data Types
+          
+         
+          
+         
           
         
                  
@@ -836,7 +848,21 @@
                 
                     <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#sqac-indexinfo">sqac.IndexInfo</a></li>
+<li><a href="#sqac-getparam">sqac.GetParam</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
     </div>
 </div>
 
@@ -848,7 +874,7 @@
         
         <div id="body-inner">
           
-            <h1>Tags</h1>
+            <h1>sqac Data Types</h1>
           
 
         
@@ -856,9 +882,40 @@
 
 
 
+<p><br></p>
+
+<h4 id="sqac-indexinfo">sqac.IndexInfo</h4>
+
+<p>IndexInfo is used by sqac to provide information to the <a href="/sqac/public-db/g-pdb-create-index">PublicDB.CreateIndex</a> method regarding the table name, uniqueness and columns to be included in a new database index.</p>
+
+<pre><code class="language-golang">// IndexInfo contains index definitions as read from the sqac:&quot;index&quot; tags
+type IndexInfo struct {
+    TableName   string
+    Unique      bool
+    IndexFields []string
+}
+</code></pre>
+
+<p><br>
+<br></p>
+
+<h4 id="sqac-getparam">sqac.GetParam</h4>
+
+<p>GetParam defines a common structure for CRUD GET parameters and is used in the <a href="/sqac/public-db/n-pdb-get-entities-with-commands-ip">PublicDB.GetEntitiesCP</a> method.</p>
+
+<pre><code class="language-golang">type GetParam struct {
+    FieldName    string          // database column name
+    Operand      string          // operand for parameter (ie. ==, !=, &lt; etc.)
+    ParamValue   interface{}     // parameter value
+    NextOperator string          // deprecated - do not use
+}
+</code></pre>
+
+
 <footer class=" footline" >
 	
 </footer>
+
 
         
         </div> 
@@ -1118,6 +1175,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1130,6 +1188,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1418,6 +1479,7 @@
             
             
                 
+                    
                     
                 
                 
@@ -1442,8 +1504,10 @@
 	 
 	 
 		
+			<a class="nav nav-prev" href="/sqac/public-db/r-pdb-exists-foreign-key-by-fields/" title="ExistsForeignKeyByFields"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/sqac/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/sqac/public-db/a-pdb-handle/" title="Getting a PublicDB Handle" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -1474,3 +1538,4 @@
 
   </body>
 </html>
+

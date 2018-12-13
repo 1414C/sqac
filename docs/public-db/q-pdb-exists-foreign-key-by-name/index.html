@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
 <link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-    <title>Tags :: Sqac ORM</title>
+    <title>ExistsForeignKeyByName :: Sqac ORM</title>
 
     
     <link href="/sqac/css/nucleus.css?1544732899" rel="stylesheet">
@@ -34,7 +34,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/sqac/tags/">
+  <body class="" data-url="/sqac/public-db/q-pdb-exists-foreign-key-by-name/">
     <nav id="sidebar" class="">
 
 
@@ -385,7 +385,7 @@
   
     
     <li data-nav-id="/sqac/public-db/" title="PublicDB API" class="dd-item 
-        
+        parent
         
         
         ">
@@ -713,7 +713,7 @@
  
   
     
-      <li data-nav-id="/sqac/public-db/q-pdb-exists-foreign-key-by-name/" title="ExistsForeignKeyByName" class="dd-item ">
+      <li data-nav-id="/sqac/public-db/q-pdb-exists-foreign-key-by-name/" title="ExistsForeignKeyByName" class="dd-item active">
         <a href="/sqac/public-db/q-pdb-exists-foreign-key-by-name/">
         ExistsForeignKeyByName
         
@@ -827,7 +827,19 @@
                     
           
           
-            Tags
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/sqac/'></a> > <a href='/sqac/public-db/'>PublicDB API</a> > ExistsForeignKeyByName
+          
+         
+          
+         
           
         
                  
@@ -836,7 +848,22 @@
                 
                     <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#publicdb-existsforeignkeybyname-i-interface-fkn-string-bool-error">PublicDB.ExistsForeignKeyByName(i interface{}, fkn string) (bool, error)</a></li>
+<li><a href="#parameters">Parameters</a></li>
+<li><a href="#publicdb-existsforeignkeybyname-example">PublicDB.ExistsForeignKeyByName Example</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
     </div>
 </div>
 
@@ -848,7 +875,7 @@
         
         <div id="body-inner">
           
-            <h1>Tags</h1>
+            <h1>ExistsForeignKeyByName</h1>
           
 
         
@@ -856,9 +883,90 @@
 
 
 
+<p><br></p>
+
+<h4 id="publicdb-existsforeignkeybyname-i-interface-fkn-string-bool-error">PublicDB.ExistsForeignKeyByName(i interface{}, fkn string) (bool, error)</h4>
+
+<p>The ExistsForeignKeyByName method checks for the existence of the specified foreign-key constraint in the database.</p>
+
+<p>The following go structs contain &lsquo;sqac:&rsquo; tags declaring a foreign-key constraint between table column product.warehouse_id and table column warehouse.id.  The resulting foreign-key constraint on table column product.warehouse_id would be named &ldquo;fk_product_warehouse_id&rdquo; based on the <a href="/sqac/modeling/md-content-h/#sqac-foreign-key-naming-standard">sqac foreign-key naming standard</a>.</p>
+
+<pre><code class="language-golang">type Warehouse struct {
+    ID       uint64 `db:&quot;id&quot; json:&quot;id&quot; sqac:&quot;primary_key:inc;start:40000000&quot;`
+    City     string `db:&quot;city&quot; json:&quot;city&quot; sqac:&quot;nullable:false;default:Calgary&quot;`
+    Quadrant string `db:&quot;quadrant&quot; json:&quot;quadrant&quot; sqac:&quot;nullable:false;default:SE&quot;`
+}
+
+type Product struct {
+    ID          uint64 `db:&quot;id&quot; json:&quot;id&quot; sqac:&quot;primary_key:inc;start:95000000&quot;`
+    ProductName string `db:&quot;product_name&quot; json:&quot;product_name&quot; sqac:&quot;nullable:false;default:unknown&quot;`
+    ProductCode string `db:&quot;product_code&quot; json:&quot;product_code&quot; sqac:&quot;nullable:false;default:0000-0000-00&quot;`
+    UOM         string `db:&quot;uom&quot; json:&quot;uom&quot; sqac:&quot;nullable:false;default:EA&quot;`
+    // foreign-key declared against table &quot;warehouse&quot;, column &quot;id&quot;
+    WarehouseID uint64 `db:&quot;warehouse_id&quot; json:&quot;warehouse_id&quot; sqac:&quot;nullable:false;fkey:warehouse(id)&quot;`
+}
+</code></pre>
+
+<h4 id="parameters">Parameters</h4>
+
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>i interface{}</td>
+<td>Accepts the go struct type of the table from which the foreign-key is thought to be declared. <br>For example:<br><br>If table column product.warehouse_id had a foreign-key constraint against table column warehouse.id, this parameter should be provided with go type Product{}.</td>
+</tr>
+
+<tr>
+<td>fkn string</td>
+<td>The name of the foreign-key being checked. <br>For example:<br><br>If table column product.warehouse_id has a foreign-key constraint against table.column warehouse.id, <a href="/sqac/modeling/md-content-h/#sqac-foreign-key-naming-standard">by convention</a> this parameter should contain: &ldquo;fk_product_warehouse_id&rdquo;.</td>
+</tr>
+</tbody>
+</table>
+
+<p><br></p>
+
+<h4 id="publicdb-existsforeignkeybyname-example">PublicDB.ExistsForeignKeyByName Example</h4>
+
+<p>A sample call using the scenario described in the Parameters table follows:</p>
+
+<pre><code class="language-golang">type Warehouse struct {
+    ID       uint64 `db:&quot;id&quot; json:&quot;id&quot; sqac:&quot;primary_key:inc;start:40000000&quot;`
+    City     string `db:&quot;city&quot; json:&quot;city&quot; sqac:&quot;nullable:false;default:Calgary&quot;`
+    Quadrant string `db:&quot;quadrant&quot; json:&quot;quadrant&quot; sqac:&quot;nullable:false;default:SE&quot;`
+}
+
+type Product struct {
+    ID          uint64 `db:&quot;id&quot; json:&quot;id&quot; sqac:&quot;primary_key:inc;start:95000000&quot;`
+    ProductName string `db:&quot;product_name&quot; json:&quot;product_name&quot; sqac:&quot;nullable:false;default:unknown&quot;`
+    ProductCode string `db:&quot;product_code&quot; json:&quot;product_code&quot; sqac:&quot;nullable:false;default:0000-0000-00&quot;`
+    UOM         string `db:&quot;uom&quot; json:&quot;uom&quot; sqac:&quot;nullable:false;default:EA&quot;`
+    // foreign-key declared against table &quot;warehouse&quot;, column &quot;id&quot;
+    WarehouseID uint64 `db:&quot;warehouse_id&quot; json:&quot;warehouse_id&quot; sqac:&quot;nullable:false;fkey:warehouse(id)&quot;`
+}
+...
+...
+// determine the standard foreign-key name (expect &quot;fk_product_warehouse_id&quot;)
+fkn, err = common.GetFKeyName(Product{}, &quot;product&quot;, &quot;warehouse&quot;, &quot;warehouse_id&quot;, &quot;id&quot;)
+...
+...
+// check that the foreign-key exists by name
+fkExists, err := Handle.ExistsForeignKeyByName(Product{}, fkn)
+...
+...
+</code></pre>
+
+
 <footer class=" footline" >
 	
 </footer>
+
 
         
         </div> 
@@ -1118,6 +1226,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1130,6 +1239,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1387,6 +1499,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1402,6 +1515,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1442,8 +1558,10 @@
 	 
 	 
 		
+			<a class="nav nav-prev" href="/sqac/public-db/p-pdb-drop-foreign-key/" title="DropForeignKey"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/sqac/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/sqac/public-db/r-pdb-exists-foreign-key-by-fields/" title="ExistsForeignKeyByFields" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -1474,3 +1592,4 @@
 
   </body>
 </html>
+
