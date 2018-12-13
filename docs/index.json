@@ -1,0 +1,29 @@
+[
+{
+	"uri": "https://1414c.github.io/sqac/",
+	"title": "",
+	"tags": [],
+	"description": "",
+	"content": " SQAC ORM sqac is a thin ORM that was written to talk to the SAP Hana in-memory db and then extended to the other supported DBMS systems. The ORM code is very simple and can easily be extended to support databases that have not been mentioned here.\nORM’s sound like a bad idea to a lot of people. That being said, as soon as there is a need to support more than one type of backend DBMS, a level of abstraction (like a thin ORM) starts to look a bit more appealing. However…\nIf you look at the generated code and don’t like what you see, the ORM handle exposes the standard go/sql and the awesome jmoiron/sqlx libraries to you directly. This will effectively allow you to make use of the generated application while coding the SQL by hand.\nFeatures  Uses go struct tags backed by a user-accessible API to declare database tables. Struct tags support the declaration of simple and compound indices, foreign-key relationships, primary-keys with starting point, default value, nullable etc. Supports PostgreSQL, MySQL, Sqlite3, MSSQL \u0026amp; SAP Hana. Easily extended to support other DB\u0026rsquo;s via implementation of the PublicDB interface. API supports common DDL requirements (CREATE, DROP, ALTER etc. for table, indices, sequences etc.). API supports generic CRUD entity operations. Set/Get API commands support (/$count /$orderby=field_name $limit=n; $offset=n; ($asc|$desc)) Access to standard go sql and jmoiron\u0026rsquo;s sqlx API\u0026rsquo;s A robust test suite is included to ensure correct operation.  "
+},
+{
+	"uri": "https://1414c.github.io/sqac/categories/",
+	"title": "Categories",
+	"tags": [],
+	"description": "",
+	"content": ""
+},
+{
+	"uri": "https://1414c.github.io/sqac/credits/",
+	"title": "Credits",
+	"tags": [],
+	"description": "",
+	"content": " Contributors Thanks to them  for making Open Source Software a better place !\nPackages and libraries  sqlx go-sql-driver/mysql lib/pq go-sqlite3 go-mssqldb go-hdb  Tooling  Hugo Hugo Learn Theme  "
+},
+{
+	"uri": "https://1414c.github.io/sqac/tags/",
+	"title": "Tags",
+	"tags": [],
+	"description": "",
+	"content": ""
+}]
