@@ -12,19 +12,19 @@
     <title> :: Sqac ORM</title>
 
     
-    <link href="/sqac/css/nucleus.css?1544732899" rel="stylesheet">
-    <link href="/sqac/css/fontawesome-all.min.css?1544732899" rel="stylesheet">
-    <link href="/sqac/css/hybrid.css?1544732899" rel="stylesheet">
-    <link href="/sqac/css/featherlight.min.css?1544732899" rel="stylesheet">
-    <link href="/sqac/css/perfect-scrollbar.min.css?1544732899" rel="stylesheet">
-    <link href="/sqac/css/auto-complete.css?1544732899" rel="stylesheet">
-    <link href="/sqac/css/theme.css?1544732899" rel="stylesheet">
-    <link href="/sqac/css/hugo-theme.css?1544732899" rel="stylesheet">
+    <link href="/sqac/css/nucleus.css?1545070173" rel="stylesheet">
+    <link href="/sqac/css/fontawesome-all.min.css?1545070173" rel="stylesheet">
+    <link href="/sqac/css/hybrid.css?1545070173" rel="stylesheet">
+    <link href="/sqac/css/featherlight.min.css?1545070173" rel="stylesheet">
+    <link href="/sqac/css/perfect-scrollbar.min.css?1545070173" rel="stylesheet">
+    <link href="/sqac/css/auto-complete.css?1545070173" rel="stylesheet">
+    <link href="/sqac/css/theme.css?1545070173" rel="stylesheet">
+    <link href="/sqac/css/hugo-theme.css?1545070173" rel="stylesheet">
     
-      <link href="/sqac/css/theme-blue.css?1544732899" rel="stylesheet">
+      <link href="/sqac/css/theme-blue.css?1545070173" rel="stylesheet">
     
 
-    <script src="/sqac/js/jquery-2.x.min.js?1544732899"></script>
+    <script src="/sqac/js/jquery-2.x.min.js?1545070173"></script>
 
     <style type="text/css">
       :root #header + #content > #left > #rlblock_left{
@@ -69,14 +69,14 @@
     <span data-search-clear=""><i class="fas fa-close"></i></span>
 </div>
 
-<script type="text/javascript" src="/sqac/js/lunr.min.js?1544732899"></script>
-<script type="text/javascript" src="/sqac/js/auto-complete.js?1544732899"></script>
+<script type="text/javascript" src="/sqac/js/lunr.min.js?1545070173"></script>
+<script type="text/javascript" src="/sqac/js/auto-complete.js?1545070173"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/1414c.github.io\/sqac\/";
     
 </script>
-<script type="text/javascript" src="/sqac/js/search.js?1544732899"></script>
+<script type="text/javascript" src="/sqac/js/search.js?1545070173"></script>
 
     
   </div>
@@ -98,7 +98,7 @@
         
         ">
       <a href="/sqac/getting-started/">
-          <i class='fa fa-github'></i> Getting Started
+          <i class='fab fa-github'></i> Getting Started
           
       </a>
       
@@ -206,7 +206,7 @@
         
         ">
       <a href="/sqac/modeling/">
-          <i class='fa fa-github'></i> Sqac Modeling
+          <i class='fab fa-github'></i> Sqac Modeling
           
       </a>
       
@@ -390,7 +390,7 @@
         
         ">
       <a href="/sqac/public-db/">
-          <i class='fa fa-github'></i> PublicDB API
+          <i class='fab fa-github'></i> PublicDB API
           
       </a>
       
@@ -824,11 +824,13 @@
 
 <h1 id="sqac-orm">SQAC ORM</h1>
 
-<p>sqac is a thin ORM that was written to talk to the SAP Hana in-memory db and then extended to the other supported DBMS systems. The ORM code is very simple and can easily be extended to support databases that have not been mentioned here.</p>
+<p>sqac is a thin ORM that was written to talk to the SAP Hana in-memory db and other commonly used DBMS systems. The ORM code is very simple and can easily be extended to support databases that have not been mentioned here.</p>
 
-<p>ORM’s sound like a bad idea to a lot of people. That being said, as soon as there is a need to support more than one type of backend DBMS, a level of abstraction (like a thin ORM) starts to look a bit more appealing. However…</p>
+<p>There are a lot of go-based ORM solutions, so why write a new one?</p>
 
-<p>If you look at the generated code and don’t like what you see, the ORM handle exposes the standard go/sql and the awesome jmoiron/sqlx libraries to you directly. This will effectively allow you to make use of the generated application while coding the SQL by hand.</p>
+<p>At the time sqac was written, there was not an ORM solution available for the SAP Hana database.  I wanted to be able to write an application, test it against a locally installed DBMS like Postgres and then simply &rsquo;re-aim&rsquo; the application at SAP Hana without making changes.  While it would have been possible to extend an existing ORM solution, I wanted to see what was involved in writing one of my own.  sqac is the result.</p>
+
+<p>ORM’s sound like a bad idea to a lot of people. That being said, as soon as there is a need to support more than one type of backend DBMS, a level of abstraction (like a thin ORM) starts to look a bit more appealing.</p>
 
 <h2 id="features">Features</h2>
 
@@ -839,8 +841,8 @@
 <li>Easily extended to support other DB&rsquo;s via implementation of the PublicDB interface.</li>
 <li>API supports common DDL requirements (CREATE, DROP, ALTER etc. for table, indices, sequences etc.).</li>
 <li>API supports generic CRUD entity operations.</li>
-<li>Set/Get API commands support (/$count /$orderby=field_name $limit=n; $offset=n; ($asc|$desc))</li>
-<li>Access to standard go sql and jmoiron&rsquo;s sqlx API&rsquo;s</li>
+<li>Set/Get API commands support (/$count /$orderby=field_name $limit=n; $offset=n; ($asc|$desc)).</li>
+<li>Access to standard go sql and jmoiron&rsquo;s sqlx API&rsquo;s.</li>
 <li>A robust test suite is included to ensure correct operation.</li>
 </ol>
 	
@@ -1438,20 +1440,20 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/sqac/js/clipboard.min.js?1544732899"></script>
-    <script src="/sqac/js/perfect-scrollbar.min.js?1544732899"></script>
-    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1544732899"></script>
-    <script src="/sqac/js/jquery.sticky.js?1544732899"></script>
-    <script src="/sqac/js/featherlight.min.js?1544732899"></script>
-    <script src="/sqac/js/html5shiv-printshiv.min.js?1544732899"></script>
-    <script src="/sqac/js/highlight.pack.js?1544732899"></script>
+    <script src="/sqac/js/clipboard.min.js?1545070173"></script>
+    <script src="/sqac/js/perfect-scrollbar.min.js?1545070173"></script>
+    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1545070173"></script>
+    <script src="/sqac/js/jquery.sticky.js?1545070173"></script>
+    <script src="/sqac/js/featherlight.min.js?1545070173"></script>
+    <script src="/sqac/js/html5shiv-printshiv.min.js?1545070173"></script>
+    <script src="/sqac/js/highlight.pack.js?1545070173"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/sqac/js/modernizr.custom.71422.js?1544732899"></script>
-    <script src="/sqac/js/learn.js?1544732899"></script>
-    <script src="/sqac/js/hugo-learn.js?1544732899"></script>
+    <script src="/sqac/js/modernizr.custom.71422.js?1545070173"></script>
+    <script src="/sqac/js/learn.js?1545070173"></script>
+    <script src="/sqac/js/hugo-learn.js?1545070173"></script>
 
-    <link href="/sqac/mermaid/mermaid.css?1544732899" type="text/css" rel="stylesheet" />
-    <script src="/sqac/mermaid/mermaid.js?1544732899"></script>
+    <link href="/sqac/mermaid/mermaid.css?1545070173" type="text/css" rel="stylesheet" />
+    <script src="/sqac/mermaid/mermaid.js?1545070173"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>
