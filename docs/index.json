@@ -102,7 +102,7 @@
 	"title": "PublicDB API",
 	"tags": [],
 	"description": "",
-	"content": " The PublicDB API How to use sqac "
+	"content": " The PublicDB API How to use sqac The sqac.PublicDB API can be used to access the ORM\u0026rsquo;s functionality and there are a number of methods that can be used to create / adjust tables and access their data. Only the most useful methods have been documented in this section.\nInspection of the sqac.PublicDB interface declaration will reveal a number of undocumented public methods. The undocumented methods can be used by consumers of the sqac package, but are primarily intended for internal use within the database dialect implementations. It is generally a better idea to make use of sqac-tags as explained in the modeling overview rather than call the undocumented PublicDB methods.\n"
 },
 {
 	"uri": "https://1414c.github.io/sqac/public-db/a-pdb-handle/",
