@@ -11,6 +11,7 @@ sqac is a simple overlay to provide a common interface to an attached mssql, mys
 - set sequence, auto-increment or identity nextval
 - Standard go sql, jmoirons sqlx db access
 - generic CRUD entity operations
+- UTC timestamps used interally for all time types
 - set commands (/$count /$orderby=<field_name> $limit=n; $offset=n; ($asc|$desc))
 - comprehensive test cases
 
@@ -60,19 +61,12 @@ SAP Hana:
 go test -v -db hdb sqac_test.go
 ```
 
-- [x]Support unique constraint on single-fields
 - [ ]Support unique constraints on grouped fields(?)
-- [x]Complete sql/sqlx query/exec wrapper tests
-- [x]Auto-increment fields should be designated as sqac:"primary_key:inc"
-- [ ]SQLite stores timestamps as UTC, so clients would need to convert back to the local timezone on a read.
-- [x]Consider saving all time as UTC
 - [ ]Consider converting all time reads as Local
-- [x]This is not perfect, as hand-written SQL will not pass the requests through the CrudInfo conversions.
 - [ ]HDB ExistsTable should include SCHEMA field in selection?
-- [x]Really consider what to do with nullable fields
-- [ ]It would be nice to replace the fmt.Sprintf(...) calls in the DDL and DML constructions with inline strconv.XXXX, as the performance seems to be 2-4x better.  oops.  In practical terms we are dealing with 10's of ns here, but under high load it could be a thing.  Consider doing this when implementing DB2 support.
+- [ ]It would be nice to replace the fmt.Sprintf(...) calls in the DDL and DML constructions with inline strconv.XXXX.  In practical terms we are dealing with 10's of ns here, but under high load it could be a thing.  Consider doing this when implementing DB2 support.
 
-<br></br>
+<br>
 
 ## Installation
 
@@ -105,6 +99,46 @@ go test -v -db pg -cs "host=127.0.0.1 user=my_uname dbname=my_dbname sslmode=dis
 ```
 
 <br>
+
+## Connection Strings
+sqac presently supports MSSQL, MySQL, PostgreSQL, Sqlite3 and the SAP Hana database.  You will
+need to know the db user-name / password, as well as the address:port and name of the database.
+
+### MSSQL Connection String
+
+```golang
+cs := "sqlserver://SA:my_passwd@localhost:1401?database=my_dbname"
+```
+
+### MySQL Connection String
+
+```golang
+cs := "my_uname:my_passwd@tcp(192.168.1.10:3306)/my_dbname?charset=utf8&parseTime=True&loc=Local"
+```
+
+### PostgreSQL Connection String
+
+```golang
+cs := "host=127.0.0.1 user=my_uname dbname=my_dbname sslmode=disable password=my_passwd"
+```
+
+### Sqlite3 Connection String
+
+```golang
+cs := "my_db_file.sqlite"
+
+// or
+
+cs = "my_db_file.db"
+```
+
+### SAP Hana Connection String
+
+```golang
+cs := "hdb://my_uname:my_passwd@192.168.111.45:30015"
+```
+<br>
+
 
 ## Quickstart
 
@@ -195,121 +229,6 @@ go run -db sqlite -cs testdb.sqlite main.go
 
 <br>
 
-## Connection Strings
-sqac presently supports MSSQL, MySQL, PostgreSQL, Sqlite3 and the SAP Hana database.  You will
-need to know the db user-name / password, as well as the address:port and name of the database.
-
-### MSSQL Connection String
-
-```golang
-cs := "sqlserver://SA:my_passwd@localhost:1401?database=my_dbname"
-```
-
-### MySQL Connection String
-
-```golang
-cs := "my_uname:my_passwd@tcp(192.168.1.10:3306)/my_dbname?charset=utf8&parseTime=True&loc=Local"
-```
-
-### PostgreSQL Connection String
-
-```golang
-cs := "host=127.0.0.1 user=my_uname dbname=my_dbname sslmode=disable password=my_passwd"
-```
-
-### Sqlite3 Connection String
-
-```golang
-cs := "my_db_file.sqlite"
-
-// or
-
-cs = "my_db_file.db"
-```
-
-### SAP Hana Connection String
-
-```golang
-cs := "hdb://my_uname:my_passwd@192.168.111.45:30015"
-```
-<br>
-
-## Table Declarations
-
-sqac table-declarations are informed by go structs with json-style struct-tags indicating
-column attributes.  Two tags are used: 'db:' and 'sqac:'.
-
-The 'db:' tag is used to declare the database column name.  This is typically the snake_case
-conversion of the go struct field-name.
-
-The 'sqac:' tag us used to declare column attributes.  A list of the supported attributes
-follows:
-
-|  sqac tag               | Description                        |
-|-------------------------|------------------------------------|
-| **"primary_key:"**  | This tag is used to declare that the specified column should be used as a primary-key in the generated database table.   There are a few variations in its use:  <br><br> **"primary_key:inc"** declares the primary-key as auto-incrementing from 0 in the database table schema: <br> `db:"depot_num" sqac:"primary_key:inc"` <br><br>**"primary_key:"** declares the primary-key as a non-auto-incrementing primary-key in the database schema: <br> `db:"depot_num" sqac:"primary_key:"` <br><br>  **"primary_key:inc;start:90000000"** declares the primary-key as auto-incrementing starting from 900000000: <br> `db:"depot_num" sqac:"primary_key:inc;start:90000000"` <br><br> It is possible to assign the "primary_key:" tag to more than one column in a table's model declaration.  The column containing the first occurrence of the tag (top-down) will be created as the actual primary-key in the database.  The collection of column declarations containing the "primary_key:" tag will be used to create a unique index on the DB table.  This is useful in cases where one is migrating data from a source system that has the concept of compound table keys.  For example, the following model excerpt would result in the creation of "depot_num" as the table's primary-key as well as the creation of a unique index containing "depot_num", "depot_bay", "create_date": <br><br> DepotNum            int       `db:"depot_num" sqac:"primary_key:inc;start:90000000"`<br> DepotBay            int       `db:"depot_bay" sqac:"primary_key:"` <br> CreateDate          time.Time `db:"create_date" sqac:"nullable:false;default:now();index:unique"`<br><br>**Notes:** auto-incrementing primary-keys increment by 1 and must always be declared as go-type **int**.|
-| **"nullable:"**         | This tag is used to declare that the specified column is nullable in the database. <br>  Allowed values are *true* or *false*. <br> `db:"region" sqac:"nullable:false"` or <br>  `db:"region" sqac:"nullable:true"` <br><br> **Notes:** If this tag is not specified, the column is declared as nullable with the exception of columns declared with the "primary_key:" tag.              |
-| **"default:**           | The "default:" tag is used to declare a default value for the column in the database table schema.  Default values are used as per the implementation of the SQL DEFAULT keyword in the target DBMS. <br>  `db:"region" sqac:"nullable:false;default:YYC"` <br><br> **Notes:** This tag supports the use of static values for all column-types, as well as a small set of date-time functions: "default:now()" / "default:make_timestamptz(9999, 12, 31, 23, 59, 59.9)" / "default:eot()"|
-| **"index:"**            | Single column indexes can be declared via the "index:" tag.  The example index declarations require only the "index:unique / non-unique" pair in the column's sqac-tag.  The following column declaration results in the creation of a unique index on table column "create_date": <br> `db:"create_date" sqac:"nullable:false;default:now();index:unique"` <br><br>  A non-unique single column index for the same column is declared as follows: <br> `db:"create_date" sqac:"nullable:false;default:now();index:non-unique"` <br><br><br> Multi-column indexes can also be declared via the index tag.  The following example illustrates the declaration of a non-unique two-column index containing columns "new_column1" and "new_column2": <br> `db:"new_column1" sqac:"nullable:false;index:idx_depot_new_column1_new_column2"` <br> `db:"new_column2" sqac:"nullable:false;default:0;index:idx_depot_new_column1_new_column2"` <br>|
-| **"fkey:**   | Foreign-keys can be declared between table columns.  The following example results in the creation of a foreign-key between the table's "warehouse_id" column and reference column "id" in table "warehouse". <br><br> WarehouseID uint64 `db:"warehouse_id" json:"warehouse_id" sqac:"nullable:false;fkey:warehouse(id)"` <br><br> This example is not very clear - see the full example code excerpt in the Table Declaration Examples section.     |
-| Non-persistent column   | There are scenarios where model columns may not be persisted in the database.  If a column is to be determined at runtime by the consuming application (for example), the following syntax may be used: <br> NonPersistentColumn string    `db:"non_persistent_column" sqac:"-"`              |
-<br>
-
-### Simple Table Declaration
-
-A small example declaring sqac table 'depot' follows:
-
-```golang
-    type Depot struct {
-        DepotNum   int       `db:"depot_num" sqac:"primary_key:inc"`
-        CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now();"`
-        Region     string    `db:"region" sqac:"nullable:false;default:YYC"`
-        Province   string    `db:"province" sqac:"nullable:false;default:AB"`
-        Country    string    `db:"country" sqac:"nullable:false;default:CA"`
-    }
-```
-
-The 'db:' tag is used to declare the column name in the database, while the 'sqac:' tag
-is used to inform the sqac runtime how to setup the column attributes in the database.
-
-A breakdown of the column attributes follows:
-
-'depot_num' is declared as an auto-incrementing primary key called starting at 0.  
-'create_date' is declared as a non-nullable column using sqac date function 'now()' as a default value.
-'region' is declared as a non-nullable column with a default value of "YYC".
-'province' is declared as a non-nullable column with a default value of "AB".
-'country' is declared as a non-nullable column with a default value of "CA".
-<br><br>
-
-### Comprehensive Table Declaration
-
-A more comprehensive declaration of table "depot":
-
-```golang
-type DepotCreate struct {
-  DepotNum            int       `db:"depot_num" sqac:"primary_key:inc;start:90000000"`
-  DepotBay            int       `db:"depot_bay" sqac:"primary_key:"`
-  CreateDate          time.Time `db:"create_date" sqac:"nullable:false;default:now();index:unique"`
-  Region              string    `db:"region" sqac:"nullable:false;default:YYC"`
-  Province            string    `db:"province" sqac:"nullable:false;default:AB"`
-  Country             string    `db:"country" sqac:"nullable:true;default:CA"`
-  NewColumn1          string    `db:"new_column1" sqac:"nullable:false"`
-  NewColumn2          int64     `db:"new_column2" sqac:"nullable:false"`
-  NewColumn3          float64   `db:"new_column3" sqac:"nullable:false;default:0.0"`
-  IntDefaultZero      int       `db:"int_default_zero" sqac:"nullable:false;default:0"`
-  IntDefault42        int       `db:"int_default42" sqac:"nullable:false;default:42"`
-  FldOne              int       `db:"fld_one" sqac:"nullable:false;default:0;index:idx_depotcreate_fld_one_fld_two"`
-  FldTwo              int       `db:"fld_two" sqac:"nullable:false;default:0;index:idx_depotcreate_fld_one_fld_two"`
-  TimeCol             time.Time `db:"time_col" sqac:"nullable:false"`
-  TimeColNow          time.Time `db:"time_col_now" sqac:"nullable:false;default:now()"`
-  TimeColEot          time.Time `db:"time_col_eot" sqac:"nullable:false;default:eot()"`
-  IntZeroValNoDefault int       `db:"int_zero_val_no_default" sqac:"nullable:false"`
-  NonPersistentColumn string    `db:"non_persistent_column" sqac:"-"`
-}
-```
-
-<br>
-
 ### Table Declaration Using Nested Structs
 
 Table declarations may also contain nested structs:
@@ -336,28 +255,6 @@ type Equipment struct {
 
 <br>
 
-### Table Declaration With Foreign-Key
-
-```golang
-type Warehouse struct {
-    ID       uint64 `db:"id" json:"id" sqac:"primary_key:inc;start:40000000"`
-    City     string `db:"city" json:"city" sqac:"nullable:false;default:Calgary"`
-    Quadrant string `db:"quadrant" json:"quadrant" sqac:"nullable:false;default:SE"`
-}
-
-type Product struct {
-    ID          uint64 `db:"id" json:"id" sqac:"primary_key:inc;start:95000000"`
-    ProductName string `db:"product_name" json:"product_name" sqac:"nullable:false;default:unknown"`
-    ProductCode string `db:"product_code" json:"product_code" sqac:"nullable:false;default:0000-0000-00"`
-    UOM         string `db:"uom" json:"uom" sqac:"nullable:false;default:EA"`
-    WarehouseID uint64 `db:"warehouse_id" json:"warehouse_id" sqac:"nullable:false;fkey:warehouse(id)"`
-}
-```
-
-An excerpt from 'a_sqac_test.go' illustrates how the sqac method PublicDB.CreateTables
-is used to create new tables in the database:
-
-
 ## Accessing Documentation
 
 The API is somewhat documented via comments in the code.  This can be accessed by running the *godoc* command:
@@ -366,38 +263,14 @@ The API is somewhat documented via comments in the code.  This can be accessed b
 godoc -http=:6061
 ```
 
-Once the *godoc* server has started, hit http://localhost:6060/pkg/github.com/1414C/sqac/ for sqac API documentation.
+Once the *godoc* server has started, hit http://localhost:6061/pkg/github.com/1414C/sqac/ for sqac API documentation.
 
-```golang
-// TestCreateTableBasic
-//
-// Create table depot via CreateTables(i ...interface{})
-// Verify table creation via ExistsTable(tn string)
-// Perform negative validation be checking for non-existant
-// table "table_name" via ExistsTable(tn string)
-//
-func TestCreateTableBasic(t *testing.T) {
+## Credits
 
-    type Depot struct {
-        DepotNum   int       `db:"depot_num" sqac:"primary_key:inc"`
-        CreateDate time.Time `db:"create_date" sqac:"nullable:false;default:now();"`
-        Region     string    `db:"region" sqac:"nullable:false;default:YYC"`
-        Province   string    `db:"province" sqac:"nullable:false;default:AB"`
-        Country    string    `db:"country" sqac:"nullable:false;default:CA"`
-    }
-
-    err := Handle.CreateTables(Depot{})
-    if err != nil {
-        t.Errorf("%s", err.Error())
-    }
-
-    // determine the table name as per the table creation logic
-    tn := common.GetTableName(Depot{})     // "depot"
-
-    // expect that table depot exists
-    if !Handle.ExistsTable(tn) {
-        t.Errorf("table %s was not created", tn)
-    }
-}
-
-```
+## Packages and libraries
+* [sqlx](https://jmoiron.github.io/sqlx/)
+* [go-sql-driver/mysql](https://github.com/go-sql-driver/mysql/)
+* [lib/pq](https://github.com/lib/pq)
+* [go-sqlite3](http://mattn.github.io/go-sqlite3/)
+* [go-mssqldb](https://github.com/denisenkom/go-mssqldb)
+* [go-hdb](https://github.com/SAP/go-hdb)
