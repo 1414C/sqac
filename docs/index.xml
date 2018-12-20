@@ -270,8 +270,8 @@ The ent parameter must be a pointer to a go struct of the sqac table declaration
       <pubDate>Mon, 10 Dec 2018 17:00:19 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/n-pdb-get-entities-with-commands-ip/</guid>
-      <description>PublicDB.GetEntitiesCP(ents interface{}, params []GetParam, cmdMap map[string]interface{}) (uint64, error) The GetEntitiesCP method is part of sqac&amp;rsquo;s CRUD API and is used to retrieve existing rows of the specified entity from their related database table. Structs annotated with &amp;lsquo;sqac:&amp;rsquo; tags are colloquially known as sqac entities, hence the parameter name &amp;lsquo;ent&amp;rsquo;.
-The ent parameter must be a pointer to a slice declared using the go struct-type corresponding to the targeted database table.</description>
+      <description>PublicDB.GetEntitiesCP(ents interface{}, params []GetParam, cmdMap map[string]interface{}) (uint64, error) The GetEntitiesCP method is part of sqac&amp;rsquo;s CRUD API and is used to retrieve existing rows of the specified entity from their related database table. Structs annotated with &amp;lsquo;sqac:&amp;rsquo; tags are colloquially known as sqac entities, hence the parameter name &amp;lsquo;ents&amp;rsquo;.
+The ents parameter must be a pointer to a slice declared using the go struct-type corresponding to the targeted database table.</description>
     </item>
     
     <item>
