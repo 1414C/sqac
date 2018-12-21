@@ -12,19 +12,19 @@
     <title>GetEntity :: Sqac ORM</title>
 
     
-    <link href="/sqac/css/nucleus.css?1545356750" rel="stylesheet">
-    <link href="/sqac/css/fontawesome-all.min.css?1545356750" rel="stylesheet">
-    <link href="/sqac/css/hybrid.css?1545356750" rel="stylesheet">
-    <link href="/sqac/css/featherlight.min.css?1545356750" rel="stylesheet">
-    <link href="/sqac/css/perfect-scrollbar.min.css?1545356750" rel="stylesheet">
-    <link href="/sqac/css/auto-complete.css?1545356750" rel="stylesheet">
-    <link href="/sqac/css/theme.css?1545356750" rel="stylesheet">
-    <link href="/sqac/css/hugo-theme.css?1545356750" rel="stylesheet">
+    <link href="/sqac/css/nucleus.css?1545357002" rel="stylesheet">
+    <link href="/sqac/css/fontawesome-all.min.css?1545357002" rel="stylesheet">
+    <link href="/sqac/css/hybrid.css?1545357002" rel="stylesheet">
+    <link href="/sqac/css/featherlight.min.css?1545357002" rel="stylesheet">
+    <link href="/sqac/css/perfect-scrollbar.min.css?1545357002" rel="stylesheet">
+    <link href="/sqac/css/auto-complete.css?1545357002" rel="stylesheet">
+    <link href="/sqac/css/theme.css?1545357002" rel="stylesheet">
+    <link href="/sqac/css/hugo-theme.css?1545357002" rel="stylesheet">
     
-      <link href="/sqac/css/theme-white.css?1545356750" rel="stylesheet">
+      <link href="/sqac/css/theme-white.css?1545357002" rel="stylesheet">
     
 
-    <script src="/sqac/js/jquery-2.x.min.js?1545356750"></script>
+    <script src="/sqac/js/jquery-2.x.min.js?1545357002"></script>
 
     <style type="text/css">
       :root #header + #content > #left > #rlblock_left{
@@ -52,14 +52,14 @@
     <span data-search-clear=""><i class="fas fa-close"></i></span>
 </div>
 
-<script type="text/javascript" src="/sqac/js/lunr.min.js?1545356750"></script>
-<script type="text/javascript" src="/sqac/js/auto-complete.js?1545356750"></script>
+<script type="text/javascript" src="/sqac/js/lunr.min.js?1545357002"></script>
+<script type="text/javascript" src="/sqac/js/auto-complete.js?1545357002"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/1414c.github.io\/sqac\/";
     
 </script>
-<script type="text/javascript" src="/sqac/js/search.js?1545356750"></script>
+<script type="text/javascript" src="/sqac/js/search.js?1545357002"></script>
 
     
   </div>
@@ -879,57 +879,56 @@
 
 <p>The following example illustrates the deletion of an existing record (entity) from database table &ldquo;depot&rdquo;.</p>
 
-<p>```golang
-package main</p>
+<pre><code class="language-golang">package main
 
-<p>import (
-  &ldquo;log&rdquo;</p>
+import (
+  &quot;log&quot;
 
-<p>&ldquo;github.com/1414C/sqac&rdquo;
-  _ &ldquo;github.com/mattn/go-sqlite3&rdquo;
-)</p>
+  &quot;github.com/1414C/sqac&quot;
+  _ &quot;github.com/mattn/go-sqlite3&quot;
+)
 
-<p>func main() {</p>
+func main() {
 
-<p>var (
+  var (
     Handle sqac.PublicDB
-  )</p>
+  )
 
-<p>// Declare a struct to be used as the source for table creation
+  // Declare a struct to be used as the source for table creation
   type Depot struct {
-    DepotNum   int       <code>db:&quot;depot_num&quot; sqac:&quot;primary_key:inc&quot;</code>
-    CreateDate time.Time <code>db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();&quot;</code>
-    Country    string    <code>db:&quot;country&quot; sqac:&quot;nullable:false;default:CA&quot;</code>
-    Province   string    <code>db:&quot;province&quot; sqac:&quot;nullable:false;default:AB&quot;</code>
-    Region     string    <code>db:&quot;region&quot; sqac:&quot;nullable:false;default:YYC&quot;</code>
-    Population int       <code>db:&quot;population&quot; sqac:&quot;nullable:false;default:0;index:non-unique&quot;</code>
-  }</p>
+    DepotNum   int       `db:&quot;depot_num&quot; sqac:&quot;primary_key:inc&quot;`
+    CreateDate time.Time `db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();&quot;`
+    Country    string    `db:&quot;country&quot; sqac:&quot;nullable:false;default:CA&quot;`
+    Province   string    `db:&quot;province&quot; sqac:&quot;nullable:false;default:AB&quot;`
+    Region     string    `db:&quot;region&quot; sqac:&quot;nullable:false;default:YYC&quot;`
+    Population int       `db:&quot;population&quot; sqac:&quot;nullable:false;default:0;index:non-unique&quot;`
+  }
 
-<p>// Create a PublicDB instance to connect to the test sqlite db
-  Handle = sqac.Create(&ldquo;sqlite&rdquo;, false, false, &ldquo;testdb.sqlite&rdquo;)</p>
+  // Create a PublicDB instance to connect to the test sqlite db
+  Handle = sqac.Create(&quot;sqlite&quot;, false, false, &quot;testdb.sqlite&quot;)
 
-<p>// Create a new table in the database
+  // Create a new table in the database
   err := Handle.DestructiveResetTables(Depot{})
   if err != nil {
-    log.Errorf(&ldquo;%s&rdquo;, err.Error())
-  }</p>
+    log.Errorf(&quot;%s&quot;, err.Error())
+  }
 
-<p>// Insert a new record into table &ldquo;depot&rdquo;
+  // Insert a new record into table &quot;depot&quot;
   var depotRecord = Depot{
-      Country: &ldquo;CA&rdquo;,
-      Province: &ldquo;BC&rdquo;,
-      Region: &ldquo;YVR&rdquo;,
+      Country: &quot;CA&quot;,
+      Province: &quot;BC&quot;,
+      Region: &quot;YVR&quot;,
       Population: 2500000,
-  }</p>
-
-<p>err = Handle.Create(&amp;depotRecord)
+  }
+  
+  err = Handle.Create(&amp;depotRecord)
   if err != nil {
       log.Errorf(err.Error())
   } else {
-      log.Println(&ldquo;New record: &ldquo;, depotRecord)
-  }</p>
+      log.Println(&quot;New record: &quot;, depotRecord)
+  }
 
-<p>// Retrieve the existing record using the fully populated depotRecord&rsquo;s primary-key value
+  // Retrieve the existing record using the fully populated depotRecord's primary-key value
   var readRecord = Depot{
       DepotNum: depotRecord.DepotNum,
   }
@@ -937,12 +936,13 @@ package main</p>
   if err != nil {
       log.Errorf(err.Error())
   } else {
-      log.Println(&ldquo;Retrieved record: &ldquo;,readRecord)
-  }</p>
+      log.Println(&quot;Retrieved record: &quot;,readRecord)
+  }
 
-<p>// Close the connection
+  // Close the connection
   Handle.Close()
-}</p>
+}
+</code></pre>
 
 
 <footer class=" footline" >
@@ -1553,20 +1553,20 @@ package main</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/sqac/js/clipboard.min.js?1545356750"></script>
-    <script src="/sqac/js/perfect-scrollbar.min.js?1545356750"></script>
-    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1545356750"></script>
-    <script src="/sqac/js/jquery.sticky.js?1545356750"></script>
-    <script src="/sqac/js/featherlight.min.js?1545356750"></script>
-    <script src="/sqac/js/html5shiv-printshiv.min.js?1545356750"></script>
-    <script src="/sqac/js/highlight.pack.js?1545356750"></script>
+    <script src="/sqac/js/clipboard.min.js?1545357002"></script>
+    <script src="/sqac/js/perfect-scrollbar.min.js?1545357002"></script>
+    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1545357002"></script>
+    <script src="/sqac/js/jquery.sticky.js?1545357002"></script>
+    <script src="/sqac/js/featherlight.min.js?1545357002"></script>
+    <script src="/sqac/js/html5shiv-printshiv.min.js?1545357002"></script>
+    <script src="/sqac/js/highlight.pack.js?1545357002"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/sqac/js/modernizr.custom.71422.js?1545356750"></script>
-    <script src="/sqac/js/learn.js?1545356750"></script>
-    <script src="/sqac/js/hugo-learn.js?1545356750"></script>
+    <script src="/sqac/js/modernizr.custom.71422.js?1545357002"></script>
+    <script src="/sqac/js/learn.js?1545357002"></script>
+    <script src="/sqac/js/hugo-learn.js?1545357002"></script>
 
-    <link href="/sqac/mermaid/mermaid.css?1545356750" type="text/css" rel="stylesheet" />
-    <script src="/sqac/mermaid/mermaid.js?1545356750"></script>
+    <link href="/sqac/mermaid/mermaid.css?1545357002" type="text/css" rel="stylesheet" />
+    <script src="/sqac/mermaid/mermaid.js?1545357002"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>
