@@ -1,6 +1,6 @@
 # sqac
 
-sqac is a simple overlay to provide a common interface to an attached mssql, mysql, postgres, sqlite or SAP Hana database.
+Sqac is a simple overlay to provide a common interface to an attached mssql, mysql, postgres, sqlite or SAP Hana database.
 
 - create tables, supporting default, nullable, start, primary-key, index tags
 - drop tables
@@ -11,62 +11,23 @@ sqac is a simple overlay to provide a common interface to an attached mssql, mys
 - set sequence, auto-increment or identity nextval
 - Standard go sql, jmoirons sqlx db access
 - generic CRUD entity operations
-- UTC timestamps used interally for all time types
+- UTC timestamps used internally for all time types
 - set commands (/$count /$orderby=<field_name> $limit=n; $offset=n; ($asc|$desc))
 - comprehensive test cases
 
-* passing: pg, mssql, mysql, hdb, sqlite
-* refactor non-idempotent SQLite Foreign-Key test to use a closure
-* consider parsing the stored create schema when adding / dropping a foreign-key on SQLite tables (dangerous?)
-* add cascade to Drops?
-
-* Testing / TODO
-* examine the $desc orderby when limit / offset is used in postgres with selection parameter (odd)
-* change from timestamp with TZ to timestamp and ensure timestamps are in UTC before submitting to the db
-* examine view support
-* remove extraneous getSet-type methods
-* ProcessSchema does not return an error; ProcessTransaction does?  Noticed this in DropIndex.
-
-```bash
-go test -v -l -db <dbtype> sqac_test.go
-```
-
-Postgres:
-
-```bash
-go test -v -db postgres sqac_test.go
-```
-
-MySQL:
-
-```bash
-go test -v -db mysql sqac_test.go
-```
-
-MSSQL:
-
-```bash
-go test -v -db mssql sqac_test.go
-```
-
-SQLite:
-
-```bash
-go test -v -db sqlite sqac_test.go
-```
-
-SAP Hana:
-
-```bash
-go test -v -db hdb sqac_test.go
-```
-
+## Outstanding TODO's
+- [ ]refactor non-idempotent SQLite Foreign-Key test to use a closure
+- [ ]consider parsing the stored create schema when adding / dropping a foreign-key on SQLite tables (dangerous?)
+- [ ]add cascade to Drops?
+- [ ]examine the $desc orderby when limit / offset is used in postgres with selection parameter (odd)
+- [ ]change from timestamp with TZ to timestamp and ensure timestamps are in UTC before submitting to the db
+- [ ]examine view support
+- [ ]remove extraneous getSet-type methods
+- [ ]ProcessSchema does not return an error; ProcessTransaction does?  Noticed this in DropIndex.  Inconsistent.
 - [ ]Support unique constraints on grouped fields(?)
 - [ ]Consider converting all time reads as Local
 - [ ]HDB ExistsTable should include SCHEMA field in selection?
 - [ ]It would be nice to replace the fmt.Sprintf(...) calls in the DDL and DML constructions with inline strconv.XXXX.  In practical terms we are dealing with 10's of ns here, but under high load it could be a thing.  Consider doing this when implementing DB2 support.
-
-<br>
 
 ## Installation
 
@@ -85,23 +46,60 @@ Ensure that you have also installed the drivers for the databases you plan to us
 |PostgreSQL Database Driver | github.com/lib/pq                 |
 |SQLite3 Database Driver    | github.com/mattn/go-sqlite3       |
 <br>
-Verify the installation by running the included test suite against sqlite.  Test execution will create a 'testdb.sqlite' database file in the sqac directory.  The tests are not entirely idempotent and the testdb.sqlite file will not be cleaned up.  This is by design as the tests were used
-for debugging purposes during the development.  It would be a simple matter to tidy this up.
+Verify the installation by running the included test suite against sqlite.  Test execution will create a 'testdb.sqlite' database file in the sqac directory.  The tests are not entirely idempotent and the testdb.sqlite file will not be cleaned up.  This is by design as the tests were used for debugging purposes during the development.  It would be a simple matter to tidy this up.
 
 ```bash
 go test -v -db sqlite
 ```
 
-If running against sqlite is not an option, the test suite may be run against any of the supported database systems.  When running against a non-sqlite db, a connection string must be supplied via the *cs* flag.  See the Connection Strings section for database-specific connection string formats.
+If testing against sqlite is not an option, the test suite may be run against any of the supported database systems.  When running against a non-sqlite db, a connection string must be supplied via the *cs* flag.  See the Connection Strings section for database-specific connection string formats.
 
 ```bash
 go test -v -db pg -cs "host=127.0.0.1 user=my_uname dbname=my_dbname sslmode=disable password=my_passwd"
 ```
 
+## Running Tests
+
+```bash
+go test -v -db <dbtype>
+```
+
+#### Postgres
+
+```bash
+go test -v -db postgres -cs "host=127.0.0.1 user=my_uname dbname=my_dbname sslmode=disable password=my_passwd"
+```
+
+#### MySQL
+
+```bash
+go test -v -db mysql -cs "my_uname:my_passwd@tcp(192.168.1.10:3306)/my_dbname?charset=utf8&parseTime=True&loc=Local"
+```
+
+#### MSSQL
+
+```bash
+go test -v -db mssql -cs "sqlserver://SA:my_passwd@localhost:1401?database=my_dbname"
+```
+
+#### SQLite
+
+```bash
+go test -v -db sqlite
+```
+
+#### SAP Hana
+
+```bash
+go test -v -db hdb "hdb://my_uname:my_passwd@192.168.111.45:30015"
+```
+<br>
+
+
 <br>
 
 ## Connection Strings
-sqac presently supports MSSQL, MySQL, PostgreSQL, Sqlite3 and the SAP Hana database.  You will
+Sqac presently supports MSSQL, MySQL, PostgreSQL, Sqlite3 and the SAP Hana database.  You will
 need to know the db user-name / password, as well as the address:port and name of the database.
 
 ### MSSQL Connection String
@@ -162,9 +160,13 @@ import (
 
 func main() {
 
+  // valid dbFlag values: {hdb, sqlite, mssql, mysql, postgres}
   dbFlag := flag.String("db", "sqlite", "db-type for connection")
+  // see ConnectionStrings in this document for valid csFlag value formats
   csFlag := flag.String("cs", "testdb.sqlite", "connection-string for the database")
+  // the logging is verbose and targetted at debugging
   logFlag := flag.Bool("l", false, "activate sqac detail logging to stdout")
+  // the db logging provides a close approximation to the commands issued to the db
   dbLogFlag := flag.Bool("dbl", false, "activate DDL/DML logging to stdout)")
   flag.Parse()
 
@@ -267,7 +269,7 @@ Once the *godoc* server has started, hit http://localhost:6061/pkg/github.com/14
 
 ## Credits
 
-## Packages and libraries
+## Sqac makes use of
 * [sqlx](https://jmoiron.github.io/sqlx/)
 * [go-sql-driver/mysql](https://github.com/go-sql-driver/mysql/)
 * [lib/pq](https://github.com/lib/pq)
