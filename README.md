@@ -17,7 +17,7 @@ Sqac is a simple overlay to provide a common interface to an attached mssql, mys
 
 ## Outstanding TODO's
 - [ ]refactor non-idempotent SQLite Foreign-Key test to use a closure
-- [ ]consider parsing the stored create schema when adding / dropping a foreign-key on SQLite tables (dangerous?)
+- [ ]consider parsing the stored create schema when adding / dropping a foreign-key on SQLite tables
 - [ ]add cascade to Drops?
 - [ ]examine the $desc orderby when limit / offset is used in postgres with selection parameter (odd)
 - [ ]change from timestamp with TZ to timestamp and ensure timestamps are in UTC before submitting to the db
@@ -27,7 +27,7 @@ Sqac is a simple overlay to provide a common interface to an attached mssql, mys
 - [ ]Support unique constraints on grouped fields(?)
 - [ ]Consider converting all time reads as Local
 - [ ]HDB ExistsTable should include SCHEMA field in selection?
-- [ ]It would be nice to replace the fmt.Sprintf(...) calls in the DDL and DML constructions with inline strconv.XXXX.  In practical terms we are dealing with 10's of ns here, but under high load it could be a thing.  Consider doing this when implementing DB2 support.
+- [ ]It would be nice to replace the fmt.Sprintf(...) calls in the DDL and DML constructions with inline strconv.XXXX.  In practical terms we are dealing with 10's of ns here, but it could be a thing.  Consider doing this when implementing DB2 support.
 
 ## Installation
 

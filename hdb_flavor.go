@@ -312,33 +312,6 @@ func (hf *HDBFlavor) createTables(calledFromAlter bool, i ...interface{}) ([]For
 				SeqName:   strings.Replace(vals[3], "}", "", 1),
 			}
 			hf.CreateSequence(seqDef.SeqName, seqDef.Start)
-			// delete the existing procedure if it exists
-			// create a new procedure
-			// for _, v := range tc.flDef {
-			// 	fmt.Println("fldef:", v)
-			// }
-			// create a procedure
-			// err = hf.createInsertSP(*seqDef, tc.flDef)
-			// if err != nil {
-			// 	return err
-			// }
-			// // procName := "procINSERT" + tn
-			// procDDL := `CREATE PROCEDURE procINSERTDEPOT(
-			// 			  IN col_one VARCHAR(255),
-			// 			  IN col_two INTEGER,
-			// 			  OUT id     INTEGER)
-			// 			  LANGUAGE SQLSCRIPT AS
-			// 			  BEGIN
-			// 				id := 42;
-			// 			  END;
-			// `
-			// fmt.Println(procDDL)
-
-			// // attempt to create the procedure on the db
-			// _, err = hf.db.Exec(procDDL)
-			// if err != nil {
-			// 	panic(err)
-			// }
 		}
 
 		// create the table indices
@@ -675,19 +648,6 @@ func (hf *HDBFlavor) createInsertSP(seqDef hdbSeqTyp, fldef []common.FieldDef) e
 	if hf.log {
 		log.Println("createInsertSP:", procDDL)
 	}
-
-	// procName := "procInsert" + seqDef.tableName
-	// procDDL := fmt.Sprintf(`CREATE PROCEDURE SMACLEOD.%s(
-	// 						  IN col_one VARCHAR(255),
-	// 						  IN col_two INTEGER,
-	// 						  OUT id	 INTEGER)
-	// 						  LANGUAGE SQLSCRIPT AS
-	// 						  BEGIN
-	//                             SELECT
-
-	// 						  END;
-
-	// 	`, procName)
 
 	// attempt to create the procedure on the db
 	_, err = hf.db.Exec(procDDL)

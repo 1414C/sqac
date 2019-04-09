@@ -14,13 +14,11 @@ import (
 // Sqac is the main access structure for the
 // sqac library.
 type Sqac struct {
-	// DB   *sqlx.DB
-	// Log  bool
 	Hndl PublicDB
 }
 
 func init() {
-	log.Println("package sqac init is running")
+	log.Println("sqac init...")
 }
 
 // Open a sqlx connection to the specified database
@@ -57,7 +55,7 @@ func Create(flavor string, logFlag bool, dbLogFlag bool, connectionString string
 	case "mysql":
 		myh := new(MySQLFlavor)
 		handle = myh
-		// db, err := Open("mysql", "stevem:gogogo123@tcp(192.168.1.50:3306)/sqlx?charset=utf8&parseTime=True&loc=Local")
+		// db, err := Open("mysql", "godev:gogogo123@tcp(192.168.1.50:3306)/sqactst?charset=utf8&parseTime=True&loc=Local")
 		db, err := Open("mysql", connectionString)
 		if err != nil {
 			log.Fatalf("%s\n", err.Error())
@@ -81,7 +79,7 @@ func Create(flavor string, logFlag bool, dbLogFlag bool, connectionString string
 	case "mssql":
 		msh := new(MSSQLFlavor)
 		handle = msh
-		// db, err := Open("mssql", "sqlserver://SA:Bunny123!!@localhost:1401?database=sqlx")
+		// db, err := Open("mssql", "sqlserver://SA:gogogo123@localhost:1401?database=sqactst")
 		db, err := Open("mssql", connectionString)
 		if err != nil {
 			log.Fatalf("%s\n", err.Error())
@@ -100,7 +98,7 @@ func Create(flavor string, logFlag bool, dbLogFlag bool, connectionString string
 	case "hdb":
 		hdh := new(HDBFlavor)
 		handle = hdh
-		// db, err := Open("hdb", "hdb://SMACLEOD:Blockhead2@clkhana01.lab.clockwork.ca:30047")
+		// db, err := Open("hdb", "hdb://godev:gogogo123@your.hanadb.com:30047")
 		db, err := Open("hdb", connectionString)
 		if err != nil {
 			log.Fatalf("%s\n", err.Error())
