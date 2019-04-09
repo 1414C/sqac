@@ -9,6 +9,7 @@
 
 # don't take sensitive files
 a_private_test.go
+a_private_test.bak
 main.bak
 
 # Output of the go coverage tool, specifically when used with LiteIDE
