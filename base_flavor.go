@@ -1000,7 +1000,7 @@ func (bf *BaseFlavor) GetEntities(ents interface{}) (interface{}, error) {
 		entsv = reflect.Append(entsv, testVar.Elem())
 	}
 
-	ents = entsv.Interface()
+	// ents = entsv.Interface()
 	// fmt.Println("ents:", ents)
 	return entsv.Interface(), nil
 }
@@ -1217,7 +1217,7 @@ func (bf *BaseFlavor) GetEntitiesCP(ents interface{}, pList []GetParam, cmdMap m
 	// -- SELECT * FROM library ORDER BY name ASC;
 	// -- SELECT * FROM library ORDER BY ID ASC LIMIT 2 OFFSET 2;
 
-	// if $asc or $desc were specifed with no $orderby, default to order by id
+	// if $asc or $desc were specified with no $orderby, default to order by id
 	if obString == "" && adString != "" {
 		obString = " ORDER BY id"
 	}
@@ -1388,7 +1388,7 @@ func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, pList []GetParam
 	// -- SELECT * FROM library ORDER BY name ASC;
 	// -- SELECT * FROM library ORDER BY ID ASC LIMIT 2 OFFSET 2;
 
-	// if $asc or $desc were specifed with no $orderby, default to order by id
+	// if $asc or $desc were specified with no $orderby, default to order by id
 	if obString == "" && adString != "" {
 		obString = " ORDER BY id"
 	}
@@ -1417,7 +1417,7 @@ func (bf *BaseFlavor) GetEntitiesWithCommands(ents interface{}, pList []GetParam
 		}
 		entsv = reflect.Append(entsv, testVar.Elem())
 	}
-	ents = entsv.Interface()
+	// ents = entsv.Interface()
 	return entsv.Interface(), nil
 }
 

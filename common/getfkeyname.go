@@ -6,7 +6,7 @@ import (
 
 // GetFKeyName can be used to determine the foreign-key name based on a set
 // of input fields.  Note that this function does not guarantee or check
-// for the existance of the foreign-key; it simply provides the name that
+// for the existence of the foreign-key; it simply provides the name that
 // would have been used for the given parameter values.
 // i:  Model{}
 // ft: From Table

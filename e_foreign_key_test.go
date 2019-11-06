@@ -994,6 +994,10 @@ func TestForeignKeyDelFromModel(t *testing.T) {
 			t.Errorf(err.Error())
 		}
 
+		if !kExists {
+			t.Errorf("foreign-key 'fk_product_warehouse_id' has been dropped erroneously")
+		}
+
 		err = Handle.DropTables(Product{})
 		if err != nil {
 			t.Errorf("failed to drop table %s", pn)

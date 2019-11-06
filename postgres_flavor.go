@@ -558,7 +558,7 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 
 		// if the table does not exist, add the Model{} definition to
 		// the CreateTables buffer (ci).
-		// if the table does exist, add the Model{} defintion to  the
+		// if the table does exist, add the Model{} definition to  the
 		// AlterTables buffer (ai).
 		if !pf.ExistsTable(tn) {
 			ci = append(ci, i[t])
@@ -653,7 +653,7 @@ func (pf *PostgresFlavor) AlterTables(i ...interface{}) error {
 
 	// all table alterations and creations have been completed at this point, with the
 	// exception of the foreign-key creations.  iterate over the fkBuffer, check for
-	// the existance of each foreign-key and create those that do not yet exist.
+	// the existence of each foreign-key and create those that do not yet exist.
 	for _, v := range fkBuffer {
 		fkn, err := common.GetFKeyName(v.ent, v.fkinfo.FromTable, v.fkinfo.RefTable, v.fkinfo.FromField, v.fkinfo.RefField)
 		if err != nil {
@@ -688,8 +688,8 @@ func (pf *PostgresFlavor) DestructiveResetTables(i ...interface{}) error {
 }
 
 // ExistsTable checks the public schema of the connected Postgres
-// DB for the existance of the provided table name.  Note that
-// the use of to_regclass(<obj_name>) checks for the existance of
+// DB for the existence of the provided table name.  Note that
+// the use of to_regclass(<obj_name>) checks for the existence of
 // *any* object in the public schema that has that name.  If obj/name
 // consistency is maintained, this approach is fine.
 func (pf *PostgresFlavor) ExistsTable(tn string) bool {
@@ -714,10 +714,10 @@ func (pf *PostgresFlavor) ExistsTable(tn string) bool {
 	return false
 }
 
-// ExistsColumn checks for the existance of the specified
+// ExistsColumn checks for the existence of the specified
 // table-column checking for the column name. this is
 // rather incomplete, but in many cases where there is
-// a type-discrepancy it is neccessary to drop and recreate
+// a type-discrepancy it is necessary to drop and recreate
 // the column - or the entire table if a key is involved.
 // consider also that pg requies autoincrement fields to
 // be specified as 'serial' or 'bigserial', but then goes
@@ -763,7 +763,7 @@ func (pf *PostgresFlavor) DropIndex(tn string, in string) error {
 }
 
 // ExistsSequence checks the public schema of the connected Postgres
-// DB for the existance of the provided sequence name.
+// DB for the existence of the provided sequence name.
 func (pf *PostgresFlavor) ExistsSequence(sn string) bool {
 
 	var params []interface{}

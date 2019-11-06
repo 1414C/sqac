@@ -165,7 +165,7 @@ func TestExistsTableNegative(t *testing.T) {
 //
 // Create table depot via CreateTables(i ...interface{})
 // Verify table creation via ExistsTable(tn string)
-// Perform negative validation be checking for non-existant
+// Perform negative validation be checking for non-existent
 // 	table "abcdefg" via ExistsTable(tn string)
 //
 func TestCreateTableBasic(t *testing.T) {
@@ -285,7 +285,7 @@ func TestCreateTableCompoundKey(t *testing.T) {
 //
 // Create table depot via CreateTables(i ...interface{})
 // Verify table creation via ExistsTable(tn string)
-// Perform negative validation be checking for non-existant
+// Perform negative validation be checking for non-existent
 // 	table "abcdefg" via ExistsTable(tn string)
 //
 func TestCreateTableNonIncKey(t *testing.T) {
@@ -327,7 +327,7 @@ func TestCreateTableNonIncKey(t *testing.T) {
 //
 // Create table depot via CreateTables(i ...interface{})
 // Verify table creation via ExistsTable(tn string)
-// Perform negative validation be checking for non-existant
+// Perform negative validation be checking for non-existent
 // 	table "abcdefg" via ExistsTable(tn string)
 //
 func TestCreateTableNoKey(t *testing.T) {
@@ -369,7 +369,7 @@ func TestCreateTableNoKey(t *testing.T) {
 //
 // Create table depot via CreateTables(i ...interface{})
 // Verify table creation via ExistsTable(tn string)
-// Perform negative validation be checking for non-existant
+// Perform negative validation be checking for non-existent
 // 	table "abcdefg" via ExistsTable(tn string)
 //
 func TestCreateTableWithAlterSequence(t *testing.T) {

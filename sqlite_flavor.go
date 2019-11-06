@@ -115,7 +115,7 @@ func (slf *SQLiteFlavor) AlterTables(i ...interface{}) error {
 
 		// if the table does not exist, call CreateTables
 		// if the table does exist, examine it and perform
-		// alterations if neccessary
+		// alterations if necessary
 		if !slf.ExistsTable(tn) {
 			slf.CreateTables(ent)
 			continue
@@ -156,7 +156,6 @@ func (slf *SQLiteFlavor) AlterTables(i ...interface{}) error {
 					}
 				}
 				cols = append(cols, colSchema+";")
-				colSchema = ""
 			}
 		}
 
@@ -663,7 +662,6 @@ func (slf *SQLiteFlavor) AlterSequenceStart(name string, start int) error {
 		}
 	}
 
-	err = nil // redundant, but...
 	asQuery = "INSERT INTO sqlite_sequence (name,seq) VALUES ('" + name + "', " + strconv.Itoa(start) + ");"
 	slf.QsLog(asQuery)
 
@@ -714,7 +712,7 @@ func (slf *SQLiteFlavor) CreateForeignKey(i interface{}, ft, rt, ff, rf string) 
 	bakTn := ""
 	q := ""
 
-	// sql transation command buffer
+	// sql transaction command buffer
 	cmds := make([]string, 0)
 
 	// confirm the table name
@@ -794,7 +792,7 @@ func (slf *SQLiteFlavor) CreateForeignKey(i interface{}, ft, rt, ff, rf string) 
 // DropForeignKey drops a foreign-key on an existing column.  Since SQLite does not
 // support the addition or deletion of foreign-key relationships on existing tables,
 // the existing table is copied to a backup table, dropped and then recreated using
-// the sqac model information contained in (i).  It follows then, that in order for
+// the sqac model information contained in (i).  It follows that in order for
 // a foreign-key to be dropped, it must be removed from the sqac tag in the model
 // definition.
 func (slf *SQLiteFlavor) DropForeignKey(i interface{}, ft, fkn string) error {
@@ -802,7 +800,7 @@ func (slf *SQLiteFlavor) DropForeignKey(i interface{}, ft, fkn string) error {
 	bakTn := ""
 	q := ""
 
-	// sql transation command buffer
+	// sql transaction command buffer
 	cmds := make([]string, 0)
 
 	// confirm the table name

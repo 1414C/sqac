@@ -426,7 +426,7 @@ func (msf *MSSQLFlavor) AlterTables(i ...interface{}) error {
 
 		// if the table does not exist, add the Model{} definition to
 		// the CreateTables buffer (ci).
-		// if the table does exist, add the Model{} defintion to  the
+		// if the table does exist, add the Model{} definition to  the
 		// AlterTables buffer (ai).
 		if !msf.ExistsTable(tn) {
 			ci = append(ci, i[t])
@@ -456,7 +456,7 @@ func (msf *MSSQLFlavor) AlterTables(i ...interface{}) error {
 
 		// if the table does not exist, call CreateTables
 		// if the table does exist, examine it and perform
-		// alterations if neccessary
+		// alterations if necessary
 		if !msf.ExistsTable(tn) {
 			msf.CreateTables(ent)
 			continue
@@ -935,7 +935,7 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, pList []GetPar
 	// -- SELECT * FROM library ORDER BY name ASC;
 	// -- SELECT * FROM library ORDER BY ID ASC LIMIT 2 OFFSET 2;
 
-	// if $asc or $desc were specifed with no $orderby, default to order by id
+	// if $asc or $desc were specified with no $orderby, default to order by id
 	if obString == "" && adString != "" {
 		obString = " ORDER BY id"
 	}
@@ -978,8 +978,7 @@ func (msf *MSSQLFlavor) GetEntitiesWithCommands(ents interface{}, pList []GetPar
 		}
 		entsv = reflect.Append(entsv, testVar.Elem())
 	}
-
-	ents = entsv.Interface()
+	// ents = entsv.Interface()
 	return entsv.Interface(), nil
 }
 
@@ -1084,7 +1083,7 @@ func (msf *MSSQLFlavor) GetEntitiesCP(ents interface{}, pList []GetParam, cmdMap
 	// -- SELECT * FROM library ORDER BY name ASC;
 	// -- SELECT * FROM library ORDER BY ID ASC LIMIT 2 OFFSET 2;
 
-	// if $asc or $desc were specifed with no $orderby, default to order by id
+	// if $asc or $desc were specified with no $orderby, default to order by id
 	if obString == "" && adString != "" {
 		obString = " ORDER BY id"
 	}

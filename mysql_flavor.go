@@ -374,7 +374,7 @@ func (myf *MySQLFlavor) AlterTables(i ...interface{}) error {
 
 		// if the table does not exist, add the Model{} definition to
 		// the CreateTables buffer (ci).
-		// if the table does exist, add the Model{} defintion to  the
+		// if the table does exist, add the Model{} definition to  the
 		// AlterTables buffer (ai).
 		if !myf.ExistsTable(tn) {
 			ci = append(ci, i[t])
@@ -471,7 +471,7 @@ func (myf *MySQLFlavor) AlterTables(i ...interface{}) error {
 
 	// all table alterations and creations have been completed at this point, with the
 	// exception of the foreign-key creations.  iterate over the fkBuffer, check for
-	// the existance of each foreign-key and create those that do not yet exist.
+	// the existence of each foreign-key and create those that do not yet exist.
 	for _, v := range fkBuffer {
 		fkn, err := common.GetFKeyName(v.ent, v.fkinfo.FromTable, v.fkinfo.RefTable, v.fkinfo.FromField, v.fkinfo.RefField)
 		if err != nil {
