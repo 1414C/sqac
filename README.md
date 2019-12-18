@@ -16,7 +16,7 @@ Sqac is a simple overlay to provide a common interface to an attached mssql, mys
 - comprehensive test cases
 
 ## Outstanding TODO's
-- [ ]update for modules support
+- [x]update for modules support
 - [ ]refactor non-idempotent SQLite Foreign-Key test to use a closure
 - [ ]consider parsing the stored create schema when adding / dropping a foreign-key on SQLite tables
 - [ ]add cascade to Drops?
