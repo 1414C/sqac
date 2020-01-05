@@ -3,30 +3,31 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.52" />
+    <meta name="generator" content="Hugo 0.62.1" />
     <meta name="description" content="">
 
 
-    <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-<link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
+    <link rel="icon" href="/sqac/images/favicon.png" type="image/png">
+
     <title>DestructiveResetTables :: Sqac ORM</title>
 
     
-    <link href="/sqac/css/nucleus.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/fontawesome-all.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/hybrid.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/featherlight.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/perfect-scrollbar.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/auto-complete.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/theme.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/hugo-theme.css?1545420063" rel="stylesheet">
+    <link href="/sqac/css/nucleus.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/fontawesome-all.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/hybrid.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/featherlight.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/perfect-scrollbar.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/auto-complete.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/atom-one-dark-reasonable.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/theme.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/hugo-theme.css?1578198075" rel="stylesheet">
     
-      <link href="/sqac/css/theme-white.css?1545420063" rel="stylesheet">
+      <link href="/sqac/css/theme-white.css?1578198075" rel="stylesheet">
     
 
-    <script src="/sqac/js/jquery-2.x.min.js?1545420063"></script>
+    <script src="/sqac/js/jquery-3.3.1.min.js?1578198075"></script>
 
-    <style type="text/css">
+    <style>
       :root #header + #content > #left > #rlblock_left{
           display:none !important;
       }
@@ -48,18 +49,18 @@
     
         <div class="searchbox">
     <label for="search-by"><i class="fas fa-search"></i></label>
-    <input data-search-input id="search-by" type="text" placeholder="Search...">
-    <span data-search-clear=""><i class="fas fa-close"></i></span>
+    <input data-search-input id="search-by" type="search" placeholder="Search...">
+    <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/sqac/js/lunr.min.js?1545420063"></script>
-<script type="text/javascript" src="/sqac/js/auto-complete.js?1545420063"></script>
+<script type="text/javascript" src="/sqac/js/lunr.min.js?1578198075"></script>
+<script type="text/javascript" src="/sqac/js/auto-complete.js?1578198075"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/1414c.github.io\/sqac\/";
     
 </script>
-<script type="text/javascript" src="/sqac/js/search.js?1545420063"></script>
+<script type="text/javascript" src="/sqac/js/search.js?1578198075"></script>
 
     
   </div>
@@ -777,7 +778,7 @@
 
     
     <section id="footer">
-      <p>Built with <a href="https://github.com/matcornic/hugo-theme-learn"><i class="fas fa-heart"></i></a> from <a href="http://getgrav.org">Grav</a> and <a href="http://gohugo.io/">Hugo</a></p>
+      <p>Built with <a href="https://github.com/matcornic/hugo-theme-learn"><i class="fas fa-heart"></i></a> from <a href="https://getgrav.org">Grav</a> and <a href="https://gohugo.io/">Hugo</a></p>
 
     </section>
   </div>
@@ -832,19 +833,13 @@
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li>
-<ul>
-<li>
-<ul>
-<li><a href="#publicdb-destructiveresettables-i-interface-error">PublicDB.DestructiveResetTables(i &hellip;interface{}) error</a></li>
-<li><a href="#destructiveresettables-example">DestructiveResetTables Example</a></li>
-</ul></li>
-</ul></li>
-</ul></li>
-</ul>
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -853,111 +848,100 @@
               </div>
             </div>
             
-
+        <div id="head-tags">
+        
+        </div>
         
         <div id="body-inner">
           
-            <h1>DestructiveResetTables</h1>
+            <h1>
+              
+              DestructiveResetTables
+            </h1>
           
 
         
 
 
 
-
-<p><br></p>
-
-<h4 id="publicdb-destructiveresettables-i-interface-error">PublicDB.DestructiveResetTables(i &hellip;interface{}) error</h4>
-
+<!-- raw HTML omitted -->
 <p>The DestructiveResetTables method is used to drop and recreate one or more tables in the target database.  DestructiveResetTables accepts one or more go <a href="/sqac/sqac-modeling/a-model-overview">struct definitions that have been annotated with &ldquo;sqac:&rdquo; tags</a> and uses the provided information to drop and recreate the tables in the database.  Note that the DestructiveResetTables method will not attempt to drop a table that does not exist in the target database.  It follows that the data in the existing table will be lost unless backed up prior to the call to the DestructiveResetTables method.</p>
-
 <p>If a table in the parameter list does not exist in the database, the method will simply create it using the information provided in the struct tags.  No effort is made to determine deltas between existing database tables and their replacement declaration in the incoming parameter list.</p>
-
 <p>Errors encountered during table drop / creation are returned to the caller immediately.  This may result in the incomplete processing of the tables contained in parameter <strong>i &hellip;interface{}</strong>.</p>
-
 <h4 id="destructiveresettables-example">DestructiveResetTables Example</h4>
-
 <p>The following structure &lsquo;Depot&rsquo; has been used to create table &ldquo;depot&rdquo; in the target database.  We will change the type of the Region field to an integer value, thereby necessitating a drop and recreation of the table in the database.</p>
-
-<pre><code class="language-golang">  type Depot struct {
-    DepotNum   int       `db:&quot;depot_num&quot; sqac:&quot;primary_key:inc&quot;`
-    CreateDate time.Time `db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();&quot;`
-    Region     string    `db:&quot;region&quot; sqac:&quot;nullable:false;default:YYC&quot;`
-    Province   string    `db:&quot;province&quot; sqac:&quot;nullable:false;default:AB&quot;`
-    Country    string    `db:&quot;country&quot; sqac:&quot;nullable:false;default:CA&quot;`
-    Population int       `db:&quot;population&quot; sqac:&quot;nullable:false;default:0;index:non-unique&quot;`
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang">  <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Depot</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">DepotNum</span>   <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;depot_num&#34; sqac:&#34;primary_key:inc&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">CreateDate</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;create_date&#34; sqac:&#34;nullable:false;default:now();&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Region</span>     <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;region&#34; sqac:&#34;nullable:false;default:YYC&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Province</span>   <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;province&#34; sqac:&#34;nullable:false;default:AB&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Country</span>    <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;country&#34; sqac:&#34;nullable:false;default:CA&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Population</span> <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;population&#34; sqac:&#34;nullable:false;default:0;index:non-unique&#34;</span><span style="color:#e6db74">`</span>
   }
-</code></pre>
-
-<p>The data type of column &ldquo;Region&rdquo; has been updated from &lsquo;string&rsquo; to &lsquo;int&rsquo; in the Depot struct declaration:</p>
-
-<pre><code class="language-golang">  type Depot struct {
-    DepotNum   int       `db:&quot;depot_num&quot; sqac:&quot;primary_key:inc&quot;`
-    CreateDate time.Time `db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();&quot;`
-    // --&gt; start of the alterations
-    Region     int       `db:&quot;region&quot; sqac:&quot;nullable:false;default:0&quot;`
-    // --&gt; end of the alterations
-    Province   string    `db:&quot;province&quot; sqac:&quot;nullable:false;default:AB&quot;`
-    Country    string    `db:&quot;country&quot; sqac:&quot;nullable:false;default:CA&quot;`
-    Population int       `db:&quot;population&quot; sqac:&quot;nullable:false;default:0;index:non-unique&quot;`
+</code></pre></div><p>The data type of column &ldquo;Region&rdquo; has been updated from &lsquo;string&rsquo; to &lsquo;int&rsquo; in the Depot struct declaration:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang">  <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Depot</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">DepotNum</span>   <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;depot_num&#34; sqac:&#34;primary_key:inc&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">CreateDate</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;create_date&#34; sqac:&#34;nullable:false;default:now();&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#75715e">// --&gt; start of the alterations
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">Region</span>     <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;region&#34; sqac:&#34;nullable:false;default:0&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#75715e">// --&gt; end of the alterations
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">Province</span>   <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;province&#34; sqac:&#34;nullable:false;default:AB&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Country</span>    <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;country&#34; sqac:&#34;nullable:false;default:CA&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Population</span> <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;population&#34; sqac:&#34;nullable:false;default:0;index:non-unique&#34;</span><span style="color:#e6db74">`</span>
   }
-</code></pre>
+</code></pre></div><p>A complete sample program to perform the destructive reset of existing table &ldquo;depot&rdquo; is shown below:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
 
-<p>A complete sample program to perform the destructive reset of existing table &ldquo;depot&rdquo; is shown below:</p>
+<span style="color:#f92672">import</span> (
 
-<pre><code class="language-golang">package main
-
-import (
-
-  &quot;log&quot;
-  &quot;github.com/1414C/sqac&quot;
-  _ &quot;github.com/SAP/go-hdb/driver&quot;
-  _ &quot;github.com/denisenkom/go-mssqldb&quot;
-  _ &quot;github.com/go-sql-driver/mysql&quot;
-  _ &quot;github.com/lib/pq&quot;
-  _ &quot;github.com/mattn/go-sqlite3&quot;
+  <span style="color:#e6db74">&#34;log&#34;</span>
+  <span style="color:#e6db74">&#34;github.com/1414C/sqac&#34;</span>
+  <span style="color:#a6e22e">_</span> <span style="color:#e6db74">&#34;github.com/SAP/go-hdb/driver&#34;</span>
+  <span style="color:#a6e22e">_</span> <span style="color:#e6db74">&#34;github.com/denisenkom/go-mssqldb&#34;</span>
+  <span style="color:#a6e22e">_</span> <span style="color:#e6db74">&#34;github.com/go-sql-driver/mysql&#34;</span>
+  <span style="color:#a6e22e">_</span> <span style="color:#e6db74">&#34;github.com/lib/pq&#34;</span>
+  <span style="color:#a6e22e">_</span> <span style="color:#e6db74">&#34;github.com/mattn/go-sqlite3&#34;</span>
 )
 
-func main() {
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
 
-  var (
-    Handle sqac.PublicDB
+  <span style="color:#66d9ef">var</span> (
+    <span style="color:#a6e22e">Handle</span> <span style="color:#a6e22e">sqac</span>.<span style="color:#a6e22e">PublicDB</span>
   )
 
-  //   Original Depot declaration - left for illustrative purposes
-  //   type Depot struct {
-  //     DepotNum   int       `db:&quot;depot_num&quot; sqac:&quot;primary_key:inc&quot;`
-  //     CreateDate time.Time `db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();&quot;`
-  //     Country    string    `db:&quot;country&quot; sqac:&quot;nullable:false;default:CA&quot;`
-  //     Province   string    `db:&quot;province&quot; sqac:&quot;nullable:false;default:AB&quot;`
-  //     Region     string    `db:&quot;region&quot; sqac:&quot;nullable:false;default:YYC&quot;`
-  //     Population int       `db:&quot;population&quot; sqac:&quot;nullable:false;default:0;index:non-unique&quot;`
-  //   }
-
-  // updated Depot declaration with new data type int assigned to field &quot;Region&quot;
-  type Depot struct {
-    DepotNum   int       `db:&quot;depot_num&quot; sqac:&quot;primary_key:inc&quot;`
-    CreateDate time.Time `db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();&quot;`
-    Country    string    `db:&quot;country&quot; sqac:&quot;nullable:false;default:CA&quot;`
-    Province   string    `db:&quot;province&quot; sqac:&quot;nullable:false;default:AB&quot;`
-    Region     string    `db:&quot;region&quot; sqac:&quot;nullable:false;default:YYC&quot;`
-    Population int       `db:&quot;population&quot; sqac:&quot;nullable:false;default:0;index:non-unique&quot;`
+  <span style="color:#75715e">//   Original Depot declaration - left for illustrative purposes
+</span><span style="color:#75715e"></span>  <span style="color:#75715e">//   type Depot struct {
+</span><span style="color:#75715e"></span>  <span style="color:#75715e">//     DepotNum   int       `db:&#34;depot_num&#34; sqac:&#34;primary_key:inc&#34;`
+</span><span style="color:#75715e"></span>  <span style="color:#75715e">//     CreateDate time.Time `db:&#34;create_date&#34; sqac:&#34;nullable:false;default:now();&#34;`
+</span><span style="color:#75715e"></span>  <span style="color:#75715e">//     Country    string    `db:&#34;country&#34; sqac:&#34;nullable:false;default:CA&#34;`
+</span><span style="color:#75715e"></span>  <span style="color:#75715e">//     Province   string    `db:&#34;province&#34; sqac:&#34;nullable:false;default:AB&#34;`
+</span><span style="color:#75715e"></span>  <span style="color:#75715e">//     Region     string    `db:&#34;region&#34; sqac:&#34;nullable:false;default:YYC&#34;`
+</span><span style="color:#75715e"></span>  <span style="color:#75715e">//     Population int       `db:&#34;population&#34; sqac:&#34;nullable:false;default:0;index:non-unique&#34;`
+</span><span style="color:#75715e"></span>  <span style="color:#75715e">//   }
+</span><span style="color:#75715e"></span>
+  <span style="color:#75715e">// updated Depot declaration with new data type int assigned to field &#34;Region&#34;
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Depot</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">DepotNum</span>   <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;depot_num&#34; sqac:&#34;primary_key:inc&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">CreateDate</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;create_date&#34; sqac:&#34;nullable:false;default:now();&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Country</span>    <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;country&#34; sqac:&#34;nullable:false;default:CA&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Province</span>   <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;province&#34; sqac:&#34;nullable:false;default:AB&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Region</span>     <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;region&#34; sqac:&#34;nullable:false;default:YYC&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Population</span> <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;population&#34; sqac:&#34;nullable:false;default:0;index:non-unique&#34;</span><span style="color:#e6db74">`</span>
   }
 
-  // Create a PublicDB instance to connect to the test sqlite db
-  Handle = sqac.Create(&quot;sqlite&quot;, false, false, &quot;testdb.sqlite&quot;)
+  <span style="color:#75715e">// Create a PublicDB instance to connect to the test sqlite db
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">Handle</span> = <span style="color:#a6e22e">sqac</span>.<span style="color:#a6e22e">Create</span>(<span style="color:#e6db74">&#34;sqlite&#34;</span>, <span style="color:#66d9ef">false</span>, <span style="color:#66d9ef">false</span>, <span style="color:#e6db74">&#34;testdb.sqlite&#34;</span>)
 
-  // Drop and recreate table &quot;depot&quot; in the target database via destructive reset
-  err := Handle.DestuctiveResetTables(Depot{})
-  if err != nil {
-    log.Errorf(&quot;%s&quot;, err.Error())
+  <span style="color:#75715e">// Drop and recreate table &#34;depot&#34; in the target database via destructive reset
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">Handle</span>.<span style="color:#a6e22e">DestuctiveResetTables</span>(<span style="color:#a6e22e">Depot</span>{})
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;%s&#34;</span>, <span style="color:#a6e22e">err</span>.<span style="color:#a6e22e">Error</span>())
   }
 
-  // Close the connection
-  Handle.Close()
+  <span style="color:#75715e">// Close the connection
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">Handle</span>.<span style="color:#a6e22e">Close</span>()
 }
-</code></pre>
-
+</code></pre></div>
 
 <footer class=" footline" >
 	
@@ -1567,20 +1551,19 @@ func main() {
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/sqac/js/clipboard.min.js?1545420063"></script>
-    <script src="/sqac/js/perfect-scrollbar.min.js?1545420063"></script>
-    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1545420063"></script>
-    <script src="/sqac/js/jquery.sticky.js?1545420063"></script>
-    <script src="/sqac/js/featherlight.min.js?1545420063"></script>
-    <script src="/sqac/js/html5shiv-printshiv.min.js?1545420063"></script>
-    <script src="/sqac/js/highlight.pack.js?1545420063"></script>
+    <script src="/sqac/js/clipboard.min.js?1578198075"></script>
+    <script src="/sqac/js/perfect-scrollbar.min.js?1578198075"></script>
+    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1578198075"></script>
+    <script src="/sqac/js/jquery.sticky.js?1578198075"></script>
+    <script src="/sqac/js/featherlight.min.js?1578198075"></script>
+    <script src="/sqac/js/highlight.pack.js?1578198075"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/sqac/js/modernizr.custom.71422.js?1545420063"></script>
-    <script src="/sqac/js/learn.js?1545420063"></script>
-    <script src="/sqac/js/hugo-learn.js?1545420063"></script>
+    <script src="/sqac/js/modernizr.custom-3.6.0.js?1578198075"></script>
+    <script src="/sqac/js/learn.js?1578198075"></script>
+    <script src="/sqac/js/hugo-learn.js?1578198075"></script>
 
-    <link href="/sqac/mermaid/mermaid.css?1545420063" type="text/css" rel="stylesheet" />
-    <script src="/sqac/mermaid/mermaid.js?1545420063"></script>
+    <link href="/sqac/mermaid/mermaid.css?1578198075" rel="stylesheet" />
+    <script src="/sqac/mermaid/mermaid.js?1578198075"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

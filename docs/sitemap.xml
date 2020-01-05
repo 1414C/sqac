@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
     <loc>https://1414c.github.io/sqac/getting-started/</loc>
-    <lastmod>2018-12-06T16:20:03-07:00</lastmod>
+    <lastmod>2018-12-07T17:02:02-07:00</lastmod>
   </url>
   
   <url>
@@ -29,7 +29,7 @@
   
   <url>
     <loc>https://1414c.github.io/sqac/modeling/</loc>
-    <lastmod>2018-12-11T15:02:03-07:00</lastmod>
+    <lastmod>2018-12-12T13:47:10-07:00</lastmod>
   </url>
   
   <url>
@@ -74,7 +74,7 @@
   
   <url>
     <loc>https://1414c.github.io/sqac/public-db/</loc>
-    <lastmod>2018-12-07T16:48:02-07:00</lastmod>
+    <lastmod>2018-12-13T09:51:20-07:00</lastmod>
   </url>
   
   <url>
@@ -174,12 +174,12 @@
   
   <url>
     <loc>https://1414c.github.io/sqac/</loc>
-    <lastmod>2018-12-06T16:20:03-07:00</lastmod>
+    <lastmod>2018-12-13T09:51:20-07:00</lastmod>
+    <priority>0</priority>
   </url>
   
   <url>
     <loc>https://1414c.github.io/sqac/categories/</loc>
-    <priority>0</priority>
   </url>
   
   <url>
@@ -188,7 +188,6 @@
   
   <url>
     <loc>https://1414c.github.io/sqac/tags/</loc>
-    <priority>0</priority>
   </url>
   
 </urlset>

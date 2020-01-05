@@ -3,30 +3,31 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.52" />
+    <meta name="generator" content="Hugo 0.62.1" />
     <meta name="description" content="">
 
 
-    <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-<link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
+    <link rel="icon" href="/sqac/images/favicon.png" type="image/png">
+
     <title>constraint: :: Sqac ORM</title>
 
     
-    <link href="/sqac/css/nucleus.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/fontawesome-all.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/hybrid.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/featherlight.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/perfect-scrollbar.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/auto-complete.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/theme.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/hugo-theme.css?1545420063" rel="stylesheet">
+    <link href="/sqac/css/nucleus.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/fontawesome-all.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/hybrid.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/featherlight.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/perfect-scrollbar.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/auto-complete.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/atom-one-dark-reasonable.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/theme.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/hugo-theme.css?1578198075" rel="stylesheet">
     
-      <link href="/sqac/css/theme-white.css?1545420063" rel="stylesheet">
+      <link href="/sqac/css/theme-white.css?1578198075" rel="stylesheet">
     
 
-    <script src="/sqac/js/jquery-2.x.min.js?1545420063"></script>
+    <script src="/sqac/js/jquery-3.3.1.min.js?1578198075"></script>
 
-    <style type="text/css">
+    <style>
       :root #header + #content > #left > #rlblock_left{
           display:none !important;
       }
@@ -48,18 +49,18 @@
     
         <div class="searchbox">
     <label for="search-by"><i class="fas fa-search"></i></label>
-    <input data-search-input id="search-by" type="text" placeholder="Search...">
-    <span data-search-clear=""><i class="fas fa-close"></i></span>
+    <input data-search-input id="search-by" type="search" placeholder="Search...">
+    <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/sqac/js/lunr.min.js?1545420063"></script>
-<script type="text/javascript" src="/sqac/js/auto-complete.js?1545420063"></script>
+<script type="text/javascript" src="/sqac/js/lunr.min.js?1578198075"></script>
+<script type="text/javascript" src="/sqac/js/auto-complete.js?1578198075"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/1414c.github.io\/sqac\/";
     
 </script>
-<script type="text/javascript" src="/sqac/js/search.js?1545420063"></script>
+<script type="text/javascript" src="/sqac/js/search.js?1578198075"></script>
 
     
   </div>
@@ -777,7 +778,7 @@
 
     
     <section id="footer">
-      <p>Built with <a href="https://github.com/matcornic/hugo-theme-learn"><i class="fas fa-heart"></i></a> from <a href="http://getgrav.org">Grav</a> and <a href="http://gohugo.io/">Hugo</a></p>
+      <p>Built with <a href="https://github.com/matcornic/hugo-theme-learn"><i class="fas fa-heart"></i></a> from <a href="https://getgrav.org">Grav</a> and <a href="https://gohugo.io/">Hugo</a></p>
 
     </section>
   </div>
@@ -832,18 +833,13 @@
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#constraint-value-overview">&ldquo;constraint:&lt;value&gt;&rdquo; Overview</a>
-<ul>
-<li>
-<ul>
-<li><a href="#constraint-unique-example">&ldquo;constraint:unique&rdquo; example</a></li>
-</ul></li>
-</ul></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#constraintvalue-overview">&ldquo;constraint:\<value\>&rdquo; Overview</a>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -852,41 +848,37 @@
               </div>
             </div>
             
-
+        <div id="head-tags">
+        
+        </div>
         
         <div id="body-inner">
           
-            <h1>constraint:</h1>
+            <h1>
+              
+              constraint:
+            </h1>
           
 
         
 
 
 
-
-<h2 id="constraint-value-overview">&ldquo;constraint:&lt;value&gt;&rdquo; Overview</h2>
-
+<h2 id="constraintvalue-overview">&ldquo;constraint:&lt;value&gt;&rdquo; Overview</h2>
 <p>Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database.  The following examples illustrate the use of the &ldquo;constraint:&rdquo; &lsquo;sqac:&rsquo; tag described in the <a href="/sqac/modeling/md-content-a">Sqac Tag Overview</a> section of this document.</p>
-
 <p>The &ldquo;constraint:&rdquo; tag is presently only used to declare unique constraints on single columns.  It would be relatively simple to add support for any desired database constraint however.</p>
-
-<p><br></p>
-
-<h4 id="constraint-unique-example">&ldquo;constraint:unique&rdquo; example</h4>
-
+<!-- raw HTML omitted -->
+<h4 id="constraintunique-example">&ldquo;constraint:unique&rdquo; example</h4>
 <p>The following example illustrates the use of &lsquo;sqac:&rsquo; tag &ldquo;constraint:&rdquo; to declare a unique column constraint.  Creation of a unique constraint on a single column results in an underlying db constraint, but does not necessarily create an index on the constrained column.  Check the target db documentation for details.</p>
-
 <p>If a column has been declared with a single-column index, the &ldquo;constraint:unique&rdquo; tag is redundant.  If a column has been declared with unique constraint, it may still be included in a <a href="/sqac/modeling/md-content-e/#index-compound-example">compound &ldquo;index:&rdquo; declaration</a>.</p>
-
-<pre><code class="language-golang">  // Declare a struct to be used as the source for table creation.
-  type Depot struct {
-    ...
-    AccountNum int       `db:&quot;account_num&quot; sqac:&quot;nullable:false;constraint:unique&quot;`    // unique constraint
-    ...
-    ...
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang">  <span style="color:#75715e">// Declare a struct to be used as the source for table creation.
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Depot</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#f92672">...</span>
+    <span style="color:#a6e22e">AccountNum</span> <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;account_num&#34; sqac:&#34;nullable:false;constraint:unique&#34;</span><span style="color:#e6db74">`</span>    <span style="color:#75715e">// unique constraint
+</span><span style="color:#75715e"></span>    <span style="color:#f92672">...</span>
+    <span style="color:#f92672">...</span>
   }
-</code></pre>
-
+</code></pre></div>
 
 <footer class=" footline" >
 	
@@ -1496,20 +1488,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/sqac/js/clipboard.min.js?1545420063"></script>
-    <script src="/sqac/js/perfect-scrollbar.min.js?1545420063"></script>
-    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1545420063"></script>
-    <script src="/sqac/js/jquery.sticky.js?1545420063"></script>
-    <script src="/sqac/js/featherlight.min.js?1545420063"></script>
-    <script src="/sqac/js/html5shiv-printshiv.min.js?1545420063"></script>
-    <script src="/sqac/js/highlight.pack.js?1545420063"></script>
+    <script src="/sqac/js/clipboard.min.js?1578198075"></script>
+    <script src="/sqac/js/perfect-scrollbar.min.js?1578198075"></script>
+    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1578198075"></script>
+    <script src="/sqac/js/jquery.sticky.js?1578198075"></script>
+    <script src="/sqac/js/featherlight.min.js?1578198075"></script>
+    <script src="/sqac/js/highlight.pack.js?1578198075"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/sqac/js/modernizr.custom.71422.js?1545420063"></script>
-    <script src="/sqac/js/learn.js?1545420063"></script>
-    <script src="/sqac/js/hugo-learn.js?1545420063"></script>
+    <script src="/sqac/js/modernizr.custom-3.6.0.js?1578198075"></script>
+    <script src="/sqac/js/learn.js?1578198075"></script>
+    <script src="/sqac/js/hugo-learn.js?1578198075"></script>
 
-    <link href="/sqac/mermaid/mermaid.css?1545420063" type="text/css" rel="stylesheet" />
-    <script src="/sqac/mermaid/mermaid.js?1545420063"></script>
+    <link href="/sqac/mermaid/mermaid.css?1578198075" rel="stylesheet" />
+    <script src="/sqac/mermaid/mermaid.js?1578198075"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

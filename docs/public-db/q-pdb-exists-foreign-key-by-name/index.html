@@ -3,30 +3,31 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.52" />
+    <meta name="generator" content="Hugo 0.62.1" />
     <meta name="description" content="">
 
 
-    <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-<link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
+    <link rel="icon" href="/sqac/images/favicon.png" type="image/png">
+
     <title>ExistsForeignKeyByName :: Sqac ORM</title>
 
     
-    <link href="/sqac/css/nucleus.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/fontawesome-all.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/hybrid.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/featherlight.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/perfect-scrollbar.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/auto-complete.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/theme.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/hugo-theme.css?1545420063" rel="stylesheet">
+    <link href="/sqac/css/nucleus.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/fontawesome-all.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/hybrid.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/featherlight.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/perfect-scrollbar.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/auto-complete.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/atom-one-dark-reasonable.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/theme.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/hugo-theme.css?1578198075" rel="stylesheet">
     
-      <link href="/sqac/css/theme-white.css?1545420063" rel="stylesheet">
+      <link href="/sqac/css/theme-white.css?1578198075" rel="stylesheet">
     
 
-    <script src="/sqac/js/jquery-2.x.min.js?1545420063"></script>
+    <script src="/sqac/js/jquery-3.3.1.min.js?1578198075"></script>
 
-    <style type="text/css">
+    <style>
       :root #header + #content > #left > #rlblock_left{
           display:none !important;
       }
@@ -48,18 +49,18 @@
     
         <div class="searchbox">
     <label for="search-by"><i class="fas fa-search"></i></label>
-    <input data-search-input id="search-by" type="text" placeholder="Search...">
-    <span data-search-clear=""><i class="fas fa-close"></i></span>
+    <input data-search-input id="search-by" type="search" placeholder="Search...">
+    <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/sqac/js/lunr.min.js?1545420063"></script>
-<script type="text/javascript" src="/sqac/js/auto-complete.js?1545420063"></script>
+<script type="text/javascript" src="/sqac/js/lunr.min.js?1578198075"></script>
+<script type="text/javascript" src="/sqac/js/auto-complete.js?1578198075"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/1414c.github.io\/sqac\/";
     
 </script>
-<script type="text/javascript" src="/sqac/js/search.js?1545420063"></script>
+<script type="text/javascript" src="/sqac/js/search.js?1578198075"></script>
 
     
   </div>
@@ -777,7 +778,7 @@
 
     
     <section id="footer">
-      <p>Built with <a href="https://github.com/matcornic/hugo-theme-learn"><i class="fas fa-heart"></i></a> from <a href="http://getgrav.org">Grav</a> and <a href="http://gohugo.io/">Hugo</a></p>
+      <p>Built with <a href="https://github.com/matcornic/hugo-theme-learn"><i class="fas fa-heart"></i></a> from <a href="https://getgrav.org">Grav</a> and <a href="https://gohugo.io/">Hugo</a></p>
 
     </section>
   </div>
@@ -832,20 +833,13 @@
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li>
-<ul>
-<li>
-<ul>
-<li><a href="#publicdb-existsforeignkeybyname-i-interface-fkn-string-bool-error">PublicDB.ExistsForeignKeyByName(i interface{}, fkn string) (bool, error)</a></li>
-<li><a href="#parameters">Parameters</a></li>
-<li><a href="#publicdb-existsforeignkeybyname-example">PublicDB.ExistsForeignKeyByName Example</a></li>
-</ul></li>
-</ul></li>
-</ul></li>
-</ul>
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -854,44 +848,41 @@
               </div>
             </div>
             
-
+        <div id="head-tags">
+        
+        </div>
         
         <div id="body-inner">
           
-            <h1>ExistsForeignKeyByName</h1>
+            <h1>
+              
+              ExistsForeignKeyByName
+            </h1>
           
 
         
 
 
 
-
-<p><br></p>
-
-<h4 id="publicdb-existsforeignkeybyname-i-interface-fkn-string-bool-error">PublicDB.ExistsForeignKeyByName(i interface{}, fkn string) (bool, error)</h4>
-
+<!-- raw HTML omitted -->
+<h4 id="publicdbexistsforeignkeybynamei-interface">PublicDB.ExistsForeignKeyByName(i interface</h4>
 <p>The ExistsForeignKeyByName method checks for the existence of the specified foreign-key constraint in the database.</p>
-
 <p>The following go structs contain &lsquo;sqac:&rsquo; tags declaring a foreign-key constraint between table column product.warehouse_id and table column warehouse.id.  The resulting foreign-key constraint on table column product.warehouse_id would be named &ldquo;fk_product_warehouse_id&rdquo; based on the <a href="/sqac/modeling/md-content-h/#sqac-foreign-key-naming-standard">sqac foreign-key naming standard</a>.</p>
-
-<pre><code class="language-golang">type Warehouse struct {
-    ID       uint64 `db:&quot;id&quot; json:&quot;id&quot; sqac:&quot;primary_key:inc;start:40000000&quot;`
-    City     string `db:&quot;city&quot; json:&quot;city&quot; sqac:&quot;nullable:false;default:Calgary&quot;`
-    Quadrant string `db:&quot;quadrant&quot; json:&quot;quadrant&quot; sqac:&quot;nullable:false;default:SE&quot;`
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Warehouse</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">ID</span>       <span style="color:#66d9ef">uint64</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;id&#34; json:&#34;id&#34; sqac:&#34;primary_key:inc;start:40000000&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">City</span>     <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;city&#34; json:&#34;city&#34; sqac:&#34;nullable:false;default:Calgary&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Quadrant</span> <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;quadrant&#34; json:&#34;quadrant&#34; sqac:&#34;nullable:false;default:SE&#34;</span><span style="color:#e6db74">`</span>
 }
 
-type Product struct {
-    ID          uint64 `db:&quot;id&quot; json:&quot;id&quot; sqac:&quot;primary_key:inc;start:95000000&quot;`
-    ProductName string `db:&quot;product_name&quot; json:&quot;product_name&quot; sqac:&quot;nullable:false;default:unknown&quot;`
-    ProductCode string `db:&quot;product_code&quot; json:&quot;product_code&quot; sqac:&quot;nullable:false;default:0000-0000-00&quot;`
-    UOM         string `db:&quot;uom&quot; json:&quot;uom&quot; sqac:&quot;nullable:false;default:EA&quot;`
-    // foreign-key declared against table &quot;warehouse&quot;, column &quot;id&quot;
-    WarehouseID uint64 `db:&quot;warehouse_id&quot; json:&quot;warehouse_id&quot; sqac:&quot;nullable:false;fkey:warehouse(id)&quot;`
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Product</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">ID</span>          <span style="color:#66d9ef">uint64</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;id&#34; json:&#34;id&#34; sqac:&#34;primary_key:inc;start:95000000&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">ProductName</span> <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;product_name&#34; json:&#34;product_name&#34; sqac:&#34;nullable:false;default:unknown&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">ProductCode</span> <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;product_code&#34; json:&#34;product_code&#34; sqac:&#34;nullable:false;default:0000-0000-00&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">UOM</span>         <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;uom&#34; json:&#34;uom&#34; sqac:&#34;nullable:false;default:EA&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#75715e">// foreign-key declared against table &#34;warehouse&#34;, column &#34;id&#34;
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">WarehouseID</span> <span style="color:#66d9ef">uint64</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;warehouse_id&#34; json:&#34;warehouse_id&#34; sqac:&#34;nullable:false;fkey:warehouse(id)&#34;</span><span style="color:#e6db74">`</span>
 }
-</code></pre>
-
-<h4 id="parameters">Parameters</h4>
-
+</code></pre></div><h4 id="parameters">Parameters</h4>
 <table>
 <thead>
 <tr>
@@ -899,52 +890,45 @@ type Product struct {
 <th>Description</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>i interface{}</td>
-<td>Accepts the go struct type of the table from which the foreign-key is thought to be declared. <br>For example:<br><br>If table column product.warehouse_id had a foreign-key constraint against table column warehouse.id, this parameter should be provided with go type Product{}.</td>
+<td>Accepts the go struct type of the table from which the foreign-key is thought to be declared. <!-- raw HTML omitted -->For example:<!-- raw HTML omitted --><!-- raw HTML omitted -->If table column product.warehouse_id had a foreign-key constraint against table column warehouse.id, this parameter should be provided with go type Product{}.</td>
 </tr>
-
 <tr>
 <td>fkn string</td>
-<td>The name of the foreign-key being checked. <br>For example:<br><br>If table column product.warehouse_id has a foreign-key constraint against table.column warehouse.id, <a href="/sqac/modeling/md-content-h/#sqac-foreign-key-naming-standard">by convention</a> this parameter should contain: &ldquo;fk_product_warehouse_id&rdquo;.</td>
+<td>The name of the foreign-key being checked. <!-- raw HTML omitted -->For example:<!-- raw HTML omitted --><!-- raw HTML omitted -->If table column product.warehouse_id has a foreign-key constraint against table.column warehouse.id, <a href="/sqac/modeling/md-content-h/#sqac-foreign-key-naming-standard">by convention</a> this parameter should contain: &ldquo;fk_product_warehouse_id&rdquo;.</td>
 </tr>
 </tbody>
 </table>
-
-<p><br></p>
-
-<h4 id="publicdb-existsforeignkeybyname-example">PublicDB.ExistsForeignKeyByName Example</h4>
-
+<!-- raw HTML omitted -->
+<h4 id="publicdbexistsforeignkeybyname-example">PublicDB.ExistsForeignKeyByName Example</h4>
 <p>A sample call using the scenario described in the Parameters table follows:</p>
-
-<pre><code class="language-golang">type Warehouse struct {
-    ID       uint64 `db:&quot;id&quot; json:&quot;id&quot; sqac:&quot;primary_key:inc;start:40000000&quot;`
-    City     string `db:&quot;city&quot; json:&quot;city&quot; sqac:&quot;nullable:false;default:Calgary&quot;`
-    Quadrant string `db:&quot;quadrant&quot; json:&quot;quadrant&quot; sqac:&quot;nullable:false;default:SE&quot;`
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Warehouse</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">ID</span>       <span style="color:#66d9ef">uint64</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;id&#34; json:&#34;id&#34; sqac:&#34;primary_key:inc;start:40000000&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">City</span>     <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;city&#34; json:&#34;city&#34; sqac:&#34;nullable:false;default:Calgary&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Quadrant</span> <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;quadrant&#34; json:&#34;quadrant&#34; sqac:&#34;nullable:false;default:SE&#34;</span><span style="color:#e6db74">`</span>
 }
 
-type Product struct {
-    ID          uint64 `db:&quot;id&quot; json:&quot;id&quot; sqac:&quot;primary_key:inc;start:95000000&quot;`
-    ProductName string `db:&quot;product_name&quot; json:&quot;product_name&quot; sqac:&quot;nullable:false;default:unknown&quot;`
-    ProductCode string `db:&quot;product_code&quot; json:&quot;product_code&quot; sqac:&quot;nullable:false;default:0000-0000-00&quot;`
-    UOM         string `db:&quot;uom&quot; json:&quot;uom&quot; sqac:&quot;nullable:false;default:EA&quot;`
-    // foreign-key declared against table &quot;warehouse&quot;, column &quot;id&quot;
-    WarehouseID uint64 `db:&quot;warehouse_id&quot; json:&quot;warehouse_id&quot; sqac:&quot;nullable:false;fkey:warehouse(id)&quot;`
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Product</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">ID</span>          <span style="color:#66d9ef">uint64</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;id&#34; json:&#34;id&#34; sqac:&#34;primary_key:inc;start:95000000&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">ProductName</span> <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;product_name&#34; json:&#34;product_name&#34; sqac:&#34;nullable:false;default:unknown&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">ProductCode</span> <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;product_code&#34; json:&#34;product_code&#34; sqac:&#34;nullable:false;default:0000-0000-00&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">UOM</span>         <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;uom&#34; json:&#34;uom&#34; sqac:&#34;nullable:false;default:EA&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#75715e">// foreign-key declared against table &#34;warehouse&#34;, column &#34;id&#34;
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">WarehouseID</span> <span style="color:#66d9ef">uint64</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;warehouse_id&#34; json:&#34;warehouse_id&#34; sqac:&#34;nullable:false;fkey:warehouse(id)&#34;</span><span style="color:#e6db74">`</span>
 }
-...
-...
-// determine the standard foreign-key name (expect &quot;fk_product_warehouse_id&quot;)
-fkn, err = common.GetFKeyName(Product{}, &quot;product&quot;, &quot;warehouse&quot;, &quot;warehouse_id&quot;, &quot;id&quot;)
-...
-...
-// check that the foreign-key exists by name
-fkExists, err := Handle.ExistsForeignKeyByName(Product{}, fkn)
-...
-...
-</code></pre>
-
+<span style="color:#f92672">...</span>
+<span style="color:#f92672">...</span>
+<span style="color:#75715e">// determine the standard foreign-key name (expect &#34;fk_product_warehouse_id&#34;)
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">fkn</span>, <span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">common</span>.<span style="color:#a6e22e">GetFKeyName</span>(<span style="color:#a6e22e">Product</span>{}, <span style="color:#e6db74">&#34;product&#34;</span>, <span style="color:#e6db74">&#34;warehouse&#34;</span>, <span style="color:#e6db74">&#34;warehouse_id&#34;</span>, <span style="color:#e6db74">&#34;id&#34;</span>)
+<span style="color:#f92672">...</span>
+<span style="color:#f92672">...</span>
+<span style="color:#75715e">// check that the foreign-key exists by name
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">fkExists</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">Handle</span>.<span style="color:#a6e22e">ExistsForeignKeyByName</span>(<span style="color:#a6e22e">Product</span>{}, <span style="color:#a6e22e">fkn</span>)
+<span style="color:#f92672">...</span>
+<span style="color:#f92672">...</span>
+</code></pre></div>
 
 <footer class=" footline" >
 	
@@ -1554,20 +1538,19 @@ fkExists, err := Handle.ExistsForeignKeyByName(Product{}, fkn)
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/sqac/js/clipboard.min.js?1545420063"></script>
-    <script src="/sqac/js/perfect-scrollbar.min.js?1545420063"></script>
-    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1545420063"></script>
-    <script src="/sqac/js/jquery.sticky.js?1545420063"></script>
-    <script src="/sqac/js/featherlight.min.js?1545420063"></script>
-    <script src="/sqac/js/html5shiv-printshiv.min.js?1545420063"></script>
-    <script src="/sqac/js/highlight.pack.js?1545420063"></script>
+    <script src="/sqac/js/clipboard.min.js?1578198075"></script>
+    <script src="/sqac/js/perfect-scrollbar.min.js?1578198075"></script>
+    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1578198075"></script>
+    <script src="/sqac/js/jquery.sticky.js?1578198075"></script>
+    <script src="/sqac/js/featherlight.min.js?1578198075"></script>
+    <script src="/sqac/js/highlight.pack.js?1578198075"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/sqac/js/modernizr.custom.71422.js?1545420063"></script>
-    <script src="/sqac/js/learn.js?1545420063"></script>
-    <script src="/sqac/js/hugo-learn.js?1545420063"></script>
+    <script src="/sqac/js/modernizr.custom-3.6.0.js?1578198075"></script>
+    <script src="/sqac/js/learn.js?1578198075"></script>
+    <script src="/sqac/js/hugo-learn.js?1578198075"></script>
 
-    <link href="/sqac/mermaid/mermaid.css?1545420063" type="text/css" rel="stylesheet" />
-    <script src="/sqac/mermaid/mermaid.js?1545420063"></script>
+    <link href="/sqac/mermaid/mermaid.css?1578198075" rel="stylesheet" />
+    <script src="/sqac/mermaid/mermaid.js?1578198075"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

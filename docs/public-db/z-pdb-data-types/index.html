@@ -3,30 +3,31 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.52" />
+    <meta name="generator" content="Hugo 0.62.1" />
     <meta name="description" content="">
 
 
-    <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-<link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
+    <link rel="icon" href="/sqac/images/favicon.png" type="image/png">
+
     <title>sqac Data Types :: Sqac ORM</title>
 
     
-    <link href="/sqac/css/nucleus.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/fontawesome-all.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/hybrid.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/featherlight.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/perfect-scrollbar.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/auto-complete.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/theme.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/hugo-theme.css?1545420063" rel="stylesheet">
+    <link href="/sqac/css/nucleus.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/fontawesome-all.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/hybrid.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/featherlight.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/perfect-scrollbar.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/auto-complete.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/atom-one-dark-reasonable.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/theme.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/hugo-theme.css?1578198075" rel="stylesheet">
     
-      <link href="/sqac/css/theme-white.css?1545420063" rel="stylesheet">
+      <link href="/sqac/css/theme-white.css?1578198075" rel="stylesheet">
     
 
-    <script src="/sqac/js/jquery-2.x.min.js?1545420063"></script>
+    <script src="/sqac/js/jquery-3.3.1.min.js?1578198075"></script>
 
-    <style type="text/css">
+    <style>
       :root #header + #content > #left > #rlblock_left{
           display:none !important;
       }
@@ -48,18 +49,18 @@
     
         <div class="searchbox">
     <label for="search-by"><i class="fas fa-search"></i></label>
-    <input data-search-input id="search-by" type="text" placeholder="Search...">
-    <span data-search-clear=""><i class="fas fa-close"></i></span>
+    <input data-search-input id="search-by" type="search" placeholder="Search...">
+    <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/sqac/js/lunr.min.js?1545420063"></script>
-<script type="text/javascript" src="/sqac/js/auto-complete.js?1545420063"></script>
+<script type="text/javascript" src="/sqac/js/lunr.min.js?1578198075"></script>
+<script type="text/javascript" src="/sqac/js/auto-complete.js?1578198075"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/1414c.github.io\/sqac\/";
     
 </script>
-<script type="text/javascript" src="/sqac/js/search.js?1545420063"></script>
+<script type="text/javascript" src="/sqac/js/search.js?1578198075"></script>
 
     
   </div>
@@ -777,7 +778,7 @@
 
     
     <section id="footer">
-      <p>Built with <a href="https://github.com/matcornic/hugo-theme-learn"><i class="fas fa-heart"></i></a> from <a href="http://getgrav.org">Grav</a> and <a href="http://gohugo.io/">Hugo</a></p>
+      <p>Built with <a href="https://github.com/matcornic/hugo-theme-learn"><i class="fas fa-heart"></i></a> from <a href="https://getgrav.org">Grav</a> and <a href="https://gohugo.io/">Hugo</a></p>
 
     </section>
   </div>
@@ -832,19 +833,13 @@
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li>
-<ul>
-<li>
-<ul>
-<li><a href="#sqac-indexinfo">sqac.IndexInfo</a></li>
-<li><a href="#sqac-getparam">sqac.GetParam</a></li>
-</ul></li>
-</ul></li>
-</ul></li>
-</ul>
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -853,47 +848,41 @@
               </div>
             </div>
             
-
+        <div id="head-tags">
+        
+        </div>
         
         <div id="body-inner">
           
-            <h1>sqac Data Types</h1>
+            <h1>
+              
+              sqac Data Types
+            </h1>
           
 
         
 
 
 
-
-<p><br></p>
-
-<h4 id="sqac-indexinfo">sqac.IndexInfo</h4>
-
+<!-- raw HTML omitted -->
+<h4 id="sqacindexinfo">sqac.IndexInfo</h4>
 <p>IndexInfo is used by sqac to provide information to the <a href="/sqac/public-db/g-pdb-create-index">PublicDB.CreateIndex</a> method regarding the table name, uniqueness and columns to be included in a new database index.</p>
-
-<pre><code class="language-golang">// IndexInfo contains index definitions as read from the sqac:&quot;index&quot; tags
-type IndexInfo struct {
-    TableName   string
-    Unique      bool
-    IndexFields []string
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#75715e">// IndexInfo contains index definitions as read from the sqac:&#34;index&#34; tags
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">IndexInfo</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">TableName</span>   <span style="color:#66d9ef">string</span>
+    <span style="color:#a6e22e">Unique</span>      <span style="color:#66d9ef">bool</span>
+    <span style="color:#a6e22e">IndexFields</span> []<span style="color:#66d9ef">string</span>
 }
-</code></pre>
-
-<p><br>
-<br></p>
-
-<h4 id="sqac-getparam">sqac.GetParam</h4>
-
+</code></pre></div><!-- raw HTML omitted -->
+<h4 id="sqacgetparam">sqac.GetParam</h4>
 <p>GetParam defines a common structure for CRUD GET parameters and is used in the <a href="/sqac/public-db/n-pdb-get-entities-with-commands-ip">PublicDB.GetEntitiesCP</a> method.</p>
-
-<pre><code class="language-golang">type GetParam struct {
-    FieldName    string          // database column name
-    Operand      string          // operand for parameter (ie. ==, !=, &lt; etc.)
-    ParamValue   interface{}     // parameter value
-    NextOperator string          // deprecated - do not use
-}
-</code></pre>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">GetParam</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">FieldName</span>    <span style="color:#66d9ef">string</span>          <span style="color:#75715e">// database column name
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">Operand</span>      <span style="color:#66d9ef">string</span>          <span style="color:#75715e">// operand for parameter (ie. ==, !=, &lt; etc.)
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">ParamValue</span>   <span style="color:#66d9ef">interface</span>{}     <span style="color:#75715e">// parameter value
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">NextOperator</span> <span style="color:#66d9ef">string</span>          <span style="color:#75715e">// deprecated - do not use
+</span><span style="color:#75715e"></span>}
+</code></pre></div>
 
 <footer class=" footline" >
 	
@@ -1500,20 +1489,19 @@ type IndexInfo struct {
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/sqac/js/clipboard.min.js?1545420063"></script>
-    <script src="/sqac/js/perfect-scrollbar.min.js?1545420063"></script>
-    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1545420063"></script>
-    <script src="/sqac/js/jquery.sticky.js?1545420063"></script>
-    <script src="/sqac/js/featherlight.min.js?1545420063"></script>
-    <script src="/sqac/js/html5shiv-printshiv.min.js?1545420063"></script>
-    <script src="/sqac/js/highlight.pack.js?1545420063"></script>
+    <script src="/sqac/js/clipboard.min.js?1578198075"></script>
+    <script src="/sqac/js/perfect-scrollbar.min.js?1578198075"></script>
+    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1578198075"></script>
+    <script src="/sqac/js/jquery.sticky.js?1578198075"></script>
+    <script src="/sqac/js/featherlight.min.js?1578198075"></script>
+    <script src="/sqac/js/highlight.pack.js?1578198075"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/sqac/js/modernizr.custom.71422.js?1545420063"></script>
-    <script src="/sqac/js/learn.js?1545420063"></script>
-    <script src="/sqac/js/hugo-learn.js?1545420063"></script>
+    <script src="/sqac/js/modernizr.custom-3.6.0.js?1578198075"></script>
+    <script src="/sqac/js/learn.js?1578198075"></script>
+    <script src="/sqac/js/hugo-learn.js?1578198075"></script>
 
-    <link href="/sqac/mermaid/mermaid.css?1545420063" type="text/css" rel="stylesheet" />
-    <script src="/sqac/mermaid/mermaid.js?1545420063"></script>
+    <link href="/sqac/mermaid/mermaid.css?1578198075" rel="stylesheet" />
+    <script src="/sqac/mermaid/mermaid.js?1578198075"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

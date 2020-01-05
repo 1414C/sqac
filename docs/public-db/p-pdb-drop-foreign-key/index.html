@@ -3,30 +3,31 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.52" />
+    <meta name="generator" content="Hugo 0.62.1" />
     <meta name="description" content="">
 
 
-    <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-<link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
+    <link rel="icon" href="/sqac/images/favicon.png" type="image/png">
+
     <title>DropForeignKey :: Sqac ORM</title>
 
     
-    <link href="/sqac/css/nucleus.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/fontawesome-all.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/hybrid.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/featherlight.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/perfect-scrollbar.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/auto-complete.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/theme.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/hugo-theme.css?1545420063" rel="stylesheet">
+    <link href="/sqac/css/nucleus.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/fontawesome-all.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/hybrid.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/featherlight.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/perfect-scrollbar.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/auto-complete.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/atom-one-dark-reasonable.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/theme.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/hugo-theme.css?1578198075" rel="stylesheet">
     
-      <link href="/sqac/css/theme-white.css?1545420063" rel="stylesheet">
+      <link href="/sqac/css/theme-white.css?1578198075" rel="stylesheet">
     
 
-    <script src="/sqac/js/jquery-2.x.min.js?1545420063"></script>
+    <script src="/sqac/js/jquery-3.3.1.min.js?1578198075"></script>
 
-    <style type="text/css">
+    <style>
       :root #header + #content > #left > #rlblock_left{
           display:none !important;
       }
@@ -48,18 +49,18 @@
     
         <div class="searchbox">
     <label for="search-by"><i class="fas fa-search"></i></label>
-    <input data-search-input id="search-by" type="text" placeholder="Search...">
-    <span data-search-clear=""><i class="fas fa-close"></i></span>
+    <input data-search-input id="search-by" type="search" placeholder="Search...">
+    <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/sqac/js/lunr.min.js?1545420063"></script>
-<script type="text/javascript" src="/sqac/js/auto-complete.js?1545420063"></script>
+<script type="text/javascript" src="/sqac/js/lunr.min.js?1578198075"></script>
+<script type="text/javascript" src="/sqac/js/auto-complete.js?1578198075"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/1414c.github.io\/sqac\/";
     
 </script>
-<script type="text/javascript" src="/sqac/js/search.js?1545420063"></script>
+<script type="text/javascript" src="/sqac/js/search.js?1578198075"></script>
 
     
   </div>
@@ -777,7 +778,7 @@
 
     
     <section id="footer">
-      <p>Built with <a href="https://github.com/matcornic/hugo-theme-learn"><i class="fas fa-heart"></i></a> from <a href="http://getgrav.org">Grav</a> and <a href="http://gohugo.io/">Hugo</a></p>
+      <p>Built with <a href="https://github.com/matcornic/hugo-theme-learn"><i class="fas fa-heart"></i></a> from <a href="https://getgrav.org">Grav</a> and <a href="https://gohugo.io/">Hugo</a></p>
 
     </section>
   </div>
@@ -832,21 +833,13 @@
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li>
-<ul>
-<li>
-<ul>
-<li><a href="#publicdb-dropforeignkey-i-interface-ft-fkn-string-error">PublicDB.DropForeignKey(i interface{}, ft, fkn string) error</a></li>
-<li><a href="#parameters">Parameters</a></li>
-<li><a href="#publicdb-dropforeignkey-example">PublicDB.DropForeignKey Example</a></li>
-<li><a href="#db-specific-notes">DB Specific Notes</a></li>
-</ul></li>
-</ul></li>
-</ul></li>
-</ul>
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -855,26 +848,25 @@
               </div>
             </div>
             
-
+        <div id="head-tags">
+        
+        </div>
         
         <div id="body-inner">
           
-            <h1>DropForeignKey</h1>
+            <h1>
+              
+              DropForeignKey
+            </h1>
           
 
         
 
 
 
-
-<p><br></p>
-
-<h4 id="publicdb-dropforeignkey-i-interface-ft-fkn-string-error">PublicDB.DropForeignKey(i interface{}, ft, fkn string) error</h4>
-
+<!-- raw HTML omitted -->
 <p>The DropForeignKey method facilitates the dropping of an existing foreign-key constraint in the database.</p>
-
 <h4 id="parameters">Parameters</h4>
-
 <table>
 <thead>
 <tr>
@@ -882,45 +874,39 @@
 <th>Description</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>i interface{}</td>
-<td>Accepts the go struct type of the table from which the foreign-key is being dropped. <br>For example:<br><br>If table column product.warehouse_id had a foreign-key constraint against table column warehouse.id, this parameter should be provided with go type Product{}.</td>
+<td>Accepts the go struct type of the table from which the foreign-key is being dropped. <!-- raw HTML omitted -->For example:<!-- raw HTML omitted --><!-- raw HTML omitted -->If table column product.warehouse_id had a foreign-key constraint against table column warehouse.id, this parameter should be provided with go type Product{}.</td>
 </tr>
-
 <tr>
 <td>ft string</td>
-<td>The database table name of the table on which the foreign-key is being dropped. <br>For example:<br><br>If table column product.warehouse_id had a foreign-key constraint against table column warehouse.id, this parameter should be provided with &ldquo;product&rdquo;.</td>
+<td>The database table name of the table on which the foreign-key is being dropped. <!-- raw HTML omitted -->For example:<!-- raw HTML omitted --><!-- raw HTML omitted -->If table column product.warehouse_id had a foreign-key constraint against table column warehouse.id, this parameter should be provided with &ldquo;product&rdquo;.</td>
 </tr>
-
 <tr>
 <td>fkn string</td>
-<td>The name of the foreign-key being dropped. <br>For example:<br><br>If table column product.warehouse_id has a foreign-key constraint against table.column warehouse.id, by convention this parameter should contain: &ldquo;fk_product_warehouse_id&rdquo;.</td>
+<td>The name of the foreign-key being dropped. <!-- raw HTML omitted -->For example:<!-- raw HTML omitted --><!-- raw HTML omitted -->If table column product.warehouse_id has a foreign-key constraint against table.column warehouse.id, by convention this parameter should contain: &ldquo;fk_product_warehouse_id&rdquo;.</td>
+</tr>
+<tr>
+<td><!-- raw HTML omitted --></td>
+<td></td>
+</tr>
+<tr>
+<td>Sqac foreign-key naming convention can be found in the <a href="/sqac/modeling/md-content-h/#sqac-foreign-key-naming-standard">&ldquo;fkey:&rdquo; &lsquo;sqac:&rsquo; tag documentation</a>.</td>
+<td></td>
 </tr>
 </tbody>
 </table>
-
-<p><br>
-Sqac foreign-key naming convention can be found in the <a href="/sqac/modeling/md-content-h/#sqac-foreign-key-naming-standard">&ldquo;fkey:&rdquo; &lsquo;sqac:&rsquo; tag documentation</a>.</p>
-
-<p><br></p>
-
-<h4 id="publicdb-dropforeignkey-example">PublicDB.DropForeignKey Example</h4>
-
+<!-- raw HTML omitted -->
+<h4 id="publicdbdropforeignkey-example">PublicDB.DropForeignKey Example</h4>
 <p>A sample call using the scenario described in the Parameters table follows:</p>
-
-<pre><code class="language-golang">...
-// drop the foreign-key
-err := Handle.DropForeignKey(Product{}, pn, &quot;fk_product_warehouse_id&quot;)
-...
-...
-</code></pre>
-
-<p><br></p>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#f92672">...</span>
+<span style="color:#75715e">// drop the foreign-key
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">Handle</span>.<span style="color:#a6e22e">DropForeignKey</span>(<span style="color:#a6e22e">Product</span>{}, <span style="color:#a6e22e">pn</span>, <span style="color:#e6db74">&#34;fk_product_warehouse_id&#34;</span>)
+<span style="color:#f92672">...</span>
+<span style="color:#f92672">...</span>
+</code></pre></div><!-- raw HTML omitted -->
 <h4 id="db-specific-notes">DB Specific Notes</h4>
-
 <table>
 <thead>
 <tr>
@@ -928,11 +914,10 @@ err := Handle.DropForeignKey(Product{}, pn, &quot;fk_product_warehouse_id&quot;)
 <th>Notes</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>Sqlite3</td>
-<td>SQLite does not permit ADD/DROP&rsquo;s of foreign-key constraints on an existing table.  As a result, sqac will simulate the dropping of a foreign-key constraint by executing the following steps: <br><br> <strong>1.</strong>  Copying the existing table and it&rsquo;s content to a temp DB table. <br> <strong>2.</strong> Dropping the existing table. <br> <strong>3.</strong>  Recreating the table based on the &ldquo;sqac:&rdquo; tags declared in the go struct type contained in parameter i interface{}. <br> <strong>4.</strong> Loading the backed up table data from the temp table into the new table. <br> <strong>5.</strong> Dropping the temp table. <br><br> This is not a fool-proof way of dealing with the situation, as the table in question may not have current or correct &ldquo;sqac:&rdquo; tags.  <em>Exercise caution using DropForeignKey with Sqlite3.</em></td>
+<td>SQLite does not permit ADD/DROP's of foreign-key constraints on an existing table.  As a result, sqac will simulate the dropping of a foreign-key constraint by executing the following steps: <!-- raw HTML omitted --><!-- raw HTML omitted --> <strong>1.</strong>  Copying the existing table and it's content to a temp DB table. <!-- raw HTML omitted --> <strong>2.</strong> Dropping the existing table. <!-- raw HTML omitted --> <strong>3.</strong>  Recreating the table based on the &ldquo;sqac:&rdquo; tags declared in the go struct type contained in parameter i interface{}. <!-- raw HTML omitted --> <strong>4.</strong> Loading the backed up table data from the temp table into the new table. <!-- raw HTML omitted --> <strong>5.</strong> Dropping the temp table. <!-- raw HTML omitted --><!-- raw HTML omitted --> This is not a fool-proof way of dealing with the situation, as the table in question may not have current or correct &ldquo;sqac:&rdquo; tags.  <em>Exercise caution using DropForeignKey with Sqlite3.</em></td>
 </tr>
 </tbody>
 </table>
@@ -1546,20 +1531,19 @@ err := Handle.DropForeignKey(Product{}, pn, &quot;fk_product_warehouse_id&quot;)
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/sqac/js/clipboard.min.js?1545420063"></script>
-    <script src="/sqac/js/perfect-scrollbar.min.js?1545420063"></script>
-    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1545420063"></script>
-    <script src="/sqac/js/jquery.sticky.js?1545420063"></script>
-    <script src="/sqac/js/featherlight.min.js?1545420063"></script>
-    <script src="/sqac/js/html5shiv-printshiv.min.js?1545420063"></script>
-    <script src="/sqac/js/highlight.pack.js?1545420063"></script>
+    <script src="/sqac/js/clipboard.min.js?1578198075"></script>
+    <script src="/sqac/js/perfect-scrollbar.min.js?1578198075"></script>
+    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1578198075"></script>
+    <script src="/sqac/js/jquery.sticky.js?1578198075"></script>
+    <script src="/sqac/js/featherlight.min.js?1578198075"></script>
+    <script src="/sqac/js/highlight.pack.js?1578198075"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/sqac/js/modernizr.custom.71422.js?1545420063"></script>
-    <script src="/sqac/js/learn.js?1545420063"></script>
-    <script src="/sqac/js/hugo-learn.js?1545420063"></script>
+    <script src="/sqac/js/modernizr.custom-3.6.0.js?1578198075"></script>
+    <script src="/sqac/js/learn.js?1578198075"></script>
+    <script src="/sqac/js/hugo-learn.js?1578198075"></script>
 
-    <link href="/sqac/mermaid/mermaid.css?1545420063" type="text/css" rel="stylesheet" />
-    <script src="/sqac/mermaid/mermaid.js?1545420063"></script>
+    <link href="/sqac/mermaid/mermaid.css?1578198075" rel="stylesheet" />
+    <script src="/sqac/mermaid/mermaid.js?1578198075"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

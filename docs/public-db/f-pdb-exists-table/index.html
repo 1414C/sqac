@@ -3,30 +3,31 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.52" />
+    <meta name="generator" content="Hugo 0.62.1" />
     <meta name="description" content="">
 
 
-    <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-<link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
+    <link rel="icon" href="/sqac/images/favicon.png" type="image/png">
+
     <title>ExistsTable :: Sqac ORM</title>
 
     
-    <link href="/sqac/css/nucleus.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/fontawesome-all.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/hybrid.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/featherlight.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/perfect-scrollbar.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/auto-complete.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/theme.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/hugo-theme.css?1545420063" rel="stylesheet">
+    <link href="/sqac/css/nucleus.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/fontawesome-all.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/hybrid.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/featherlight.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/perfect-scrollbar.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/auto-complete.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/atom-one-dark-reasonable.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/theme.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/hugo-theme.css?1578198075" rel="stylesheet">
     
-      <link href="/sqac/css/theme-white.css?1545420063" rel="stylesheet">
+      <link href="/sqac/css/theme-white.css?1578198075" rel="stylesheet">
     
 
-    <script src="/sqac/js/jquery-2.x.min.js?1545420063"></script>
+    <script src="/sqac/js/jquery-3.3.1.min.js?1578198075"></script>
 
-    <style type="text/css">
+    <style>
       :root #header + #content > #left > #rlblock_left{
           display:none !important;
       }
@@ -48,18 +49,18 @@
     
         <div class="searchbox">
     <label for="search-by"><i class="fas fa-search"></i></label>
-    <input data-search-input id="search-by" type="text" placeholder="Search...">
-    <span data-search-clear=""><i class="fas fa-close"></i></span>
+    <input data-search-input id="search-by" type="search" placeholder="Search...">
+    <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/sqac/js/lunr.min.js?1545420063"></script>
-<script type="text/javascript" src="/sqac/js/auto-complete.js?1545420063"></script>
+<script type="text/javascript" src="/sqac/js/lunr.min.js?1578198075"></script>
+<script type="text/javascript" src="/sqac/js/auto-complete.js?1578198075"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/1414c.github.io\/sqac\/";
     
 </script>
-<script type="text/javascript" src="/sqac/js/search.js?1545420063"></script>
+<script type="text/javascript" src="/sqac/js/search.js?1578198075"></script>
 
     
   </div>
@@ -777,7 +778,7 @@
 
     
     <section id="footer">
-      <p>Built with <a href="https://github.com/matcornic/hugo-theme-learn"><i class="fas fa-heart"></i></a> from <a href="http://getgrav.org">Grav</a> and <a href="http://gohugo.io/">Hugo</a></p>
+      <p>Built with <a href="https://github.com/matcornic/hugo-theme-learn"><i class="fas fa-heart"></i></a> from <a href="https://getgrav.org">Grav</a> and <a href="https://gohugo.io/">Hugo</a></p>
 
     </section>
   </div>
@@ -832,19 +833,13 @@
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li>
-<ul>
-<li>
-<ul>
-<li><a href="#publicdb-existstable-tn-string-bool">PublicDB.ExistsTable(tn string) bool</a></li>
-<li><a href="#existstable-example">ExistsTable Example</a></li>
-</ul></li>
-</ul></li>
-</ul></li>
-</ul>
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -853,83 +848,76 @@
               </div>
             </div>
             
-
+        <div id="head-tags">
+        
+        </div>
         
         <div id="body-inner">
           
-            <h1>ExistsTable</h1>
+            <h1>
+              
+              ExistsTable
+            </h1>
           
 
         
 
 
 
-
-<p><br></p>
-
-<h4 id="publicdb-existstable-tn-string-bool">PublicDB.ExistsTable(tn string) bool</h4>
-
+<!-- raw HTML omitted -->
 <p>The ExistsTable method is used to check whether a table exists in the target database.  ExistsTable accepts a single string argument containing the name of the table to be checked in the database.  If the table is found, a &lsquo;true&rsquo; value will be returned to the caller.</p>
-
-<p>ExistsTable differs from the other *Tables methods in that it does not require the table&rsquo;s go struct declaration to determine the table name.  A string value is used, as this is the only information the method requires to carry out its task, and it is quite likely that the caller already knows the string name before the call is made.</p>
-
-<p>The database name of a table related to a go struct containing &lsquo;db:&lsquo;/&lsquo;sqac:&rsquo; tags may be determined via package function sqac.GetTableName.</p>
-
+<p>ExistsTable differs from the other *Tables methods in that it does not require the table's go struct declaration to determine the table name.  A string value is used, as this is the only information the method requires to carry out its task, and it is quite likely that the caller already knows the string name before the call is made.</p>
+<p>The database name of a table related to a go struct containing &lsquo;db:'/&lsquo;sqac:&rsquo; tags may be determined via package function sqac.GetTableName.</p>
 <p>Errors encountered during the ExistsTable method are returned to the caller immediately as a &lsquo;false&rsquo; response.</p>
-
 <h4 id="existstable-example">ExistsTable Example</h4>
-
 <p>The following structure &lsquo;Depot&rsquo; has been used to create table &ldquo;depot&rdquo; in the target database.  We will change the type of the Region field to an integer value, thereby necessitating a drop and recreation of the table in the database.</p>
-
 <p>A complete sample program to perform the destructive reset of existing table &ldquo;depot&rdquo; is shown below:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
 
-<pre><code class="language-golang">package main
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;log&#34;</span>
 
-import (
-  &quot;log&quot;
-
-  &quot;github.com/1414C/sqac&quot;
-  _ &quot;github.com/SAP/go-hdb/driver&quot;
-  _ &quot;github.com/denisenkom/go-mssqldb&quot;
-  _ &quot;github.com/go-sql-driver/mysql&quot;
-  _ &quot;github.com/lib/pq&quot;
-  _ &quot;github.com/mattn/go-sqlite3&quot;
+  <span style="color:#e6db74">&#34;github.com/1414C/sqac&#34;</span>
+  <span style="color:#a6e22e">_</span> <span style="color:#e6db74">&#34;github.com/SAP/go-hdb/driver&#34;</span>
+  <span style="color:#a6e22e">_</span> <span style="color:#e6db74">&#34;github.com/denisenkom/go-mssqldb&#34;</span>
+  <span style="color:#a6e22e">_</span> <span style="color:#e6db74">&#34;github.com/go-sql-driver/mysql&#34;</span>
+  <span style="color:#a6e22e">_</span> <span style="color:#e6db74">&#34;github.com/lib/pq&#34;</span>
+  <span style="color:#a6e22e">_</span> <span style="color:#e6db74">&#34;github.com/mattn/go-sqlite3&#34;</span>
 )
 
-func main() {
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
 
-  var (
-    Handle sqac.PublicDB
+  <span style="color:#66d9ef">var</span> (
+    <span style="color:#a6e22e">Handle</span> <span style="color:#a6e22e">sqac</span>.<span style="color:#a6e22e">PublicDB</span>
   )
 
-  //   Original Depot declaration - left for illustrative purposes
-  type Depot struct {
-    DepotNum   int       `db:&quot;depot_num&quot; sqac:&quot;primary_key:inc&quot;`
-    CreateDate time.Time `db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();&quot;`
-    Country    string    `db:&quot;country&quot; sqac:&quot;nullable:false;default:CA&quot;`
-    Province   string    `db:&quot;province&quot; sqac:&quot;nullable:false;default:AB&quot;`
-    Region     string    `db:&quot;region&quot; sqac:&quot;nullable:false;default:YYC&quot;`
-    Population int       `db:&quot;population&quot; sqac:&quot;nullable:false;default:0;index:non-unique&quot;`
+  <span style="color:#75715e">//   Original Depot declaration - left for illustrative purposes
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Depot</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">DepotNum</span>   <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;depot_num&#34; sqac:&#34;primary_key:inc&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">CreateDate</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;create_date&#34; sqac:&#34;nullable:false;default:now();&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Country</span>    <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;country&#34; sqac:&#34;nullable:false;default:CA&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Province</span>   <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;province&#34; sqac:&#34;nullable:false;default:AB&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Region</span>     <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;region&#34; sqac:&#34;nullable:false;default:YYC&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Population</span> <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;population&#34; sqac:&#34;nullable:false;default:0;index:non-unique&#34;</span><span style="color:#e6db74">`</span>
   }
 
-  // Create a PublicDB instance to connect to the test sqlite db
-  Handle = sqac.Create(&quot;sqlite&quot;, false, false, &quot;testdb.sqlite&quot;)
-  defer Handle.Close()
+  <span style="color:#75715e">// Create a PublicDB instance to connect to the test sqlite db
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">Handle</span> = <span style="color:#a6e22e">sqac</span>.<span style="color:#a6e22e">Create</span>(<span style="color:#e6db74">&#34;sqlite&#34;</span>, <span style="color:#66d9ef">false</span>, <span style="color:#66d9ef">false</span>, <span style="color:#e6db74">&#34;testdb.sqlite&#34;</span>)
+  <span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">Handle</span>.<span style="color:#a6e22e">Close</span>()
 
-  // Determine the table name in the database (optional)
-  tn := sqac.GetTableName(Depot{})
-  if tn == &quot;&quot; {
-    log.Fatalf(&quot;Unable to determine table name for struct %v&quot;, Depot{})
+  <span style="color:#75715e">// Determine the table name in the database (optional)
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">tn</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">sqac</span>.<span style="color:#a6e22e">GetTableName</span>(<span style="color:#a6e22e">Depot</span>{})
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">tn</span> <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;&#34;</span> {
+    <span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Fatalf</span>(<span style="color:#e6db74">&#34;Unable to determine table name for struct %v&#34;</span>, <span style="color:#a6e22e">Depot</span>{})
   }
 
-  if Handle.TableExists(tn) {
-      log.Printf(&quot;Table %s exists in the database.\n&quot;, tn )
-  } else {
-      log.Printf(&quot;Table %s was not found in the database.\n&quot;, tn )
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">Handle</span>.<span style="color:#a6e22e">TableExists</span>(<span style="color:#a6e22e">tn</span>) {
+      <span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;Table %s exists in the database.\n&#34;</span>, <span style="color:#a6e22e">tn</span> )
+  } <span style="color:#66d9ef">else</span> {
+      <span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;Table %s was not found in the database.\n&#34;</span>, <span style="color:#a6e22e">tn</span> )
   }
 }
-</code></pre>
-
+</code></pre></div>
 
 <footer class=" footline" >
 	
@@ -1539,20 +1527,19 @@ func main() {
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/sqac/js/clipboard.min.js?1545420063"></script>
-    <script src="/sqac/js/perfect-scrollbar.min.js?1545420063"></script>
-    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1545420063"></script>
-    <script src="/sqac/js/jquery.sticky.js?1545420063"></script>
-    <script src="/sqac/js/featherlight.min.js?1545420063"></script>
-    <script src="/sqac/js/html5shiv-printshiv.min.js?1545420063"></script>
-    <script src="/sqac/js/highlight.pack.js?1545420063"></script>
+    <script src="/sqac/js/clipboard.min.js?1578198075"></script>
+    <script src="/sqac/js/perfect-scrollbar.min.js?1578198075"></script>
+    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1578198075"></script>
+    <script src="/sqac/js/jquery.sticky.js?1578198075"></script>
+    <script src="/sqac/js/featherlight.min.js?1578198075"></script>
+    <script src="/sqac/js/highlight.pack.js?1578198075"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/sqac/js/modernizr.custom.71422.js?1545420063"></script>
-    <script src="/sqac/js/learn.js?1545420063"></script>
-    <script src="/sqac/js/hugo-learn.js?1545420063"></script>
+    <script src="/sqac/js/modernizr.custom-3.6.0.js?1578198075"></script>
+    <script src="/sqac/js/learn.js?1578198075"></script>
+    <script src="/sqac/js/hugo-learn.js?1578198075"></script>
 
-    <link href="/sqac/mermaid/mermaid.css?1545420063" type="text/css" rel="stylesheet" />
-    <script src="/sqac/mermaid/mermaid.js?1545420063"></script>
+    <link href="/sqac/mermaid/mermaid.css?1578198075" rel="stylesheet" />
+    <script src="/sqac/mermaid/mermaid.js?1578198075"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

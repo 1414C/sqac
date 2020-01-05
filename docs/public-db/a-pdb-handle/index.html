@@ -3,30 +3,31 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.52" />
+    <meta name="generator" content="Hugo 0.62.1" />
     <meta name="description" content="">
 
 
-    <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-<link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
+    <link rel="icon" href="/sqac/images/favicon.png" type="image/png">
+
     <title>Getting a PublicDB Handle :: Sqac ORM</title>
 
     
-    <link href="/sqac/css/nucleus.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/fontawesome-all.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/hybrid.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/featherlight.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/perfect-scrollbar.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/auto-complete.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/theme.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/hugo-theme.css?1545420063" rel="stylesheet">
+    <link href="/sqac/css/nucleus.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/fontawesome-all.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/hybrid.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/featherlight.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/perfect-scrollbar.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/auto-complete.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/atom-one-dark-reasonable.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/theme.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/hugo-theme.css?1578198075" rel="stylesheet">
     
-      <link href="/sqac/css/theme-white.css?1545420063" rel="stylesheet">
+      <link href="/sqac/css/theme-white.css?1578198075" rel="stylesheet">
     
 
-    <script src="/sqac/js/jquery-2.x.min.js?1545420063"></script>
+    <script src="/sqac/js/jquery-3.3.1.min.js?1578198075"></script>
 
-    <style type="text/css">
+    <style>
       :root #header + #content > #left > #rlblock_left{
           display:none !important;
       }
@@ -48,18 +49,18 @@
     
         <div class="searchbox">
     <label for="search-by"><i class="fas fa-search"></i></label>
-    <input data-search-input id="search-by" type="text" placeholder="Search...">
-    <span data-search-clear=""><i class="fas fa-close"></i></span>
+    <input data-search-input id="search-by" type="search" placeholder="Search...">
+    <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/sqac/js/lunr.min.js?1545420063"></script>
-<script type="text/javascript" src="/sqac/js/auto-complete.js?1545420063"></script>
+<script type="text/javascript" src="/sqac/js/lunr.min.js?1578198075"></script>
+<script type="text/javascript" src="/sqac/js/auto-complete.js?1578198075"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/1414c.github.io\/sqac\/";
     
 </script>
-<script type="text/javascript" src="/sqac/js/search.js?1545420063"></script>
+<script type="text/javascript" src="/sqac/js/search.js?1578198075"></script>
 
     
   </div>
@@ -777,7 +778,7 @@
 
     
     <section id="footer">
-      <p>Built with <a href="https://github.com/matcornic/hugo-theme-learn"><i class="fas fa-heart"></i></a> from <a href="http://getgrav.org">Grav</a> and <a href="http://gohugo.io/">Hugo</a></p>
+      <p>Built with <a href="https://github.com/matcornic/hugo-theme-learn"><i class="fas fa-heart"></i></a> from <a href="https://getgrav.org">Grav</a> and <a href="https://gohugo.io/">Hugo</a></p>
 
     </section>
   </div>
@@ -832,25 +833,13 @@
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li>
-<ul>
-<li>
-<ul>
-<li>
-<ul>
-<li><a href="#handle-to-postgresql">Handle to PostgreSQL</a></li>
-<li><a href="#handle-to-mssql">Handle to MSSQL</a></li>
-<li><a href="#handle-to-sqlite">Handle to Sqlite</a></li>
-<li><a href="#handle-to-mysql">Handle to MySQL</a></li>
-<li><a href="#handle-to-sap-hana">Handle to SAP Hana</a></li>
-</ul></li>
-</ul></li>
-</ul></li>
-</ul></li>
-</ul>
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -859,78 +848,57 @@
               </div>
             </div>
             
-
+        <div id="head-tags">
+        
+        </div>
         
         <div id="body-inner">
           
-            <h1>Getting a PublicDB Handle</h1>
+            <h1>
+              
+              Getting a PublicDB Handle
+            </h1>
           
 
         
-
 
 
 
 <p>Before using the sqac API, a connection must be established to the target database.  The main interface used by sqac is called PublicDB and we will call this the so-called Handle variable in the sample code.</p>
-
-<pre><code class="language-golang">  // Handle will be the central access-point to the ORM and should be made
-  // available in all locations where access to the persistent storage
-  // (database) is required.
-  var (
-    Handle sqac.PublicDB
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang">  <span style="color:#75715e">// Handle will be the central access-point to the ORM and should be made
+</span><span style="color:#75715e"></span>  <span style="color:#75715e">// available in all locations where access to the persistent storage
+</span><span style="color:#75715e"></span>  <span style="color:#75715e">// (database) is required.
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">var</span> (
+    <span style="color:#a6e22e">Handle</span> <span style="color:#a6e22e">sqac</span>.<span style="color:#a6e22e">PublicDB</span>
   )
-</code></pre>
-
-<p>Once the Handle variable has been declared, an instance must be created via the sqac.Create function.  The sqac.Create call requires information regarding the type of database, whether logging should be activated, as well as a <a href="/sqac/getting-started/gs-content-e">connection string</a> for the database.  sqac.Create will fail in an absolute way if it encounters a problem.  It is therefore reasonably safe to just use the returned Handle variable without additional checking.  If sqac.Create does not result in a fatal error, it is safe to proceed.</p>
-
+</code></pre></div><p>Once the Handle variable has been declared, an instance must be created via the sqac.Create function.  The sqac.Create call requires information regarding the type of database, whether logging should be activated, as well as a <a href="/sqac/getting-started/gs-content-e">connection string</a> for the database.  sqac.Create will fail in an absolute way if it encounters a problem.  It is therefore reasonably safe to just use the returned Handle variable without additional checking.  If sqac.Create does not result in a fatal error, it is safe to proceed.</p>
 <p>Samples for each of the supported database systems follow:</p>
-
-<p><br></p>
-
+<!-- raw HTML omitted -->
 <h5 id="handle-to-postgresql">Handle to PostgreSQL</h5>
-
-<pre><code class="language-golang">  // Create a PublicDB instance for PostGreSQL
-  cs := &quot;host=127.0.0.1 user=my_uname dbname=my_dbname sslmode=disable password=my_passwd&quot;
-  Handle = sqac.Create(&quot;postgres&quot;, false, false, cs)
-</code></pre>
-
-<p><br></p>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang">  <span style="color:#75715e">// Create a PublicDB instance for PostGreSQL
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">cs</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;host=127.0.0.1 user=my_uname dbname=my_dbname sslmode=disable password=my_passwd&#34;</span>
+  <span style="color:#a6e22e">Handle</span> = <span style="color:#a6e22e">sqac</span>.<span style="color:#a6e22e">Create</span>(<span style="color:#e6db74">&#34;postgres&#34;</span>, <span style="color:#66d9ef">false</span>, <span style="color:#66d9ef">false</span>, <span style="color:#a6e22e">cs</span>)
+</code></pre></div><!-- raw HTML omitted -->
 <h5 id="handle-to-mssql">Handle to MSSQL</h5>
-
-<pre><code class="language-golang">  // Create a PublicDB instance for MSSQL
-  cs := &quot;sqlserver://SA:my_passwd@localhost:1401?database=my_dbname&quot;
-  Handle = sqac.Create(&quot;mssql&quot;, false, false, cs)
-</code></pre>
-
-<p><br></p>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang">  <span style="color:#75715e">// Create a PublicDB instance for MSSQL
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">cs</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;sqlserver://SA:my_passwd@localhost:1401?database=my_dbname&#34;</span>
+  <span style="color:#a6e22e">Handle</span> = <span style="color:#a6e22e">sqac</span>.<span style="color:#a6e22e">Create</span>(<span style="color:#e6db74">&#34;mssql&#34;</span>, <span style="color:#66d9ef">false</span>, <span style="color:#66d9ef">false</span>, <span style="color:#a6e22e">cs</span>)
+</code></pre></div><!-- raw HTML omitted -->
 <h5 id="handle-to-sqlite">Handle to Sqlite</h5>
-
-<pre><code class="language-golang">  // Create a PublicDB instance for Sqlite
-  cs := &quot;testdb.sqlite&quot;
-  Handle = sqac.Create(&quot;sqlite&quot;, false, false, cs)
-</code></pre>
-
-<p><br></p>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang">  <span style="color:#75715e">// Create a PublicDB instance for Sqlite
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">cs</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;testdb.sqlite&#34;</span>
+  <span style="color:#a6e22e">Handle</span> = <span style="color:#a6e22e">sqac</span>.<span style="color:#a6e22e">Create</span>(<span style="color:#e6db74">&#34;sqlite&#34;</span>, <span style="color:#66d9ef">false</span>, <span style="color:#66d9ef">false</span>, <span style="color:#a6e22e">cs</span>)
+</code></pre></div><!-- raw HTML omitted -->
 <h5 id="handle-to-mysql">Handle to MySQL</h5>
-
-<pre><code class="language-golang">  // Create a PublicDB instance for MySQL
-  cs := &quot;my_uname:my_passwd@tcp(192.168.1.10:3306)/my_dbname?charset=utf8&amp;parseTime=True&amp;loc=Local&quot;
-  Handle = sqac.Create(&quot;mysql&quot;, false, false, cs)
-</code></pre>
-
-<p><br></p>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang">  <span style="color:#75715e">// Create a PublicDB instance for MySQL
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">cs</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;my_uname:my_passwd@tcp(192.168.1.10:3306)/my_dbname?charset=utf8&amp;parseTime=True&amp;loc=Local&#34;</span>
+  <span style="color:#a6e22e">Handle</span> = <span style="color:#a6e22e">sqac</span>.<span style="color:#a6e22e">Create</span>(<span style="color:#e6db74">&#34;mysql&#34;</span>, <span style="color:#66d9ef">false</span>, <span style="color:#66d9ef">false</span>, <span style="color:#a6e22e">cs</span>)
+</code></pre></div><!-- raw HTML omitted -->
 <h5 id="handle-to-sap-hana">Handle to SAP Hana</h5>
-
-<pre><code class="language-golang">  // Create a PublicDB instance for SAP Hana
-  cs := &quot;hdb://my_uname:my_passwd@192.168.111.45:30015&quot;
-  Handle = sqac.Create(&quot;hdb&quot;, false, false, cs)
-</code></pre>
-
-<p><br></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang">  <span style="color:#75715e">// Create a PublicDB instance for SAP Hana
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">cs</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;hdb://my_uname:my_passwd@192.168.111.45:30015&#34;</span>
+  <span style="color:#a6e22e">Handle</span> = <span style="color:#a6e22e">sqac</span>.<span style="color:#a6e22e">Create</span>(<span style="color:#e6db74">&#34;hdb&#34;</span>, <span style="color:#66d9ef">false</span>, <span style="color:#66d9ef">false</span>, <span style="color:#a6e22e">cs</span>)
+</code></pre></div><!-- raw HTML omitted -->
 
 
 <footer class=" footline" >
@@ -1538,20 +1506,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/sqac/js/clipboard.min.js?1545420063"></script>
-    <script src="/sqac/js/perfect-scrollbar.min.js?1545420063"></script>
-    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1545420063"></script>
-    <script src="/sqac/js/jquery.sticky.js?1545420063"></script>
-    <script src="/sqac/js/featherlight.min.js?1545420063"></script>
-    <script src="/sqac/js/html5shiv-printshiv.min.js?1545420063"></script>
-    <script src="/sqac/js/highlight.pack.js?1545420063"></script>
+    <script src="/sqac/js/clipboard.min.js?1578198075"></script>
+    <script src="/sqac/js/perfect-scrollbar.min.js?1578198075"></script>
+    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1578198075"></script>
+    <script src="/sqac/js/jquery.sticky.js?1578198075"></script>
+    <script src="/sqac/js/featherlight.min.js?1578198075"></script>
+    <script src="/sqac/js/highlight.pack.js?1578198075"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/sqac/js/modernizr.custom.71422.js?1545420063"></script>
-    <script src="/sqac/js/learn.js?1545420063"></script>
-    <script src="/sqac/js/hugo-learn.js?1545420063"></script>
+    <script src="/sqac/js/modernizr.custom-3.6.0.js?1578198075"></script>
+    <script src="/sqac/js/learn.js?1578198075"></script>
+    <script src="/sqac/js/hugo-learn.js?1578198075"></script>
 
-    <link href="/sqac/mermaid/mermaid.css?1545420063" type="text/css" rel="stylesheet" />
-    <script src="/sqac/mermaid/mermaid.js?1545420063"></script>
+    <link href="/sqac/mermaid/mermaid.css?1578198075" rel="stylesheet" />
+    <script src="/sqac/mermaid/mermaid.js?1578198075"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

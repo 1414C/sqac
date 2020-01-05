@@ -3,30 +3,31 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.52" />
+    <meta name="generator" content="Hugo 0.62.1" />
     <meta name="description" content="">
 
 
-    <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-<link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
+    <link rel="icon" href="/sqac/images/favicon.png" type="image/png">
+
     <title>nullable: :: Sqac ORM</title>
 
     
-    <link href="/sqac/css/nucleus.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/fontawesome-all.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/hybrid.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/featherlight.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/perfect-scrollbar.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/auto-complete.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/theme.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/hugo-theme.css?1545420063" rel="stylesheet">
+    <link href="/sqac/css/nucleus.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/fontawesome-all.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/hybrid.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/featherlight.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/perfect-scrollbar.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/auto-complete.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/atom-one-dark-reasonable.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/theme.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/hugo-theme.css?1578198075" rel="stylesheet">
     
-      <link href="/sqac/css/theme-white.css?1545420063" rel="stylesheet">
+      <link href="/sqac/css/theme-white.css?1578198075" rel="stylesheet">
     
 
-    <script src="/sqac/js/jquery-2.x.min.js?1545420063"></script>
+    <script src="/sqac/js/jquery-3.3.1.min.js?1578198075"></script>
 
-    <style type="text/css">
+    <style>
       :root #header + #content > #left > #rlblock_left{
           display:none !important;
       }
@@ -48,18 +49,18 @@
     
         <div class="searchbox">
     <label for="search-by"><i class="fas fa-search"></i></label>
-    <input data-search-input id="search-by" type="text" placeholder="Search...">
-    <span data-search-clear=""><i class="fas fa-close"></i></span>
+    <input data-search-input id="search-by" type="search" placeholder="Search...">
+    <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/sqac/js/lunr.min.js?1545420063"></script>
-<script type="text/javascript" src="/sqac/js/auto-complete.js?1545420063"></script>
+<script type="text/javascript" src="/sqac/js/lunr.min.js?1578198075"></script>
+<script type="text/javascript" src="/sqac/js/auto-complete.js?1578198075"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/1414c.github.io\/sqac\/";
     
 </script>
-<script type="text/javascript" src="/sqac/js/search.js?1545420063"></script>
+<script type="text/javascript" src="/sqac/js/search.js?1578198075"></script>
 
     
   </div>
@@ -777,7 +778,7 @@
 
     
     <section id="footer">
-      <p>Built with <a href="https://github.com/matcornic/hugo-theme-learn"><i class="fas fa-heart"></i></a> from <a href="http://getgrav.org">Grav</a> and <a href="http://gohugo.io/">Hugo</a></p>
+      <p>Built with <a href="https://github.com/matcornic/hugo-theme-learn"><i class="fas fa-heart"></i></a> from <a href="https://getgrav.org">Grav</a> and <a href="https://gohugo.io/">Hugo</a></p>
 
     </section>
   </div>
@@ -832,19 +833,13 @@
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#nullable-overview">&ldquo;nullable:&rdquo; Overview</a>
-<ul>
-<li>
-<ul>
-<li><a href="#nullable-false-example">&ldquo;nullable:false&rdquo; example</a></li>
-<li><a href="#nullable-true-example">&ldquo;nullable:true&rdquo; example</a></li>
-</ul></li>
-</ul></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#nullable-overview">&ldquo;nullable:&rdquo; Overview</a>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -853,54 +848,47 @@
               </div>
             </div>
             
-
+        <div id="head-tags">
+        
+        </div>
         
         <div id="body-inner">
           
-            <h1>nullable:</h1>
+            <h1>
+              
+              nullable:
+            </h1>
           
 
         
-
 
 
 
 <h2 id="nullable-overview">&ldquo;nullable:&rdquo; Overview</h2>
-
 <p>Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database.  The following examples illustrate the use of the &ldquo;nullable:&rdquo; &lsquo;sqac:&rsquo; tag described in the <a href="/sqac/modeling/md-content-a">Sqac Tag Overview</a> section of this document.</p>
-
 <p>Unless specified, most databases will create columns as nullable by default.  Use the &ldquo;nullable:&rdquo; tag to explicitly declare the data requirements of fields in the source go-struct and the nullability of the corresponding columns in the database.</p>
-
-<p><br></p>
-
-<h4 id="nullable-false-example">&ldquo;nullable:false&rdquo; example</h4>
-
+<!-- raw HTML omitted -->
+<h4 id="nullablefalse-example">&ldquo;nullable:false&rdquo; example</h4>
 <p>The following example illustrates the use of &lsquo;sqac:&rsquo; tag &ldquo;nullable:false&rdquo; to declare a column as not null in the database.  If no value can be provided for a column deemed to be not nullable, consider setting a default value at the database level via the &ldquo;default:&rdquo; &lsquo;sqac:&rsquo; tag, or provide the <a href="https://tour.golang.org/basics/12">go zero-value</a> for the field.</p>
-
-<pre><code class="language-golang">  // Declare a struct to be used as the source for table creation.
-  // db column &quot;region&quot; will be created as NOT NULL
-  type Depot struct {
-    ...
-    Region     string    `db:&quot;region&quot; sqac:&quot;nullable:false&quot;`
-    ...
-    ...
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang">  <span style="color:#75715e">// Declare a struct to be used as the source for table creation.
+</span><span style="color:#75715e"></span>  <span style="color:#75715e">// db column &#34;region&#34; will be created as NOT NULL
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Depot</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#f92672">...</span>
+    <span style="color:#a6e22e">Region</span>     <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;region&#34; sqac:&#34;nullable:false&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#f92672">...</span>
   }
-</code></pre>
-
-<h4 id="nullable-true-example">&ldquo;nullable:true&rdquo; example</h4>
-
+</code></pre></div><h4 id="nullabletrue-example">&ldquo;nullable:true&rdquo; example</h4>
 <p>The following example illustrates the use of &lsquo;sqac:&rsquo; tag &ldquo;nullable:true&rdquo; to declare a column as nullable in the database.  Care should be taken when deciding to create a column as nullable, as the consumer may not be expecting null values in the selected data.  Note that reading a null value into a non-pointer field in the go-struct will result in an error.  In the following example code the &ldquo;Region&rdquo; field has been declared as a pointer to a string (*string) rather than a string for this reason.</p>
-
-<pre><code class="language-golang">  // Declare a struct to be used as the source for table creation.
-  // db column &quot;region&quot; will be nullable in the database
-  type Depot struct {
-    ...
-    Region     *string    `db:&quot;region&quot; sqac:&quot;nullable:true&quot;`
-    ...
-    ...
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang">  <span style="color:#75715e">// Declare a struct to be used as the source for table creation.
+</span><span style="color:#75715e"></span>  <span style="color:#75715e">// db column &#34;region&#34; will be nullable in the database
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Depot</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#f92672">...</span>
+    <span style="color:#a6e22e">Region</span>     <span style="color:#f92672">*</span><span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;region&#34; sqac:&#34;nullable:true&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#f92672">...</span>
   }
-</code></pre>
-
+</code></pre></div>
 
 <footer class=" footline" >
 	
@@ -1510,20 +1498,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/sqac/js/clipboard.min.js?1545420063"></script>
-    <script src="/sqac/js/perfect-scrollbar.min.js?1545420063"></script>
-    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1545420063"></script>
-    <script src="/sqac/js/jquery.sticky.js?1545420063"></script>
-    <script src="/sqac/js/featherlight.min.js?1545420063"></script>
-    <script src="/sqac/js/html5shiv-printshiv.min.js?1545420063"></script>
-    <script src="/sqac/js/highlight.pack.js?1545420063"></script>
+    <script src="/sqac/js/clipboard.min.js?1578198075"></script>
+    <script src="/sqac/js/perfect-scrollbar.min.js?1578198075"></script>
+    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1578198075"></script>
+    <script src="/sqac/js/jquery.sticky.js?1578198075"></script>
+    <script src="/sqac/js/featherlight.min.js?1578198075"></script>
+    <script src="/sqac/js/highlight.pack.js?1578198075"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/sqac/js/modernizr.custom.71422.js?1545420063"></script>
-    <script src="/sqac/js/learn.js?1545420063"></script>
-    <script src="/sqac/js/hugo-learn.js?1545420063"></script>
+    <script src="/sqac/js/modernizr.custom-3.6.0.js?1578198075"></script>
+    <script src="/sqac/js/learn.js?1578198075"></script>
+    <script src="/sqac/js/hugo-learn.js?1578198075"></script>
 
-    <link href="/sqac/mermaid/mermaid.css?1545420063" type="text/css" rel="stylesheet" />
-    <script src="/sqac/mermaid/mermaid.js?1545420063"></script>
+    <link href="/sqac/mermaid/mermaid.css?1578198075" rel="stylesheet" />
+    <script src="/sqac/mermaid/mermaid.js?1578198075"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

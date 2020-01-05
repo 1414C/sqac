@@ -3,30 +3,31 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.52" />
+    <meta name="generator" content="Hugo 0.62.1" />
     <meta name="description" content="">
 
 
-    <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-<link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
+    <link rel="icon" href="/sqac/images/favicon.png" type="image/png">
+
     <title>Using Sqac :: Sqac ORM</title>
 
     
-    <link href="/sqac/css/nucleus.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/fontawesome-all.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/hybrid.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/featherlight.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/perfect-scrollbar.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/auto-complete.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/theme.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/hugo-theme.css?1545420063" rel="stylesheet">
+    <link href="/sqac/css/nucleus.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/fontawesome-all.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/hybrid.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/featherlight.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/perfect-scrollbar.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/auto-complete.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/atom-one-dark-reasonable.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/theme.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/hugo-theme.css?1578198075" rel="stylesheet">
     
-      <link href="/sqac/css/theme-white.css?1545420063" rel="stylesheet">
+      <link href="/sqac/css/theme-white.css?1578198075" rel="stylesheet">
     
 
-    <script src="/sqac/js/jquery-2.x.min.js?1545420063"></script>
+    <script src="/sqac/js/jquery-3.3.1.min.js?1578198075"></script>
 
-    <style type="text/css">
+    <style>
       :root #header + #content > #left > #rlblock_left{
           display:none !important;
       }
@@ -48,18 +49,18 @@
     
         <div class="searchbox">
     <label for="search-by"><i class="fas fa-search"></i></label>
-    <input data-search-input id="search-by" type="text" placeholder="Search...">
-    <span data-search-clear=""><i class="fas fa-close"></i></span>
+    <input data-search-input id="search-by" type="search" placeholder="Search...">
+    <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/sqac/js/lunr.min.js?1545420063"></script>
-<script type="text/javascript" src="/sqac/js/auto-complete.js?1545420063"></script>
+<script type="text/javascript" src="/sqac/js/lunr.min.js?1578198075"></script>
+<script type="text/javascript" src="/sqac/js/auto-complete.js?1578198075"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/1414c.github.io\/sqac\/";
     
 </script>
-<script type="text/javascript" src="/sqac/js/search.js?1545420063"></script>
+<script type="text/javascript" src="/sqac/js/search.js?1578198075"></script>
 
     
   </div>
@@ -777,7 +778,7 @@
 
     
     <section id="footer">
-      <p>Built with <a href="https://github.com/matcornic/hugo-theme-learn"><i class="fas fa-heart"></i></a> from <a href="http://getgrav.org">Grav</a> and <a href="http://gohugo.io/">Hugo</a></p>
+      <p>Built with <a href="https://github.com/matcornic/hugo-theme-learn"><i class="fas fa-heart"></i></a> from <a href="https://getgrav.org">Grav</a> and <a href="https://gohugo.io/">Hugo</a></p>
 
     </section>
   </div>
@@ -831,7 +832,7 @@
                 
                     <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents"></nav>
     </div>
 </div>
 
@@ -839,153 +840,144 @@
               </div>
             </div>
             
-
+        <div id="head-tags">
+        
+        </div>
         
         <div id="body-inner">
           
-            <h1>Using Sqac</h1>
+            <h1>
+              
+              Using Sqac
+            </h1>
           
 
         
 
 
+
 <p>The following example illustrates the general usage of the sqac library.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
 
-<pre><code class="language-golang">package main
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;flag&#34;</span>
+  <span style="color:#e6db74">&#34;fmt&#34;</span>
 
-import (
-  &quot;flag&quot;
-  &quot;fmt&quot;
-
-  &quot;github.com/1414C/sqac&quot;
-  _ &quot;github.com/SAP/go-hdb/driver&quot;
-  _ &quot;github.com/denisenkom/go-mssqldb&quot;
-  _ &quot;github.com/go-sql-driver/mysql&quot;
-  _ &quot;github.com/lib/pq&quot;
-  _ &quot;github.com/mattn/go-sqlite3&quot;
+  <span style="color:#e6db74">&#34;github.com/1414C/sqac&#34;</span>
+  <span style="color:#a6e22e">_</span> <span style="color:#e6db74">&#34;github.com/SAP/go-hdb/driver&#34;</span>
+  <span style="color:#a6e22e">_</span> <span style="color:#e6db74">&#34;github.com/denisenkom/go-mssqldb&#34;</span>
+  <span style="color:#a6e22e">_</span> <span style="color:#e6db74">&#34;github.com/go-sql-driver/mysql&#34;</span>
+  <span style="color:#a6e22e">_</span> <span style="color:#e6db74">&#34;github.com/lib/pq&#34;</span>
+  <span style="color:#a6e22e">_</span> <span style="color:#e6db74">&#34;github.com/mattn/go-sqlite3&#34;</span>
 )
 
-func main() {
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
 
-  dbFlag := flag.String(&quot;db&quot;, &quot;sqlite&quot;, &quot;db-type for connection&quot;)
-  csFlag := flag.String(&quot;cs&quot;, &quot;testdb.sqlite&quot;, &quot;connection-string for the database&quot;)
-  logFlag := flag.Bool(&quot;l&quot;, false, &quot;activate sqac detail logging to stdout&quot;)
-  dbLogFlag := flag.Bool(&quot;dbl&quot;, false, &quot;activate DDL/DML logging to stdout)&quot;)
-  flag.Parse()
+  <span style="color:#a6e22e">dbFlag</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">flag</span>.<span style="color:#a6e22e">String</span>(<span style="color:#e6db74">&#34;db&#34;</span>, <span style="color:#e6db74">&#34;sqlite&#34;</span>, <span style="color:#e6db74">&#34;db-type for connection&#34;</span>)
+  <span style="color:#a6e22e">csFlag</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">flag</span>.<span style="color:#a6e22e">String</span>(<span style="color:#e6db74">&#34;cs&#34;</span>, <span style="color:#e6db74">&#34;testdb.sqlite&#34;</span>, <span style="color:#e6db74">&#34;connection-string for the database&#34;</span>)
+  <span style="color:#a6e22e">logFlag</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">flag</span>.<span style="color:#a6e22e">Bool</span>(<span style="color:#e6db74">&#34;l&#34;</span>, <span style="color:#66d9ef">false</span>, <span style="color:#e6db74">&#34;activate sqac detail logging to stdout&#34;</span>)
+  <span style="color:#a6e22e">dbLogFlag</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">flag</span>.<span style="color:#a6e22e">Bool</span>(<span style="color:#e6db74">&#34;dbl&#34;</span>, <span style="color:#66d9ef">false</span>, <span style="color:#e6db74">&#34;activate DDL/DML logging to stdout)&#34;</span>)
+  <span style="color:#a6e22e">flag</span>.<span style="color:#a6e22e">Parse</span>()
 
-  // This will be the central access-point to the ORM and should be made
-  // available in all locations where access to the persistent storage
-  // (database) is required.
-  var (
-    Handle sqac.PublicDB
+  <span style="color:#75715e">// This will be the central access-point to the ORM and should be made
+</span><span style="color:#75715e"></span>  <span style="color:#75715e">// available in all locations where access to the persistent storage
+</span><span style="color:#75715e"></span>  <span style="color:#75715e">// (database) is required.
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">var</span> (
+    <span style="color:#a6e22e">Handle</span> <span style="color:#a6e22e">sqac</span>.<span style="color:#a6e22e">PublicDB</span>
   )
 
-  // Declare a struct to be used as the source for table creation.
-  type Depot struct {
-    DepotNum   int       `db:&quot;depot_num&quot; sqac:&quot;primary_key:inc&quot;`
-    CreateDate time.Time `db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();&quot;`
-    Region     string    `db:&quot;region&quot; sqac:&quot;nullable:false;default:YYC&quot;`
-    Province   string    `db:&quot;province&quot; sqac:&quot;nullable:false;default:AB&quot;`
-    Country    string    `db:&quot;country&quot; sqac:&quot;nullable:false;default:CA&quot;`
-    Population int       `db:&quot;population&quot; sqac:&quot;nullable:false;default:0;index:non-unique&quot;`
+  <span style="color:#75715e">// Declare a struct to be used as the source for table creation.
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Depot</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">DepotNum</span>   <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;depot_num&#34; sqac:&#34;primary_key:inc&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">CreateDate</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;create_date&#34; sqac:&#34;nullable:false;default:now();&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Region</span>     <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;region&#34; sqac:&#34;nullable:false;default:YYC&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Province</span>   <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;province&#34; sqac:&#34;nullable:false;default:AB&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Country</span>    <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;country&#34; sqac:&#34;nullable:false;default:CA&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Population</span> <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;population&#34; sqac:&#34;nullable:false;default:0;index:non-unique&#34;</span><span style="color:#e6db74">`</span>
   }
 
-  // Create a PublicDB instance.  Check the sqac.Create function, as the return parameter contains
-  // not only an implementation of PublicDB targeting the db-type/db, but also a pointer
-  // facilitating access to the db via jmoiron's sqlx package.  This is useful if you wish
-  // to access the sql/sqlx APIs directly.
-  Handle = sqac.Create(*dbFlag, *logFlag, *dbLogFlag, *cs)
+  <span style="color:#75715e">// Create a PublicDB instance.  Check the sqac.Create function, as the return parameter contains
+</span><span style="color:#75715e"></span>  <span style="color:#75715e">// not only an implementation of PublicDB targeting the db-type/db, but also a pointer
+</span><span style="color:#75715e"></span>  <span style="color:#75715e">// facilitating access to the db via jmoiron&#39;s sqlx package.  This is useful if you wish
+</span><span style="color:#75715e"></span>  <span style="color:#75715e">// to access the sql/sqlx APIs directly.
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">Handle</span> = <span style="color:#a6e22e">sqac</span>.<span style="color:#a6e22e">Create</span>(<span style="color:#f92672">*</span><span style="color:#a6e22e">dbFlag</span>, <span style="color:#f92672">*</span><span style="color:#a6e22e">logFlag</span>, <span style="color:#f92672">*</span><span style="color:#a6e22e">dbLogFlag</span>, <span style="color:#f92672">*</span><span style="color:#a6e22e">cs</span>)
 
-  // Execute a call to get the name of the db-driver being used.  At this point, any method
-  // contained in the sqac.PublicDB interface may be called.
-  driverName := Handle.GetDBDriverName()
-  fmt.Println(&quot;driverName:&quot;, driverName)
+  <span style="color:#75715e">// Execute a call to get the name of the db-driver being used.  At this point, any method
+</span><span style="color:#75715e"></span>  <span style="color:#75715e">// contained in the sqac.PublicDB interface may be called.
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">driverName</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">Handle</span>.<span style="color:#a6e22e">GetDBDriverName</span>()
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;driverName:&#34;</span>, <span style="color:#a6e22e">driverName</span>)
 
-  // Create a new table in the database
-  err := Handle.CreateTables(Depot{})
-  if err != nil {
-    t.Errorf(&quot;%s&quot;, err.Error())
+  <span style="color:#75715e">// Create a new table in the database
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">Handle</span>.<span style="color:#a6e22e">CreateTables</span>(<span style="color:#a6e22e">Depot</span>{})
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;%s&#34;</span>, <span style="color:#a6e22e">err</span>.<span style="color:#a6e22e">Error</span>())
   }
 
-  // Determine the table name as per the table creation logic
-  tn := common.GetTableName(Depot{})
+  <span style="color:#75715e">// Determine the table name as per the table creation logic
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">tn</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">common</span>.<span style="color:#a6e22e">GetTableName</span>(<span style="color:#a6e22e">Depot</span>{})
 
-  // Expect that table depot exists
-  if !Handle.ExistsTable(tn) {
-    t.Errorf(&quot;table %s was not created&quot;, tn)
+  <span style="color:#75715e">// Expect that table depot exists
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">if</span> !<span style="color:#a6e22e">Handle</span>.<span style="color:#a6e22e">ExistsTable</span>(<span style="color:#a6e22e">tn</span>) {
+    <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;table %s was not created&#34;</span>, <span style="color:#a6e22e">tn</span>)
   }
 
-  // prepare data for insertion into the db-table
-  var newDepot = Depot{
-      // DepotNum:         1234,      // not needed - autoinc primary key
-      // CreateDate:           ,      // not needed - default:now()
-      Region:              &quot;YVR&quot;,
-      Province:            &quot;BC&quot;,
-      Country:             &quot;CA&quot;,
-      Population:          2500000,
+  <span style="color:#75715e">// prepare data for insertion into the db-table
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">newDepot</span> = <span style="color:#a6e22e">Depot</span>{
+      <span style="color:#75715e">// DepotNum:         1234,      // not needed - autoinc primary key
+</span><span style="color:#75715e"></span>      <span style="color:#75715e">// CreateDate:           ,      // not needed - default:now()
+</span><span style="color:#75715e"></span>      <span style="color:#a6e22e">Region</span>:              <span style="color:#e6db74">&#34;YVR&#34;</span>,
+      <span style="color:#a6e22e">Province</span>:            <span style="color:#e6db74">&#34;BC&#34;</span>,
+      <span style="color:#a6e22e">Country</span>:             <span style="color:#e6db74">&#34;CA&#34;</span>,
+      <span style="color:#a6e22e">Population</span>:          <span style="color:#ae81ff">2500000</span>,
   }
 
-  // create a new record via the CRUD Create call
-  err = Handle.Create(&amp;newDepot)
-  if err != nil {
-    t.Errorf(err.Error())
+  <span style="color:#75715e">// create a new record via the CRUD Create call
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">Handle</span>.<span style="color:#a6e22e">Create</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">newDepot</span>)
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#a6e22e">err</span>.<span style="color:#a6e22e">Error</span>())
   }
 
-  // Drop the table
-  err = Handle.DropTables(Depot{})
-  if err != nil {
-    t.Errorf(&quot;table %s was not dropped&quot;, tn)
+  <span style="color:#75715e">// Drop the table
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">Handle</span>.<span style="color:#a6e22e">DropTables</span>(<span style="color:#a6e22e">Depot</span>{})
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;table %s was not dropped&#34;</span>, <span style="color:#a6e22e">tn</span>)
   }
 
-  // Close the connection.
-  Handle.Close()
+  <span style="color:#75715e">// Close the connection.
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">Handle</span>.<span style="color:#a6e22e">Close</span>()
 }
-</code></pre>
-
-<p>Execute the sample program against a local sqlite database as follows.  Note that the sample program makes no
+</code></pre></div><p>Execute the sample program against a local sqlite database as follows.  Note that the sample program makes no
 effort to validate the flag parameters.</p>
-
-<pre><code class="language-bash">go run -db sqlite -cs testdb.sqlite main.go
-</code></pre>
-
-<p>Experiment by commenting out the the DropTables(Depot{}) call, and add code to test some simple CRUD type operations.</p>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">go run -db sqlite -cs testdb.sqlite main.go
+</code></pre></div><p>Experiment by commenting out the the DropTables(Depot{}) call, and add code to test some simple CRUD type operations.</p>
 <p>Update an existing db record:</p>
-
-<pre><code class="language-golang">newDepot.Region = &quot;YYC&quot;           // &quot;YVR&quot;   -&gt; &quot;YYC&quot;
-newDepot.Province = &quot;AB&quot;          // &quot;BC&quot;    -&gt; &quot;AB&quot;
-newDepot.Population = 1000000     // 2500000 -&gt; 1000000
-err = Handle.Update(&amp;newDepot)
-if err != nil {
-    t.Errorf(err.Error())
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#a6e22e">newDepot</span>.<span style="color:#a6e22e">Region</span> = <span style="color:#e6db74">&#34;YYC&#34;</span>           <span style="color:#75715e">// &#34;YVR&#34;   -&gt; &#34;YYC&#34;
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">newDepot</span>.<span style="color:#a6e22e">Province</span> = <span style="color:#e6db74">&#34;AB&#34;</span>          <span style="color:#75715e">// &#34;BC&#34;    -&gt; &#34;AB&#34;
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">newDepot</span>.<span style="color:#a6e22e">Population</span> = <span style="color:#ae81ff">1000000</span>     <span style="color:#75715e">// 2500000 -&gt; 1000000
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">Handle</span>.<span style="color:#a6e22e">Update</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">newDepot</span>)
+<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#a6e22e">err</span>.<span style="color:#a6e22e">Error</span>())
 }
-</code></pre>
-
-<p>Read an existing db record:</p>
-
-<pre><code class="language-golang">// create a struct to read into and populate the keys
-depotRead := Depot{
-    DepotNum: newDepot.DepotNum,
+</code></pre></div><p>Read an existing db record:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#75715e">// create a struct to read into and populate the keys
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">depotRead</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">Depot</span>{
+    <span style="color:#a6e22e">DepotNum</span>: <span style="color:#a6e22e">newDepot</span>.<span style="color:#a6e22e">DepotNum</span>,
 }
 
-err = Handle.GetEntity(&amp;depotRead)
-if err != nil {
-    t.Errorf(&quot;%s&quot;, err.Error())
+<span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">Handle</span>.<span style="color:#a6e22e">GetEntity</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">depotRead</span>)
+<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;%s&#34;</span>, <span style="color:#a6e22e">err</span>.<span style="color:#a6e22e">Error</span>())
 }
 
-if depotRead.Region != &quot;YYC&quot; || depotRead.Region != &quot;YVR&quot; {
-    t.Errorf(&quot;depotRead.Region error!&quot;)
+<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">depotRead</span>.<span style="color:#a6e22e">Region</span> <span style="color:#f92672">!=</span> <span style="color:#e6db74">&#34;YYC&#34;</span> <span style="color:#f92672">||</span> <span style="color:#a6e22e">depotRead</span>.<span style="color:#a6e22e">Region</span> <span style="color:#f92672">!=</span> <span style="color:#e6db74">&#34;YVR&#34;</span> {
+    <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;depotRead.Region error!&#34;</span>)
 }
-</code></pre>
-
-<p>Delete an existing db record:</p>
-
-<pre><code class="language-golang">err = Handle.Delete(&amp;newDepot)
-if err != nil {
-    t.Errorf(&quot;%s&quot;, err.Error())
+</code></pre></div><p>Delete an existing db record:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">Handle</span>.<span style="color:#a6e22e">Delete</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">newDepot</span>)
+<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;%s&#34;</span>, <span style="color:#a6e22e">err</span>.<span style="color:#a6e22e">Error</span>())
 }
-</code></pre>
-
+</code></pre></div>
 
 <footer class=" footline" >
 	
@@ -1592,20 +1584,19 @@ if err != nil {
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/sqac/js/clipboard.min.js?1545420063"></script>
-    <script src="/sqac/js/perfect-scrollbar.min.js?1545420063"></script>
-    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1545420063"></script>
-    <script src="/sqac/js/jquery.sticky.js?1545420063"></script>
-    <script src="/sqac/js/featherlight.min.js?1545420063"></script>
-    <script src="/sqac/js/html5shiv-printshiv.min.js?1545420063"></script>
-    <script src="/sqac/js/highlight.pack.js?1545420063"></script>
+    <script src="/sqac/js/clipboard.min.js?1578198075"></script>
+    <script src="/sqac/js/perfect-scrollbar.min.js?1578198075"></script>
+    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1578198075"></script>
+    <script src="/sqac/js/jquery.sticky.js?1578198075"></script>
+    <script src="/sqac/js/featherlight.min.js?1578198075"></script>
+    <script src="/sqac/js/highlight.pack.js?1578198075"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/sqac/js/modernizr.custom.71422.js?1545420063"></script>
-    <script src="/sqac/js/learn.js?1545420063"></script>
-    <script src="/sqac/js/hugo-learn.js?1545420063"></script>
+    <script src="/sqac/js/modernizr.custom-3.6.0.js?1578198075"></script>
+    <script src="/sqac/js/learn.js?1578198075"></script>
+    <script src="/sqac/js/hugo-learn.js?1578198075"></script>
 
-    <link href="/sqac/mermaid/mermaid.css?1545420063" type="text/css" rel="stylesheet" />
-    <script src="/sqac/mermaid/mermaid.js?1545420063"></script>
+    <link href="/sqac/mermaid/mermaid.css?1578198075" rel="stylesheet" />
+    <script src="/sqac/mermaid/mermaid.js?1578198075"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

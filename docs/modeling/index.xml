@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Sqac Modeling on Sqac ORM</title>
@@ -6,7 +6,7 @@
     <description>Recent content in Sqac Modeling on Sqac ORM</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 11 Dec 2018 15:02:03 -0700</lastBuildDate>
+    <lastBuildDate>Wed, 12 Dec 2018 13:47:10 -0700</lastBuildDate>
     
 	<atom:link href="https://1414c.github.io/sqac/modeling/index.xml" rel="self" type="application/rss+xml" />
     
@@ -17,9 +17,9 @@
       <pubDate>Tue, 11 Dec 2018 15:02:03 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/modeling/md-content-a/</guid>
-      <description>Sqac Tag Overview Sqac table-declarations are informed by go structs with json-style struct-tags indicating column attributes. Two tags are used: &amp;lsquo;db:&amp;rsquo; and &amp;lsquo;sqac:&amp;rsquo;; the &amp;lsquo;db:&amp;rsquo; tag is used to declare the database column name. This is typically the snake_case conversion of the go struct field-name. The &amp;lsquo;sqac:&amp;rsquo; tag is used to declare column attributes.
+      <description>Sqac Tag Overview Sqac table-declarations are informed by go structs with json-style struct-tags indicating column attributes. Two tags are used: &amp;lsquo;db:&#39; and &amp;lsquo;sqac:&#39;; the &amp;lsquo;db:&#39; tag is used to declare the database column name. This is typically the snake_case conversion of the go struct field-name. The &amp;lsquo;sqac:&#39; tag is used to declare column attributes.
 A list of the supported &amp;lsquo;sqac:&amp;rsquo; tag attributes follows:
-   sqac tag Description     &amp;ldquo;primary_key:&amp;rdquo; This tag is used to declare that the specified column should be used as a primary-key in the generated database table.</description>
+   sqac tag Description     &amp;ldquo;primary_key:&amp;quot; This tag is used to declare that the specified column should be used as a primary-key in the generated database table.</description>
     </item>
     
     <item>
@@ -29,7 +29,6 @@ A list of the supported &amp;lsquo;sqac:&amp;rsquo; tag attributes follows:
       
       <guid>https://1414c.github.io/sqac/modeling/md-content-b/</guid>
       <description>&amp;ldquo;primary_key:&amp;rdquo; Overview Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database. The following examples illustrate the use of the &amp;lsquo;sqac:&amp;rsquo; tags described in the Sqac Tag Overview section of this document.
-
 &amp;ldquo;primary_key:&amp;rdquo; example The following example illustrates the use of &amp;lsquo;sqac:&amp;rsquo; tag &amp;ldquo;primary_key:&amp;rdquo; to declare a non-auto-incrementing table primary-key. Sqac expects table primary-keys to be declared as ints.</description>
     </item>
     
@@ -61,7 +60,6 @@ Use the &amp;ldquo;default:&amp;rdquo; tag to explicitly declare default column 
       <guid>https://1414c.github.io/sqac/modeling/md-content-e/</guid>
       <description>&amp;ldquo;index:&amp;rdquo; Overview Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database. The following examples illustrate the use of the &amp;ldquo;index:&amp;rdquo; &amp;lsquo;sqac:&amp;rsquo; tag described in the Sqac Tag Overview section of this document.
 Use the &amp;ldquo;index:&amp;rdquo; tag to declare unique/non-unique indexes in database table schemas. Single column and compound indexes are supported.
-
 &amp;ldquo;index:&amp;lt;unique | non-unique&amp;gt;&amp;rdquo; example The following example illustrates the use of &amp;lsquo;sqac:&amp;rsquo; tag &amp;ldquo;index:&amp;rdquo; to declare a single column unique and single column non-unique index on two table fields.</description>
     </item>
     

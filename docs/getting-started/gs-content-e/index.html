@@ -3,30 +3,31 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.52" />
+    <meta name="generator" content="Hugo 0.62.1" />
     <meta name="description" content="">
 
 
-    <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
-<link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
+    <link rel="icon" href="/sqac/images/favicon.png" type="image/png">
+
     <title>Database Connection Strings :: Sqac ORM</title>
 
     
-    <link href="/sqac/css/nucleus.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/fontawesome-all.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/hybrid.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/featherlight.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/perfect-scrollbar.min.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/auto-complete.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/theme.css?1545420063" rel="stylesheet">
-    <link href="/sqac/css/hugo-theme.css?1545420063" rel="stylesheet">
+    <link href="/sqac/css/nucleus.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/fontawesome-all.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/hybrid.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/featherlight.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/perfect-scrollbar.min.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/auto-complete.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/atom-one-dark-reasonable.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/theme.css?1578198075" rel="stylesheet">
+    <link href="/sqac/css/hugo-theme.css?1578198075" rel="stylesheet">
     
-      <link href="/sqac/css/theme-white.css?1545420063" rel="stylesheet">
+      <link href="/sqac/css/theme-white.css?1578198075" rel="stylesheet">
     
 
-    <script src="/sqac/js/jquery-2.x.min.js?1545420063"></script>
+    <script src="/sqac/js/jquery-3.3.1.min.js?1578198075"></script>
 
-    <style type="text/css">
+    <style>
       :root #header + #content > #left > #rlblock_left{
           display:none !important;
       }
@@ -48,18 +49,18 @@
     
         <div class="searchbox">
     <label for="search-by"><i class="fas fa-search"></i></label>
-    <input data-search-input id="search-by" type="text" placeholder="Search...">
-    <span data-search-clear=""><i class="fas fa-close"></i></span>
+    <input data-search-input id="search-by" type="search" placeholder="Search...">
+    <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/sqac/js/lunr.min.js?1545420063"></script>
-<script type="text/javascript" src="/sqac/js/auto-complete.js?1545420063"></script>
+<script type="text/javascript" src="/sqac/js/lunr.min.js?1578198075"></script>
+<script type="text/javascript" src="/sqac/js/auto-complete.js?1578198075"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/1414c.github.io\/sqac\/";
     
 </script>
-<script type="text/javascript" src="/sqac/js/search.js?1545420063"></script>
+<script type="text/javascript" src="/sqac/js/search.js?1578198075"></script>
 
     
   </div>
@@ -777,7 +778,7 @@
 
     
     <section id="footer">
-      <p>Built with <a href="https://github.com/matcornic/hugo-theme-learn"><i class="fas fa-heart"></i></a> from <a href="http://getgrav.org">Grav</a> and <a href="http://gohugo.io/">Hugo</a></p>
+      <p>Built with <a href="https://github.com/matcornic/hugo-theme-learn"><i class="fas fa-heart"></i></a> from <a href="https://getgrav.org">Grav</a> and <a href="https://gohugo.io/">Hugo</a></p>
 
     </section>
   </div>
@@ -832,25 +833,13 @@
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li>
-<ul>
-<li>
-<ul>
-<li>
-<ul>
-<li><a href="#mssql-connection-string">MSSQL Connection String</a></li>
-<li><a href="#mysql-connection-string">MySQL Connection String</a></li>
-<li><a href="#postgresql-connection-string">PostgreSQL Connection String</a></li>
-<li><a href="#sqlite3-connection-string">Sqlite3 Connection String</a></li>
-<li><a href="#sap-hana-connection-string">SAP Hana Connection String</a></li>
-</ul></li>
-</ul></li>
-</ul></li>
-</ul></li>
-</ul>
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -859,60 +848,44 @@
               </div>
             </div>
             
-
+        <div id="head-tags">
+        
+        </div>
         
         <div id="body-inner">
           
-            <h1>Database Connection Strings</h1>
+            <h1>
+              
+              Database Connection Strings
+            </h1>
           
 
         
-
 
 
 
 <p>Sqac requires a connection string in order to connect to the target database.  Each of the supported databases has their own distinct connection string syntax.</p>
-
-<p>sqac presently supports MSSQL, MySQL, PostgreSQL, Sqlite3 and the SAP Hana database.  You will need to know the db user-name / password, as well as the address:port and name of the database.  Sample connection strings are provided as a reference.
-<br><br></p>
-
+<p>Sqac presently supports MSSQL, MySQL, PostgreSQL, Sqlite3 and the SAP Hana database.  You will need to know the db user-name / password, as well as the address:port and name of the database.  Sample connection strings are provided as a reference.
+<!-- raw HTML omitted --><!-- raw HTML omitted --></p>
 <h5 id="mssql-connection-string">MSSQL Connection String</h5>
-
-<pre><code class="language-golang">cs := &quot;sqlserver://SA:my_passwd@localhost:1401?database=my_dbname&quot;
-</code></pre>
-
-<p><br></p>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#a6e22e">cs</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;sqlserver://SA:my_passwd@localhost:1401?database=my_dbname&#34;</span>
+</code></pre></div><!-- raw HTML omitted -->
 <h5 id="mysql-connection-string">MySQL Connection String</h5>
-
-<pre><code class="language-golang">cs := &quot;my_uname:my_passwd@tcp(192.168.1.10:3306)/my_dbname?charset=utf8&amp;parseTime=True&amp;loc=Local&quot;
-</code></pre>
-
-<p><br></p>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#a6e22e">cs</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;my_uname:my_passwd@tcp(192.168.1.10:3306)/my_dbname?charset=utf8&amp;parseTime=True&amp;loc=Local&#34;</span>
+</code></pre></div><!-- raw HTML omitted -->
 <h5 id="postgresql-connection-string">PostgreSQL Connection String</h5>
-
-<pre><code class="language-golang">cs := &quot;host=127.0.0.1 user=my_uname dbname=my_dbname sslmode=disable password=my_passwd&quot;
-</code></pre>
-
-<p><br></p>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#a6e22e">cs</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;host=127.0.0.1 user=my_uname dbname=my_dbname sslmode=disable password=my_passwd&#34;</span>
+</code></pre></div><!-- raw HTML omitted -->
 <h5 id="sqlite3-connection-string">Sqlite3 Connection String</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#a6e22e">cs</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;my_db_file.sqlite&#34;</span>
 
-<pre><code class="language-golang">cs := &quot;my_db_file.sqlite&quot;
-
-// or
-
-cs = &quot;my_db_file.db&quot;
-</code></pre>
-
-<p><br></p>
-
+<span style="color:#75715e">// or
+</span><span style="color:#75715e"></span>
+<span style="color:#a6e22e">cs</span> = <span style="color:#e6db74">&#34;my_db_file.db&#34;</span>
+</code></pre></div><!-- raw HTML omitted -->
 <h5 id="sap-hana-connection-string">SAP Hana Connection String</h5>
-
-<pre><code class="language-golang">cs := &quot;hdb://my_uname:my_passwd@192.168.111.45:30015&quot;
-</code></pre>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#a6e22e">cs</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;hdb://my_uname:my_passwd@192.168.111.45:30015&#34;</span>
+</code></pre></div>
 
 <footer class=" footline" >
 	
@@ -1519,20 +1492,19 @@ cs = &quot;my_db_file.db&quot;
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/sqac/js/clipboard.min.js?1545420063"></script>
-    <script src="/sqac/js/perfect-scrollbar.min.js?1545420063"></script>
-    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1545420063"></script>
-    <script src="/sqac/js/jquery.sticky.js?1545420063"></script>
-    <script src="/sqac/js/featherlight.min.js?1545420063"></script>
-    <script src="/sqac/js/html5shiv-printshiv.min.js?1545420063"></script>
-    <script src="/sqac/js/highlight.pack.js?1545420063"></script>
+    <script src="/sqac/js/clipboard.min.js?1578198075"></script>
+    <script src="/sqac/js/perfect-scrollbar.min.js?1578198075"></script>
+    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1578198075"></script>
+    <script src="/sqac/js/jquery.sticky.js?1578198075"></script>
+    <script src="/sqac/js/featherlight.min.js?1578198075"></script>
+    <script src="/sqac/js/highlight.pack.js?1578198075"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/sqac/js/modernizr.custom.71422.js?1545420063"></script>
-    <script src="/sqac/js/learn.js?1545420063"></script>
-    <script src="/sqac/js/hugo-learn.js?1545420063"></script>
+    <script src="/sqac/js/modernizr.custom-3.6.0.js?1578198075"></script>
+    <script src="/sqac/js/learn.js?1578198075"></script>
+    <script src="/sqac/js/hugo-learn.js?1578198075"></script>
 
-    <link href="/sqac/mermaid/mermaid.css?1545420063" type="text/css" rel="stylesheet" />
-    <script src="/sqac/mermaid/mermaid.js?1545420063"></script>
+    <link href="/sqac/mermaid/mermaid.css?1578198075" rel="stylesheet" />
+    <script src="/sqac/mermaid/mermaid.js?1578198075"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

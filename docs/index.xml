@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Sqac ORM</title>
@@ -6,7 +6,7 @@
     <description>Recent content on Sqac ORM</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 06 Dec 2018 16:20:03 -0700</lastBuildDate>
+    <lastBuildDate>Thu, 13 Dec 2018 09:51:20 -0700</lastBuildDate>
     
 	<atom:link href="https://1414c.github.io/sqac/index.xml" rel="self" type="application/rss+xml" />
     
@@ -17,8 +17,8 @@
       <pubDate>Thu, 06 Dec 2018 16:20:03 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/getting-started/gs-content-a/</guid>
-      <description>If you already have Go installed and know that your installation is working, you should skip to the next section. If you need to get Go installed on your machine, keep reading.
-Go is easy to setup and can be installed from source or binary package, both which are available at golang.org. Sqac is presently built and tested using golang version 1.10, but it is best to use the latest stable 1.</description>
+      <description>If you already have Go version 1.13.x or higher installed you should skip to the next section. If you need to get Go installed on your machine, keep reading.
+Go is easy to setup and can be installed from source or binary package, both which are available at golang.org. Sqac is presently built and tested using golang version 1.13.5, but it is fine to use the latest stable 1.x release.</description>
     </item>
     
     <item>
@@ -28,7 +28,7 @@ Go is easy to setup and can be installed from source or binary package, both whi
       
       <guid>https://1414c.github.io/sqac/getting-started/gs-content-b/</guid>
       <description>The easiest way to install sqac is to use go get on the command-line to pull the latest version from github, as shown below:
-go get -u github.com/1414C/sqac  The &amp;lsquo;go get&amp;rsquo; command will pull the sqac github repository into your $GOPATH/src/github.com folder, as well as any dependencies referenced by the sqac source code. The -u flag is included to instruct go get to check for and pull updates to sqac and it&amp;rsquo;s dependencies.</description>
+go get -u github.com/1414C/sqac The &amp;lsquo;go get&amp;rsquo; command will pull the sqac github repository into your $GOPATH/src/github.com folder, as well as any dependencies referenced by the sqac source code. The -u flag is included to instruct go get to check for and pull updates to sqac and it&#39;s dependencies.</description>
     </item>
     
     <item>
@@ -38,7 +38,7 @@ go get -u github.com/1414C/sqac  The &amp;lsquo;go get&amp;rsquo; command will p
       
       <guid>https://1414c.github.io/sqac/getting-started/gs-content-c/</guid>
       <description>The following example illustrates the general usage of the sqac library.
-package main import ( &amp;quot;flag&amp;quot; &amp;quot;fmt&amp;quot; &amp;quot;github.com/1414C/sqac&amp;quot; _ &amp;quot;github.com/SAP/go-hdb/driver&amp;quot; _ &amp;quot;github.com/denisenkom/go-mssqldb&amp;quot; _ &amp;quot;github.com/go-sql-driver/mysql&amp;quot; _ &amp;quot;github.com/lib/pq&amp;quot; _ &amp;quot;github.com/mattn/go-sqlite3&amp;quot; ) func main() { dbFlag := flag.String(&amp;quot;db&amp;quot;, &amp;quot;sqlite&amp;quot;, &amp;quot;db-type for connection&amp;quot;) csFlag := flag.String(&amp;quot;cs&amp;quot;, &amp;quot;testdb.sqlite&amp;quot;, &amp;quot;connection-string for the database&amp;quot;) logFlag := flag.Bool(&amp;quot;l&amp;quot;, false, &amp;quot;activate sqac detail logging to stdout&amp;quot;) dbLogFlag := flag.Bool(&amp;quot;dbl&amp;quot;, false, &amp;quot;activate DDL/DML logging to stdout)&amp;quot;) flag.Parse() // This will be the central access-point to the ORM and should be made // available in all locations where access to the persistent storage // (database) is required.</description>
+package main import ( &amp;#34;flag&amp;#34; &amp;#34;fmt&amp;#34; &amp;#34;github.com/1414C/sqac&amp;#34; _ &amp;#34;github.com/SAP/go-hdb/driver&amp;#34; _ &amp;#34;github.com/denisenkom/go-mssqldb&amp;#34; _ &amp;#34;github.com/go-sql-driver/mysql&amp;#34; _ &amp;#34;github.com/lib/pq&amp;#34; _ &amp;#34;github.com/mattn/go-sqlite3&amp;#34; ) func main() { dbFlag := flag.String(&amp;#34;db&amp;#34;, &amp;#34;sqlite&amp;#34;, &amp;#34;db-type for connection&amp;#34;) csFlag := flag.String(&amp;#34;cs&amp;#34;, &amp;#34;testdb.sqlite&amp;#34;, &amp;#34;connection-string for the database&amp;#34;) logFlag := flag.Bool(&amp;#34;l&amp;#34;, false, &amp;#34;activate sqac detail logging to stdout&amp;#34;) dbLogFlag := flag.Bool(&amp;#34;dbl&amp;#34;, false, &amp;#34;activate DDL/DML logging to stdout)&amp;#34;) flag.Parse() // This will be the central access-point to the ORM and should be made  // available in all locations where access to the persistent storage  // (database) is required.</description>
     </item>
     
     <item>
@@ -48,7 +48,7 @@ package main import ( &amp;quot;flag&amp;quot; &amp;quot;fmt&amp;quot; &amp;quot
       
       <guid>https://1414c.github.io/sqac/getting-started/gs-content-e/</guid>
       <description>Sqac requires a connection string in order to connect to the target database. Each of the supported databases has their own distinct connection string syntax.
-sqac presently supports MSSQL, MySQL, PostgreSQL, Sqlite3 and the SAP Hana database. You will need to know the db user-name / password, as well as the address:port and name of the database. Sample connection strings are provided as a reference. MSSQL Connection String cs := &amp;quot;sqlserver://SA:my_passwd@localhost:1401?</description>
+Sqac presently supports MSSQL, MySQL, PostgreSQL, Sqlite3 and the SAP Hana database. You will need to know the db user-name / password, as well as the address:port and name of the database. Sample connection strings are provided as a reference. MSSQL Connection String cs := &amp;#34;sqlserver://SA:my_passwd@localhost:1401?</description>
     </item>
     
     <item>
@@ -57,9 +57,9 @@ sqac presently supports MSSQL, MySQL, PostgreSQL, Sqlite3 and the SAP Hana datab
       <pubDate>Tue, 11 Dec 2018 15:02:03 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/modeling/md-content-a/</guid>
-      <description>Sqac Tag Overview Sqac table-declarations are informed by go structs with json-style struct-tags indicating column attributes. Two tags are used: &amp;lsquo;db:&amp;rsquo; and &amp;lsquo;sqac:&amp;rsquo;; the &amp;lsquo;db:&amp;rsquo; tag is used to declare the database column name. This is typically the snake_case conversion of the go struct field-name. The &amp;lsquo;sqac:&amp;rsquo; tag is used to declare column attributes.
+      <description>Sqac Tag Overview Sqac table-declarations are informed by go structs with json-style struct-tags indicating column attributes. Two tags are used: &amp;lsquo;db:&#39; and &amp;lsquo;sqac:&#39;; the &amp;lsquo;db:&#39; tag is used to declare the database column name. This is typically the snake_case conversion of the go struct field-name. The &amp;lsquo;sqac:&#39; tag is used to declare column attributes.
 A list of the supported &amp;lsquo;sqac:&amp;rsquo; tag attributes follows:
-   sqac tag Description     &amp;ldquo;primary_key:&amp;rdquo; This tag is used to declare that the specified column should be used as a primary-key in the generated database table.</description>
+   sqac tag Description     &amp;ldquo;primary_key:&amp;quot; This tag is used to declare that the specified column should be used as a primary-key in the generated database table.</description>
     </item>
     
     <item>
@@ -69,7 +69,6 @@ A list of the supported &amp;lsquo;sqac:&amp;rsquo; tag attributes follows:
       
       <guid>https://1414c.github.io/sqac/modeling/md-content-b/</guid>
       <description>&amp;ldquo;primary_key:&amp;rdquo; Overview Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database. The following examples illustrate the use of the &amp;lsquo;sqac:&amp;rsquo; tags described in the Sqac Tag Overview section of this document.
-
 &amp;ldquo;primary_key:&amp;rdquo; example The following example illustrates the use of &amp;lsquo;sqac:&amp;rsquo; tag &amp;ldquo;primary_key:&amp;rdquo; to declare a non-auto-incrementing table primary-key. Sqac expects table primary-keys to be declared as ints.</description>
     </item>
     
@@ -101,7 +100,6 @@ Use the &amp;ldquo;default:&amp;rdquo; tag to explicitly declare default column 
       <guid>https://1414c.github.io/sqac/modeling/md-content-e/</guid>
       <description>&amp;ldquo;index:&amp;rdquo; Overview Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database. The following examples illustrate the use of the &amp;ldquo;index:&amp;rdquo; &amp;lsquo;sqac:&amp;rsquo; tag described in the Sqac Tag Overview section of this document.
 Use the &amp;ldquo;index:&amp;rdquo; tag to declare unique/non-unique indexes in database table schemas. Single column and compound indexes are supported.
-
 &amp;ldquo;index:&amp;lt;unique | non-unique&amp;gt;&amp;rdquo; example The following example illustrates the use of &amp;lsquo;sqac:&amp;rsquo; tag &amp;ldquo;index:&amp;rdquo; to declare a single column unique and single column non-unique index on two table fields.</description>
     </item>
     
@@ -142,7 +140,7 @@ The &amp;ldquo;fkey:&amp;rdquo; tag is used to declare a foreign key for a colum
       
       <guid>https://1414c.github.io/sqac/public-db/a-pdb-handle/</guid>
       <description>Before using the sqac API, a connection must be established to the target database. The main interface used by sqac is called PublicDB and we will call this the so-called Handle variable in the sample code.
-// Handle will be the central access-point to the ORM and should be made // available in all locations where access to the persistent storage // (database) is required. var ( Handle sqac.PublicDB )  Once the Handle variable has been declared, an instance must be created via the sqac.</description>
+// Handle will be the central access-point to the ORM and should be made  // available in all locations where access to the persistent storage  // (database) is required.  var ( Handle sqac.</description>
     </item>
     
     <item>
@@ -151,8 +149,8 @@ The &amp;ldquo;fkey:&amp;rdquo; tag is used to declare a foreign key for a colum
       <pubDate>Fri, 07 Dec 2018 15:48:02 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/b-pdb-create-tables/</guid>
-      <description>PublicDB.CreateTables(i &amp;hellip;interface{}) error The CreateTables method is used to create one or more tables in the target database. CreateTables accepts one or more go struct definitions that have been annotated with &amp;ldquo;sqac:&amp;rdquo; tags and uses the provided information to create new tables in the database.
-Errors encountered during table creation are returned to the caller immediately. This may result in the incomplete processing of the tables contained in parameter i &amp;hellip;interface{}.</description>
+      <description>The CreateTables method is used to create one or more tables in the target database. CreateTables accepts one or more go struct definitions that have been annotated with &amp;ldquo;sqac:&amp;rdquo; tags and uses the provided information to create new tables in the database.
+Errors encountered during table creation are returned to the caller immediately. This may result in the incomplete processing of the tables contained in parameter i &amp;hellip;interface{}. CreateTables Example // Declare a struct to be used as the source for table creation.</description>
     </item>
     
     <item>
@@ -161,7 +159,7 @@ Errors encountered during table creation are returned to the caller immediately.
       <pubDate>Fri, 07 Dec 2018 18:06:32 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/c-pdb-drop-tables/</guid>
-      <description>PublicDB.DropTables(i &amp;hellip;interface{}) error The DropTables method is used to drop one or more tables in the target database. DropTables accepts one or more go struct definitions that have been annotated with &amp;ldquo;sqac:&amp;rdquo; tags and uses the provided information to drop tables in the database. Note that the DropTables method will not attempt to drop a table that does not exist in the target database. In such a case, no error is reported as the database is already in the desired state.</description>
+      <description>The DropTables method is used to drop one or more tables in the target database. DropTables accepts one or more go struct definitions that have been annotated with &amp;ldquo;sqac:&amp;rdquo; tags and uses the provided information to drop tables in the database. Note that the DropTables method will not attempt to drop a table that does not exist in the target database. In such a case, no error is reported as the database is already in the desired state.</description>
     </item>
     
     <item>
@@ -170,8 +168,9 @@ Errors encountered during table creation are returned to the caller immediately.
       <pubDate>Fri, 07 Dec 2018 18:14:27 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/d-pdb-alter-tables/</guid>
-      <description>PublicDB.AlterTables(i &amp;hellip;interface{}) error The AlterTables method can be used to introduce additive changes to existing tables, or create new tables if the tables contained in the variadic parameter list are not present in the database. Permissible table changes include:
- adding one or more columns addition of simple or compound indices addition of foreign-key relationships, as long as the existing data permits it  Inadmissible table changes include:</description>
+      <description>The AlterTables method can be used to introduce additive changes to existing tables, or create new tables if the tables contained in the variadic parameter list are not present in the database. Permissible table changes include:
+ adding one or more columns addition of simple or compound indices addition of foreign-key relationships, as long as the existing data permits it  Inadmissible table changes include:
+ changing the type of an existing column changing the name of an existing column updating the properties of an existing column (nullable/default) deleting an existing column deleting an index deleting an existing foreign-key relationship  To deal with inadmissible changes, it is best to call DropTables followed by CreateTables, or call the DestructiveResetTables method.</description>
     </item>
     
     <item>
@@ -180,7 +179,7 @@ Errors encountered during table creation are returned to the caller immediately.
       <pubDate>Sat, 08 Dec 2018 09:16:22 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/e-pdb-destructive-reset-tables/</guid>
-      <description>PublicDB.DestructiveResetTables(i &amp;hellip;interface{}) error The DestructiveResetTables method is used to drop and recreate one or more tables in the target database. DestructiveResetTables accepts one or more go struct definitions that have been annotated with &amp;ldquo;sqac:&amp;rdquo; tags and uses the provided information to drop and recreate the tables in the database. Note that the DestructiveResetTables method will not attempt to drop a table that does not exist in the target database.</description>
+      <description>The DestructiveResetTables method is used to drop and recreate one or more tables in the target database. DestructiveResetTables accepts one or more go struct definitions that have been annotated with &amp;ldquo;sqac:&amp;rdquo; tags and uses the provided information to drop and recreate the tables in the database. Note that the DestructiveResetTables method will not attempt to drop a table that does not exist in the target database. It follows that the data in the existing table will be lost unless backed up prior to the call to the DestructiveResetTables method.</description>
     </item>
     
     <item>
@@ -189,8 +188,8 @@ Errors encountered during table creation are returned to the caller immediately.
       <pubDate>Sun, 09 Dec 2018 08:59:42 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/f-pdb-exists-table/</guid>
-      <description>PublicDB.ExistsTable(tn string) bool The ExistsTable method is used to check whether a table exists in the target database. ExistsTable accepts a single string argument containing the name of the table to be checked in the database. If the table is found, a &amp;lsquo;true&amp;rsquo; value will be returned to the caller.
-ExistsTable differs from the other *Tables methods in that it does not require the table&amp;rsquo;s go struct declaration to determine the table name.</description>
+      <description>The ExistsTable method is used to check whether a table exists in the target database. ExistsTable accepts a single string argument containing the name of the table to be checked in the database. If the table is found, a &amp;lsquo;true&amp;rsquo; value will be returned to the caller.
+ExistsTable differs from the other *Tables methods in that it does not require the table&#39;s go struct declaration to determine the table name. A string value is used, as this is the only information the method requires to carry out its task, and it is quite likely that the caller already knows the string name before the call is made.</description>
     </item>
     
     <item>
@@ -199,8 +198,8 @@ ExistsTable differs from the other *Tables methods in that it does not require t
       <pubDate>Mon, 10 Dec 2018 09:22:31 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/g-pdb-create-index/</guid>
-      <description>PublicDB.CreateIndex(in string, index IndexInfo) error CreateIndex creates the index contained in the incoming IndexInfo structure. Indexes are created as non-unique by default, and in compound index situations the fields (columns) will be added to the index in the order they are contained in the IndexInfo.[]IndexFields slice.
-Care should be taken when providing an index name, as the value of input variable &amp;lsquo;in&amp;rsquo; is used verbatim when the index is created in the database.</description>
+      <description>CreateIndex creates the index contained in the incoming IndexInfo structure. Indexes are created as non-unique by default, and in compound index situations the fields (columns) will be added to the index in the order they are contained in the IndexInfo.[]IndexFields slice.
+Care should be taken when providing an index name, as the value of input variable &amp;lsquo;in&amp;rsquo; is used verbatim when the index is created in the database. The suggested format for index naming is as follows:</description>
     </item>
     
     <item>
@@ -209,8 +208,8 @@ Care should be taken when providing an index name, as the value of input variabl
       <pubDate>Mon, 10 Dec 2018 09:55:12 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/h-pdb-drop-index/</guid>
-      <description>PublicDB.DropIndex(tn string, in string) error DropIndex drops named index &amp;ldquo;in&amp;rdquo; on database table &amp;ldquo;tn&amp;rdquo;. The method performs a check for the existence of the specified index prior to initiating the drop request to the database. In the event that the specified index does not exist, no error is returned as the database is deemed to be in the correct state.
-When using DropIndex it is important to consider whether the table&amp;rsquo;s source model (go struct annotated with &amp;lsquo;sqac:&amp;rsquo; tags) contains the index declaration.</description>
+      <description>DropIndex drops named index &amp;ldquo;in&amp;rdquo; on database table &amp;ldquo;tn&amp;rdquo;. The method performs a check for the existence of the specified index prior to initiating the drop request to the database. In the event that the specified index does not exist, no error is returned as the database is deemed to be in the correct state.
+When using DropIndex it is important to consider whether the table&#39;s source model (go struct annotated with &amp;lsquo;sqac:&amp;rsquo; tags) contains the index declaration.</description>
     </item>
     
     <item>
@@ -219,9 +218,9 @@ When using DropIndex it is important to consider whether the table&amp;rsquo;s s
       <pubDate>Mon, 10 Dec 2018 10:23:14 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/i-pdb-exists-index/</guid>
-      <description>PublicDB.ExistsIndex(tn string, in string) bool ExistsIndex checks for the existence of named index &amp;ldquo;in&amp;rdquo; on database table &amp;ldquo;tn&amp;rdquo;. The method returns true if the specified index exists and false if it does not.
+      <description>ExistsIndex checks for the existence of named index &amp;ldquo;in&amp;rdquo; on database table &amp;ldquo;tn&amp;rdquo;. The method returns true if the specified index exists and false if it does not.
 This method is used internally in PublicDB.DropIndex and does not need to be called prior to dropping a database index.
-ExistsIndex Example The following structure &amp;lsquo;Depot&amp;rsquo; has been used to create table &amp;ldquo;depot&amp;rdquo; in the target database with index &amp;ldquo;idx_depot_region_county&amp;rdquo;.</description>
+ExistsIndex Example The following structure &amp;lsquo;Depot&amp;rsquo; has been used to create table &amp;ldquo;depot&amp;rdquo; in the target database with index &amp;ldquo;idx_depot_region_county&amp;rdquo;. We will check for the existence of &amp;ldquo;idx_depot_region_county&amp;rdquo; expecting a true result, then check for the existence of index &amp;ldquo;idx_depot_province_region&amp;rdquo; expecting a false result.</description>
     </item>
     
     <item>
@@ -230,7 +229,7 @@ ExistsIndex Example The following structure &amp;lsquo;Depot&amp;rsquo; has been
       <pubDate>Mon, 10 Dec 2018 15:20:15 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/j-pdb-create/</guid>
-      <description>PublicDB.Create(ent interface{}) error The Create method is part of sqac&amp;rsquo;s CRUD API and is used to insert a single-row of the specified entity into it&amp;rsquo;s related database table. Structs annotated with &amp;lsquo;sqac:&amp;rsquo; tags are colloquially known as sqac entities, hence the parameter name &amp;lsquo;ent&amp;rsquo;.
+      <description>The Create method is part of sqac&#39;s CRUD API and is used to insert a single-row of the specified entity into it&#39;s related database table. Structs annotated with &amp;lsquo;sqac:&amp;rsquo; tags are colloquially known as sqac entities, hence the parameter name &amp;lsquo;ent&amp;rsquo;.
 The ent parameter must be a pointer to a populated go struct of the sqac table declaration. If an error is encountered, it will be returned to the caller.</description>
     </item>
     
@@ -240,7 +239,7 @@ The ent parameter must be a pointer to a populated go struct of the sqac table d
       <pubDate>Mon, 10 Dec 2018 15:38:16 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/k-pdb-update/</guid>
-      <description>PublicDB.Update(ent interface{}) error The Update method is part of sqac&amp;rsquo;s CRUD API and is used to update an existing row of the specified entity into it&amp;rsquo;s related database table. Structs annotated with &amp;lsquo;sqac:&amp;rsquo; tags are colloquially known as sqac entities, hence the parameter name &amp;lsquo;ent&amp;rsquo;.
+      <description>The Update method is part of sqac&#39;s CRUD API and is used to update an existing row of the specified entity into it&#39;s related database table. Structs annotated with &amp;lsquo;sqac:&amp;rsquo; tags are colloquially known as sqac entities, hence the parameter name &amp;lsquo;ent&amp;rsquo;.
 The ent parameter must be a pointer to a populated go struct of the sqac table declaration. If the table contains a primary-key in the database, the key column(s) may not be updated, but must be included.</description>
     </item>
     
@@ -250,7 +249,7 @@ The ent parameter must be a pointer to a populated go struct of the sqac table d
       <pubDate>Mon, 10 Dec 2018 16:41:17 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/l-pdb-delete/</guid>
-      <description>PublicDB.Delete(ent interface{}) error The Delete method is part of sqac&amp;rsquo;s CRUD API and is used to Delete an existing row of the specified entity from it&amp;rsquo;s related database table. Structs annotated with &amp;lsquo;sqac:&amp;rsquo; tags are colloquially known as sqac entities, hence the parameter name &amp;lsquo;ent&amp;rsquo;.
+      <description>The Delete method is part of sqac&#39;s CRUD API and is used to Delete an existing row of the specified entity from it&#39;s related database table. Structs annotated with &amp;lsquo;sqac:&amp;rsquo; tags are colloquially known as sqac entities, hence the parameter name &amp;lsquo;ent&amp;rsquo;.
 The ent parameter must be a pointer to a populated go struct of the sqac table declaration. If the table contains a primary-key in the database, the key column(s) should be completely populated.</description>
     </item>
     
@@ -260,8 +259,8 @@ The ent parameter must be a pointer to a populated go struct of the sqac table d
       <pubDate>Mon, 10 Dec 2018 16:50:18 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/m-pdb-get-entity/</guid>
-      <description>PublicDB.GetEntity(ent interface{}) error The GetEntity method is part of sqac&amp;rsquo;s CRUD API and is used to retrieve an existing row of the specified entity from it&amp;rsquo;s related database table. Structs annotated with &amp;lsquo;sqac:&amp;rsquo; tags are colloquially known as sqac entities, hence the parameter name &amp;lsquo;ent&amp;rsquo;.
-The ent parameter must be a pointer to a go struct of the sqac table declaration in which the primary-key fields have been populated.</description>
+      <description>The GetEntity method is part of sqac&#39;s CRUD API and is used to retrieve an existing row of the specified entity from it&#39;s related database table. Structs annotated with &amp;lsquo;sqac:&amp;rsquo; tags are colloquially known as sqac entities, hence the parameter name &amp;lsquo;ent&amp;rsquo;.
+The ent parameter must be a pointer to a go struct of the sqac table declaration in which the primary-key fields have been populated. The GetEntity method can be thought of as a fully-keyed SELECT SINGLE statement.</description>
     </item>
     
     <item>
@@ -270,8 +269,8 @@ The ent parameter must be a pointer to a go struct of the sqac table declaration
       <pubDate>Mon, 10 Dec 2018 17:00:19 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/n-pdb-get-entities-with-commands-ip/</guid>
-      <description>PublicDB.GetEntitiesCP(ents interface{}, params []GetParam, cmdMap map[string]interface{}) (uint64, error) The GetEntitiesCP method is part of sqac&amp;rsquo;s CRUD API and is used to retrieve existing rows of the specified entity from their related database table. Structs annotated with &amp;lsquo;sqac:&amp;rsquo; tags are colloquially known as sqac entities, hence the parameter name &amp;lsquo;ents&amp;rsquo;.
-The ents parameter must be a pointer to a slice declared using the go struct-type corresponding to the targeted database table.</description>
+      <description>The GetEntitiesCP method is part of sqac&#39;s CRUD API and is used to retrieve existing rows of the specified entity from their related database table. Structs annotated with &amp;lsquo;sqac:&amp;rsquo; tags are colloquially known as sqac entities, hence the parameter name &amp;lsquo;ents&amp;rsquo;.
+The ents parameter must be a pointer to a slice declared using the go struct-type corresponding to the targeted database table. This method can be thought of as a flexible retrieval mechanism for one or more database records.</description>
     </item>
     
     <item>
@@ -280,8 +279,9 @@ The ents parameter must be a pointer to a slice declared using the go struct-typ
       <pubDate>Wed, 12 Dec 2018 17:19:17 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/o-pdb-create-foreign-key/</guid>
-      <description>PublicDB.CreateForeignKey(i interface{}, ft, rt, ff, rf string) error The CreateForeignKey method facilitates the creation of a foreign-key on a table column in the database. A foreign-key constraint is created on the assigned column, thereby limiting its allowable values to those found in the table.column referenced in the foreign-key declaration.
-In general, it is more desirable to declare foreign-keys in the model via the &amp;ldquo;fkey:&amp;rdquo; &amp;lsquo;sqac:&amp;rsquo; tag than to call this method directly.</description>
+      <description>The CreateForeignKey method facilitates the creation of a foreign-key on a table column in the database. A foreign-key constraint is created on the assigned column, thereby limiting its allowable values to those found in the table.column referenced in the foreign-key declaration.
+In general, it is more desirable to declare foreign-keys in the model via the &amp;ldquo;fkey:&amp;rdquo; &amp;lsquo;sqac:&amp;rsquo; tag than to call this method directly.
+Parameters    Parameter Description     i interface{} Accepts the go struct type of the table on which the foreign-key is being declared.</description>
     </item>
     
     <item>
@@ -290,9 +290,8 @@ In general, it is more desirable to declare foreign-keys in the model via the &a
       <pubDate>Thu, 13 Dec 2018 08:51:18 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/p-pdb-drop-foreign-key/</guid>
-      <description>PublicDB.DropForeignKey(i interface{}, ft, fkn string) error The DropForeignKey method facilitates the dropping of an existing foreign-key constraint in the database.
-Parameters    Parameter Description     i interface{} Accepts the go struct type of the table from which the foreign-key is being dropped. For example:
-If table column product.warehouse_id had a foreign-key constraint against table column warehouse.id, this parameter should be provided with go type Product{}.</description>
+      <description>The DropForeignKey method facilitates the dropping of an existing foreign-key constraint in the database.
+Parameters    Parameter Description     i interface{} Accepts the go struct type of the table from which the foreign-key is being dropped. For example:If table column product.warehouse_id had a foreign-key constraint against table column warehouse.id, this parameter should be provided with go type Product{}.   ft string The database table name of the table on which the foreign-key is being dropped.</description>
     </item>
     
     <item>
@@ -301,9 +300,9 @@ If table column product.warehouse_id had a foreign-key constraint against table 
       <pubDate>Thu, 13 Dec 2018 09:33:19 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/q-pdb-exists-foreign-key-by-name/</guid>
-      <description>PublicDB.ExistsForeignKeyByName(i interface{}, fkn string) (bool, error) The ExistsForeignKeyByName method checks for the existence of the specified foreign-key constraint in the database.
+      <description>PublicDB.ExistsForeignKeyByName(i interface The ExistsForeignKeyByName method checks for the existence of the specified foreign-key constraint in the database.
 The following go structs contain &amp;lsquo;sqac:&amp;rsquo; tags declaring a foreign-key constraint between table column product.warehouse_id and table column warehouse.id. The resulting foreign-key constraint on table column product.warehouse_id would be named &amp;ldquo;fk_product_warehouse_id&amp;rdquo; based on the sqac foreign-key naming standard.
-type Warehouse struct { ID uint64 `db:&amp;quot;id&amp;quot; json:&amp;quot;id&amp;quot; sqac:&amp;quot;primary_key:inc;start:40000000&amp;quot;` City string `db:&amp;quot;city&amp;quot; json:&amp;quot;city&amp;quot; sqac:&amp;quot;nullable:false;default:Calgary&amp;quot;` Quadrant string `db:&amp;quot;quadrant&amp;quot; json:&amp;quot;quadrant&amp;quot; sqac:&amp;quot;nullable:false;default:SE&amp;quot;` } type Product struct { ID uint64 `db:&amp;quot;id&amp;quot; json:&amp;quot;id&amp;quot; sqac:&amp;quot;primary_key:inc;start:95000000&amp;quot;` ProductName string `db:&amp;quot;product_name&amp;quot; json:&amp;quot;product_name&amp;quot; sqac:&amp;quot;nullable:false;default:unknown&amp;quot;` ProductCode string `db:&amp;quot;product_code&amp;quot; json:&amp;quot;product_code&amp;quot; sqac:&amp;quot;nullable:false;default:0000-0000-00&amp;quot;` UOM string `db:&amp;quot;uom&amp;quot; json:&amp;quot;uom&amp;quot; sqac:&amp;quot;nullable:false;default:EA&amp;quot;` // foreign-key declared against table &amp;quot;warehouse&amp;quot;, column &amp;quot;id&amp;quot; WarehouseID uint64 `db:&amp;quot;warehouse_id&amp;quot; json:&amp;quot;warehouse_id&amp;quot; sqac:&amp;quot;nullable:false;fkey:warehouse(id)&amp;quot;` }  Parameters    Parameter Description     i interface{} Accepts the go struct type of the table from which the foreign-key is thought to be declared.</description>
+type Warehouse struct { ID uint64 `db:&amp;#34;id&amp;#34; json:&amp;#34;id&amp;#34; sqac:&amp;#34;primary_key:inc;start:40000000&amp;#34;` City string `db:&amp;#34;city&amp;#34; json:&amp;#34;city&amp;#34; sqac:&amp;#34;nullable:false;default:Calgary&amp;#34;` Quadrant string `db:&amp;#34;quadrant&amp;#34; json:&amp;#34;quadrant&amp;#34; sqac:&amp;#34;nullable:false;default:SE&amp;#34;` } type Product struct { ID uint64 `db:&amp;#34;id&amp;#34; json:&amp;#34;id&amp;#34; sqac:&amp;#34;primary_key:inc;start:95000000&amp;#34;` ProductName string `db:&amp;#34;product_name&amp;#34; json:&amp;#34;product_name&amp;#34; sqac:&amp;#34;nullable:false;default:unknown&amp;#34;` ProductCode string `db:&amp;#34;product_code&amp;#34; json:&amp;#34;product_code&amp;#34; sqac:&amp;#34;nullable:false;default:0000-0000-00&amp;#34;` UOM string `db:&amp;#34;uom&amp;#34; json:&amp;#34;uom&amp;#34; sqac:&amp;#34;nullable:false;default:EA&amp;#34;` // foreign-key declared against table &amp;#34;warehouse&amp;#34;, column &amp;#34;id&amp;#34;  WarehouseID uint64 `db:&amp;#34;warehouse_id&amp;#34; json:&amp;#34;warehouse_id&amp;#34; sqac:&amp;#34;nullable:false;fkey:warehouse(id)&amp;#34;` } Parameters    Parameter Description     i interface{} Accepts the go struct type of the table from which the foreign-key is thought to be declared.</description>
     </item>
     
     <item>
@@ -312,9 +311,9 @@ type Warehouse struct { ID uint64 `db:&amp;quot;id&amp;quot; json:&amp;quot;id&a
       <pubDate>Thu, 13 Dec 2018 09:51:20 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/r-pdb-exists-foreign-key-by-fields/</guid>
-      <description>PublicDB.ExistsForeignKeyByFields(i interface{}, ft, rt, ff, rf string) (bool, error) The ExistsForeignKeyByName method checks for the existence of the specified foreign-key constraint in the database.
+      <description>PublicDB.ExistsForeignKeyByFields(i interface The ExistsForeignKeyByName method checks for the existence of the specified foreign-key constraint in the database.
 The following go structs contain &amp;lsquo;sqac:&amp;rsquo; tags declaring a foreign-key constraint between table column product.warehouse_id and table column warehouse.id. The resulting foreign-key constraint on table column product.warehouse_id would be named &amp;ldquo;fk_product_warehouse_id&amp;rdquo; based on the sqac foreign-key naming standard.
-type Warehouse struct { ID uint64 `db:&amp;quot;id&amp;quot; json:&amp;quot;id&amp;quot; sqac:&amp;quot;primary_key:inc;start:40000000&amp;quot;` City string `db:&amp;quot;city&amp;quot; json:&amp;quot;city&amp;quot; sqac:&amp;quot;nullable:false;default:Calgary&amp;quot;` Quadrant string `db:&amp;quot;quadrant&amp;quot; json:&amp;quot;quadrant&amp;quot; sqac:&amp;quot;nullable:false;default:SE&amp;quot;` } type Product struct { ID uint64 `db:&amp;quot;id&amp;quot; json:&amp;quot;id&amp;quot; sqac:&amp;quot;primary_key:inc;start:95000000&amp;quot;` ProductName string `db:&amp;quot;product_name&amp;quot; json:&amp;quot;product_name&amp;quot; sqac:&amp;quot;nullable:false;default:unknown&amp;quot;` ProductCode string `db:&amp;quot;product_code&amp;quot; json:&amp;quot;product_code&amp;quot; sqac:&amp;quot;nullable:false;default:0000-0000-00&amp;quot;` UOM string `db:&amp;quot;uom&amp;quot; json:&amp;quot;uom&amp;quot; sqac:&amp;quot;nullable:false;default:EA&amp;quot;` // foreign-key declared against table &amp;quot;warehouse&amp;quot;, column &amp;quot;id&amp;quot; WarehouseID uint64 `db:&amp;quot;warehouse_id&amp;quot; json:&amp;quot;warehouse_id&amp;quot; sqac:&amp;quot;nullable:false;fkey:warehouse(id)&amp;quot;` }  Parameters    Parameter Description     i interface{} Accepts the go struct type of the table on which the foreign-key is thought to be declared.</description>
+type Warehouse struct { ID uint64 `db:&amp;#34;id&amp;#34; json:&amp;#34;id&amp;#34; sqac:&amp;#34;primary_key:inc;start:40000000&amp;#34;` City string `db:&amp;#34;city&amp;#34; json:&amp;#34;city&amp;#34; sqac:&amp;#34;nullable:false;default:Calgary&amp;#34;` Quadrant string `db:&amp;#34;quadrant&amp;#34; json:&amp;#34;quadrant&amp;#34; sqac:&amp;#34;nullable:false;default:SE&amp;#34;` } type Product struct { ID uint64 `db:&amp;#34;id&amp;#34; json:&amp;#34;id&amp;#34; sqac:&amp;#34;primary_key:inc;start:95000000&amp;#34;` ProductName string `db:&amp;#34;product_name&amp;#34; json:&amp;#34;product_name&amp;#34; sqac:&amp;#34;nullable:false;default:unknown&amp;#34;` ProductCode string `db:&amp;#34;product_code&amp;#34; json:&amp;#34;product_code&amp;#34; sqac:&amp;#34;nullable:false;default:0000-0000-00&amp;#34;` UOM string `db:&amp;#34;uom&amp;#34; json:&amp;#34;uom&amp;#34; sqac:&amp;#34;nullable:false;default:EA&amp;#34;` // foreign-key declared against table &amp;#34;warehouse&amp;#34;, column &amp;#34;id&amp;#34;  WarehouseID uint64 `db:&amp;#34;warehouse_id&amp;#34; json:&amp;#34;warehouse_id&amp;#34; sqac:&amp;#34;nullable:false;fkey:warehouse(id)&amp;#34;` } Parameters    Parameter Description     i interface{} Accepts the go struct type of the table on which the foreign-key is thought to be declared.</description>
     </item>
     
     <item>
@@ -324,8 +323,8 @@ type Warehouse struct { ID uint64 `db:&amp;quot;id&amp;quot; json:&amp;quot;id&a
       
       <guid>https://1414c.github.io/sqac/public-db/z-pdb-data-types/</guid>
       <description>sqac.IndexInfo IndexInfo is used by sqac to provide information to the PublicDB.CreateIndex method regarding the table name, uniqueness and columns to be included in a new database index.
-// IndexInfo contains index definitions as read from the sqac:&amp;quot;index&amp;quot; tags type IndexInfo struct { TableName string Unique bool IndexFields []string }  
-sqac.GetParam GetParam defines a common structure for CRUD GET parameters and is used in the PublicDB.GetEntitiesCP method.</description>
+// IndexInfo contains index definitions as read from the sqac:&amp;#34;index&amp;#34; tags type IndexInfo struct { TableName string Unique bool IndexFields []string } sqac.GetParam GetParam defines a common structure for CRUD GET parameters and is used in the PublicDB.GetEntitiesCP method.
+type GetParam struct { FieldName string // database column name  Operand string // operand for parameter (ie.</description>
     </item>
     
     <item>
@@ -334,7 +333,7 @@ sqac.GetParam GetParam defines a common structure for CRUD GET parameters and is
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://1414c.github.io/sqac/credits/</guid>
-      <description> Contributors Thanks to them  for making Open Source Software a better place !
+      <description>Contributors Thanks to them for making Open Source Software a better place !
 Packages and libraries  sqlx go-sql-driver/mysql lib/pq go-sqlite3 go-mssqldb go-hdb  Supported Databases  Small. Fast. Reliable. Choose any three.    The world&amp;#39;s most advanced open source database        SAP Hana   Tooling  Hugo Hugo Learn Theme  </description>
     </item>
     

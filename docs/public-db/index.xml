@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>PublicDB API on Sqac ORM</title>
@@ -6,7 +6,7 @@
     <description>Recent content in PublicDB API on Sqac ORM</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 07 Dec 2018 16:48:02 -0700</lastBuildDate>
+    <lastBuildDate>Thu, 13 Dec 2018 09:51:20 -0700</lastBuildDate>
     
 	<atom:link href="https://1414c.github.io/sqac/public-db/index.xml" rel="self" type="application/rss+xml" />
     
@@ -18,7 +18,7 @@
       
       <guid>https://1414c.github.io/sqac/public-db/a-pdb-handle/</guid>
       <description>Before using the sqac API, a connection must be established to the target database. The main interface used by sqac is called PublicDB and we will call this the so-called Handle variable in the sample code.
-// Handle will be the central access-point to the ORM and should be made // available in all locations where access to the persistent storage // (database) is required. var ( Handle sqac.PublicDB )  Once the Handle variable has been declared, an instance must be created via the sqac.</description>
+// Handle will be the central access-point to the ORM and should be made  // available in all locations where access to the persistent storage  // (database) is required.  var ( Handle sqac.</description>
     </item>
     
     <item>
@@ -27,8 +27,8 @@
       <pubDate>Fri, 07 Dec 2018 15:48:02 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/b-pdb-create-tables/</guid>
-      <description>PublicDB.CreateTables(i &amp;hellip;interface{}) error The CreateTables method is used to create one or more tables in the target database. CreateTables accepts one or more go struct definitions that have been annotated with &amp;ldquo;sqac:&amp;rdquo; tags and uses the provided information to create new tables in the database.
-Errors encountered during table creation are returned to the caller immediately. This may result in the incomplete processing of the tables contained in parameter i &amp;hellip;interface{}.</description>
+      <description>The CreateTables method is used to create one or more tables in the target database. CreateTables accepts one or more go struct definitions that have been annotated with &amp;ldquo;sqac:&amp;rdquo; tags and uses the provided information to create new tables in the database.
+Errors encountered during table creation are returned to the caller immediately. This may result in the incomplete processing of the tables contained in parameter i &amp;hellip;interface{}. CreateTables Example // Declare a struct to be used as the source for table creation.</description>
     </item>
     
     <item>
@@ -37,7 +37,7 @@ Errors encountered during table creation are returned to the caller immediately.
       <pubDate>Fri, 07 Dec 2018 18:06:32 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/c-pdb-drop-tables/</guid>
-      <description>PublicDB.DropTables(i &amp;hellip;interface{}) error The DropTables method is used to drop one or more tables in the target database. DropTables accepts one or more go struct definitions that have been annotated with &amp;ldquo;sqac:&amp;rdquo; tags and uses the provided information to drop tables in the database. Note that the DropTables method will not attempt to drop a table that does not exist in the target database. In such a case, no error is reported as the database is already in the desired state.</description>
+      <description>The DropTables method is used to drop one or more tables in the target database. DropTables accepts one or more go struct definitions that have been annotated with &amp;ldquo;sqac:&amp;rdquo; tags and uses the provided information to drop tables in the database. Note that the DropTables method will not attempt to drop a table that does not exist in the target database. In such a case, no error is reported as the database is already in the desired state.</description>
     </item>
     
     <item>
@@ -46,8 +46,9 @@ Errors encountered during table creation are returned to the caller immediately.
       <pubDate>Fri, 07 Dec 2018 18:14:27 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/d-pdb-alter-tables/</guid>
-      <description>PublicDB.AlterTables(i &amp;hellip;interface{}) error The AlterTables method can be used to introduce additive changes to existing tables, or create new tables if the tables contained in the variadic parameter list are not present in the database. Permissible table changes include:
- adding one or more columns addition of simple or compound indices addition of foreign-key relationships, as long as the existing data permits it  Inadmissible table changes include:</description>
+      <description>The AlterTables method can be used to introduce additive changes to existing tables, or create new tables if the tables contained in the variadic parameter list are not present in the database. Permissible table changes include:
+ adding one or more columns addition of simple or compound indices addition of foreign-key relationships, as long as the existing data permits it  Inadmissible table changes include:
+ changing the type of an existing column changing the name of an existing column updating the properties of an existing column (nullable/default) deleting an existing column deleting an index deleting an existing foreign-key relationship  To deal with inadmissible changes, it is best to call DropTables followed by CreateTables, or call the DestructiveResetTables method.</description>
     </item>
     
     <item>
@@ -56,7 +57,7 @@ Errors encountered during table creation are returned to the caller immediately.
       <pubDate>Sat, 08 Dec 2018 09:16:22 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/e-pdb-destructive-reset-tables/</guid>
-      <description>PublicDB.DestructiveResetTables(i &amp;hellip;interface{}) error The DestructiveResetTables method is used to drop and recreate one or more tables in the target database. DestructiveResetTables accepts one or more go struct definitions that have been annotated with &amp;ldquo;sqac:&amp;rdquo; tags and uses the provided information to drop and recreate the tables in the database. Note that the DestructiveResetTables method will not attempt to drop a table that does not exist in the target database.</description>
+      <description>The DestructiveResetTables method is used to drop and recreate one or more tables in the target database. DestructiveResetTables accepts one or more go struct definitions that have been annotated with &amp;ldquo;sqac:&amp;rdquo; tags and uses the provided information to drop and recreate the tables in the database. Note that the DestructiveResetTables method will not attempt to drop a table that does not exist in the target database. It follows that the data in the existing table will be lost unless backed up prior to the call to the DestructiveResetTables method.</description>
     </item>
     
     <item>
@@ -65,8 +66,8 @@ Errors encountered during table creation are returned to the caller immediately.
       <pubDate>Sun, 09 Dec 2018 08:59:42 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/f-pdb-exists-table/</guid>
-      <description>PublicDB.ExistsTable(tn string) bool The ExistsTable method is used to check whether a table exists in the target database. ExistsTable accepts a single string argument containing the name of the table to be checked in the database. If the table is found, a &amp;lsquo;true&amp;rsquo; value will be returned to the caller.
-ExistsTable differs from the other *Tables methods in that it does not require the table&amp;rsquo;s go struct declaration to determine the table name.</description>
+      <description>The ExistsTable method is used to check whether a table exists in the target database. ExistsTable accepts a single string argument containing the name of the table to be checked in the database. If the table is found, a &amp;lsquo;true&amp;rsquo; value will be returned to the caller.
+ExistsTable differs from the other *Tables methods in that it does not require the table&#39;s go struct declaration to determine the table name. A string value is used, as this is the only information the method requires to carry out its task, and it is quite likely that the caller already knows the string name before the call is made.</description>
     </item>
     
     <item>
@@ -75,8 +76,8 @@ ExistsTable differs from the other *Tables methods in that it does not require t
       <pubDate>Mon, 10 Dec 2018 09:22:31 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/g-pdb-create-index/</guid>
-      <description>PublicDB.CreateIndex(in string, index IndexInfo) error CreateIndex creates the index contained in the incoming IndexInfo structure. Indexes are created as non-unique by default, and in compound index situations the fields (columns) will be added to the index in the order they are contained in the IndexInfo.[]IndexFields slice.
-Care should be taken when providing an index name, as the value of input variable &amp;lsquo;in&amp;rsquo; is used verbatim when the index is created in the database.</description>
+      <description>CreateIndex creates the index contained in the incoming IndexInfo structure. Indexes are created as non-unique by default, and in compound index situations the fields (columns) will be added to the index in the order they are contained in the IndexInfo.[]IndexFields slice.
+Care should be taken when providing an index name, as the value of input variable &amp;lsquo;in&amp;rsquo; is used verbatim when the index is created in the database. The suggested format for index naming is as follows:</description>
     </item>
     
     <item>
@@ -85,8 +86,8 @@ Care should be taken when providing an index name, as the value of input variabl
       <pubDate>Mon, 10 Dec 2018 09:55:12 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/h-pdb-drop-index/</guid>
-      <description>PublicDB.DropIndex(tn string, in string) error DropIndex drops named index &amp;ldquo;in&amp;rdquo; on database table &amp;ldquo;tn&amp;rdquo;. The method performs a check for the existence of the specified index prior to initiating the drop request to the database. In the event that the specified index does not exist, no error is returned as the database is deemed to be in the correct state.
-When using DropIndex it is important to consider whether the table&amp;rsquo;s source model (go struct annotated with &amp;lsquo;sqac:&amp;rsquo; tags) contains the index declaration.</description>
+      <description>DropIndex drops named index &amp;ldquo;in&amp;rdquo; on database table &amp;ldquo;tn&amp;rdquo;. The method performs a check for the existence of the specified index prior to initiating the drop request to the database. In the event that the specified index does not exist, no error is returned as the database is deemed to be in the correct state.
+When using DropIndex it is important to consider whether the table&#39;s source model (go struct annotated with &amp;lsquo;sqac:&amp;rsquo; tags) contains the index declaration.</description>
     </item>
     
     <item>
@@ -95,9 +96,9 @@ When using DropIndex it is important to consider whether the table&amp;rsquo;s s
       <pubDate>Mon, 10 Dec 2018 10:23:14 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/i-pdb-exists-index/</guid>
-      <description>PublicDB.ExistsIndex(tn string, in string) bool ExistsIndex checks for the existence of named index &amp;ldquo;in&amp;rdquo; on database table &amp;ldquo;tn&amp;rdquo;. The method returns true if the specified index exists and false if it does not.
+      <description>ExistsIndex checks for the existence of named index &amp;ldquo;in&amp;rdquo; on database table &amp;ldquo;tn&amp;rdquo;. The method returns true if the specified index exists and false if it does not.
 This method is used internally in PublicDB.DropIndex and does not need to be called prior to dropping a database index.
-ExistsIndex Example The following structure &amp;lsquo;Depot&amp;rsquo; has been used to create table &amp;ldquo;depot&amp;rdquo; in the target database with index &amp;ldquo;idx_depot_region_county&amp;rdquo;.</description>
+ExistsIndex Example The following structure &amp;lsquo;Depot&amp;rsquo; has been used to create table &amp;ldquo;depot&amp;rdquo; in the target database with index &amp;ldquo;idx_depot_region_county&amp;rdquo;. We will check for the existence of &amp;ldquo;idx_depot_region_county&amp;rdquo; expecting a true result, then check for the existence of index &amp;ldquo;idx_depot_province_region&amp;rdquo; expecting a false result.</description>
     </item>
     
     <item>
@@ -106,7 +107,7 @@ ExistsIndex Example The following structure &amp;lsquo;Depot&amp;rsquo; has been
       <pubDate>Mon, 10 Dec 2018 15:20:15 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/j-pdb-create/</guid>
-      <description>PublicDB.Create(ent interface{}) error The Create method is part of sqac&amp;rsquo;s CRUD API and is used to insert a single-row of the specified entity into it&amp;rsquo;s related database table. Structs annotated with &amp;lsquo;sqac:&amp;rsquo; tags are colloquially known as sqac entities, hence the parameter name &amp;lsquo;ent&amp;rsquo;.
+      <description>The Create method is part of sqac&#39;s CRUD API and is used to insert a single-row of the specified entity into it&#39;s related database table. Structs annotated with &amp;lsquo;sqac:&amp;rsquo; tags are colloquially known as sqac entities, hence the parameter name &amp;lsquo;ent&amp;rsquo;.
 The ent parameter must be a pointer to a populated go struct of the sqac table declaration. If an error is encountered, it will be returned to the caller.</description>
     </item>
     
@@ -116,7 +117,7 @@ The ent parameter must be a pointer to a populated go struct of the sqac table d
       <pubDate>Mon, 10 Dec 2018 15:38:16 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/k-pdb-update/</guid>
-      <description>PublicDB.Update(ent interface{}) error The Update method is part of sqac&amp;rsquo;s CRUD API and is used to update an existing row of the specified entity into it&amp;rsquo;s related database table. Structs annotated with &amp;lsquo;sqac:&amp;rsquo; tags are colloquially known as sqac entities, hence the parameter name &amp;lsquo;ent&amp;rsquo;.
+      <description>The Update method is part of sqac&#39;s CRUD API and is used to update an existing row of the specified entity into it&#39;s related database table. Structs annotated with &amp;lsquo;sqac:&amp;rsquo; tags are colloquially known as sqac entities, hence the parameter name &amp;lsquo;ent&amp;rsquo;.
 The ent parameter must be a pointer to a populated go struct of the sqac table declaration. If the table contains a primary-key in the database, the key column(s) may not be updated, but must be included.</description>
     </item>
     
@@ -126,7 +127,7 @@ The ent parameter must be a pointer to a populated go struct of the sqac table d
       <pubDate>Mon, 10 Dec 2018 16:41:17 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/l-pdb-delete/</guid>
-      <description>PublicDB.Delete(ent interface{}) error The Delete method is part of sqac&amp;rsquo;s CRUD API and is used to Delete an existing row of the specified entity from it&amp;rsquo;s related database table. Structs annotated with &amp;lsquo;sqac:&amp;rsquo; tags are colloquially known as sqac entities, hence the parameter name &amp;lsquo;ent&amp;rsquo;.
+      <description>The Delete method is part of sqac&#39;s CRUD API and is used to Delete an existing row of the specified entity from it&#39;s related database table. Structs annotated with &amp;lsquo;sqac:&amp;rsquo; tags are colloquially known as sqac entities, hence the parameter name &amp;lsquo;ent&amp;rsquo;.
 The ent parameter must be a pointer to a populated go struct of the sqac table declaration. If the table contains a primary-key in the database, the key column(s) should be completely populated.</description>
     </item>
     
@@ -136,8 +137,8 @@ The ent parameter must be a pointer to a populated go struct of the sqac table d
       <pubDate>Mon, 10 Dec 2018 16:50:18 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/m-pdb-get-entity/</guid>
-      <description>PublicDB.GetEntity(ent interface{}) error The GetEntity method is part of sqac&amp;rsquo;s CRUD API and is used to retrieve an existing row of the specified entity from it&amp;rsquo;s related database table. Structs annotated with &amp;lsquo;sqac:&amp;rsquo; tags are colloquially known as sqac entities, hence the parameter name &amp;lsquo;ent&amp;rsquo;.
-The ent parameter must be a pointer to a go struct of the sqac table declaration in which the primary-key fields have been populated.</description>
+      <description>The GetEntity method is part of sqac&#39;s CRUD API and is used to retrieve an existing row of the specified entity from it&#39;s related database table. Structs annotated with &amp;lsquo;sqac:&amp;rsquo; tags are colloquially known as sqac entities, hence the parameter name &amp;lsquo;ent&amp;rsquo;.
+The ent parameter must be a pointer to a go struct of the sqac table declaration in which the primary-key fields have been populated. The GetEntity method can be thought of as a fully-keyed SELECT SINGLE statement.</description>
     </item>
     
     <item>
@@ -146,8 +147,8 @@ The ent parameter must be a pointer to a go struct of the sqac table declaration
       <pubDate>Mon, 10 Dec 2018 17:00:19 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/n-pdb-get-entities-with-commands-ip/</guid>
-      <description>PublicDB.GetEntitiesCP(ents interface{}, params []GetParam, cmdMap map[string]interface{}) (uint64, error) The GetEntitiesCP method is part of sqac&amp;rsquo;s CRUD API and is used to retrieve existing rows of the specified entity from their related database table. Structs annotated with &amp;lsquo;sqac:&amp;rsquo; tags are colloquially known as sqac entities, hence the parameter name &amp;lsquo;ents&amp;rsquo;.
-The ents parameter must be a pointer to a slice declared using the go struct-type corresponding to the targeted database table.</description>
+      <description>The GetEntitiesCP method is part of sqac&#39;s CRUD API and is used to retrieve existing rows of the specified entity from their related database table. Structs annotated with &amp;lsquo;sqac:&amp;rsquo; tags are colloquially known as sqac entities, hence the parameter name &amp;lsquo;ents&amp;rsquo;.
+The ents parameter must be a pointer to a slice declared using the go struct-type corresponding to the targeted database table. This method can be thought of as a flexible retrieval mechanism for one or more database records.</description>
     </item>
     
     <item>
@@ -156,8 +157,9 @@ The ents parameter must be a pointer to a slice declared using the go struct-typ
       <pubDate>Wed, 12 Dec 2018 17:19:17 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/o-pdb-create-foreign-key/</guid>
-      <description>PublicDB.CreateForeignKey(i interface{}, ft, rt, ff, rf string) error The CreateForeignKey method facilitates the creation of a foreign-key on a table column in the database. A foreign-key constraint is created on the assigned column, thereby limiting its allowable values to those found in the table.column referenced in the foreign-key declaration.
-In general, it is more desirable to declare foreign-keys in the model via the &amp;ldquo;fkey:&amp;rdquo; &amp;lsquo;sqac:&amp;rsquo; tag than to call this method directly.</description>
+      <description>The CreateForeignKey method facilitates the creation of a foreign-key on a table column in the database. A foreign-key constraint is created on the assigned column, thereby limiting its allowable values to those found in the table.column referenced in the foreign-key declaration.
+In general, it is more desirable to declare foreign-keys in the model via the &amp;ldquo;fkey:&amp;rdquo; &amp;lsquo;sqac:&amp;rsquo; tag than to call this method directly.
+Parameters    Parameter Description     i interface{} Accepts the go struct type of the table on which the foreign-key is being declared.</description>
     </item>
     
     <item>
@@ -166,9 +168,8 @@ In general, it is more desirable to declare foreign-keys in the model via the &a
       <pubDate>Thu, 13 Dec 2018 08:51:18 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/p-pdb-drop-foreign-key/</guid>
-      <description>PublicDB.DropForeignKey(i interface{}, ft, fkn string) error The DropForeignKey method facilitates the dropping of an existing foreign-key constraint in the database.
-Parameters    Parameter Description     i interface{} Accepts the go struct type of the table from which the foreign-key is being dropped. For example:
-If table column product.warehouse_id had a foreign-key constraint against table column warehouse.id, this parameter should be provided with go type Product{}.</description>
+      <description>The DropForeignKey method facilitates the dropping of an existing foreign-key constraint in the database.
+Parameters    Parameter Description     i interface{} Accepts the go struct type of the table from which the foreign-key is being dropped. For example:If table column product.warehouse_id had a foreign-key constraint against table column warehouse.id, this parameter should be provided with go type Product{}.   ft string The database table name of the table on which the foreign-key is being dropped.</description>
     </item>
     
     <item>
@@ -177,9 +178,9 @@ If table column product.warehouse_id had a foreign-key constraint against table 
       <pubDate>Thu, 13 Dec 2018 09:33:19 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/q-pdb-exists-foreign-key-by-name/</guid>
-      <description>PublicDB.ExistsForeignKeyByName(i interface{}, fkn string) (bool, error) The ExistsForeignKeyByName method checks for the existence of the specified foreign-key constraint in the database.
+      <description>PublicDB.ExistsForeignKeyByName(i interface The ExistsForeignKeyByName method checks for the existence of the specified foreign-key constraint in the database.
 The following go structs contain &amp;lsquo;sqac:&amp;rsquo; tags declaring a foreign-key constraint between table column product.warehouse_id and table column warehouse.id. The resulting foreign-key constraint on table column product.warehouse_id would be named &amp;ldquo;fk_product_warehouse_id&amp;rdquo; based on the sqac foreign-key naming standard.
-type Warehouse struct { ID uint64 `db:&amp;quot;id&amp;quot; json:&amp;quot;id&amp;quot; sqac:&amp;quot;primary_key:inc;start:40000000&amp;quot;` City string `db:&amp;quot;city&amp;quot; json:&amp;quot;city&amp;quot; sqac:&amp;quot;nullable:false;default:Calgary&amp;quot;` Quadrant string `db:&amp;quot;quadrant&amp;quot; json:&amp;quot;quadrant&amp;quot; sqac:&amp;quot;nullable:false;default:SE&amp;quot;` } type Product struct { ID uint64 `db:&amp;quot;id&amp;quot; json:&amp;quot;id&amp;quot; sqac:&amp;quot;primary_key:inc;start:95000000&amp;quot;` ProductName string `db:&amp;quot;product_name&amp;quot; json:&amp;quot;product_name&amp;quot; sqac:&amp;quot;nullable:false;default:unknown&amp;quot;` ProductCode string `db:&amp;quot;product_code&amp;quot; json:&amp;quot;product_code&amp;quot; sqac:&amp;quot;nullable:false;default:0000-0000-00&amp;quot;` UOM string `db:&amp;quot;uom&amp;quot; json:&amp;quot;uom&amp;quot; sqac:&amp;quot;nullable:false;default:EA&amp;quot;` // foreign-key declared against table &amp;quot;warehouse&amp;quot;, column &amp;quot;id&amp;quot; WarehouseID uint64 `db:&amp;quot;warehouse_id&amp;quot; json:&amp;quot;warehouse_id&amp;quot; sqac:&amp;quot;nullable:false;fkey:warehouse(id)&amp;quot;` }  Parameters    Parameter Description     i interface{} Accepts the go struct type of the table from which the foreign-key is thought to be declared.</description>
+type Warehouse struct { ID uint64 `db:&amp;#34;id&amp;#34; json:&amp;#34;id&amp;#34; sqac:&amp;#34;primary_key:inc;start:40000000&amp;#34;` City string `db:&amp;#34;city&amp;#34; json:&amp;#34;city&amp;#34; sqac:&amp;#34;nullable:false;default:Calgary&amp;#34;` Quadrant string `db:&amp;#34;quadrant&amp;#34; json:&amp;#34;quadrant&amp;#34; sqac:&amp;#34;nullable:false;default:SE&amp;#34;` } type Product struct { ID uint64 `db:&amp;#34;id&amp;#34; json:&amp;#34;id&amp;#34; sqac:&amp;#34;primary_key:inc;start:95000000&amp;#34;` ProductName string `db:&amp;#34;product_name&amp;#34; json:&amp;#34;product_name&amp;#34; sqac:&amp;#34;nullable:false;default:unknown&amp;#34;` ProductCode string `db:&amp;#34;product_code&amp;#34; json:&amp;#34;product_code&amp;#34; sqac:&amp;#34;nullable:false;default:0000-0000-00&amp;#34;` UOM string `db:&amp;#34;uom&amp;#34; json:&amp;#34;uom&amp;#34; sqac:&amp;#34;nullable:false;default:EA&amp;#34;` // foreign-key declared against table &amp;#34;warehouse&amp;#34;, column &amp;#34;id&amp;#34;  WarehouseID uint64 `db:&amp;#34;warehouse_id&amp;#34; json:&amp;#34;warehouse_id&amp;#34; sqac:&amp;#34;nullable:false;fkey:warehouse(id)&amp;#34;` } Parameters    Parameter Description     i interface{} Accepts the go struct type of the table from which the foreign-key is thought to be declared.</description>
     </item>
     
     <item>
@@ -188,9 +189,9 @@ type Warehouse struct { ID uint64 `db:&amp;quot;id&amp;quot; json:&amp;quot;id&a
       <pubDate>Thu, 13 Dec 2018 09:51:20 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/public-db/r-pdb-exists-foreign-key-by-fields/</guid>
-      <description>PublicDB.ExistsForeignKeyByFields(i interface{}, ft, rt, ff, rf string) (bool, error) The ExistsForeignKeyByName method checks for the existence of the specified foreign-key constraint in the database.
+      <description>PublicDB.ExistsForeignKeyByFields(i interface The ExistsForeignKeyByName method checks for the existence of the specified foreign-key constraint in the database.
 The following go structs contain &amp;lsquo;sqac:&amp;rsquo; tags declaring a foreign-key constraint between table column product.warehouse_id and table column warehouse.id. The resulting foreign-key constraint on table column product.warehouse_id would be named &amp;ldquo;fk_product_warehouse_id&amp;rdquo; based on the sqac foreign-key naming standard.
-type Warehouse struct { ID uint64 `db:&amp;quot;id&amp;quot; json:&amp;quot;id&amp;quot; sqac:&amp;quot;primary_key:inc;start:40000000&amp;quot;` City string `db:&amp;quot;city&amp;quot; json:&amp;quot;city&amp;quot; sqac:&amp;quot;nullable:false;default:Calgary&amp;quot;` Quadrant string `db:&amp;quot;quadrant&amp;quot; json:&amp;quot;quadrant&amp;quot; sqac:&amp;quot;nullable:false;default:SE&amp;quot;` } type Product struct { ID uint64 `db:&amp;quot;id&amp;quot; json:&amp;quot;id&amp;quot; sqac:&amp;quot;primary_key:inc;start:95000000&amp;quot;` ProductName string `db:&amp;quot;product_name&amp;quot; json:&amp;quot;product_name&amp;quot; sqac:&amp;quot;nullable:false;default:unknown&amp;quot;` ProductCode string `db:&amp;quot;product_code&amp;quot; json:&amp;quot;product_code&amp;quot; sqac:&amp;quot;nullable:false;default:0000-0000-00&amp;quot;` UOM string `db:&amp;quot;uom&amp;quot; json:&amp;quot;uom&amp;quot; sqac:&amp;quot;nullable:false;default:EA&amp;quot;` // foreign-key declared against table &amp;quot;warehouse&amp;quot;, column &amp;quot;id&amp;quot; WarehouseID uint64 `db:&amp;quot;warehouse_id&amp;quot; json:&amp;quot;warehouse_id&amp;quot; sqac:&amp;quot;nullable:false;fkey:warehouse(id)&amp;quot;` }  Parameters    Parameter Description     i interface{} Accepts the go struct type of the table on which the foreign-key is thought to be declared.</description>
+type Warehouse struct { ID uint64 `db:&amp;#34;id&amp;#34; json:&amp;#34;id&amp;#34; sqac:&amp;#34;primary_key:inc;start:40000000&amp;#34;` City string `db:&amp;#34;city&amp;#34; json:&amp;#34;city&amp;#34; sqac:&amp;#34;nullable:false;default:Calgary&amp;#34;` Quadrant string `db:&amp;#34;quadrant&amp;#34; json:&amp;#34;quadrant&amp;#34; sqac:&amp;#34;nullable:false;default:SE&amp;#34;` } type Product struct { ID uint64 `db:&amp;#34;id&amp;#34; json:&amp;#34;id&amp;#34; sqac:&amp;#34;primary_key:inc;start:95000000&amp;#34;` ProductName string `db:&amp;#34;product_name&amp;#34; json:&amp;#34;product_name&amp;#34; sqac:&amp;#34;nullable:false;default:unknown&amp;#34;` ProductCode string `db:&amp;#34;product_code&amp;#34; json:&amp;#34;product_code&amp;#34; sqac:&amp;#34;nullable:false;default:0000-0000-00&amp;#34;` UOM string `db:&amp;#34;uom&amp;#34; json:&amp;#34;uom&amp;#34; sqac:&amp;#34;nullable:false;default:EA&amp;#34;` // foreign-key declared against table &amp;#34;warehouse&amp;#34;, column &amp;#34;id&amp;#34;  WarehouseID uint64 `db:&amp;#34;warehouse_id&amp;#34; json:&amp;#34;warehouse_id&amp;#34; sqac:&amp;#34;nullable:false;fkey:warehouse(id)&amp;#34;` } Parameters    Parameter Description     i interface{} Accepts the go struct type of the table on which the foreign-key is thought to be declared.</description>
     </item>
     
     <item>
@@ -200,8 +201,8 @@ type Warehouse struct { ID uint64 `db:&amp;quot;id&amp;quot; json:&amp;quot;id&a
       
       <guid>https://1414c.github.io/sqac/public-db/z-pdb-data-types/</guid>
       <description>sqac.IndexInfo IndexInfo is used by sqac to provide information to the PublicDB.CreateIndex method regarding the table name, uniqueness and columns to be included in a new database index.
-// IndexInfo contains index definitions as read from the sqac:&amp;quot;index&amp;quot; tags type IndexInfo struct { TableName string Unique bool IndexFields []string }  
-sqac.GetParam GetParam defines a common structure for CRUD GET parameters and is used in the PublicDB.GetEntitiesCP method.</description>
+// IndexInfo contains index definitions as read from the sqac:&amp;#34;index&amp;#34; tags type IndexInfo struct { TableName string Unique bool IndexFields []string } sqac.GetParam GetParam defines a common structure for CRUD GET parameters and is used in the PublicDB.GetEntitiesCP method.
+type GetParam struct { FieldName string // database column name  Operand string // operand for parameter (ie.</description>
     </item>
     
   </channel>
