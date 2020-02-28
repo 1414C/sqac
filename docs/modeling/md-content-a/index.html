@@ -12,19 +12,19 @@
     <title>Sqac Tags :: Sqac ORM</title>
 
     
-    <link href="/sqac/css/nucleus.css?1578200205" rel="stylesheet">
-    <link href="/sqac/css/fontawesome-all.min.css?1578200205" rel="stylesheet">
-    <link href="/sqac/css/hybrid.css?1578200205" rel="stylesheet">
-    <link href="/sqac/css/featherlight.min.css?1578200205" rel="stylesheet">
-    <link href="/sqac/css/perfect-scrollbar.min.css?1578200205" rel="stylesheet">
-    <link href="/sqac/css/auto-complete.css?1578200205" rel="stylesheet">
-    <link href="/sqac/css/theme.css?1578200205" rel="stylesheet">
-    <link href="/sqac/css/hugo-theme.css?1578200205" rel="stylesheet">
+    <link href="/sqac/css/nucleus.css?1582908660" rel="stylesheet">
+    <link href="/sqac/css/fontawesome-all.min.css?1582908660" rel="stylesheet">
+    <link href="/sqac/css/hybrid.css?1582908660" rel="stylesheet">
+    <link href="/sqac/css/featherlight.min.css?1582908660" rel="stylesheet">
+    <link href="/sqac/css/perfect-scrollbar.min.css?1582908660" rel="stylesheet">
+    <link href="/sqac/css/auto-complete.css?1582908660" rel="stylesheet">
+    <link href="/sqac/css/theme.css?1582908660" rel="stylesheet">
+    <link href="/sqac/css/hugo-theme.css?1582908660" rel="stylesheet">
     
-      <link href="/sqac/css/theme-white.css?1578200205" rel="stylesheet">
+      <link href="/sqac/css/theme-white.css?1582908660" rel="stylesheet">
     
 
-    <script src="/sqac/js/jquery-2.x.min.js?1578200205"></script>
+    <script src="/sqac/js/jquery-2.x.min.js?1582908660"></script>
 
     <style type="text/css">
       :root #header + #content > #left > #rlblock_left{
@@ -52,14 +52,14 @@
     <span data-search-clear=""><i class="fas fa-close"></i></span>
 </div>
 
-<script type="text/javascript" src="/sqac/js/lunr.min.js?1578200205"></script>
-<script type="text/javascript" src="/sqac/js/auto-complete.js?1578200205"></script>
+<script type="text/javascript" src="/sqac/js/lunr.min.js?1582908660"></script>
+<script type="text/javascript" src="/sqac/js/auto-complete.js?1582908660"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/1414c.github.io\/sqac\/";
     
 </script>
-<script type="text/javascript" src="/sqac/js/search.js?1578200205"></script>
+<script type="text/javascript" src="/sqac/js/search.js?1582908660"></script>
 
     
   </div>
@@ -882,11 +882,11 @@ column attributes.  Two tags are used: <strong>&lsquo;db:'</strong> and <strong>
 <td>Single column indexes can be declared via the &ldquo;index:&rdquo; tag.  The example index declarations require only the &ldquo;index:unique / non-unique&rdquo; pair in the column's sqac-tag.  The following column declaration results in the creation of a unique index on table column &ldquo;create_date&rdquo;: <!-- raw HTML omitted --> <code>db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();index:unique&quot;</code> <!-- raw HTML omitted --><!-- raw HTML omitted -->  A non-unique single column index for the same column is declared as follows: <!-- raw HTML omitted --> <code>db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();index:non-unique&quot;</code> <!-- raw HTML omitted --><!-- raw HTML omitted --><!-- raw HTML omitted --> Multi-column indexes can also be declared via the index tag.  The following example illustrates the declaration of a non-unique two-column index containing columns &ldquo;new_column1&rdquo; and &ldquo;new_column2&rdquo;: <!-- raw HTML omitted --> <code>db:&quot;new_column1&quot; sqac:&quot;nullable:false;index:idx_depot_new_column1_new_column2&quot;</code> <!-- raw HTML omitted --> <code>db:&quot;new_column2&quot; sqac:&quot;nullable:false;default:0;index:idx_depot_new_column1_new_column2&quot;</code> <!-- raw HTML omitted --></td>
 </tr>
 <tr>
-<td><strong>&ldquo;fkey:</strong></td>
+<td><strong>&ldquo;fkey:&quot;</strong></td>
 <td>Foreign-keys can be declared between table columns.  The following example results in the creation of a foreign-key between the table's &ldquo;warehouse_id&rdquo; column and reference column &ldquo;id&rdquo; in table &ldquo;warehouse&rdquo;. <!-- raw HTML omitted --><!-- raw HTML omitted --> WarehouseID uint64 <code>db:&quot;warehouse_id&quot; json:&quot;warehouse_id&quot; sqac:&quot;nullable:false;fkey:warehouse(id)&quot;</code> <!-- raw HTML omitted --><!-- raw HTML omitted --> This example is not very clear - see the full example code excerpt in the Table Declaration Examples section.</td>
 </tr>
 <tr>
-<td>Non-persistent column</td>
+<td><strong>&quot;-&quot;</strong></td>
 <td>There are scenarios where model columns may not be persisted in the database.  If a column is to be determined at runtime by the consuming application (for example), the following syntax may be used: <!-- raw HTML omitted --> NonPersistentColumn string    <code>db:&quot;non_persistent_column&quot; sqac:&quot;-&quot;</code></td>
 </tr>
 <tr>
@@ -1502,20 +1502,20 @@ column attributes.  Two tags are used: <strong>&lsquo;db:'</strong> and <strong>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/sqac/js/clipboard.min.js?1578200205"></script>
-    <script src="/sqac/js/perfect-scrollbar.min.js?1578200205"></script>
-    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1578200205"></script>
-    <script src="/sqac/js/jquery.sticky.js?1578200205"></script>
-    <script src="/sqac/js/featherlight.min.js?1578200205"></script>
-    <script src="/sqac/js/html5shiv-printshiv.min.js?1578200205"></script>
-    <script src="/sqac/js/highlight.pack.js?1578200205"></script>
+    <script src="/sqac/js/clipboard.min.js?1582908660"></script>
+    <script src="/sqac/js/perfect-scrollbar.min.js?1582908660"></script>
+    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1582908660"></script>
+    <script src="/sqac/js/jquery.sticky.js?1582908660"></script>
+    <script src="/sqac/js/featherlight.min.js?1582908660"></script>
+    <script src="/sqac/js/html5shiv-printshiv.min.js?1582908660"></script>
+    <script src="/sqac/js/highlight.pack.js?1582908660"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/sqac/js/modernizr.custom.71422.js?1578200205"></script>
-    <script src="/sqac/js/learn.js?1578200205"></script>
-    <script src="/sqac/js/hugo-learn.js?1578200205"></script>
+    <script src="/sqac/js/modernizr.custom.71422.js?1582908660"></script>
+    <script src="/sqac/js/learn.js?1582908660"></script>
+    <script src="/sqac/js/hugo-learn.js?1582908660"></script>
 
-    <link href="/sqac/mermaid/mermaid.css?1578200205" type="text/css" rel="stylesheet" />
-    <script src="/sqac/mermaid/mermaid.js?1578200205"></script>
+    <link href="/sqac/mermaid/mermaid.css?1582908660" type="text/css" rel="stylesheet" />
+    <script src="/sqac/mermaid/mermaid.js?1582908660"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

@@ -16,19 +16,18 @@ Sqac is a simple overlay to provide a common interface to an attached mssql, mys
 - comprehensive test cases
 
 ## Outstanding TODO's
-- [x]update for modules support
-- [ ]refactor non-idempotent SQLite Foreign-Key test to use a closure
-- [ ]consider parsing the stored create schema when adding / dropping a foreign-key on SQLite tables
-- [ ]add cascade to Drops?
-- [ ]examine the $desc orderby when limit / offset is used in postgres with selection parameter (odd)
-- [ ]change from timestamp with TZ to timestamp and ensure timestamps are in UTC before submitting to the db
-- [ ]examine view support
-- [ ]remove extraneous getSet-type methods
-- [ ]ProcessSchema does not return an error; ProcessTransaction does?  Noticed this in DropIndex.  Inconsistent.
-- [ ]Support unique constraints on grouped fields(?)
-- [ ]Consider converting all time reads as Local
-- [ ]HDB ExistsTable should include SCHEMA field in selection?
-- [ ]It would be nice to replace the fmt.Sprintf(...) calls in the DDL and DML constructions with inline strconv.XXXX.  In practical terms we are dealing with 10's of ns here, but it could be a thing.  Consider doing this when implementing DB2 support.
+- [ ] refactor non-idempotent SQLite Foreign-Key test to use a closure
+- [ ] consider parsing the stored create schema when adding / dropping a foreign-key on SQLite tables
+- [ ] add cascade to Drops?
+- [ ] examine the $desc orderby when limit / offset is used in postgres with selection parameter (odd)
+- [ ] change from timestamp with TZ to timestamp and ensure timestamps are in UTC before submitting to the db
+- [ ] examine view support
+- [ ] remove extraneous getSet-type methods
+- [ ] ProcessSchema does not return an error; ProcessTransaction does?  Noticed this in DropIndex.  Inconsistent.
+- [ ] Support unique constraints on grouped fields(?)
+- [ ] Consider an option where all time reads are returned as Local
+- [ ] HDB ExistsTable should include SCHEMA field in selection?
+- [ ] It would be nice to replace the fmt.Sprintf(...) calls in the DDL and DML constructions with inline strconv.XXXX.  In practical terms we are dealing with 10's of ns here, but it could be a thing.  Consider doing this when implementing DB2 support.
 
 ## Installation
 
@@ -53,91 +52,23 @@ Verify the installation by running the included test suite against sqlite.  Test
 go test -v -db sqlite
 ```
 
-If testing against sqlite is not an option, the test suite may be run against any of the supported database systems.  When running against a non-sqlite db, a connection string must be supplied via the *cs* flag.  See the Connection Strings section for database-specific connection string formats.
-
-```bash
-go test -v -db pg -cs "host=127.0.0.1 user=my_uname dbname=my_dbname sslmode=disable password=my_passwd"
-```
-
-## Running Tests
-
-```bash
-go test -v -db <dbtype>
-```
-
-#### Postgres
+If testing against sqlite is not an option, the test suite may be run against any of the supported database systems.  When running against a non-sqlite db, a connection string must be supplied via the *cs* flag.  See the [Database Connection Strings](https://1414c.github.io/sqac/getting-started/gs-content-e/) section in the documentation for database-specific connection string formats.  As an example, a postgres test could be run using the following command string:
 
 ```bash
 go test -v -db postgres -cs "host=127.0.0.1 user=my_uname dbname=my_dbname sslmode=disable password=my_passwd"
 ```
+<br></br>
 
-#### MySQL
+## Accessing Documentation
 
-```bash
-go test -v -db mysql -cs "my_uname:my_passwd@tcp(192.168.1.10:3306)/my_dbname?charset=utf8&parseTime=True&loc=Local"
-```
-
-#### MSSQL
+The API is somewhat documented via comments in the code, but it is best to use the [official sqac documentation](https://1414c.github.io/sqac/).  If code comments are more to your liking, run the *godoc* command as shown below:
 
 ```bash
-go test -v -db mssql -cs "sqlserver://SA:my_passwd@localhost:1401?database=my_dbname"
+godoc -http=:6061
 ```
 
-#### SQLite
-
-```bash
-go test -v -db sqlite
-```
-
-#### SAP Hana
-
-```bash
-go test -v -db hdb "hdb://my_uname:my_passwd@192.168.111.45:30015"
-```
-<br>
-
-
-<br>
-
-## Connection Strings
-Sqac presently supports MSSQL, MySQL, PostgreSQL, Sqlite3 and the SAP Hana database.  You will
-need to know the db user-name / password, as well as the address:port and name of the database.
-
-### MSSQL Connection String
-
-```golang
-cs := "sqlserver://SA:my_passwd@localhost:1401?database=my_dbname"
-```
-
-### MySQL Connection String
-
-```golang
-cs := "my_uname:my_passwd@tcp(192.168.1.10:3306)/my_dbname?charset=utf8&parseTime=True&loc=Local"
-```
-
-### PostgreSQL Connection String
-
-```golang
-cs := "host=127.0.0.1 user=my_uname dbname=my_dbname sslmode=disable password=my_passwd"
-```
-
-### Sqlite3 Connection String
-
-```golang
-cs := "my_db_file.sqlite"
-
-// or
-
-cs = "my_db_file.db"
-```
-
-### SAP Hana Connection String
-
-```golang
-cs := "hdb://my_uname:my_passwd@192.168.111.45:30015"
-```
-<br>
-
+Once the *godoc* server has started, hit http://localhost:6061/pkg/github.com/1414C/sqac/ for sqac API documentation.
+<br></br>
 
 ## Quickstart
 
@@ -229,46 +160,7 @@ effort to validate the flag parameters.
 ```bash
 go run -db sqlite -cs testdb.sqlite main.go
 ```
-
-<br>
-
-### Table Declaration Using Nested Structs
-
-Table declarations may also contain nested structs:
-
-```golang
-type Triplet struct {
-  TripOne   string `db:"trip_one" sqac:"nullable:false"`
-  TripTwo   int64  `db:"trip_two" sqac:"nullable:false;default:0"`
-  Tripthree string `db:"trip_three" sqac:"nullable:false"`
-}
-
-type Equipment struct {
-  EquipmentNum   int64     `db:"equipment_num" sqac:"primary_key:inc;start:55550000"`
-  ValidFrom      time.Time `db:"valid_from" sqac:"primary_key;nullable:false;default:now()"`
-  ValidTo        time.Time `db:"valid_to" sqac:"primary_key;nullable:false;default:make_timestamptz(9999, 12, 31, 23, 59, 59.9)"`
-  CreatedAt      time.Time `db:"created_at" sqac:"nullable:false;default:now()"`
-  InspectionAt   time.Time `db:"inspection_at" sqac:"nullable:true"`
-  MaterialNum    int       `db:"material_num" sqac:"index:idx_material_num_serial_num"`
-  Description    string    `db:"description" sqac:"sqac:nullable:false"`
-  SerialNum      string    `db:"serial_num" sqac:"index:idx_material_num_serial_num"`
-  Triplet        // structs can be nested to any level
-}
-```
-
-<br>
-
-## Accessing Documentation
-
-The API is somewhat documented via comments in the code.  This can be accessed by running the *godoc* command:
-
-```bash
-godoc -http=:6061
-```
-
-Once the *godoc* server has started, hit http://localhost:6061/pkg/github.com/1414C/sqac/ for sqac API documentation.
-
-## Credits
+<br></br>
 
 ## Sqac makes use of
 * [sqlx](https://jmoiron.github.io/sqlx/)

@@ -12,19 +12,19 @@
     <title>CreateTables :: Sqac ORM</title>
 
     
-    <link href="/sqac/css/nucleus.css?1578200205" rel="stylesheet">
-    <link href="/sqac/css/fontawesome-all.min.css?1578200205" rel="stylesheet">
-    <link href="/sqac/css/hybrid.css?1578200205" rel="stylesheet">
-    <link href="/sqac/css/featherlight.min.css?1578200205" rel="stylesheet">
-    <link href="/sqac/css/perfect-scrollbar.min.css?1578200205" rel="stylesheet">
-    <link href="/sqac/css/auto-complete.css?1578200205" rel="stylesheet">
-    <link href="/sqac/css/theme.css?1578200205" rel="stylesheet">
-    <link href="/sqac/css/hugo-theme.css?1578200205" rel="stylesheet">
+    <link href="/sqac/css/nucleus.css?1582908660" rel="stylesheet">
+    <link href="/sqac/css/fontawesome-all.min.css?1582908660" rel="stylesheet">
+    <link href="/sqac/css/hybrid.css?1582908660" rel="stylesheet">
+    <link href="/sqac/css/featherlight.min.css?1582908660" rel="stylesheet">
+    <link href="/sqac/css/perfect-scrollbar.min.css?1582908660" rel="stylesheet">
+    <link href="/sqac/css/auto-complete.css?1582908660" rel="stylesheet">
+    <link href="/sqac/css/theme.css?1582908660" rel="stylesheet">
+    <link href="/sqac/css/hugo-theme.css?1582908660" rel="stylesheet">
     
-      <link href="/sqac/css/theme-white.css?1578200205" rel="stylesheet">
+      <link href="/sqac/css/theme-white.css?1582908660" rel="stylesheet">
     
 
-    <script src="/sqac/js/jquery-2.x.min.js?1578200205"></script>
+    <script src="/sqac/js/jquery-2.x.min.js?1582908660"></script>
 
     <style type="text/css">
       :root #header + #content > #left > #rlblock_left{
@@ -52,14 +52,14 @@
     <span data-search-clear=""><i class="fas fa-close"></i></span>
 </div>
 
-<script type="text/javascript" src="/sqac/js/lunr.min.js?1578200205"></script>
-<script type="text/javascript" src="/sqac/js/auto-complete.js?1578200205"></script>
+<script type="text/javascript" src="/sqac/js/lunr.min.js?1582908660"></script>
+<script type="text/javascript" src="/sqac/js/auto-complete.js?1582908660"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/1414c.github.io\/sqac\/";
     
 </script>
-<script type="text/javascript" src="/sqac/js/search.js?1578200205"></script>
+<script type="text/javascript" src="/sqac/js/search.js?1582908660"></script>
 
     
   </div>
@@ -913,6 +913,25 @@
   <span style="color:#75715e">// Close the connection
 </span><span style="color:#75715e"></span>  <span style="color:#a6e22e">Handle</span>.<span style="color:#a6e22e">Close</span>()
 }
+</code></pre></div><h4 id="create-table-with-nested-structs">Create Table with Nested Structs</h4>
+<p>Table declarations may also contain nested structs.  In the following example, struct <em>Triplet</em> is defined with db and sqac tags and then included in struct <em>Equipment</em>.  When CreateTables(Equipment{}) is executed, the nested struct is unpacked resulting in the creation of a table containing the merged fields of structs <em>Triplet</em> and <em>Equipment</em>.  Any number of structs may be included in a sqac table declaration, and the nesting depth is limited only by the Go compiler.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Triplet</span> <span style="color:#66d9ef">struct</span> {
+  <span style="color:#a6e22e">TripOne</span>   <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;trip_one&#34; sqac:&#34;nullable:false&#34;</span><span style="color:#e6db74">`</span>
+  <span style="color:#a6e22e">TripTwo</span>   <span style="color:#66d9ef">int64</span>  <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;trip_two&#34; sqac:&#34;nullable:false;default:0&#34;</span><span style="color:#e6db74">`</span>
+  <span style="color:#a6e22e">Tripthree</span> <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;trip_three&#34; sqac:&#34;nullable:false&#34;</span><span style="color:#e6db74">`</span>
+}
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Equipment</span> <span style="color:#66d9ef">struct</span> {
+  <span style="color:#a6e22e">EquipmentNum</span>   <span style="color:#66d9ef">int64</span>     <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;equipment_num&#34; sqac:&#34;primary_key:inc;start:55550000&#34;</span><span style="color:#e6db74">`</span>
+  <span style="color:#a6e22e">ValidFrom</span>      <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;valid_from&#34; sqac:&#34;primary_key;nullable:false;default:now()&#34;</span><span style="color:#e6db74">`</span>
+  <span style="color:#a6e22e">ValidTo</span>        <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;valid_to&#34; sqac:&#34;primary_key;nullable:false;default:make_timestamptz(9999, 12, 31, 23, 59, 59.9)&#34;</span><span style="color:#e6db74">`</span>
+  <span style="color:#a6e22e">CreatedAt</span>      <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;created_at&#34; sqac:&#34;nullable:false;default:now()&#34;</span><span style="color:#e6db74">`</span>
+  <span style="color:#a6e22e">InspectionAt</span>   <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;inspection_at&#34; sqac:&#34;nullable:true&#34;</span><span style="color:#e6db74">`</span>
+  <span style="color:#a6e22e">MaterialNum</span>    <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;material_num&#34; sqac:&#34;index:idx_material_num_serial_num&#34;</span><span style="color:#e6db74">`</span>
+  <span style="color:#a6e22e">Description</span>    <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;description&#34; sqac:&#34;sqac:nullable:false&#34;</span><span style="color:#e6db74">`</span>
+  <span style="color:#a6e22e">SerialNum</span>      <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;serial_num&#34; sqac:&#34;index:idx_material_num_serial_num&#34;</span><span style="color:#e6db74">`</span>
+  <span style="color:#a6e22e">Triplet</span>        <span style="color:#75715e">// structs can be nested to any level
+</span><span style="color:#75715e"></span>}
 </code></pre></div>
 
 <footer class=" footline" >
@@ -1523,20 +1542,20 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/sqac/js/clipboard.min.js?1578200205"></script>
-    <script src="/sqac/js/perfect-scrollbar.min.js?1578200205"></script>
-    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1578200205"></script>
-    <script src="/sqac/js/jquery.sticky.js?1578200205"></script>
-    <script src="/sqac/js/featherlight.min.js?1578200205"></script>
-    <script src="/sqac/js/html5shiv-printshiv.min.js?1578200205"></script>
-    <script src="/sqac/js/highlight.pack.js?1578200205"></script>
+    <script src="/sqac/js/clipboard.min.js?1582908660"></script>
+    <script src="/sqac/js/perfect-scrollbar.min.js?1582908660"></script>
+    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1582908660"></script>
+    <script src="/sqac/js/jquery.sticky.js?1582908660"></script>
+    <script src="/sqac/js/featherlight.min.js?1582908660"></script>
+    <script src="/sqac/js/html5shiv-printshiv.min.js?1582908660"></script>
+    <script src="/sqac/js/highlight.pack.js?1582908660"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/sqac/js/modernizr.custom.71422.js?1578200205"></script>
-    <script src="/sqac/js/learn.js?1578200205"></script>
-    <script src="/sqac/js/hugo-learn.js?1578200205"></script>
+    <script src="/sqac/js/modernizr.custom.71422.js?1582908660"></script>
+    <script src="/sqac/js/learn.js?1582908660"></script>
+    <script src="/sqac/js/hugo-learn.js?1582908660"></script>
 
-    <link href="/sqac/mermaid/mermaid.css?1578200205" type="text/css" rel="stylesheet" />
-    <script src="/sqac/mermaid/mermaid.js?1578200205"></script>
+    <link href="/sqac/mermaid/mermaid.css?1582908660" type="text/css" rel="stylesheet" />
+    <script src="/sqac/mermaid/mermaid.js?1582908660"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

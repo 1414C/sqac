@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-	// "github.com/1414C/sqlxtest/dbgen/common"
 )
 
 // SqacPair holds name-value-pairs for db field attributes
