@@ -28,6 +28,7 @@ Sqac is a simple overlay to provide a common interface to an attached mssql, mys
 - [ ] Consider an option where all time reads are returned as Local
 - [ ] HDB ExistsTable should include SCHEMA field in selection?
 - [ ] It would be nice to replace the fmt.Sprintf(...) calls in the DDL and DML constructions with inline strconv.XXXX.  In practical terms we are dealing with 10's of ns here, but it could be a thing.  Consider doing this when implementing DB2 support.
+- [ ] The code overall could be dry-er, but it is not clear that introducing methods for one-time-use code is helpful to readability.  The buildTablSchema methods are troubling...
 
 ## Installation
 
