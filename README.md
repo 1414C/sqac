@@ -9,34 +9,41 @@ Sqac is a simple overlay to provide a common interface to an attached mssql, mys
 - drop indexes
 - alter tables via column, index and sequence additions
 - set sequence, auto-increment or identity nextval
-- Standard go sql, jmoirons sqlx db access
+- supports db access through standard go sql drivers and jmoirons sqlx package
 - generic CRUD entity operations
 - UTC timestamps used internally for all time types
 - set commands (/$count /$orderby=<field_name> $limit=n; $offset=n; ($asc|$desc))
 - comprehensive test cases
 
 ## Outstanding TODO's
+
+- [ ] refactor to fold the larger methods down to a more readable and reasonable size.  The buildTablSchema methods are monolithic blocks b/c at the time I was thinking of function-call cost and the uncertainty I had around the way the compiler inlines.
 - [ ] refactor non-idempotent SQLite Foreign-Key test to use a closure
 - [ ] consider parsing the stored create schema when adding / dropping a foreign-key on SQLite tables
 - [ ] add cascade to Drops?
 - [ ] examine the $desc orderby when limit / offset is used in postgres with selection parameter (odd)
 - [ ] change from timestamp with TZ to timestamp and ensure timestamps are in UTC before submitting to the db
 - [ ] examine view support
+- [ ] consider the consumption of SAP CDS
 - [ ] remove extraneous getSet-type methods
 - [ ] ProcessSchema does not return an error; ProcessTransaction does?  Noticed this in DropIndex.  Inconsistent.
 - [ ] Support unique constraints on grouped fields(?)
 - [ ] Consider an option where all time reads are returned as Local
 - [ ] HDB ExistsTable should include SCHEMA field in selection?
 - [ ] It would be nice to replace the fmt.Sprintf(...) calls in the DDL and DML constructions with inline strconv.XXXX.  In practical terms we are dealing with 10's of ns here, but it could be a thing.  Consider doing this when implementing DB2 support.
-- [ ] The code overall could be dry-er, but it is not clear that introducing methods for one-time-use code is helpful to readability.  The buildTablSchema methods are troubling...
+
+<br>
 
 ## Installation
 
 Install sqac via go get:
+
 ```bash
 go get -u github.com/sqac
 ```
+
 <br>
+
 Ensure that you have also installed the drivers for the databases you plan to use.  Supported drivers include:
 
 | Driver Name               | Driver Location                   |
@@ -46,7 +53,9 @@ Ensure that you have also installed the drivers for the databases you plan to us
 |MySQL Database Driver      | github.com/go-sql-driver/mysql    |
 |PostgreSQL Database Driver | github.com/lib/pq                 |
 |SQLite3 Database Driver    | github.com/mattn/go-sqlite3       |
+
 <br>
+
 Verify the installation by running the included test suite against sqlite.  Test execution will create a 'testdb.sqlite' database file in the sqac directory.  The tests are not entirely idempotent and the testdb.sqlite file will not be cleaned up.  This is by design as the tests were used for debugging purposes during the development.  It would be a simple matter to tidy this up.
 
 ```bash
@@ -58,7 +67,8 @@ If testing against sqlite is not an option, the test suite may be run against an
 ```bash
 go test -v -db postgres -cs "host=127.0.0.1 user=my_uname dbname=my_dbname sslmode=disable password=my_passwd"
 ```
-<br></br>
+
+<br>
 
 ## Accessing Documentation
 
@@ -69,7 +79,8 @@ godoc -http=:6061
 ```
 
 Once the *godoc* server has started, hit http://localhost:6061/pkg/github.com/1414C/sqac/ for sqac API documentation.
-<br></br>
+
+<br>
 
 ## Quickstart
 
@@ -161,12 +172,14 @@ effort to validate the flag parameters.
 ```bash
 go run -db sqlite -cs testdb.sqlite main.go
 ```
-<br></br>
+
+<br>
 
 ## Sqac makes use of
-* [sqlx](https://jmoiron.github.io/sqlx/)
-* [go-sql-driver/mysql](https://github.com/go-sql-driver/mysql/)
-* [lib/pq](https://github.com/lib/pq)
-* [go-sqlite3](http://mattn.github.io/go-sqlite3/)
-* [go-mssqldb](https://github.com/denisenkom/go-mssqldb)
-* [go-hdb](https://github.com/SAP/go-hdb)
+
+- [sqlx](https://jmoiron.github.io/sqlx/)
+- [go-sql-driver/mysql](https://github.com/go-sql-driver/mysql/)
+- [lib/pq](https://github.com/lib/pq)
+- [go-sqlite3](http://mattn.github.io/go-sqlite3/)
+- [go-mssqldb](https://github.com/denisenkom/go-mssqldb)
+- [go-hdb](https://github.com/SAP/go-hdb)
