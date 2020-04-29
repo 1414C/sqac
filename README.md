@@ -1,5 +1,7 @@
 # sqac
 
+![sqac](https://github.com/1414C/sqac/workflows/Go/badge.svg)
+
 Sqac is a simple overlay to provide a common interface to an attached mssql, mysql, postgres, sqlite or SAP Hana database.
 
 - create tables, supporting default, nullable, start, primary-key, index tags
