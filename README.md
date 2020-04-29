@@ -1,6 +1,6 @@
 # sqac
 
-![sqac-build](https://github.com/1414C/sqac/workflows/sqac-build/badge.svg)
+![sqac-build](https://github.com/1414C/sqac/workflows/sqac-build/badge.svg)![sqac-test](https://github.com/1414C/sqac/workflows/sqac-test/badge.svg)
 
 Sqac is a simple overlay to provide a common interface to an attached mssql, mysql, postgres, sqlite or SAP Hana database.
 
