@@ -9,6 +9,9 @@
 <a href="https://golang.org/dl/" alt="GoVersion">
         <img src="https://img.shields.io/github/go-mod/go-version/1414C/sqac?color=orange" /></a>
 
+<a href="https://github.com/1414C/sqac/releases" alt="SqacRelease">
+        <img src="https://img.shields.io/github/v/release/1414C/sqac?color=orange" /></a>
+
 
 Sqac is a simple overlay to provide a common interface to an attached mssql, mysql, postgres, sqlite or SAP Hana database.
 
