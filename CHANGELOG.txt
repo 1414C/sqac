@@ -1,0 +1,4 @@
+v0.0.2
+- update build and test workflows to use go v1.14
+- add CHANGELOG.txt
+- update release workflow to correctly execute a sqlite3 test
