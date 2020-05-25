@@ -1,6 +1,14 @@
 # sqac
 
-![sqac-build](https://github.com/1414C/sqac/workflows/sqac-build/badge.svg)![sqac-test](https://github.com/1414C/sqac/workflows/sqac-test/badge.svg)
+<a href="https://github.com/1414C/sqac/actions?query=workflow%3Asqac-build" alt="BuildStatus">
+        <img src="https://github.com/1414C/sqac/workflows/sqac-build/badge.svg" /></a>
+
+<a href="https://github.com/1414C/sqac/actions?query=workflow%3Asqac-test" alt="TestStatus">
+        <img src="https://github.com/1414C/sqac/workflows/sqac-test/badge.svg" /></a>
+
+<a href="https://golang.org/dl/" alt="GoVersion">
+        <img src="https://img.shields.io/github/go-mod/go-version/1414C/sqac?color=orange" /></a>
+
 
 Sqac is a simple overlay to provide a common interface to an attached mssql, mysql, postgres, sqlite or SAP Hana database.
 

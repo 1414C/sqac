@@ -1,6 +1,6 @@
 module github.com/1414C/sqac
 
-go 1.13
+go 1.14
 
 require (
 	github.com/SAP/go-hdb v0.14.1
