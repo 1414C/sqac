@@ -294,6 +294,7 @@ func (bf *BaseFlavor) Close() error {
 func (bf *BaseFlavor) GetDBName() (dbName string) {
 
 	row := bf.db.QueryRow("SELECT DATABASE()")
+	//row := bf.db.QueryRow("SELECT * FROM current_catalog;")
 	if row != nil {
 		err := row.Scan(&dbName)
 		if err != nil {

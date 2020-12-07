@@ -93,8 +93,6 @@ func TestMain(m *testing.M) {
 	switch *dbFlag {
 	case "postgres":
 		cs = "host=127.0.0.1 user=godev dbname=sqactst sslmode=disable password=gogogo123"
-	case "cockroach":
-		cs = "postgresql://maxroach@localhost:26257/bank?ssl=true&sslmode=require&sslrootcert=certs/ca.crt&sslkey=certs/client.maxroach.key&sslcert=certs/client.maxroach.crt"
 	case "mysql":
 		cs = "godev:gogogo123@tcp(127.0.0.1:3306)/sqlx?charset=utf8&parseTime=True&loc=Local"
 	case "sqlite":

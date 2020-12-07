@@ -43,7 +43,8 @@ type PostgresFlavor struct {
 // GetDBName returns the name of the currently connected db
 func (pf *PostgresFlavor) GetDBName() (dbName string) {
 
-	qs := "SELECT current_database();"
+	// qs := "SELECT current_database();"
+	qs := "SELECT * FROM current_catalog;"
 	pf.QsLog(qs)
 
 	row := pf.db.QueryRow(qs)

@@ -51,17 +51,6 @@ func Create(flavor string, logFlag bool, dbLogFlag bool, connectionString string
 		}
 		handle.SetDB(db)
 
-	case "cockroach":
-		pgh := new(PostgresFlavor)
-		handle = pgh
-		// db, err := Open("postgres", "postgresql://maxroach@localhost:26257/bank?ssl=true&sslmode=require&sslrootcert=certs/ca.crt&sslkey=certs/client.maxroach.key&sslcert=certs/client.maxroach.crt")
-		db, err := Open("postgres", connectionString)
-		if err != nil {
-			log.Fatalf("%s\n", err.Error())
-		}
-		handle.SetDB(db)
-		// defer db.Close()
-
 	case "mysql":
 		myh := new(MySQLFlavor)
 		handle = myh
