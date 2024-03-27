@@ -24,9 +24,9 @@ var (
 	Handle sqac.PublicDB
 )
 
-//============================================================================================================================
+// ============================================================================================================================
 // GetEntities test artifacts
-//============================================================================================================================
+// ============================================================================================================================
 type DepotGetEntities2 struct {
 	DepotNum            int       `json:"depot_num" db:"depot_num" sqac:"primary_key:inc;start:90000000"`
 	DepotBay            int       `json:"depot_bay" db:"depot_bay" sqac:"primary_key:"`
@@ -94,7 +94,7 @@ func TestMain(m *testing.M) {
 	case "postgres":
 		cs = "host=127.0.0.1 user=godev dbname=sqactst sslmode=disable password=gogogo123"
 	case "mysql":
-		cs = "godev:gogogo123@tcp(127.0.0.1:3306)/sqlx?charset=utf8&parseTime=True&loc=Local"
+		cs = "godev:gogogo123@tcp(localhost:3306)/sqactst?charset=utf8&parseTime=True&loc=Local"
 	case "sqlite":
 		cs = "testdb.sqlite"
 	case "mssql":
@@ -102,7 +102,9 @@ func TestMain(m *testing.M) {
 	case "db2":
 		cs = ""
 	case "hdb":
-		cs = "hdb://godev:gogogo123@your.hanadb.com:30015"
+		cs = "hdb://SYSTEM:WTBHana1!@192.168.112.35:39017"
+		//cs = "hdb://hxeadm:HXEHana1@192.168.112.35:39017"
+		//cs = "hdb://godev:gogogo123@your.hanadb.com:30015"
 	default:
 		cs = ""
 	}
@@ -166,8 +168,8 @@ func TestExistsTableNegative(t *testing.T) {
 // Create table depot via CreateTables(i ...interface{})
 // Verify table creation via ExistsTable(tn string)
 // Perform negative validation be checking for non-existent
-// 	table "abcdefg" via ExistsTable(tn string)
 //
+//	table "abcdefg" via ExistsTable(tn string)
 func TestCreateTableBasic(t *testing.T) {
 
 	type Depot struct {
@@ -195,7 +197,6 @@ func TestCreateTableBasic(t *testing.T) {
 // TestDropTablesBasic
 //
 // Drop table depot via DropTables(i ...interface{})
-//
 func TestDropTablesBasic(t *testing.T) {
 
 	type Depot struct {
@@ -286,8 +287,8 @@ func TestCreateTableCompoundKey(t *testing.T) {
 // Create table depot via CreateTables(i ...interface{})
 // Verify table creation via ExistsTable(tn string)
 // Perform negative validation be checking for non-existent
-// 	table "abcdefg" via ExistsTable(tn string)
 //
+//	table "abcdefg" via ExistsTable(tn string)
 func TestCreateTableNonIncKey(t *testing.T) {
 
 	type Depot struct {
@@ -328,8 +329,8 @@ func TestCreateTableNonIncKey(t *testing.T) {
 // Create table depot via CreateTables(i ...interface{})
 // Verify table creation via ExistsTable(tn string)
 // Perform negative validation be checking for non-existent
-// 	table "abcdefg" via ExistsTable(tn string)
 //
+//	table "abcdefg" via ExistsTable(tn string)
 func TestCreateTableNoKey(t *testing.T) {
 
 	type Depot struct {
@@ -370,8 +371,8 @@ func TestCreateTableNoKey(t *testing.T) {
 // Create table depot via CreateTables(i ...interface{})
 // Verify table creation via ExistsTable(tn string)
 // Perform negative validation be checking for non-existent
-// 	table "abcdefg" via ExistsTable(tn string)
 //
+//	table "abcdefg" via ExistsTable(tn string)
 func TestCreateTableWithAlterSequence(t *testing.T) {
 
 	type Depot struct {
@@ -425,7 +426,6 @@ func TestCreateTableWithAlterSequence(t *testing.T) {
 // Create table equipment via CreateTables(i ...interface{})
 // and verify that flat structs can be included in the
 // table creation.
-//
 func TestCreateTablesWithInclude(t *testing.T) {
 
 	// type Triplet struct {
@@ -866,10 +866,9 @@ func TestExistsColumn(t *testing.T) {
 //
 // Alter table depot via AlterTables(i ...interface{})
 // Add three columns:
-//  - NewColumn1 string    `db:"new_column1" sqac:"nullable:false"`
-//	- NewColumn2 int64     `db:"new_column2" sqac:"nullable:false;default:0"`
-//  - NewColumn3 float64   `db:"new_column3" sqac:"nullable:false;default:0.0"`
-//
+//   - NewColumn1 string    `db:"new_column1" sqac:"nullable:false"`
+//   - NewColumn2 int64     `db:"new_column2" sqac:"nullable:false;default:0"`
+//   - NewColumn3 float64   `db:"new_column3" sqac:"nullable:false;default:0.0"`
 func TestAlterTables(t *testing.T) {
 
 	type Depot struct {

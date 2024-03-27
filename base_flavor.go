@@ -1009,7 +1009,7 @@ func (bf *BaseFlavor) GetEntities(ents interface{}) (interface{}, error) {
 // GetEntities2 attempts to retrieve all entities based on the internal implementation
 // of interface GetEnt.
 // GetEnt exposes a single method (Exec(handle PublicDB)error) to execute the request.
-// All this because go can only go so far with meta-type programming in go before being
+// All this because go can only go so far with meta-type programming before being
 // buried in reflection.  ge allows you to pass a sqac handle into the method so you
 // can code directly against the desired struct/table with no reflection.
 // GetEntities2 has been replaced by GetEntitiesWithCommands, but can be used if you

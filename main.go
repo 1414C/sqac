@@ -7,7 +7,7 @@ import (
 
 	"github.com/jmoiron/sqlx/reflectx"
 
-	_ "github.com/SAP/go-hdb/driver" // needed
+	//_ "github.com/SAP/go-hdb/driver" // needed
 	"github.com/jmoiron/sqlx"
 )
 
