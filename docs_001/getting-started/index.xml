@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Getting Started on Sqac ORM</title>
+    <link>https://1414c.github.io/sqac/getting-started/</link>
+    <description>Recent content in Getting Started on Sqac ORM</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 07 Dec 2018 17:02:02 -0700</lastBuildDate>
+    
+	<atom:link href="https://1414c.github.io/sqac/getting-started/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Go Environment</title>
+      <link>https://1414c.github.io/sqac/getting-started/gs-content-a/</link>
+      <pubDate>Thu, 06 Dec 2018 16:20:03 -0700</pubDate>
+      
+      <guid>https://1414c.github.io/sqac/getting-started/gs-content-a/</guid>
+      <description>If you already have Go version 1.13.x or higher installed you should skip to the next section. If you need to get Go installed on your machine, keep reading.
+Go is easy to setup and can be installed from source or binary package, both which are available at golang.org. Sqac is presently built and tested using golang version 1.13.5, but it is fine to use the latest stable 1.x release.</description>
+    </item>
+    
+    <item>
+      <title>Installing Sqac</title>
+      <link>https://1414c.github.io/sqac/getting-started/gs-content-b/</link>
+      <pubDate>Fri, 07 Dec 2018 09:20:02 -0700</pubDate>
+      
+      <guid>https://1414c.github.io/sqac/getting-started/gs-content-b/</guid>
+      <description>The easiest way to install sqac is to use go get on the command-line to pull the latest version from github, as shown below:
+go get -u github.com/1414C/sqac The &amp;lsquo;go get&amp;rsquo; command will pull the sqac github repository into your $GOPATH/src/github.com folder, as well as any dependencies referenced by the sqac source code. The -u flag is included to instruct go get to check for and pull updates to sqac and it&#39;s dependencies.</description>
+    </item>
+    
+    <item>
+      <title>Using Sqac</title>
+      <link>https://1414c.github.io/sqac/getting-started/gs-content-c/</link>
+      <pubDate>Fri, 07 Dec 2018 09:21:02 -0700</pubDate>
+      
+      <guid>https://1414c.github.io/sqac/getting-started/gs-content-c/</guid>
+      <description>The following example illustrates the general usage of the sqac library.
+package main import ( &amp;#34;flag&amp;#34; &amp;#34;fmt&amp;#34; &amp;#34;github.com/1414C/sqac&amp;#34; _ &amp;#34;github.com/SAP/go-hdb/driver&amp;#34; _ &amp;#34;github.com/denisenkom/go-mssqldb&amp;#34; _ &amp;#34;github.com/go-sql-driver/mysql&amp;#34; _ &amp;#34;github.com/lib/pq&amp;#34; _ &amp;#34;github.com/mattn/go-sqlite3&amp;#34; ) func main() { dbFlag := flag.String(&amp;#34;db&amp;#34;, &amp;#34;sqlite&amp;#34;, &amp;#34;db-type for connection&amp;#34;) csFlag := flag.String(&amp;#34;cs&amp;#34;, &amp;#34;testdb.sqlite&amp;#34;, &amp;#34;connection-string for the database&amp;#34;) logFlag := flag.Bool(&amp;#34;l&amp;#34;, false, &amp;#34;activate sqac detail logging to stdout&amp;#34;) dbLogFlag := flag.Bool(&amp;#34;dbl&amp;#34;, false, &amp;#34;activate DDL/DML logging to stdout)&amp;#34;) flag.Parse() // This will be the central access-point to the ORM and should be made  // available in all locations where access to the persistent storage  // (database) is required.</description>
+    </item>
+    
+    <item>
+      <title>Database Connection Strings</title>
+      <link>https://1414c.github.io/sqac/getting-started/gs-content-e/</link>
+      <pubDate>Fri, 07 Dec 2018 17:02:02 -0700</pubDate>
+      
+      <guid>https://1414c.github.io/sqac/getting-started/gs-content-e/</guid>
+      <description>Sqac requires a connection string in order to connect to the target database. Each of the supported databases has their own distinct connection string syntax.
+Sqac presently supports MSSQL, MySQL, PostgreSQL, Sqlite3 and the SAP Hana database. You will need to know the db user-name / password, as well as the address:port and name of the database. Sample connection strings are provided as a reference. MSSQL Connection String cs := &amp;#34;sqlserver://SA:my_passwd@localhost:1401?</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.62.1" />
+    <meta name="generator" content="Hugo 0.69.2" />
     <meta name="description" content="">
 
 
@@ -12,19 +12,19 @@
     <title>Installing Sqac :: Sqac ORM</title>
 
     
-    <link href="/sqac/css/nucleus.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/fontawesome-all.min.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/hybrid.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/featherlight.min.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/perfect-scrollbar.min.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/auto-complete.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/theme.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/hugo-theme.css?1588357586" rel="stylesheet">
+    <link href="/sqac/css/nucleus.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/fontawesome-all.min.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/hybrid.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/featherlight.min.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/perfect-scrollbar.min.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/auto-complete.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/theme.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/hugo-theme.css?1712759154" rel="stylesheet">
     
-      <link href="/sqac/css/theme-white.css?1588357586" rel="stylesheet">
+      <link href="/sqac/css/theme-white.css?1712759154" rel="stylesheet">
     
 
-    <script src="/sqac/js/jquery-2.x.min.js?1588357586"></script>
+    <script src="/sqac/js/jquery-2.x.min.js?1712759154"></script>
 
     <style type="text/css">
       :root #header + #content > #left > #rlblock_left{
@@ -52,14 +52,14 @@
     <span data-search-clear=""><i class="fas fa-close"></i></span>
 </div>
 
-<script type="text/javascript" src="/sqac/js/lunr.min.js?1588357586"></script>
-<script type="text/javascript" src="/sqac/js/auto-complete.js?1588357586"></script>
+<script type="text/javascript" src="/sqac/js/lunr.min.js?1712759154"></script>
+<script type="text/javascript" src="/sqac/js/auto-complete.js?1712759154"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/1414c.github.io\/sqac\/";
     
 </script>
-<script type="text/javascript" src="/sqac/js/search.js?1588357586"></script>
+<script type="text/javascript" src="/sqac/js/search.js?1712759154"></script>
 
     
   </div>
@@ -851,7 +851,7 @@
 
 <p>The easiest way to install sqac is to use <em>go get</em> on the command-line to pull the latest version from github, as shown below:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">go get -u github.com/1414C/sqac
-</code></pre></div><p>The &lsquo;go get&rsquo; command will pull the sqac github repository into your $GOPATH/src/github.com folder, as well as any dependencies referenced by the sqac source code.  The <em>-u</em> flag is included to instruct <em>go get</em> to check for and pull updates to sqac and it's dependencies.  Sqac uses go modules and will pull the required versions its dependencies based on the content of the <em>go.mod</em> file.</p>
+</code></pre></div><p>The &lsquo;go get&rsquo; command will pull the sqac github repository into your $GOPATH/src/github.com folder, as well as any dependencies referenced by the sqac source code.  The <em>-u</em> flag is included to instruct <em>go get</em> to check for and pull updates to sqac and it&rsquo;s dependencies.  Sqac uses go modules and will pull the required versions its dependencies based on the content of the <em>go.mod</em> file.</p>
 <p>Ensure that you have also installed the drivers for the databases you plan to use.  Supported drivers include:</p>
 <table>
 <thead>
@@ -888,179 +888,179 @@
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">go test -v -db sqlite
 </code></pre></div><p>If all goes well, you should see the following:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">2018/12/20 11:50:47 package sqac init is running
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestGetDBDriverName
+<span style="color:#f92672">===</span> RUN   TestGetDBDriverName
 --- PASS: TestGetDBDriverName <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestGetDBName
+<span style="color:#f92672">===</span> RUN   TestGetDBName
 --- PASS: TestGetDBName <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestExistsTableNegative
+<span style="color:#f92672">===</span> RUN   TestExistsTableNegative
 --- PASS: TestExistsTableNegative <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCreateTableBasic
+<span style="color:#f92672">===</span> RUN   TestCreateTableBasic
 --- PASS: TestCreateTableBasic <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestDropTablesBasic
+<span style="color:#f92672">===</span> RUN   TestDropTablesBasic
 --- PASS: TestDropTablesBasic <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCreateTableCompoundKey
+<span style="color:#f92672">===</span> RUN   TestCreateTableCompoundKey
 --- PASS: TestCreateTableCompoundKey <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCreateTableNonIncKey
+<span style="color:#f92672">===</span> RUN   TestCreateTableNonIncKey
 --- PASS: TestCreateTableNonIncKey <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCreateTableNoKey
+<span style="color:#f92672">===</span> RUN   TestCreateTableNoKey
 --- PASS: TestCreateTableNoKey <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCreateTableWithAlterSequence
+<span style="color:#f92672">===</span> RUN   TestCreateTableWithAlterSequence
 --- PASS: TestCreateTableWithAlterSequence <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCreateTablesWithInclude
+<span style="color:#f92672">===</span> RUN   TestCreateTablesWithInclude
 --- PASS: TestCreateTablesWithInclude <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCreateUniqueColumnConstraintFromModel
+<span style="color:#f92672">===</span> RUN   TestCreateUniqueColumnConstraintFromModel
 --- PASS: TestCreateUniqueColumnConstraintFromModel <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestExistsIndexNegative
+<span style="color:#f92672">===</span> RUN   TestExistsIndexNegative
 --- PASS: TestExistsIndexNegative <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCreateSingleUniqueIndexFromModel
+<span style="color:#f92672">===</span> RUN   TestCreateSingleUniqueIndexFromModel
 --- PASS: TestCreateSingleUniqueIndexFromModel <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCreateSingleNonUniqueIndexFromModel
+<span style="color:#f92672">===</span> RUN   TestCreateSingleNonUniqueIndexFromModel
 --- PASS: TestCreateSingleNonUniqueIndexFromModel <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCreateSimpleCompositeIndex
+<span style="color:#f92672">===</span> RUN   TestCreateSimpleCompositeIndex
 --- PASS: TestCreateSimpleCompositeIndex <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestExistsIndexPositive
+<span style="color:#f92672">===</span> RUN   TestExistsIndexPositive
 --- PASS: TestExistsIndexPositive <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestDropIndex
+<span style="color:#f92672">===</span> RUN   TestDropIndex
 --- PASS: TestDropIndex <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCreateCompositeIndexFromModel
+<span style="color:#f92672">===</span> RUN   TestCreateCompositeIndexFromModel
 --- PASS: TestCreateCompositeIndexFromModel <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestExistsColumn
+<span style="color:#f92672">===</span> RUN   TestExistsColumn
 --- PASS: TestExistsColumn <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestAlterTables
+<span style="color:#f92672">===</span> RUN   TestAlterTables
 --- PASS: TestAlterTables <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestDestructiveResetTables
+<span style="color:#f92672">===</span> RUN   TestDestructiveResetTables
 --- PASS: TestDestructiveResetTables <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestQueryOps
+<span style="color:#f92672">===</span> RUN   TestQueryOps
 --- PASS: TestQueryOps <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestNullableValues
+<span style="color:#f92672">===</span> RUN   TestNullableValues
 --- PASS: TestNullableValues <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestNonPersistentColumn
+<span style="color:#f92672">===</span> RUN   TestNonPersistentColumn
 --- PASS: TestNonPersistentColumn <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestTimeSimple
+<span style="color:#f92672">===</span> RUN   TestTimeSimple
 --- PASS: TestTimeSimple <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDCreate
+<span style="color:#f92672">===</span> RUN   TestCRUDCreate
 --- PASS: TestCRUDCreate <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDUpdate
+<span style="color:#f92672">===</span> RUN   TestCRUDUpdate
 --- PASS: TestCRUDUpdate <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDDelete
+<span style="color:#f92672">===</span> RUN   TestCRUDDelete
 --- PASS: TestCRUDDelete <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGet
+<span style="color:#f92672">===</span> RUN   TestCRUDGet
 --- PASS: TestCRUDGet <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntities
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntities
 --- PASS: TestCRUDGetEntities <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntities2
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntities2
 --- PASS: TestCRUDGetEntities2 <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntities4
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntities4
 --- PASS: TestCRUDGetEntities4 <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestNullString
+<span style="color:#f92672">===</span> RUN   TestNullString
 --- PASS: TestNullString <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestNullInt
+<span style="color:#f92672">===</span> RUN   TestNullInt
 --- PASS: TestNullInt <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestNullUint
+<span style="color:#f92672">===</span> RUN   TestNullUint
 --- PASS: TestNullUint <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestNullFloat
+<span style="color:#f92672">===</span> RUN   TestNullFloat
 --- PASS: TestNullFloat <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestNullBool
+<span style="color:#f92672">===</span> RUN   TestNullBool
 --- PASS: TestNullBool <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCamelToSnake
+<span style="color:#f92672">===</span> RUN   TestCamelToSnake
 --- PASS: TestCamelToSnake <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesWithCommandsOpenSelect
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesWithCommandsOpenSelect
 --- PASS: TestCRUDGetEntitiesWithCommandsOpenSelect <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesWithCommandsSelectUint
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesWithCommandsSelectUint
 --- PASS: TestCRUDGetEntitiesWithCommandsSelectUint <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesWithCommandsSelectString
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesWithCommandsSelectString
 --- PASS: TestCRUDGetEntitiesWithCommandsSelectString <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesWithCommandsSelectCount
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesWithCommandsSelectCount
 --- PASS: TestCRUDGetEntitiesWithCommandsSelectCount <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesWithCommandsLimit
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesWithCommandsLimit
 --- PASS: TestCRUDGetEntitiesWithCommandsLimit <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesWithCommandsLimitDesc
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesWithCommandsLimitDesc
 --- PASS: TestCRUDGetEntitiesWithCommandsLimitDesc <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesWithCommandsLimitAsc
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesWithCommandsLimitAsc
 --- PASS: TestCRUDGetEntitiesWithCommandsLimitAsc <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesWithCommandsOffset
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesWithCommandsOffset
 --- PASS: TestCRUDGetEntitiesWithCommandsOffset <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesWithCommandsOffsetDesc
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesWithCommandsOffsetDesc
 --- PASS: TestCRUDGetEntitiesWithCommandsOffsetDesc <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesWithCommandsOffsetLimit
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesWithCommandsOffsetLimit
 --- PASS: TestCRUDGetEntitiesWithCommandsOffsetLimit <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesWithCommandsOffsetLimitDesc
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesWithCommandsOffsetLimitDesc
 --- PASS: TestCRUDGetEntitiesWithCommandsOffsetLimitDesc <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesWithCommandsOrderBy
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesWithCommandsOrderBy
 --- PASS: TestCRUDGetEntitiesWithCommandsOrderBy <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesWithCommandsOrderByDesc
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesWithCommandsOrderByDesc
 --- PASS: TestCRUDGetEntitiesWithCommandsOrderByDesc <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesWithCommandsParamOrderBy
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesWithCommandsParamOrderBy
 --- PASS: TestCRUDGetEntitiesWithCommandsParamOrderBy <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesWithCommandsParamOrderByDesc
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesWithCommandsParamOrderByDesc
 --- PASS: TestCRUDGetEntitiesWithCommandsParamOrderByDesc <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesWithCommandsOrderByDescLimit
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesWithCommandsOrderByDescLimit
 --- PASS: TestCRUDGetEntitiesWithCommandsOrderByDescLimit <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesWithCommandsOrderByDescLimitOffset
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesWithCommandsOrderByDescLimitOffset
 --- PASS: TestCRUDGetEntitiesWithCommandsOrderByDescLimitOffset <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesWithCommandsOrderByAscLimitOffset
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesWithCommandsOrderByAscLimitOffset
 --- PASS: TestCRUDGetEntitiesWithCommandsOrderByAscLimitOffset <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesWithCommandsTestOffsetOrderByAscLimitOffset
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesWithCommandsTestOffsetOrderByAscLimitOffset
 --- PASS: TestCRUDGetEntitiesWithCommandsTestOffsetOrderByAscLimitOffset <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestForeignKeyCreate
+<span style="color:#f92672">===</span> RUN   TestForeignKeyCreate
 --- PASS: TestForeignKeyCreate <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestForeignKeyDrop
+<span style="color:#f92672">===</span> RUN   TestForeignKeyDrop
 --- PASS: TestForeignKeyDrop <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestGetForeignKeyName
+<span style="color:#f92672">===</span> RUN   TestGetForeignKeyName
 --- PASS: TestGetForeignKeyName <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestExistsForeignKeyByName
+<span style="color:#f92672">===</span> RUN   TestExistsForeignKeyByName
 --- PASS: TestExistsForeignKeyByName <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestExistsForeignKeyByFields
+<span style="color:#f92672">===</span> RUN   TestExistsForeignKeyByFields
 --- PASS: TestExistsForeignKeyByFields <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestForeignKeyCreateFromModel
+<span style="color:#f92672">===</span> RUN   TestForeignKeyCreateFromModel
 --- PASS: TestForeignKeyCreateFromModel <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestForeignKeyCreateTwoFromModel
+<span style="color:#f92672">===</span> RUN   TestForeignKeyCreateTwoFromModel
 --- PASS: TestForeignKeyCreateTwoFromModel <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestForeignKeyCreateTwoDelOneFromModel
+<span style="color:#f92672">===</span> RUN   TestForeignKeyCreateTwoDelOneFromModel
 --- PASS: TestForeignKeyCreateTwoDelOneFromModel <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestForeignKeyDelFromModel
+<span style="color:#f92672">===</span> RUN   TestForeignKeyDelFromModel
 --- PASS: TestForeignKeyDelFromModel <span style="color:#f92672">(</span>0.00s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestForeignKeyCreateViaAlterTable
+<span style="color:#f92672">===</span> RUN   TestForeignKeyCreateViaAlterTable
 --- PASS: TestForeignKeyCreateViaAlterTable <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesCPOpenSelect
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesCPOpenSelect
 --- PASS: TestCRUDGetEntitiesCPOpenSelect <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesCPSelectUint
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesCPSelectUint
 --- PASS: TestCRUDGetEntitiesCPSelectUint <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesCPSelectString
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesCPSelectString
 --- PASS: TestCRUDGetEntitiesCPSelectString <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesCPSelectMultiParam
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesCPSelectMultiParam
 --- PASS: TestCRUDGetEntitiesCPSelectMultiParam <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesCPSelectCount
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesCPSelectCount
 --- PASS: TestCRUDGetEntitiesCPSelectCount <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesCPLimit
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesCPLimit
 --- PASS: TestCRUDGetEntitiesCPLimit <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesCPLimitDesc
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesCPLimitDesc
 --- PASS: TestCRUDGetEntitiesCPLimitDesc <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesCPLimitAsc
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesCPLimitAsc
 --- PASS: TestCRUDGetEntitiesCPLimitAsc <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesCPOffset
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesCPOffset
 --- PASS: TestCRUDGetEntitiesCPOffset <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesCPOffsetDesc
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesCPOffsetDesc
 --- PASS: TestCRUDGetEntitiesCPOffsetDesc <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesCPOffsetLimit
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesCPOffsetLimit
 --- PASS: TestCRUDGetEntitiesCPOffsetLimit <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesCPOffsetLimitDesc
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesCPOffsetLimitDesc
 --- PASS: TestCRUDGetEntitiesCPOffsetLimitDesc <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesCPOrderBy
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesCPOrderBy
 --- PASS: TestCRUDGetEntitiesCPOrderBy <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesCPOrderByDesc
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesCPOrderByDesc
 --- PASS: TestCRUDGetEntitiesCPOrderByDesc <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesCPParamOrderBy
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesCPParamOrderBy
 --- PASS: TestCRUDGetEntitiesCPParamOrderBy <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesCPParamOrderByDesc
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesCPParamOrderByDesc
 --- PASS: TestCRUDGetEntitiesCPParamOrderByDesc <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesCPOrderByDescLimit
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesCPOrderByDescLimit
 --- PASS: TestCRUDGetEntitiesCPOrderByDescLimit <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesCPOrderByDescLimitOffset
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesCPOrderByDescLimitOffset
 --- PASS: TestCRUDGetEntitiesCPOrderByDescLimitOffset <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesCPOrderByAscLimitOffset
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesCPOrderByAscLimitOffset
 --- PASS: TestCRUDGetEntitiesCPOrderByAscLimitOffset <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
-<span style="color:#f92672">=</span><span style="color:#f92672">=</span><span style="color:#f92672">=</span> RUN   TestCRUDGetEntitiesCPTestOffsetOrderByAscLimitOffset
+<span style="color:#f92672">===</span> RUN   TestCRUDGetEntitiesCPTestOffsetOrderByAscLimitOffset
 --- PASS: TestCRUDGetEntitiesCPTestOffsetOrderByAscLimitOffset <span style="color:#f92672">(</span>0.01s<span style="color:#f92672">)</span>
 PASS
 ok  	github.com/1414C/sqac	0.724s
@@ -1673,20 +1673,20 @@ ok  	github.com/1414C/sqac	0.724s
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/sqac/js/clipboard.min.js?1588357586"></script>
-    <script src="/sqac/js/perfect-scrollbar.min.js?1588357586"></script>
-    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1588357586"></script>
-    <script src="/sqac/js/jquery.sticky.js?1588357586"></script>
-    <script src="/sqac/js/featherlight.min.js?1588357586"></script>
-    <script src="/sqac/js/html5shiv-printshiv.min.js?1588357586"></script>
-    <script src="/sqac/js/highlight.pack.js?1588357586"></script>
+    <script src="/sqac/js/clipboard.min.js?1712759154"></script>
+    <script src="/sqac/js/perfect-scrollbar.min.js?1712759154"></script>
+    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1712759154"></script>
+    <script src="/sqac/js/jquery.sticky.js?1712759154"></script>
+    <script src="/sqac/js/featherlight.min.js?1712759154"></script>
+    <script src="/sqac/js/html5shiv-printshiv.min.js?1712759154"></script>
+    <script src="/sqac/js/highlight.pack.js?1712759154"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/sqac/js/modernizr.custom.71422.js?1588357586"></script>
-    <script src="/sqac/js/learn.js?1588357586"></script>
-    <script src="/sqac/js/hugo-learn.js?1588357586"></script>
+    <script src="/sqac/js/modernizr.custom.71422.js?1712759154"></script>
+    <script src="/sqac/js/learn.js?1712759154"></script>
+    <script src="/sqac/js/hugo-learn.js?1712759154"></script>
 
-    <link href="/sqac/mermaid/mermaid.css?1588357586" type="text/css" rel="stylesheet" />
-    <script src="/sqac/mermaid/mermaid.js?1588357586"></script>
+    <link href="/sqac/mermaid/mermaid.css?1712759154" type="text/css" rel="stylesheet" />
+    <script src="/sqac/mermaid/mermaid.js?1712759154"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

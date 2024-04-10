@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.62.1" />
+    <meta name="generator" content="Hugo 0.69.2" />
     <meta name="description" content="">
 
 
@@ -12,19 +12,19 @@
     <title>Sqac Tags :: Sqac ORM</title>
 
     
-    <link href="/sqac/css/nucleus.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/fontawesome-all.min.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/hybrid.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/featherlight.min.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/perfect-scrollbar.min.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/auto-complete.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/theme.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/hugo-theme.css?1588357586" rel="stylesheet">
+    <link href="/sqac/css/nucleus.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/fontawesome-all.min.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/hybrid.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/featherlight.min.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/perfect-scrollbar.min.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/auto-complete.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/theme.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/hugo-theme.css?1712759154" rel="stylesheet">
     
-      <link href="/sqac/css/theme-white.css?1588357586" rel="stylesheet">
+      <link href="/sqac/css/theme-white.css?1712759154" rel="stylesheet">
     
 
-    <script src="/sqac/js/jquery-2.x.min.js?1588357586"></script>
+    <script src="/sqac/js/jquery-2.x.min.js?1712759154"></script>
 
     <style type="text/css">
       :root #header + #content > #left > #rlblock_left{
@@ -52,14 +52,14 @@
     <span data-search-clear=""><i class="fas fa-close"></i></span>
 </div>
 
-<script type="text/javascript" src="/sqac/js/lunr.min.js?1588357586"></script>
-<script type="text/javascript" src="/sqac/js/auto-complete.js?1588357586"></script>
+<script type="text/javascript" src="/sqac/js/lunr.min.js?1712759154"></script>
+<script type="text/javascript" src="/sqac/js/auto-complete.js?1712759154"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/1414c.github.io\/sqac\/";
     
 </script>
-<script type="text/javascript" src="/sqac/js/search.js?1588357586"></script>
+<script type="text/javascript" src="/sqac/js/search.js?1712759154"></script>
 
     
   </div>
@@ -867,7 +867,7 @@ column attributes.  Two tags are used: <strong>&lsquo;db:'</strong> and <strong>
 <tbody>
 <tr>
 <td><strong>&ldquo;primary_key:&quot;</strong></td>
-<td>This tag is used to declare that the specified column should be used as a primary-key in the generated database table.   There are a few variations in its use:  <!-- raw HTML omitted --><!-- raw HTML omitted --> <strong>&ldquo;primary_key:inc&rdquo;</strong> declares the primary-key as auto-incrementing from 0 in the database table schema: <!-- raw HTML omitted --> <code>db:&quot;depot_num&quot; sqac:&quot;primary_key:inc&quot;</code> <!-- raw HTML omitted --><!-- raw HTML omitted -->**&ldquo;primary_key:&quot;** declares the primary-key as a non-auto-incrementing primary-key in the database schema: <!-- raw HTML omitted --> <code>db:&quot;depot_num&quot; sqac:&quot;primary_key:&quot;</code> <!-- raw HTML omitted --><!-- raw HTML omitted -->  **&ldquo;primary_key:inc;start:90000000&rdquo;** declares the primary-key as auto-incrementing starting from 900000000: <!-- raw HTML omitted --> <code>db:&quot;depot_num&quot; sqac:&quot;primary_key:inc;start:90000000&quot;</code> <!-- raw HTML omitted --><!-- raw HTML omitted --> It is possible to assign the &ldquo;primary_key:&rdquo; tag to more than one column in a table's model declaration.  The column containing the first occurrence of the tag (top-down) will be created as the actual primary-key in the database.  The collection of column declarations containing the &ldquo;primary_key:&rdquo; tag will be used to create a unique index on the DB table.  This is useful in cases where one is migrating data from a source system that has the concept of compound table keys.  For example, the following model excerpt would result in the creation of &ldquo;depot_num&rdquo; as the table's primary-key as well as the creation of a unique index containing &ldquo;depot_num&rdquo;, &ldquo;depot_bay&rdquo;, &ldquo;create_date&rdquo;: <!-- raw HTML omitted --><!-- raw HTML omitted --> DepotNum            int       <code>db:&quot;depot_num&quot; sqac:&quot;primary_key:inc;start:90000000&quot;</code><!-- raw HTML omitted --> DepotBay            int       <code>db:&quot;depot_bay&quot; sqac:&quot;primary_key:&quot;</code> <!-- raw HTML omitted --> CreateDate          time.Time <code>db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();index:unique&quot;</code><!-- raw HTML omitted --><!-- raw HTML omitted -->**Notes:** auto-incrementing primary-keys increment by 1 and must always be declared as go-type **int**.</td>
+<td>This tag is used to declare that the specified column should be used as a primary-key in the generated database table.   There are a few variations in its use:  <!-- raw HTML omitted --><!-- raw HTML omitted --> <strong>&ldquo;primary_key:inc&rdquo;</strong> declares the primary-key as auto-incrementing from 0 in the database table schema: <!-- raw HTML omitted --> <code>db:&quot;depot_num&quot; sqac:&quot;primary_key:inc&quot;</code> <!-- raw HTML omitted --><!-- raw HTML omitted -->**&ldquo;primary_key:&quot;** declares the primary-key as a non-auto-incrementing primary-key in the database schema: <!-- raw HTML omitted --> <code>db:&quot;depot_num&quot; sqac:&quot;primary_key:&quot;</code> <!-- raw HTML omitted --><!-- raw HTML omitted -->  **&ldquo;primary_key:inc;start:90000000&rdquo;** declares the primary-key as auto-incrementing starting from 900000000: <!-- raw HTML omitted --> <code>db:&quot;depot_num&quot; sqac:&quot;primary_key:inc;start:90000000&quot;</code> <!-- raw HTML omitted --><!-- raw HTML omitted --> It is possible to assign the &ldquo;primary_key:&rdquo; tag to more than one column in a table&rsquo;s model declaration.  The column containing the first occurrence of the tag (top-down) will be created as the actual primary-key in the database.  The collection of column declarations containing the &ldquo;primary_key:&rdquo; tag will be used to create a unique index on the DB table.  This is useful in cases where one is migrating data from a source system that has the concept of compound table keys.  For example, the following model excerpt would result in the creation of &ldquo;depot_num&rdquo; as the table&rsquo;s primary-key as well as the creation of a unique index containing &ldquo;depot_num&rdquo;, &ldquo;depot_bay&rdquo;, &ldquo;create_date&rdquo;: <!-- raw HTML omitted --><!-- raw HTML omitted --> DepotNum            int       <code>db:&quot;depot_num&quot; sqac:&quot;primary_key:inc;start:90000000&quot;</code><!-- raw HTML omitted --> DepotBay            int       <code>db:&quot;depot_bay&quot; sqac:&quot;primary_key:&quot;</code> <!-- raw HTML omitted --> CreateDate          time.Time <code>db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();index:unique&quot;</code><!-- raw HTML omitted --><!-- raw HTML omitted -->**Notes:** auto-incrementing primary-keys increment by 1 and must always be declared as go-type **int**.</td>
 </tr>
 <tr>
 <td><strong>&ldquo;nullable:&quot;</strong></td>
@@ -879,11 +879,11 @@ column attributes.  Two tags are used: <strong>&lsquo;db:'</strong> and <strong>
 </tr>
 <tr>
 <td><strong>&ldquo;index:&quot;</strong></td>
-<td>Single column indexes can be declared via the &ldquo;index:&rdquo; tag.  The example index declarations require only the &ldquo;index:unique / non-unique&rdquo; pair in the column's sqac-tag.  The following column declaration results in the creation of a unique index on table column &ldquo;create_date&rdquo;: <!-- raw HTML omitted --> <code>db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();index:unique&quot;</code> <!-- raw HTML omitted --><!-- raw HTML omitted -->  A non-unique single column index for the same column is declared as follows: <!-- raw HTML omitted --> <code>db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();index:non-unique&quot;</code> <!-- raw HTML omitted --><!-- raw HTML omitted --><!-- raw HTML omitted --> Multi-column indexes can also be declared via the index tag.  The following example illustrates the declaration of a non-unique two-column index containing columns &ldquo;new_column1&rdquo; and &ldquo;new_column2&rdquo;: <!-- raw HTML omitted --> <code>db:&quot;new_column1&quot; sqac:&quot;nullable:false;index:idx_depot_new_column1_new_column2&quot;</code> <!-- raw HTML omitted --> <code>db:&quot;new_column2&quot; sqac:&quot;nullable:false;default:0;index:idx_depot_new_column1_new_column2&quot;</code> <!-- raw HTML omitted --></td>
+<td>Single column indexes can be declared via the &ldquo;index:&rdquo; tag.  The example index declarations require only the &ldquo;index:unique / non-unique&rdquo; pair in the column&rsquo;s sqac-tag.  The following column declaration results in the creation of a unique index on table column &ldquo;create_date&rdquo;: <!-- raw HTML omitted --> <code>db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();index:unique&quot;</code> <!-- raw HTML omitted --><!-- raw HTML omitted -->  A non-unique single column index for the same column is declared as follows: <!-- raw HTML omitted --> <code>db:&quot;create_date&quot; sqac:&quot;nullable:false;default:now();index:non-unique&quot;</code> <!-- raw HTML omitted --><!-- raw HTML omitted --><!-- raw HTML omitted --> Multi-column indexes can also be declared via the index tag.  The following example illustrates the declaration of a non-unique two-column index containing columns &ldquo;new_column1&rdquo; and &ldquo;new_column2&rdquo;: <!-- raw HTML omitted --> <code>db:&quot;new_column1&quot; sqac:&quot;nullable:false;index:idx_depot_new_column1_new_column2&quot;</code> <!-- raw HTML omitted --> <code>db:&quot;new_column2&quot; sqac:&quot;nullable:false;default:0;index:idx_depot_new_column1_new_column2&quot;</code> <!-- raw HTML omitted --></td>
 </tr>
 <tr>
 <td><strong>&ldquo;fkey:&quot;</strong></td>
-<td>Foreign-keys can be declared between table columns.  The following example results in the creation of a foreign-key between the table's &ldquo;warehouse_id&rdquo; column and reference column &ldquo;id&rdquo; in table &ldquo;warehouse&rdquo;. <!-- raw HTML omitted --><!-- raw HTML omitted --> WarehouseID uint64 <code>db:&quot;warehouse_id&quot; json:&quot;warehouse_id&quot; sqac:&quot;nullable:false;fkey:warehouse(id)&quot;</code> <!-- raw HTML omitted --><!-- raw HTML omitted --> This example is not very clear - see the full example code excerpt in the Table Declaration Examples section.</td>
+<td>Foreign-keys can be declared between table columns.  The following example results in the creation of a foreign-key between the table&rsquo;s &ldquo;warehouse_id&rdquo; column and reference column &ldquo;id&rdquo; in table &ldquo;warehouse&rdquo;. <!-- raw HTML omitted --><!-- raw HTML omitted --> WarehouseID uint64 <code>db:&quot;warehouse_id&quot; json:&quot;warehouse_id&quot; sqac:&quot;nullable:false;fkey:warehouse(id)&quot;</code> <!-- raw HTML omitted --><!-- raw HTML omitted --> This example is not very clear - see the full example code excerpt in the Table Declaration Examples section.</td>
 </tr>
 <tr>
 <td><strong>&quot;-&quot;</strong></td>
@@ -1502,20 +1502,20 @@ column attributes.  Two tags are used: <strong>&lsquo;db:'</strong> and <strong>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/sqac/js/clipboard.min.js?1588357586"></script>
-    <script src="/sqac/js/perfect-scrollbar.min.js?1588357586"></script>
-    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1588357586"></script>
-    <script src="/sqac/js/jquery.sticky.js?1588357586"></script>
-    <script src="/sqac/js/featherlight.min.js?1588357586"></script>
-    <script src="/sqac/js/html5shiv-printshiv.min.js?1588357586"></script>
-    <script src="/sqac/js/highlight.pack.js?1588357586"></script>
+    <script src="/sqac/js/clipboard.min.js?1712759154"></script>
+    <script src="/sqac/js/perfect-scrollbar.min.js?1712759154"></script>
+    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1712759154"></script>
+    <script src="/sqac/js/jquery.sticky.js?1712759154"></script>
+    <script src="/sqac/js/featherlight.min.js?1712759154"></script>
+    <script src="/sqac/js/html5shiv-printshiv.min.js?1712759154"></script>
+    <script src="/sqac/js/highlight.pack.js?1712759154"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/sqac/js/modernizr.custom.71422.js?1588357586"></script>
-    <script src="/sqac/js/learn.js?1588357586"></script>
-    <script src="/sqac/js/hugo-learn.js?1588357586"></script>
+    <script src="/sqac/js/modernizr.custom.71422.js?1712759154"></script>
+    <script src="/sqac/js/learn.js?1712759154"></script>
+    <script src="/sqac/js/hugo-learn.js?1712759154"></script>
 
-    <link href="/sqac/mermaid/mermaid.css?1588357586" type="text/css" rel="stylesheet" />
-    <script src="/sqac/mermaid/mermaid.js?1588357586"></script>
+    <link href="/sqac/mermaid/mermaid.css?1712759154" type="text/css" rel="stylesheet" />
+    <script src="/sqac/mermaid/mermaid.js?1712759154"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

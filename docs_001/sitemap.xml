@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/getting-started/</loc>
+    <lastmod>2018-12-07T17:02:02-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/getting-started/gs-content-a/</loc>
+    <lastmod>2018-12-06T16:20:03-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/getting-started/gs-content-b/</loc>
+    <lastmod>2018-12-07T09:20:02-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/getting-started/gs-content-c/</loc>
+    <lastmod>2018-12-07T09:21:02-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/getting-started/gs-content-e/</loc>
+    <lastmod>2018-12-07T17:02:02-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/modeling/</loc>
+    <lastmod>2018-12-12T13:47:10-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/modeling/md-content-a/</loc>
+    <lastmod>2018-12-11T15:02:03-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/modeling/md-content-b/</loc>
+    <lastmod>2018-12-11T15:35:04-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/modeling/md-content-c/</loc>
+    <lastmod>2018-12-12T08:25:05-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/modeling/md-content-d/</loc>
+    <lastmod>2018-12-12T09:00:06-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/modeling/md-content-e/</loc>
+    <lastmod>2018-12-12T10:55:07-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/modeling/md-content-f/</loc>
+    <lastmod>2018-12-12T13:11:08-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/modeling/md-content-g/</loc>
+    <lastmod>2018-12-12T13:39:09-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/modeling/md-content-h/</loc>
+    <lastmod>2018-12-12T13:47:10-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/public-db/</loc>
+    <lastmod>2018-12-13T09:51:20-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/public-db/a-pdb-handle/</loc>
+    <lastmod>2018-12-07T16:48:02-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/public-db/b-pdb-create-tables/</loc>
+    <lastmod>2018-12-07T15:48:02-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/public-db/c-pdb-drop-tables/</loc>
+    <lastmod>2018-12-07T18:06:32-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/public-db/d-pdb-alter-tables/</loc>
+    <lastmod>2018-12-07T18:14:27-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/public-db/e-pdb-destructive-reset-tables/</loc>
+    <lastmod>2018-12-08T09:16:22-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/public-db/f-pdb-exists-table/</loc>
+    <lastmod>2018-12-09T08:59:42-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/public-db/g-pdb-create-index/</loc>
+    <lastmod>2018-12-10T09:22:31-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/public-db/h-pdb-drop-index/</loc>
+    <lastmod>2018-12-10T09:55:12-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/public-db/i-pdb-exists-index/</loc>
+    <lastmod>2018-12-10T10:23:14-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/public-db/j-pdb-create/</loc>
+    <lastmod>2018-12-10T15:20:15-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/public-db/k-pdb-update/</loc>
+    <lastmod>2018-12-10T15:38:16-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/public-db/l-pdb-delete/</loc>
+    <lastmod>2018-12-10T16:41:17-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/public-db/m-pdb-get-entity/</loc>
+    <lastmod>2018-12-10T16:50:18-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/public-db/n-pdb-get-entities-with-commands-ip/</loc>
+    <lastmod>2018-12-10T17:00:19-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/public-db/o-pdb-create-foreign-key/</loc>
+    <lastmod>2018-12-12T17:19:17-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/public-db/p-pdb-drop-foreign-key/</loc>
+    <lastmod>2018-12-13T08:51:18-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/public-db/q-pdb-exists-foreign-key-by-name/</loc>
+    <lastmod>2018-12-13T09:33:19-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/public-db/r-pdb-exists-foreign-key-by-fields/</loc>
+    <lastmod>2018-12-13T09:51:20-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/public-db/z-pdb-data-types/</loc>
+    <lastmod>2018-12-09T10:32:31-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/</loc>
+    <lastmod>2018-12-13T09:51:20-07:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/categories/</loc>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/credits/</loc>
+  </url>
+  
+  <url>
+    <loc>https://1414c.github.io/sqac/tags/</loc>
+  </url>
+  
+</urlset>

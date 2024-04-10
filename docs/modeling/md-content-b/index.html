@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.62.1" />
+    <meta name="generator" content="Hugo 0.69.2" />
     <meta name="description" content="">
 
 
@@ -12,19 +12,19 @@
     <title>primary_key: :: Sqac ORM</title>
 
     
-    <link href="/sqac/css/nucleus.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/fontawesome-all.min.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/hybrid.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/featherlight.min.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/perfect-scrollbar.min.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/auto-complete.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/theme.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/hugo-theme.css?1588357586" rel="stylesheet">
+    <link href="/sqac/css/nucleus.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/fontawesome-all.min.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/hybrid.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/featherlight.min.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/perfect-scrollbar.min.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/auto-complete.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/theme.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/hugo-theme.css?1712759154" rel="stylesheet">
     
-      <link href="/sqac/css/theme-white.css?1588357586" rel="stylesheet">
+      <link href="/sqac/css/theme-white.css?1712759154" rel="stylesheet">
     
 
-    <script src="/sqac/js/jquery-2.x.min.js?1588357586"></script>
+    <script src="/sqac/js/jquery-2.x.min.js?1712759154"></script>
 
     <style type="text/css">
       :root #header + #content > #left > #rlblock_left{
@@ -52,14 +52,14 @@
     <span data-search-clear=""><i class="fas fa-close"></i></span>
 </div>
 
-<script type="text/javascript" src="/sqac/js/lunr.min.js?1588357586"></script>
-<script type="text/javascript" src="/sqac/js/auto-complete.js?1588357586"></script>
+<script type="text/javascript" src="/sqac/js/lunr.min.js?1712759154"></script>
+<script type="text/javascript" src="/sqac/js/auto-complete.js?1712759154"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/1414c.github.io\/sqac\/";
     
 </script>
-<script type="text/javascript" src="/sqac/js/search.js?1588357586"></script>
+<script type="text/javascript" src="/sqac/js/search.js?1712759154"></script>
 
     
   </div>
@@ -833,7 +833,7 @@
     <div class="wrapper">
 <nav id="TableOfContents">
   <ul>
-    <li><a href="#primary-key-overview">&ldquo;primary_key:&rdquo; Overview</a>
+    <li><a href="#primary_key-overview">&ldquo;primary_key:&rdquo; Overview</a>
       <ul>
         <li></li>
       </ul>
@@ -857,40 +857,40 @@
         
 
 
-<h2 id="primary-key-overview">&ldquo;primary_key:&rdquo; Overview</h2>
+<h2 id="primary_key-overview">&ldquo;primary_key:&rdquo; Overview</h2>
 <p>Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database.  The following examples illustrate the use of the &lsquo;sqac:&rsquo; tags described in the <a href="/sqac/modeling/md-content-a">Sqac Tag Overview</a> section of this document.</p>
 <!-- raw HTML omitted -->
-<h4 id="primary-key-example">&ldquo;primary_key:&rdquo; example</h4>
+<h4 id="primary_key-example">&ldquo;primary_key:&rdquo; example</h4>
 <p>The following example illustrates the use of &lsquo;sqac:&rsquo; tag &ldquo;primary_key:&rdquo; to declare a non-auto-incrementing table primary-key.  Sqac expects table primary-keys to be declared as ints.  In such a declaration, the caller must be careful to provide an unused value for the primary-key column.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang">  <span style="color:#75715e">// Declare a struct to be used as the source for table creation.
 </span><span style="color:#75715e"></span>  <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Depot</span> <span style="color:#66d9ef">struct</span> {
-    <span style="color:#a6e22e">DepotNum</span>   <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;depot_num&#34; sqac:&#34;primary_key:&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">DepotNum</span>   <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`db:&#34;depot_num&#34; sqac:&#34;primary_key:&#34;`</span>
     <span style="color:#f92672">...</span>
     <span style="color:#f92672">...</span>
   }
-</code></pre></div><h4 id="primary-keyinc-example">&ldquo;primary_key:inc&rdquo; example</h4>
+</code></pre></div><h4 id="primary_keyinc-example">&ldquo;primary_key:inc&rdquo; example</h4>
 <p>The following example illustrates the use of &lsquo;sqac:&rsquo; tag &ldquo;primary_key:inc&rdquo; to declare a table primary-key that auto-increments from 0.  Most databases only support the use of an auto-incrementing sequence on a single column within a table declaration.  Sqac expects columns setup with the auto-incrementing &ldquo;primary_key:&rdquo; to be declared as ints.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang">  <span style="color:#75715e">// Declare a struct to be used as the source for table creation.
 </span><span style="color:#75715e"></span>  <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Depot</span> <span style="color:#66d9ef">struct</span> {
-    <span style="color:#a6e22e">DepotNum</span>   <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;depot_num&#34; sqac:&#34;primary_key:inc&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">DepotNum</span>   <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`db:&#34;depot_num&#34; sqac:&#34;primary_key:inc&#34;`</span>
     <span style="color:#f92672">...</span>
     <span style="color:#f92672">...</span>
   }
-</code></pre></div><h4 id="primary-keyincstartint-value-example">&ldquo;primary_key:inc;start:<em>&lt;int_value&gt;</em>&rdquo; example</h4>
+</code></pre></div><h4 id="primary_keyincstartint_value-example">&ldquo;primary_key:inc;start:<em>&lt;int_value&gt;</em>&rdquo; example</h4>
 <p>The following example illustrates the use of &lsquo;sqac:&rsquo; tag &ldquo;primary_key:&rdquo; to declare a table primary-key that auto-increments from a starting value of 1000000.  Sqac expects table primary-keys to be declared as ints.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang">  <span style="color:#75715e">// Declare a struct to be used as the source for table creation.
 </span><span style="color:#75715e"></span>  <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Depot</span> <span style="color:#66d9ef">struct</span> {
-    <span style="color:#a6e22e">DepotNum</span>   <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;depot_num&#34; sqac:&#34;primary_key:inc;start:1000000&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">DepotNum</span>   <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`db:&#34;depot_num&#34; sqac:&#34;primary_key:inc;start:1000000&#34;`</span>
     <span style="color:#f92672">...</span>
     <span style="color:#f92672">...</span>
   }
-</code></pre></div><h4 id="compound-primary-key-example">Compound &ldquo;primary_key:&rdquo; example</h4>
+</code></pre></div><h4 id="compound-primary_key-example">Compound &ldquo;primary_key:&rdquo; example</h4>
 <p>In cases where a single-key is not sufficient to differentiate between records, the &ldquo;primary_key:&rdquo; tag may be applied to multiple columns in a table declaration.  So doing will result in the creation of a database constraint or compound primary-key containing the chosen columns depending on the database being targeted.</p>
 <p>A similar effect can be obtained via declaration of a unique index containing the desired columns, or the use of the &ldquo;constraint:&rdquo; &lsquo;sqac:&rsquo; tag.  When declaring a compound key/constraint the data-types may be of any type with the exception of the auto-incrementing column (if any).</p>
 <p>The following example illustrates the creation of a two-field compound key:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang">  <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Depot</span> <span style="color:#66d9ef">struct</span> {
-    <span style="color:#a6e22e">DepotNum</span>   <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;depot_num&#34; sqac:&#34;primary_key:&#34;</span><span style="color:#e6db74">`</span>
-    <span style="color:#a6e22e">DepotBay</span>   <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;depoy_bay&#34; sqac:&#34;primary_key:&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">DepotNum</span>   <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`db:&#34;depot_num&#34; sqac:&#34;primary_key:&#34;`</span>
+    <span style="color:#a6e22e">DepotBay</span>   <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`db:&#34;depoy_bay&#34; sqac:&#34;primary_key:&#34;`</span>
     <span style="color:#f92672">...</span>
     <span style="color:#f92672">...</span>
 </code></pre></div><p>As declared, the two-field compound key creates the following in each of the supported DB systems:</p>
@@ -1534,20 +1534,20 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/sqac/js/clipboard.min.js?1588357586"></script>
-    <script src="/sqac/js/perfect-scrollbar.min.js?1588357586"></script>
-    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1588357586"></script>
-    <script src="/sqac/js/jquery.sticky.js?1588357586"></script>
-    <script src="/sqac/js/featherlight.min.js?1588357586"></script>
-    <script src="/sqac/js/html5shiv-printshiv.min.js?1588357586"></script>
-    <script src="/sqac/js/highlight.pack.js?1588357586"></script>
+    <script src="/sqac/js/clipboard.min.js?1712759154"></script>
+    <script src="/sqac/js/perfect-scrollbar.min.js?1712759154"></script>
+    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1712759154"></script>
+    <script src="/sqac/js/jquery.sticky.js?1712759154"></script>
+    <script src="/sqac/js/featherlight.min.js?1712759154"></script>
+    <script src="/sqac/js/html5shiv-printshiv.min.js?1712759154"></script>
+    <script src="/sqac/js/highlight.pack.js?1712759154"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/sqac/js/modernizr.custom.71422.js?1588357586"></script>
-    <script src="/sqac/js/learn.js?1588357586"></script>
-    <script src="/sqac/js/hugo-learn.js?1588357586"></script>
+    <script src="/sqac/js/modernizr.custom.71422.js?1712759154"></script>
+    <script src="/sqac/js/learn.js?1712759154"></script>
+    <script src="/sqac/js/hugo-learn.js?1712759154"></script>
 
-    <link href="/sqac/mermaid/mermaid.css?1588357586" type="text/css" rel="stylesheet" />
-    <script src="/sqac/mermaid/mermaid.js?1588357586"></script>
+    <link href="/sqac/mermaid/mermaid.css?1712759154" type="text/css" rel="stylesheet" />
+    <script src="/sqac/mermaid/mermaid.js?1712759154"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

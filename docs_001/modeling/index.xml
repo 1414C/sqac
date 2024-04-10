@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Sqac Modeling on Sqac ORM</title>
+    <link>https://1414c.github.io/sqac/modeling/</link>
+    <description>Recent content in Sqac Modeling on Sqac ORM</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 12 Dec 2018 13:47:10 -0700</lastBuildDate>
+    
+	<atom:link href="https://1414c.github.io/sqac/modeling/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Sqac Tags</title>
+      <link>https://1414c.github.io/sqac/modeling/md-content-a/</link>
+      <pubDate>Tue, 11 Dec 2018 15:02:03 -0700</pubDate>
+      
+      <guid>https://1414c.github.io/sqac/modeling/md-content-a/</guid>
+      <description>Sqac Tag Overview Sqac table-declarations are informed by go structs with json-style struct-tags indicating column attributes. Two tags are used: &amp;lsquo;db:&#39; and &amp;lsquo;sqac:&#39;; the &amp;lsquo;db:&#39; tag is used to declare the database column name. This is typically the snake_case conversion of the go struct field-name. The &amp;lsquo;sqac:&#39; tag is used to declare column attributes.
+A list of the supported &amp;lsquo;sqac:&amp;rsquo; tag attributes follows:
+   sqac tag Description     &amp;ldquo;primary_key:&amp;quot; This tag is used to declare that the specified column should be used as a primary-key in the generated database table.</description>
+    </item>
+    
+    <item>
+      <title>primary_key:</title>
+      <link>https://1414c.github.io/sqac/modeling/md-content-b/</link>
+      <pubDate>Tue, 11 Dec 2018 15:35:04 -0700</pubDate>
+      
+      <guid>https://1414c.github.io/sqac/modeling/md-content-b/</guid>
+      <description>&amp;ldquo;primary_key:&amp;rdquo; Overview Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database. The following examples illustrate the use of the &amp;lsquo;sqac:&amp;rsquo; tags described in the Sqac Tag Overview section of this document.
+&amp;ldquo;primary_key:&amp;rdquo; example The following example illustrates the use of &amp;lsquo;sqac:&amp;rsquo; tag &amp;ldquo;primary_key:&amp;rdquo; to declare a non-auto-incrementing table primary-key. Sqac expects table primary-keys to be declared as ints.</description>
+    </item>
+    
+    <item>
+      <title>nullable:</title>
+      <link>https://1414c.github.io/sqac/modeling/md-content-c/</link>
+      <pubDate>Wed, 12 Dec 2018 08:25:05 -0700</pubDate>
+      
+      <guid>https://1414c.github.io/sqac/modeling/md-content-c/</guid>
+      <description>&amp;ldquo;nullable:&amp;rdquo; Overview Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database. The following examples illustrate the use of the &amp;ldquo;nullable:&amp;rdquo; &amp;lsquo;sqac:&amp;rsquo; tag described in the Sqac Tag Overview section of this document.
+Unless specified, most databases will create columns as nullable by default. Use the &amp;ldquo;nullable:&amp;rdquo; tag to explicitly declare the data requirements of fields in the source go-struct and the nullability of the corresponding columns in the database.</description>
+    </item>
+    
+    <item>
+      <title>default:</title>
+      <link>https://1414c.github.io/sqac/modeling/md-content-d/</link>
+      <pubDate>Wed, 12 Dec 2018 09:00:06 -0700</pubDate>
+      
+      <guid>https://1414c.github.io/sqac/modeling/md-content-d/</guid>
+      <description>&amp;ldquo;default:&amp;rdquo; Overview Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database. The following examples illustrate the use of the &amp;ldquo;default:&amp;rdquo; &amp;lsquo;sqac:&amp;rsquo; tag described in the Sqac Tag Overview section of this document.
+Use the &amp;ldquo;default:&amp;rdquo; tag to explicitly declare default column values in the database table schema. The default values will be used only if no value has been provided for a defaulted column during record creation.</description>
+    </item>
+    
+    <item>
+      <title>index:</title>
+      <link>https://1414c.github.io/sqac/modeling/md-content-e/</link>
+      <pubDate>Wed, 12 Dec 2018 10:55:07 -0700</pubDate>
+      
+      <guid>https://1414c.github.io/sqac/modeling/md-content-e/</guid>
+      <description>&amp;ldquo;index:&amp;rdquo; Overview Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database. The following examples illustrate the use of the &amp;ldquo;index:&amp;rdquo; &amp;lsquo;sqac:&amp;rsquo; tag described in the Sqac Tag Overview section of this document.
+Use the &amp;ldquo;index:&amp;rdquo; tag to declare unique/non-unique indexes in database table schemas. Single column and compound indexes are supported.
+&amp;ldquo;index:&amp;lt;unique | non-unique&amp;gt;&amp;rdquo; example The following example illustrates the use of &amp;lsquo;sqac:&amp;rsquo; tag &amp;ldquo;index:&amp;rdquo; to declare a single column unique and single column non-unique index on two table fields.</description>
+    </item>
+    
+    <item>
+      <title>constraint:</title>
+      <link>https://1414c.github.io/sqac/modeling/md-content-f/</link>
+      <pubDate>Wed, 12 Dec 2018 13:11:08 -0700</pubDate>
+      
+      <guid>https://1414c.github.io/sqac/modeling/md-content-f/</guid>
+      <description>&amp;ldquo;constraint:&amp;lt;value&amp;gt;&amp;rdquo; Overview Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database. The following examples illustrate the use of the &amp;ldquo;constraint:&amp;rdquo; &amp;lsquo;sqac:&amp;rsquo; tag described in the Sqac Tag Overview section of this document.
+The &amp;ldquo;constraint:&amp;rdquo; tag is presently only used to declare unique constraints on single columns. It would be relatively simple to add support for any desired database constraint however.</description>
+    </item>
+    
+    <item>
+      <title>non-persistent tag</title>
+      <link>https://1414c.github.io/sqac/modeling/md-content-g/</link>
+      <pubDate>Wed, 12 Dec 2018 13:39:09 -0700</pubDate>
+      
+      <guid>https://1414c.github.io/sqac/modeling/md-content-g/</guid>
+      <description>non-persistent tag Overview Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database. The following examples illustrate the use of the &amp;ldquo;-&amp;rdquo; &amp;lsquo;sqac:&amp;rsquo; tag described in the Sqac Tag Overview section of this document.
+The &amp;ldquo;-&amp;rdquo; tag is used to declare a field in the source go struct as being non-persistent (not present) in the database table schema.</description>
+    </item>
+    
+    <item>
+      <title>fkey:</title>
+      <link>https://1414c.github.io/sqac/modeling/md-content-h/</link>
+      <pubDate>Wed, 12 Dec 2018 13:47:10 -0700</pubDate>
+      
+      <guid>https://1414c.github.io/sqac/modeling/md-content-h/</guid>
+      <description>&amp;ldquo;fkey:&amp;rdquo; Overview Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database. The following examples illustrate the use of the &amp;ldquo;fkey:&amp;rdquo; &amp;lsquo;sqac:&amp;rsquo; tag described in the Sqac Tag Overview section of this document.
+The &amp;ldquo;fkey:&amp;rdquo; tag is used to declare a foreign key for a column in the source go struct. Declaration of a foreign-key results in a foreign-key constraint on the assigned column, thereby limiting its allowable values to those found in the table.</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.62.1" />
+    <meta name="generator" content="Hugo 0.69.2" />
     <meta name="description" content="">
 
 
@@ -12,19 +12,19 @@
     <title>fkey: :: Sqac ORM</title>
 
     
-    <link href="/sqac/css/nucleus.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/fontawesome-all.min.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/hybrid.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/featherlight.min.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/perfect-scrollbar.min.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/auto-complete.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/theme.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/hugo-theme.css?1588357586" rel="stylesheet">
+    <link href="/sqac/css/nucleus.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/fontawesome-all.min.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/hybrid.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/featherlight.min.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/perfect-scrollbar.min.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/auto-complete.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/theme.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/hugo-theme.css?1712759154" rel="stylesheet">
     
-      <link href="/sqac/css/theme-white.css?1588357586" rel="stylesheet">
+      <link href="/sqac/css/theme-white.css?1712759154" rel="stylesheet">
     
 
-    <script src="/sqac/js/jquery-2.x.min.js?1588357586"></script>
+    <script src="/sqac/js/jquery-2.x.min.js?1712759154"></script>
 
     <style type="text/css">
       :root #header + #content > #left > #rlblock_left{
@@ -52,14 +52,14 @@
     <span data-search-clear=""><i class="fas fa-close"></i></span>
 </div>
 
-<script type="text/javascript" src="/sqac/js/lunr.min.js?1588357586"></script>
-<script type="text/javascript" src="/sqac/js/auto-complete.js?1588357586"></script>
+<script type="text/javascript" src="/sqac/js/lunr.min.js?1712759154"></script>
+<script type="text/javascript" src="/sqac/js/auto-complete.js?1712759154"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/1414c.github.io\/sqac\/";
     
 </script>
-<script type="text/javascript" src="/sqac/js/search.js?1588357586"></script>
+<script type="text/javascript" src="/sqac/js/search.js?1712759154"></script>
 
     
   </div>
@@ -861,22 +861,22 @@
 <p>Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database.  The following examples illustrate the use of the &ldquo;fkey:&rdquo; &lsquo;sqac:&rsquo; tag described in the <a href="/sqac/modeling/md-content-a">Sqac Tag Overview</a> section of this document.</p>
 <p>The &ldquo;fkey:&rdquo; tag is used to declare a foreign key for a column in the source go struct.  Declaration of a foreign-key results in a foreign-key constraint on the assigned column, thereby limiting its allowable values to those found in the table.column referenced in the foreign-key declaration.</p>
 <!-- raw HTML omitted -->
-<h4 id="fkeyftable-namefcolumn-name-overview">&ldquo;fkey:&lt;ftable_name&gt;(&lt;fcolumn_name&gt;)&rdquo; Overview</h4>
+<h4 id="fkeyftable_namefcolumn_name-overview">&ldquo;fkey:&lt;ftable_name&gt;(&lt;fcolumn_name&gt;)&rdquo; Overview</h4>
 <p>The following example illustrates the use of the &ldquo;fkey:&rdquo; tag to declare a foreign key for table column product.warehouse_id.  Following the creation of tables &ldquo;warehouse&rdquo; and &ldquo;product&rdquo;, the foreign-key constraints in the model will be evaluated by the sqac runtime.  Both tables must exist in the database in order for the creation of the new constraint to be possible.</p>
 <p>Once the foreign-key constraint has been created on column product.warehouse_id, it will only permit values that exist in table column warehouse.id.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Warehouse</span> <span style="color:#66d9ef">struct</span> {
-    <span style="color:#a6e22e">ID</span>       <span style="color:#66d9ef">uint64</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;id&#34; json:&#34;id&#34; sqac:&#34;primary_key:inc;start:40000000&#34;</span><span style="color:#e6db74">`</span>
-    <span style="color:#a6e22e">City</span>     <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;city&#34; json:&#34;city&#34; sqac:&#34;nullable:false;default:Calgary&#34;</span><span style="color:#e6db74">`</span>
-    <span style="color:#a6e22e">Quadrant</span> <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;quadrant&#34; json:&#34;quadrant&#34; sqac:&#34;nullable:false;default:SE&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">ID</span>       <span style="color:#66d9ef">uint64</span> <span style="color:#e6db74">`db:&#34;id&#34; json:&#34;id&#34; sqac:&#34;primary_key:inc;start:40000000&#34;`</span>
+    <span style="color:#a6e22e">City</span>     <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`db:&#34;city&#34; json:&#34;city&#34; sqac:&#34;nullable:false;default:Calgary&#34;`</span>
+    <span style="color:#a6e22e">Quadrant</span> <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`db:&#34;quadrant&#34; json:&#34;quadrant&#34; sqac:&#34;nullable:false;default:SE&#34;`</span>
 }
 
 <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Product</span> <span style="color:#66d9ef">struct</span> {
-    <span style="color:#a6e22e">ID</span>          <span style="color:#66d9ef">uint64</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;id&#34; json:&#34;id&#34; sqac:&#34;primary_key:inc;start:95000000&#34;</span><span style="color:#e6db74">`</span>
-    <span style="color:#a6e22e">ProductName</span> <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;product_name&#34; json:&#34;product_name&#34; sqac:&#34;nullable:false;default:unknown&#34;</span><span style="color:#e6db74">`</span>
-    <span style="color:#a6e22e">ProductCode</span> <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;product_code&#34; json:&#34;product_code&#34; sqac:&#34;nullable:false;default:0000-0000-00&#34;</span><span style="color:#e6db74">`</span>
-    <span style="color:#a6e22e">UOM</span>         <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;uom&#34; json:&#34;uom&#34; sqac:&#34;nullable:false;default:EA&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">ID</span>          <span style="color:#66d9ef">uint64</span> <span style="color:#e6db74">`db:&#34;id&#34; json:&#34;id&#34; sqac:&#34;primary_key:inc;start:95000000&#34;`</span>
+    <span style="color:#a6e22e">ProductName</span> <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`db:&#34;product_name&#34; json:&#34;product_name&#34; sqac:&#34;nullable:false;default:unknown&#34;`</span>
+    <span style="color:#a6e22e">ProductCode</span> <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`db:&#34;product_code&#34; json:&#34;product_code&#34; sqac:&#34;nullable:false;default:0000-0000-00&#34;`</span>
+    <span style="color:#a6e22e">UOM</span>         <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`db:&#34;uom&#34; json:&#34;uom&#34; sqac:&#34;nullable:false;default:EA&#34;`</span>
     <span style="color:#75715e">// foreign-key declared against table &#34;warehouse&#34;, column &#34;id&#34;
-</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">WarehouseID</span> <span style="color:#66d9ef">uint64</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;warehouse_id&#34; json:&#34;warehouse_id&#34; sqac:&#34;nullable:false;fkey:warehouse(id)&#34;</span><span style="color:#e6db74">`</span>
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">WarehouseID</span> <span style="color:#66d9ef">uint64</span> <span style="color:#e6db74">`db:&#34;warehouse_id&#34; json:&#34;warehouse_id&#34; sqac:&#34;nullable:false;fkey:warehouse(id)&#34;`</span>
 }
 </code></pre></div><!-- raw HTML omitted -->
 <h4 id="sqac-foreign-key-naming-standard">Sqac Foreign-Key Naming Standard</h4>
@@ -1493,20 +1493,20 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/sqac/js/clipboard.min.js?1588357586"></script>
-    <script src="/sqac/js/perfect-scrollbar.min.js?1588357586"></script>
-    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1588357586"></script>
-    <script src="/sqac/js/jquery.sticky.js?1588357586"></script>
-    <script src="/sqac/js/featherlight.min.js?1588357586"></script>
-    <script src="/sqac/js/html5shiv-printshiv.min.js?1588357586"></script>
-    <script src="/sqac/js/highlight.pack.js?1588357586"></script>
+    <script src="/sqac/js/clipboard.min.js?1712759154"></script>
+    <script src="/sqac/js/perfect-scrollbar.min.js?1712759154"></script>
+    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1712759154"></script>
+    <script src="/sqac/js/jquery.sticky.js?1712759154"></script>
+    <script src="/sqac/js/featherlight.min.js?1712759154"></script>
+    <script src="/sqac/js/html5shiv-printshiv.min.js?1712759154"></script>
+    <script src="/sqac/js/highlight.pack.js?1712759154"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/sqac/js/modernizr.custom.71422.js?1588357586"></script>
-    <script src="/sqac/js/learn.js?1588357586"></script>
-    <script src="/sqac/js/hugo-learn.js?1588357586"></script>
+    <script src="/sqac/js/modernizr.custom.71422.js?1712759154"></script>
+    <script src="/sqac/js/learn.js?1712759154"></script>
+    <script src="/sqac/js/hugo-learn.js?1712759154"></script>
 
-    <link href="/sqac/mermaid/mermaid.css?1588357586" type="text/css" rel="stylesheet" />
-    <script src="/sqac/mermaid/mermaid.js?1588357586"></script>
+    <link href="/sqac/mermaid/mermaid.css?1712759154" type="text/css" rel="stylesheet" />
+    <script src="/sqac/mermaid/mermaid.js?1712759154"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

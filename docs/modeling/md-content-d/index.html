@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.62.1" />
+    <meta name="generator" content="Hugo 0.69.2" />
     <meta name="description" content="">
 
 
@@ -12,19 +12,19 @@
     <title>default: :: Sqac ORM</title>
 
     
-    <link href="/sqac/css/nucleus.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/fontawesome-all.min.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/hybrid.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/featherlight.min.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/perfect-scrollbar.min.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/auto-complete.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/theme.css?1588357586" rel="stylesheet">
-    <link href="/sqac/css/hugo-theme.css?1588357586" rel="stylesheet">
+    <link href="/sqac/css/nucleus.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/fontawesome-all.min.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/hybrid.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/featherlight.min.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/perfect-scrollbar.min.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/auto-complete.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/theme.css?1712759154" rel="stylesheet">
+    <link href="/sqac/css/hugo-theme.css?1712759154" rel="stylesheet">
     
-      <link href="/sqac/css/theme-white.css?1588357586" rel="stylesheet">
+      <link href="/sqac/css/theme-white.css?1712759154" rel="stylesheet">
     
 
-    <script src="/sqac/js/jquery-2.x.min.js?1588357586"></script>
+    <script src="/sqac/js/jquery-2.x.min.js?1712759154"></script>
 
     <style type="text/css">
       :root #header + #content > #left > #rlblock_left{
@@ -52,14 +52,14 @@
     <span data-search-clear=""><i class="fas fa-close"></i></span>
 </div>
 
-<script type="text/javascript" src="/sqac/js/lunr.min.js?1588357586"></script>
-<script type="text/javascript" src="/sqac/js/auto-complete.js?1588357586"></script>
+<script type="text/javascript" src="/sqac/js/lunr.min.js?1712759154"></script>
+<script type="text/javascript" src="/sqac/js/auto-complete.js?1712759154"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/1414c.github.io\/sqac\/";
     
 </script>
-<script type="text/javascript" src="/sqac/js/search.js?1588357586"></script>
+<script type="text/javascript" src="/sqac/js/search.js?1712759154"></script>
 
     
   </div>
@@ -859,17 +859,17 @@
 
 <h2 id="default-overview">&ldquo;default:&rdquo; Overview</h2>
 <p>Sqac annotated go structs are used to supply the sqac runtime with the information required to create and alter tables in the database.  The following examples illustrate the use of the &ldquo;default:&rdquo; &lsquo;sqac:&rsquo; tag described in the <a href="/sqac/modeling/md-content-a">Sqac Tag Overview</a> section of this document.</p>
-<p>Use the &ldquo;default:&rdquo; tag to explicitly declare default column values in the database table schema.  The default values will be used only if no value has been provided for a defaulted column during record creation.  A field with a &ldquo;default:&rdquo; tag will be defaulted at the database level if it contains a null value, or the <a href="https://tour.golang.org/basics/12">go zero-value</a> corresponding to the field's go data type.</p>
+<p>Use the &ldquo;default:&rdquo; tag to explicitly declare default column values in the database table schema.  The default values will be used only if no value has been provided for a defaulted column during record creation.  A field with a &ldquo;default:&rdquo; tag will be defaulted at the database level if it contains a null value, or the <a href="https://tour.golang.org/basics/12">go zero-value</a> corresponding to the field&rsquo;s go data type.</p>
 <!-- raw HTML omitted -->
 <h4 id="defaultvalue-example">&ldquo;default:&lt;value&gt;&rdquo; example</h4>
-<p>The following example illustrates the use of &lsquo;sqac:&rsquo; tag &ldquo;default:&lt;value&gt;&rdquo; to declare a column's default value in the database table schema.  Care should be taken to supply default values that correspond to the go data type of the the field/column.</p>
+<p>The following example illustrates the use of &lsquo;sqac:&rsquo; tag &ldquo;default:&lt;value&gt;&rdquo; to declare a column&rsquo;s default value in the database table schema.  Care should be taken to supply default values that correspond to the go data type of the the field/column.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang">  <span style="color:#75715e">// Declare a struct to be used as the source for table creation.
 </span><span style="color:#75715e"></span>  <span style="color:#75715e">// sample default value assignments are shown
 </span><span style="color:#75715e"></span>  <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Depot</span> <span style="color:#66d9ef">struct</span> {
     <span style="color:#f92672">...</span>
-    <span style="color:#a6e22e">Region</span>     <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;region&#34; sqac:&#34;default:AB&#34;</span><span style="color:#e6db74">`</span>
-    <span style="color:#a6e22e">Efficiency</span> <span style="color:#66d9ef">float64</span>   <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;efficiency&#34; sqac:&#34;default:99.999&#34;</span><span style="color:#e6db74">`</span>
-    <span style="color:#a6e22e">Active</span>     <span style="color:#66d9ef">bool</span>      <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;active&#34; sqac:&#34;default:true&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Region</span>     <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`db:&#34;region&#34; sqac:&#34;default:AB&#34;`</span>
+    <span style="color:#a6e22e">Efficiency</span> <span style="color:#66d9ef">float64</span>   <span style="color:#e6db74">`db:&#34;efficiency&#34; sqac:&#34;default:99.999&#34;`</span>
+    <span style="color:#a6e22e">Active</span>     <span style="color:#66d9ef">bool</span>      <span style="color:#e6db74">`db:&#34;active&#34; sqac:&#34;default:true&#34;`</span>
     <span style="color:#f92672">...</span>
     <span style="color:#f92672">...</span>
   }
@@ -879,7 +879,7 @@
 </span><span style="color:#75715e"></span>  <span style="color:#75715e">// field will be defaulted to current timestamp at time of  record insertion
 </span><span style="color:#75715e"></span>  <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Depot</span> <span style="color:#66d9ef">struct</span> {
     <span style="color:#f92672">...</span>
-    <span style="color:#a6e22e">CreateDate</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;create_date&#34; sqac:&#34;default:now();&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">CreateDate</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span> <span style="color:#e6db74">`db:&#34;create_date&#34; sqac:&#34;default:now();&#34;`</span>
     <span style="color:#f92672">...</span>
     <span style="color:#f92672">...</span>
   }
@@ -889,7 +889,7 @@
 </span><span style="color:#75715e"></span>  <span style="color:#75715e">// field will be defaulted to current timestamp at time of  record insertion
 </span><span style="color:#75715e"></span>  <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Depot</span> <span style="color:#66d9ef">struct</span> {
     <span style="color:#f92672">...</span>
-    <span style="color:#a6e22e">ExpiryDate</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;expiry_date&#34; sqac:&#34;default:eot();&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">ExpiryDate</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span> <span style="color:#e6db74">`db:&#34;expiry_date&#34; sqac:&#34;default:eot();&#34;`</span>
     <span style="color:#f92672">...</span>
     <span style="color:#f92672">...</span>
   }
@@ -1503,20 +1503,20 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/sqac/js/clipboard.min.js?1588357586"></script>
-    <script src="/sqac/js/perfect-scrollbar.min.js?1588357586"></script>
-    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1588357586"></script>
-    <script src="/sqac/js/jquery.sticky.js?1588357586"></script>
-    <script src="/sqac/js/featherlight.min.js?1588357586"></script>
-    <script src="/sqac/js/html5shiv-printshiv.min.js?1588357586"></script>
-    <script src="/sqac/js/highlight.pack.js?1588357586"></script>
+    <script src="/sqac/js/clipboard.min.js?1712759154"></script>
+    <script src="/sqac/js/perfect-scrollbar.min.js?1712759154"></script>
+    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1712759154"></script>
+    <script src="/sqac/js/jquery.sticky.js?1712759154"></script>
+    <script src="/sqac/js/featherlight.min.js?1712759154"></script>
+    <script src="/sqac/js/html5shiv-printshiv.min.js?1712759154"></script>
+    <script src="/sqac/js/highlight.pack.js?1712759154"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/sqac/js/modernizr.custom.71422.js?1588357586"></script>
-    <script src="/sqac/js/learn.js?1588357586"></script>
-    <script src="/sqac/js/hugo-learn.js?1588357586"></script>
+    <script src="/sqac/js/modernizr.custom.71422.js?1712759154"></script>
+    <script src="/sqac/js/learn.js?1712759154"></script>
+    <script src="/sqac/js/hugo-learn.js?1712759154"></script>
 
-    <link href="/sqac/mermaid/mermaid.css?1588357586" type="text/css" rel="stylesheet" />
-    <script src="/sqac/mermaid/mermaid.js?1588357586"></script>
+    <link href="/sqac/mermaid/mermaid.css?1712759154" type="text/css" rel="stylesheet" />
+    <script src="/sqac/mermaid/mermaid.js?1712759154"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

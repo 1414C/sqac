@@ -17,8 +17,8 @@
       <pubDate>Thu, 06 Dec 2018 16:20:03 -0700</pubDate>
       
       <guid>https://1414c.github.io/sqac/getting-started/gs-content-a/</guid>
-      <description>If you already have Go version 1.13.x or higher installed you should skip to the next section. If you need to get Go installed on your machine, keep reading.
-Go is easy to setup and can be installed from source or binary package, both which are available at golang.org. Sqac is presently built and tested using golang version 1.13.5, but it is fine to use the latest stable 1.x release.</description>
+      <description>If you already have Go version 1.22x or higher installed you should skip to the next section. If you need to get Go installed on your machine, keep reading.
+Go is easy to setup and can be installed from source or binary package, both which are available at golang.org. Sqac is presently built and tested using golang version 1.22, but it is fine to use the latest stable 1.x release.</description>
     </item>
     
     <item>
@@ -28,7 +28,7 @@ Go is easy to setup and can be installed from source or binary package, both whi
       
       <guid>https://1414c.github.io/sqac/getting-started/gs-content-b/</guid>
       <description>The easiest way to install sqac is to use go get on the command-line to pull the latest version from github, as shown below:
-go get -u github.com/1414C/sqac The &amp;lsquo;go get&amp;rsquo; command will pull the sqac github repository into your $GOPATH/src/github.com folder, as well as any dependencies referenced by the sqac source code. The -u flag is included to instruct go get to check for and pull updates to sqac and it&#39;s dependencies.</description>
+go get -u github.com/1414C/sqac The &amp;lsquo;go get&amp;rsquo; command will pull the sqac github repository into your $GOPATH/src/github.com folder, as well as any dependencies referenced by the sqac source code. The -u flag is included to instruct go get to check for and pull updates to sqac and it&amp;rsquo;s dependencies.</description>
     </item>
     
     <item>

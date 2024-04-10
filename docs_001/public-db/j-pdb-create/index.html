@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="en" class="js csstransforms3d">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.62.1" />
+    <meta name="description" content="">
+
+
+    <link rel="shortcut icon" href="/sqac/images/favicon.png" type="image/x-icon" />
+<link rel="icon" href="/sqac/images/favicon.png" type="image/x-icon" />
+    <title>Create :: Sqac ORM</title>
+
+    
+    <link href="/sqac/css/nucleus.css?1588357586" rel="stylesheet">
+    <link href="/sqac/css/fontawesome-all.min.css?1588357586" rel="stylesheet">
+    <link href="/sqac/css/hybrid.css?1588357586" rel="stylesheet">
+    <link href="/sqac/css/featherlight.min.css?1588357586" rel="stylesheet">
+    <link href="/sqac/css/perfect-scrollbar.min.css?1588357586" rel="stylesheet">
+    <link href="/sqac/css/auto-complete.css?1588357586" rel="stylesheet">
+    <link href="/sqac/css/theme.css?1588357586" rel="stylesheet">
+    <link href="/sqac/css/hugo-theme.css?1588357586" rel="stylesheet">
+    
+      <link href="/sqac/css/theme-white.css?1588357586" rel="stylesheet">
+    
+
+    <script src="/sqac/js/jquery-2.x.min.js?1588357586"></script>
+
+    <style type="text/css">
+      :root #header + #content > #left > #rlblock_left{
+          display:none !important;
+      }
+      
+    </style>
+    
+  </head>
+  <body class="" data-url="/sqac/public-db/j-pdb-create/">
+    <nav id="sidebar" class="">
+
+
+
+  <div id="header-wrapper">
+    <div id="header">
+      <a id="logo" href="https://1414c.github.io/sqac">
+  <img src="/sqac/logo_transparent.png" alt="Sqac Logo">
+</a>
+    </div>
+    
+        <div class="searchbox">
+    <label for="search-by"><i class="fas fa-search"></i></label>
+    <input data-search-input id="search-by" type="text" placeholder="Search...">
+    <span data-search-clear=""><i class="fas fa-close"></i></span>
+</div>
+
+<script type="text/javascript" src="/sqac/js/lunr.min.js?1588357586"></script>
+<script type="text/javascript" src="/sqac/js/auto-complete.js?1588357586"></script>
+<script type="text/javascript">
+    
+        var baseurl = "https:\/\/1414c.github.io\/sqac\/";
+    
+</script>
+<script type="text/javascript" src="/sqac/js/search.js?1588357586"></script>
+
+    
+  </div>
+
+    <div class="highlightable">
+    <ul class="topics">
+
+        
+          
+          
+
+
+ 
+  
+    
+    <li data-nav-id="/sqac/getting-started/" title="Getting Started" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/sqac/getting-started/">
+          <i class='fab fa-github'></i> Getting Started
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/getting-started/gs-content-a/" title="Go Environment" class="dd-item ">
+        <a href="/sqac/getting-started/gs-content-a/">
+        Go Environment
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/getting-started/gs-content-b/" title="Installing Sqac" class="dd-item ">
+        <a href="/sqac/getting-started/gs-content-b/">
+        Installing Sqac
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/getting-started/gs-content-c/" title="Using Sqac" class="dd-item ">
+        <a href="/sqac/getting-started/gs-content-c/">
+        Using Sqac
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/getting-started/gs-content-e/" title="Database Connection Strings" class="dd-item ">
+        <a href="/sqac/getting-started/gs-content-e/">
+        Database Connection Strings
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+          
+          
+
+
+ 
+  
+    
+    <li data-nav-id="/sqac/modeling/" title="Sqac Modeling" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/sqac/modeling/">
+          <i class='fab fa-github'></i> Sqac Modeling
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/modeling/md-content-a/" title="Sqac Tags" class="dd-item ">
+        <a href="/sqac/modeling/md-content-a/">
+        Sqac Tags
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/modeling/md-content-b/" title="primary_key:" class="dd-item ">
+        <a href="/sqac/modeling/md-content-b/">
+        primary_key:
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/modeling/md-content-c/" title="nullable:" class="dd-item ">
+        <a href="/sqac/modeling/md-content-c/">
+        nullable:
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/modeling/md-content-d/" title="default:" class="dd-item ">
+        <a href="/sqac/modeling/md-content-d/">
+        default:
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/modeling/md-content-e/" title="index:" class="dd-item ">
+        <a href="/sqac/modeling/md-content-e/">
+        index:
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/modeling/md-content-f/" title="constraint:" class="dd-item ">
+        <a href="/sqac/modeling/md-content-f/">
+        constraint:
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/modeling/md-content-g/" title="non-persistent tag" class="dd-item ">
+        <a href="/sqac/modeling/md-content-g/">
+        non-persistent tag
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/modeling/md-content-h/" title="fkey:" class="dd-item ">
+        <a href="/sqac/modeling/md-content-h/">
+        fkey:
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+          
+          
+
+
+ 
+  
+    
+    <li data-nav-id="/sqac/public-db/" title="PublicDB API" class="dd-item 
+        parent
+        
+        
+        ">
+      <a href="/sqac/public-db/">
+          <i class='fab fa-github'></i> PublicDB API
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/public-db/a-pdb-handle/" title="Getting a PublicDB Handle" class="dd-item ">
+        <a href="/sqac/public-db/a-pdb-handle/">
+        Getting a PublicDB Handle
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/public-db/b-pdb-create-tables/" title="CreateTables" class="dd-item ">
+        <a href="/sqac/public-db/b-pdb-create-tables/">
+        CreateTables
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/public-db/c-pdb-drop-tables/" title="DropTables" class="dd-item ">
+        <a href="/sqac/public-db/c-pdb-drop-tables/">
+        DropTables
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/public-db/d-pdb-alter-tables/" title="AlterTables" class="dd-item ">
+        <a href="/sqac/public-db/d-pdb-alter-tables/">
+        AlterTables
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/public-db/e-pdb-destructive-reset-tables/" title="DestructiveResetTables" class="dd-item ">
+        <a href="/sqac/public-db/e-pdb-destructive-reset-tables/">
+        DestructiveResetTables
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/public-db/f-pdb-exists-table/" title="ExistsTable" class="dd-item ">
+        <a href="/sqac/public-db/f-pdb-exists-table/">
+        ExistsTable
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/public-db/g-pdb-create-index/" title="CreateIndex" class="dd-item ">
+        <a href="/sqac/public-db/g-pdb-create-index/">
+        CreateIndex
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/public-db/h-pdb-drop-index/" title="DropIndex" class="dd-item ">
+        <a href="/sqac/public-db/h-pdb-drop-index/">
+        DropIndex
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/public-db/i-pdb-exists-index/" title="ExistsIndex" class="dd-item ">
+        <a href="/sqac/public-db/i-pdb-exists-index/">
+        ExistsIndex
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/public-db/j-pdb-create/" title="Create" class="dd-item active">
+        <a href="/sqac/public-db/j-pdb-create/">
+        Create
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/public-db/k-pdb-update/" title="Update" class="dd-item ">
+        <a href="/sqac/public-db/k-pdb-update/">
+        Update
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/public-db/l-pdb-delete/" title="Delete" class="dd-item ">
+        <a href="/sqac/public-db/l-pdb-delete/">
+        Delete
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/public-db/m-pdb-get-entity/" title="GetEntity" class="dd-item ">
+        <a href="/sqac/public-db/m-pdb-get-entity/">
+        GetEntity
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/public-db/n-pdb-get-entities-with-commands-ip/" title="GetEntitiesCP" class="dd-item ">
+        <a href="/sqac/public-db/n-pdb-get-entities-with-commands-ip/">
+        GetEntitiesCP
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/public-db/o-pdb-create-foreign-key/" title="CreateForeignKey" class="dd-item ">
+        <a href="/sqac/public-db/o-pdb-create-foreign-key/">
+        CreateForeignKey
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/public-db/p-pdb-drop-foreign-key/" title="DropForeignKey" class="dd-item ">
+        <a href="/sqac/public-db/p-pdb-drop-foreign-key/">
+        DropForeignKey
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/public-db/q-pdb-exists-foreign-key-by-name/" title="ExistsForeignKeyByName" class="dd-item ">
+        <a href="/sqac/public-db/q-pdb-exists-foreign-key-by-name/">
+        ExistsForeignKeyByName
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/public-db/r-pdb-exists-foreign-key-by-fields/" title="ExistsForeignKeyByFields" class="dd-item ">
+        <a href="/sqac/public-db/r-pdb-exists-foreign-key-by-fields/">
+        ExistsForeignKeyByFields
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/sqac/public-db/z-pdb-data-types/" title="sqac Data Types" class="dd-item ">
+        <a href="/sqac/public-db/z-pdb-data-types/">
+        sqac Data Types
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+          
+         
+    </ul>
+
+    
+    
+      <section id="shortcuts">
+        <h3>More</h3>
+        <ul>
+          
+              <li> 
+                  <a class="padding" href="https://github.com/1414C/sqac/"><i class='fab fa-fw fa-github'></i> Github repo</a>
+              </li>
+          
+              <li> 
+                  <a class="padding" href="https://1414c.github.io/sqac/credits"><i class='fa fa-fw fa-bullhorn'></i> Credits</a>
+              </li>
+          
+        </ul>
+      </section>
+    
+
+    
+    <section id="footer">
+      <p>Built with <a href="https://github.com/matcornic/hugo-theme-learn"><i class="fas fa-heart"></i></a> from <a href="http://getgrav.org">Grav</a> and <a href="http://gohugo.io/">Hugo</a></p>
+
+    </section>
+  </div>
+</nav>
+
+
+
+
+
+        <section id="body">
+        <div id="overlay"></div>
+        <div class="padding highlightable">
+              
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/sqac/'></a> > <a href='/sqac/public-db/'>PublicDB API</a> > Create
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
+
+        
+        <div id="body-inner">
+          
+            <h1>Create</h1>
+          
+
+        
+
+
+<!-- raw HTML omitted -->
+<p>The Create method is part of sqac's CRUD API and is used to insert a single-row of the specified entity into it's related database table.  Structs annotated with &lsquo;sqac:&rsquo; tags are colloquially known as sqac entities, hence the parameter name &lsquo;ent&rsquo;.</p>
+<p>The ent parameter must be a pointer to a populated go struct of the sqac table declaration.  If an error is encountered, it will be returned to the caller.</p>
+<p>Notice that the inserted record is returned to the caller via the pointer reference following the insertion.  The caller receives the new record in its entirety including auto-incrementing and defaulted column values.</p>
+<h4 id="crud-create-example">CRUD Create Example</h4>
+<p>The following example illustrates the insertion of a new record (entity) into database table &ldquo;depot&rdquo;.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+
+<span style="color:#f92672">import</span> (
+  <span style="color:#e6db74">&#34;log&#34;</span>
+
+  <span style="color:#e6db74">&#34;github.com/1414C/sqac&#34;</span>
+  <span style="color:#a6e22e">_</span> <span style="color:#e6db74">&#34;github.com/mattn/go-sqlite3&#34;</span>
+)
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+
+  <span style="color:#66d9ef">var</span> (
+    <span style="color:#a6e22e">Handle</span> <span style="color:#a6e22e">sqac</span>.<span style="color:#a6e22e">PublicDB</span>
+  )
+
+  <span style="color:#75715e">// Declare a struct to be used as the source for table creation
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Depot</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">DepotNum</span>   <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;depot_num&#34; sqac:&#34;primary_key:inc&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">CreateDate</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;create_date&#34; sqac:&#34;nullable:false;default:now();&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Country</span>    <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;country&#34; sqac:&#34;nullable:false;default:CA&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Province</span>   <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;province&#34; sqac:&#34;nullable:false;default:AB&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Region</span>     <span style="color:#66d9ef">string</span>    <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;region&#34; sqac:&#34;nullable:false;default:YYC&#34;</span><span style="color:#e6db74">`</span>
+    <span style="color:#a6e22e">Population</span> <span style="color:#66d9ef">int</span>       <span style="color:#e6db74">`</span><span style="color:#e6db74">db:&#34;population&#34; sqac:&#34;nullable:false;default:0;index:non-unique&#34;</span><span style="color:#e6db74">`</span>
+  }
+
+  <span style="color:#75715e">// Create a PublicDB instance to connect to the test sqlite db
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">Handle</span> = <span style="color:#a6e22e">sqac</span>.<span style="color:#a6e22e">Create</span>(<span style="color:#e6db74">&#34;sqlite&#34;</span>, <span style="color:#66d9ef">false</span>, <span style="color:#66d9ef">false</span>, <span style="color:#e6db74">&#34;testdb.sqlite&#34;</span>)
+
+  <span style="color:#75715e">// Create a new table in the database
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">Handle</span>.<span style="color:#a6e22e">DestructiveResetTables</span>(<span style="color:#a6e22e">Depot</span>{})
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+    <span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;%s&#34;</span>, <span style="color:#a6e22e">err</span>.<span style="color:#a6e22e">Error</span>())
+  }
+
+  <span style="color:#75715e">// Insert a new record into table &#34;depot&#34;
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">newRecord</span> = <span style="color:#a6e22e">Depot</span>{
+      <span style="color:#a6e22e">Country</span>: <span style="color:#e6db74">&#34;CA&#34;</span>,
+      <span style="color:#a6e22e">Province</span>: <span style="color:#e6db74">&#34;BC&#34;</span>,
+      <span style="color:#a6e22e">Region</span>: <span style="color:#e6db74">&#34;YVR&#34;</span>,
+      <span style="color:#a6e22e">Population</span>: <span style="color:#ae81ff">2500000</span>,
+  }
+  
+  <span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">Handle</span>.<span style="color:#a6e22e">Create</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">newRecord</span>)
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+      <span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#a6e22e">err</span>.<span style="color:#a6e22e">Error</span>())
+  } <span style="color:#66d9ef">else</span> {
+      <span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;New record: &#34;</span>, <span style="color:#a6e22e">newRecord</span>)
+  }
+
+  <span style="color:#75715e">// Close the connection
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">Handle</span>.<span style="color:#a6e22e">Close</span>()
+}
+</code></pre></div>
+
+<footer class=" footline" >
+	
+</footer>
+
+
+        
+        </div> 
+        
+
+      </div>
+
+    <div id="navigation">
+        
+        
+        
+        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+            
+        
+        
+        
+
+
+	 
+	 
+		
+			<a class="nav nav-prev" href="/sqac/public-db/i-pdb-exists-index/" title="ExistsIndex"> <i class="fa fa-chevron-left"></i></a>
+		
+		
+			<a class="nav nav-next" href="/sqac/public-db/k-pdb-update/" title="Update" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+	
+    </div>
+
+    </section>
+    
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="/sqac/js/clipboard.min.js?1588357586"></script>
+    <script src="/sqac/js/perfect-scrollbar.min.js?1588357586"></script>
+    <script src="/sqac/js/perfect-scrollbar.jquery.min.js?1588357586"></script>
+    <script src="/sqac/js/jquery.sticky.js?1588357586"></script>
+    <script src="/sqac/js/featherlight.min.js?1588357586"></script>
+    <script src="/sqac/js/html5shiv-printshiv.min.js?1588357586"></script>
+    <script src="/sqac/js/highlight.pack.js?1588357586"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script src="/sqac/js/modernizr.custom.71422.js?1588357586"></script>
+    <script src="/sqac/js/learn.js?1588357586"></script>
+    <script src="/sqac/js/hugo-learn.js?1588357586"></script>
+
+    <link href="/sqac/mermaid/mermaid.css?1588357586" type="text/css" rel="stylesheet" />
+    <script src="/sqac/mermaid/mermaid.js?1588357586"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+    
+
+  </body>
+</html>
+
